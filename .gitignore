@@ -9,3 +9,10 @@
 .logs/
 __pycache__/
 state.json
+
+# Xcode
+xcuserdata/
+*.xcscmblueprint
+DerivedData/
+*.moved-aside
+*.xcuserstate
