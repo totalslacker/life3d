@@ -2,7 +2,7 @@
 # This file controls how the autonomous evolution process runs.
 
 [schedule]
-interval = "24h"               # How often evolution cycles run (default: once daily)
+interval = "6h"                # Sprint mode: 4x daily to bootstrap quickly
 
 [limits]
 max_improvements_per_session = 3   # Max improvements per evolution cycle
