@@ -12,3 +12,13 @@ the same things. Search here before looking things up externally.
 - `xcodebuild test` launches the app as test host, triggering the simulator crash
 - **Workaround**: Use `xcodebuild build` for CI verification, run tests manually on device or with logic-only test targets that don't require the simulator runtime
 - Volumetric window style (`WindowGroup(...) { }.windowStyle(.volumetric)`) causes `UIWindowSceneSessionRoleApplication` mismatch on visionOS 2.1 sim — use plain `WindowGroup` with `RealityView` inside instead
+
+---
+
+## RealityView Main Thread Constraints
+
+- RealityView's `make` closure runs on the main actor — synchronous heavy work there triggers the visionOS watchdog (kills app after ~2s hang)
+- Entity/ModelEntity creation requires MainActor, so you can't fully move entity construction off-thread
+- **Pattern**: compute data (positions, materials config) on a detached Task, then create entities on MainActor with pre-computed data
+- Use RealityView's `update` closure + @State to add entities after async loading completes
+- `.task` modifier on the view is the cleanest way to kick off async grid construction

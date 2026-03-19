@@ -4,6 +4,27 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Session 2 — Fix launch crash: move grid creation off main thread (li-0r3)
+
+Fixed visionOS watchdog termination on real Vision Pro hardware. Polecat: furiosa.
+
+Root cause: GridRenderer.makeGrid() created 16^3 = 4096 ModelEntity instances
+synchronously inside RealityView's make closure, which runs on the main actor.
+This blocked the main thread for >2 seconds, triggering visionOS hang detection.
+
+Changes:
+- GridRenderer.makeGridAsync() — computes cell positions on a detached Task,
+  then creates entities on MainActor (RealityKit requires it)
+- ContentView uses .task modifier with @State to load grid asynchronously
+- ProgressView loading indicator shown while grid builds
+- RealityView update closure adds grid entity once ready
+
+Approach: The heavy work (position math for 4096 cells) moves to a detached task.
+Entity creation stays on MainActor since RealityKit requires it, but with positions
+pre-computed, the main thread work is just instantiation — much faster.
+
+---
+
 ## Session 1 — Bootstrap visionOS app with RealityKit 3D grid (li-gg1)
 
 Created the initial visionOS app target with RealityKit rendering. Polecat: furiosa.
