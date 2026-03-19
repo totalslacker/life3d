@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Session 3 — Fix launch crash: batch entity creation + reduce grid to 8x8x8 (li-byh)
+
+Fixed persistent launch crash on real Vision Pro. Polecat: furiosa.
+
+Root cause: Previous async fix (Session 2) moved position computation off-thread
+but still created 4096 ModelEntity instances in a tight synchronous loop on MainActor.
+This blocked the main thread for ~8.38s, well above the visionOS watchdog threshold.
+
+Changes:
+- GridRenderer.makeGridAsync() now creates entities in batches of 64 with
+  Task.yield() between batches, preventing main thread starvation
+- Reduced grid from 16x16x16 (4096 entities) to 8x8x8 (512 entities),
+  which is fast enough for launch and avoids watchdog kills
+- ContentView updated to use GridModel(size: 8)
+
+The combination of smaller grid + batched creation should eliminate the hang
+entirely. 512 entities in batches of 64 = 8 batches with yields between them.
+
+---
+
 ## Session 2 — Fix launch crash: move grid creation off main thread (li-0r3)
 
 Fixed visionOS watchdog termination on real Vision Pro hardware. Polecat: furiosa.

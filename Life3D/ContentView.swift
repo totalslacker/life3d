@@ -23,7 +23,7 @@ struct ContentView: View {
             }
         }
         .task {
-            let grid = await GridRenderer.makeGridAsync(model: GridModel(size: 16))
+            let grid = await GridRenderer.makeGridAsync(model: GridModel(size: 8))
             gridEntity = grid
         }
     }

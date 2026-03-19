@@ -32,14 +32,20 @@ enum GridRenderer {
             return result
         }.value
 
-        // Build scene graph on MainActor (entity creation requires it)
+        // Build scene graph on MainActor in batches to avoid blocking
         let root = Entity()
         root.name = "CellGrid"
-        for (name, position) in positions {
-            let cell = ModelEntity(mesh: mesh, materials: [material])
-            cell.position = position
-            cell.name = name
-            root.addChild(cell)
+        let batchSize = 64
+        for batchStart in stride(from: 0, to: positions.count, by: batchSize) {
+            let batchEnd = min(batchStart + batchSize, positions.count)
+            for i in batchStart..<batchEnd {
+                let (name, position) = positions[i]
+                let cell = ModelEntity(mesh: mesh, materials: [material])
+                cell.position = position
+                cell.name = name
+                root.addChild(cell)
+            }
+            await Task.yield()
         }
 
         return root

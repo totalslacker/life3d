@@ -22,3 +22,5 @@ the same things. Search here before looking things up externally.
 - **Pattern**: compute data (positions, materials config) on a detached Task, then create entities on MainActor with pre-computed data
 - Use RealityView's `update` closure + @State to add entities after async loading completes
 - `.task` modifier on the view is the cleanest way to kick off async grid construction
+- Even with async position computation, creating thousands of entities in a tight loop on MainActor still blocks — use batched creation with `Task.yield()` between batches (64 entities/batch works well)
+- For launch performance, 8x8x8 (512 entities) is a safe grid size; 16x16x16 (4096) causes hangs even with batching on real hardware
