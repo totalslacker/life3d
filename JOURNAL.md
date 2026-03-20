@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 7 — Session 13 (2026-03-20)
+
+**Goal**: UX polish — compact controls under grid, fix button text wrapping (li-t9v).
+
+Redesigned the control panel to a single compact row:
+
+1. **Window size**: Changed from 340x220 to 480x120 — wider and shorter so it sits below the grid without overlapping.
+2. **SF Symbols**: Replaced text "Play"/"Pause" with `play.fill`/`pause.fill`, "Step" with `forward.frame.fill`. Used `.buttonStyle(.bordered)` and `.controlSize(.small)` for compact appearance.
+3. **Speed slider**: Replaced Stepper with a compact 80pt Slider for speed control. Shows current speed as "N×" label.
+4. **Layout**: All controls in one HStack row — [play|step] [Pattern menu] [speed slider] [stats]. No VStack, no wrapping. Removed the title bar and rules label to save vertical space.
+5. **Stats**: Moved generation/alive count to trailing position in the same row, styled as secondary caption.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test on real Vision Pro. Begin Phase 3 (Visual Beauty) — age-based cell coloring, glow materials, particle effects.
+
+---
+
 ## Day 7 — Session 12 (2026-03-20)
 
 **Goal**: Fix three major usability issues — patterns dying immediately, invisible cells, and oversized control window (li-nk6).

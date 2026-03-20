@@ -8,52 +8,57 @@ struct ContentView: View {
     var body: some View {
         @Bindable var engine = engine
 
-        VStack(spacing: 10) {
-            HStack {
-                Text("Life3D")
-                    .font(.headline)
-                Spacer()
-                Text(engine.rulesLabel)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Text("Gen \(engine.generation) | Alive: \(engine.grid.aliveCount)")
-                .font(.subheadline)
-                .monospacedDigit()
-
-            HStack(spacing: 12) {
-                Button(engine.isRunning ? "Pause" : "Play") {
-                    if engine.isRunning {
-                        engine.pause()
-                    } else {
-                        engine.start()
-                    }
+        HStack(spacing: 12) {
+            // Play/Pause + Step
+            HStack(spacing: 6) {
+                Button {
+                    if engine.isRunning { engine.pause() } else { engine.start() }
+                } label: {
+                    Image(systemName: engine.isRunning ? "pause.fill" : "play.fill")
                 }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
 
-                Button("Step") {
+                Button {
                     engine.step()
+                } label: {
+                    Image(systemName: "forward.frame.fill")
                 }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
                 .disabled(engine.isRunning)
+            }
 
-                Menu("Pattern") {
-                    ForEach(SimulationEngine.Pattern.allCases) { pattern in
-                        Button(pattern.rawValue) {
-                            engine.reset(pattern: pattern)
-                        }
+            // Pattern menu
+            Menu("Pattern") {
+                ForEach(SimulationEngine.Pattern.allCases) { pattern in
+                    Button(pattern.rawValue) {
+                        engine.reset(pattern: pattern)
                     }
                 }
-
-                HStack(spacing: 4) {
-                    Text("\(Int(engine.speed))×")
-                        .font(.caption)
-                        .monospacedDigit()
-                    Stepper("", value: $engine.speed, in: 1...30, step: 1)
-                        .labelsHidden()
-                }
             }
+            .controlSize(.small)
+
+            // Speed slider
+            HStack(spacing: 4) {
+                Text("\(Int(engine.speed))×")
+                    .font(.caption)
+                    .monospacedDigit()
+                    .frame(minWidth: 24, alignment: .trailing)
+                Slider(value: $engine.speed, in: 1...30, step: 1)
+                    .frame(width: 80)
+            }
+
+            Spacer()
+
+            // Stats
+            Text("Gen \(engine.generation) | \(engine.grid.aliveCount)")
+                .font(.caption)
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
         }
-        .padding(12)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
         .task {
             await openImmersiveSpace(id: "life3d-grid")
         }
