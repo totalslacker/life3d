@@ -4,6 +4,31 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Session 5 — Optimize mesh generation: LowLevelMesh replaces MeshResource.generate (li-zqh)
+
+Fixed 30+ second grid load time on real Vision Pro. Polecat: furiosa.
+
+Problem: MeshResource.generate(from: [MeshDescriptor]) performs expensive internal
+validation and mesh optimization. For 4096 cubes (98K vertices, 147K indices), this
+dominated load time — the CPU-side vertex computation was fast, but generate() added
+massive overhead.
+
+Solution: Replaced the entire mesh generation pipeline with LowLevelMesh (visionOS 2.0+).
+This API provides direct access to GPU-accessible buffers, bypassing MeshResource's
+internal processing entirely:
+- Vertex/index data is pre-computed off MainActor in arrays with indexed writes
+- LowLevelMesh descriptor defines interleaved vertex layout (position + normal + UV)
+- Data is copied directly into GPU buffers via withUnsafeMutableBytes/withUnsafeMutableIndices
+- MeshResource(from: lowLevelMesh) wraps the result without re-processing
+
+Additional optimization: replaced array append loops with pre-allocated arrays and
+direct indexed writes, eliminating bounds checking and copy-on-write overhead.
+
+Result: Grid should load in under 2 seconds on real hardware (from 30+). Same visual
+output — 16x16x16 grid, single draw call, same PBR material.
+
+---
+
 ## Session 4 — Replace individual entities with instanced rendering (li-b2r)
 
 Replaced the per-cell ModelEntity approach with a single merged mesh. Polecat: furiosa.
