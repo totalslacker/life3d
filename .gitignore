@@ -5,10 +5,18 @@
 
 # Gas Town (added by gt)
 .runtime/
-.claude/
 .logs/
 __pycache__/
 state.json
+.repo.git/
+.beads/
+mayor/
+refinery/
+witness/
+polecats/
+
+# Claude Code (track .claude/ contents, ignore local settings)
+!.claude/
 
 # Xcode
 xcuserdata/

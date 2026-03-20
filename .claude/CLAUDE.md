@@ -15,18 +15,32 @@ formula steps shown in your hook. Follow them in order.
 3. **ROADMAP.md** — Current priorities and milestones.
 4. **JOURNAL.md** — Recent history. Check what was tried before.
 5. **LEARNINGS.md** — Cached technical knowledge.
-6. **DAY_COUNT** — Current evolution day number.
-7. **.evolve/IMMUTABLE.txt** — Files you must never touch.
+6. **DAY_COUNT** — Current calendar day number.
+7. **SESSION_COUNT** — Total evolution sessions completed.
+8. **DAY_DATE** — Date of last session (YYYY-MM-DD).
+9. **.evolve/IMMUTABLE.txt** — Files you must never touch.
 
 ### Before You Push (ALL polecats, ALL molecules)
 
 Before running `gt done` or pushing your branch, you MUST:
-1. Write a journal entry at the TOP of JOURNAL.md (what you did, what worked, what didn't, and a "Next:" line suggesting what should be tackled next)
+
+1. Write a journal entry at the TOP of JOURNAL.md using this format:
+   ```
+   ## Day N — Session M (YYYY-MM-DD)
+
+   **Goal**: What you set out to do this session.
+
+   <description of what you did, what worked, what didn't>
+
+   **Next Steps**: What should be tackled next.
+   ```
+   - Increment DAY_COUNT only if DAY_DATE differs from today's date
+   - Always increment SESSION_COUNT
+   - Update DAY_DATE to today's date
 2. Update ROADMAP.md if you completed any roadmap items
 3. Update LEARNINGS.md if you discovered technical insights
-4. Increment DAY_COUNT
 
-Include journal/learnings/DAY_COUNT updates in the SAME commit as your code change. Do NOT make a separate commit for state file updates.
+Include journal/learnings/counter updates in the SAME commit as your code change. Do NOT make a separate commit for state file updates.
 
 This applies to EVERY polecat session — evolution cycles AND direct task slings.
 
@@ -52,13 +66,13 @@ xcodebuild -project Life3D.xcodeproj -scheme Life3D \
 ### Evolution Day Flow
 
 Each evolution session follows this pattern:
-1. Read state files (IDENTITY, SPECS, JOURNAL, ROADMAP, LEARNINGS, DAY_COUNT)
+1. Read state files (IDENTITY, SPECS, JOURNAL, ROADMAP, LEARNINGS, DAY_COUNT, SESSION_COUNT)
 2. If SPECS.md is empty, bootstrap: read specs from bead, write SPECS.md
 3. Self-assess: read source code, identify weaknesses
 4. Pick 1-3 improvements (bugs > community issues > roadmap > self-identified)
 5. Implement with tests, commit after each logical unit
-6. Journal the session at the TOP of JOURNAL.md
-7. Update ROADMAP.md, increment DAY_COUNT, update LEARNINGS.md if applicable
+6. Journal the session at the TOP of JOURNAL.md (with Goal and Next Steps)
+7. Update ROADMAP.md, update counters, update LEARNINGS.md if applicable
 8. Push and submit to merge queue
 
 ### Work Tracking
