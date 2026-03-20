@@ -24,3 +24,15 @@ the same things. Search here before looking things up externally.
 - `.task` modifier on the view is the cleanest way to kick off async grid construction
 - Even with async position computation, creating thousands of entities in a tight loop on MainActor still blocks — use batched creation with `Task.yield()` between batches (64 entities/batch works well)
 - For launch performance, 8x8x8 (512 entities) is a safe grid size; 16x16x16 (4096) causes hangs even with batching on real hardware
+
+---
+
+## Merged Mesh Rendering (Single Draw Call)
+
+- Creating one ModelEntity per cell does NOT scale — each is a separate scene graph node, draw call, transform, and material binding
+- The fix is MeshResource.generate(from: [MeshDescriptor]) — build ALL cube geometry into one mesh with combined vertex/index buffers
+- Use 24 vertices per cube (4 per face) for correct per-face normals; 36 indices per cube (6 faces * 2 triangles)
+- MeshDescriptor needs positions, normals, textureCoordinates, and primitives (.triangles(indices))
+- Mesh generation (vertex math) can run on a detached Task off MainActor — only the final ModelEntity creation needs MainActor
+- With merged mesh, 16x16x16 (4096 cubes = 98,304 vertices, 147,456 indices) renders as ONE draw call — no scene graph overhead
+- PhysicallyBasedMaterial with transparent blending and emissive works on merged mesh the same as on individual entities

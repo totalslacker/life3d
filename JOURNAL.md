@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Session 4 — Replace individual entities with instanced rendering (li-b2r)
+
+Replaced the per-cell ModelEntity approach with a single merged mesh. Polecat: furiosa.
+
+Problem: Creating one ModelEntity per cell (512 at 8x8x8, 4096 at 16x16x16) overwhelmed
+RealityKit's scene graph — each entity is a separate draw call, transform node, and material
+binding. Even with batched creation and Task.yield(), 4096 entities caused window flashing,
+erratic behavior, and multi-second hangs on real hardware.
+
+Solution: GridRenderer.generateMergedMesh() builds all cube geometry into a single
+MeshDescriptor with combined position/normal/UV/index buffers. Each cube contributes 24
+vertices (4 per face for correct per-face normals) and 36 indices. The mesh is generated
+on a detached Task off the main thread, then a single ModelEntity is created on MainActor.
+
+Result: The entire 16x16x16 grid (4096 cubes) is now ONE entity with ONE draw call.
+Grid size restored from 8x8x8 back to 16x16x16. The semi-transparent emissive material
+is applied once to the single entity.
+
+---
+
 ## Session 3 — Fix launch crash: batch entity creation + reduce grid to 8x8x8 (li-byh)
 
 Fixed persistent launch crash on real Vision Pro. Polecat: furiosa.
