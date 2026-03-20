@@ -26,6 +26,8 @@ Before running `gt done` or pushing your branch, you MUST:
 3. Update LEARNINGS.md if you discovered technical insights
 4. Increment DAY_COUNT
 
+Include journal/learnings/DAY_COUNT updates in the SAME commit as your code change. Do NOT make a separate commit for state file updates.
+
 This applies to EVERY polecat session — evolution cycles AND direct task slings.
 
 ### Safety Rules
