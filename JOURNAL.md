@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 7 — Session 10 (2026-03-20)
+
+**Goal**: Fix volumetric crash by migrating to ImmersiveSpace architecture (li-thq).
+
+The previous fix (li-8pi) added `INFOPLIST_KEY_UIApplicationPreferredDefaultSceneSessionRole = UIWindowSceneSessionRoleVolumetricApplication` to pbxproj, but the app still crashed because the `.windowStyle(.volumetric)` approach is fundamentally unreliable on visionOS. Replaced with Apple's recommended architecture: a regular `WindowGroup` for 2D controls + an `ImmersiveSpace` for 3D content.
+
+Changes:
+- **Life3DApp.swift**: Removed `.windowStyle(.volumetric)` and `.defaultSize(...)`. Added `ImmersiveSpace(id: "life3d-grid")` with `.immersionStyle(.mixed)`. App-level `SimulationEngine` shared via `.environment()` to both scenes.
+- **ContentView.swift**: Stripped to a pure 2D control panel (play/pause, step, speed, pattern, generation counter). Opens immersive space on appear via `@Environment(\.openImmersiveSpace)`.
+- **GridImmersiveView.swift** (new): Holds the `RealityView` with the 3D merged-mesh grid. Receives engine from environment.
+- **project.pbxproj**: Removed `INFOPLIST_KEY_UIApplicationPreferredDefaultSceneSessionRole` from both Debug and Release — no longer needed since we're not using volumetric windows.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test on real Vision Pro to confirm crash is resolved. Begin Phase 3 (Visual Beauty) — age-based cell coloring, glow materials, particle effects.
+
+---
+
 ## Day 7 — Session 9 (2026-03-20)
 
 **Goal**: Fix volumetric window crash caused by UIWindowSceneSessionRoleApplication mismatch (li-8pi).

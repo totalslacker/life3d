@@ -11,7 +11,8 @@ the same things. Search here before looking things up externally.
 - On some machines it crashes the host when launched (especially with volumetric windows)
 - `xcodebuild test` launches the app as test host, triggering the simulator crash
 - **Workaround**: Use `xcodebuild build` for CI verification, run tests manually on device or with logic-only test targets that don't require the simulator runtime
-- Volumetric window style (`WindowGroup(...) { }.windowStyle(.volumetric)`) caused `UIWindowSceneSessionRoleApplication` mismatch crash at runtime. **Fix**: add `INFOPLIST_KEY_UIApplicationPreferredDefaultSceneSessionRole = UIWindowSceneSessionRoleVolumetricApplication` to build settings in project.pbxproj (both Debug and Release). This tells the auto-generated Info.plist to declare the correct scene role. Without it, `INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES` defaults to the 2D window role.
+- `.windowStyle(.volumetric)` is unreliable — causes `UIWindowSceneSessionRoleApplication` mismatch crash even with the `INFOPLIST_KEY` workaround. **Correct approach**: use a regular `WindowGroup` for 2D UI + `ImmersiveSpace` for 3D content with `.immersionStyle(.mixed)`. Share state between scenes via `.environment()` on an `@Observable` model.
+- `@Environment(\.openImmersiveSpace)` / `@Environment(\.dismissImmersiveSpace)` control immersive space lifecycle from 2D views
 - `.defaultSize(width:height:depth:in:)` with `.meters` unit sets the volumetric window dimensions — replaces pixel-based `.defaultSize(width:height:)`
 
 ---
