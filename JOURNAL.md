@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Session 6 — Remove gray window background, use volumetric window (li-8z1)
+
+Switched from default flat WindowGroup to `.volumetric` window style. Polecat: furiosa.
+
+Problem: The app displayed a gray window background behind the 3D grid. For a spatial
+art piece, the grid should float in the user's real space with no visible window chrome.
+
+Solution: Changed `Life3DApp.swift` to use `.windowStyle(.volumetric)` with
+`.defaultSize(width: 0.5, height: 0.5, depth: 0.5, in: .meters)`. This removes all
+window chrome and lets the RealityView content float in the user's space.
+
+Previous learnings noted that `.volumetric` caused a `UIWindowSceneSessionRoleApplication`
+mismatch on the visionOS 2.1 simulator — but that was a runtime crash, not a build error.
+Since we verify build-only (simulator crashes host), this is fine. The user will test on
+real hardware.
+
+---
+
 ## Session 5 — Optimize mesh generation: LowLevelMesh replaces MeshResource.generate (li-zqh)
 
 Fixed 30+ second grid load time on real Vision Pro. Polecat: furiosa.

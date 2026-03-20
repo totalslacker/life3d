@@ -6,6 +6,7 @@ struct Life3DApp: App {
         WindowGroup {
             ContentView()
         }
-        .defaultSize(width: 800, height: 800)
+        .windowStyle(.volumetric)
+        .defaultSize(width: 0.5, height: 0.5, depth: 0.5, in: .meters)
     }
 }

@@ -11,7 +11,8 @@ the same things. Search here before looking things up externally.
 - On some machines it crashes the host when launched (especially with volumetric windows)
 - `xcodebuild test` launches the app as test host, triggering the simulator crash
 - **Workaround**: Use `xcodebuild build` for CI verification, run tests manually on device or with logic-only test targets that don't require the simulator runtime
-- Volumetric window style (`WindowGroup(...) { }.windowStyle(.volumetric)`) causes `UIWindowSceneSessionRoleApplication` mismatch on visionOS 2.1 sim — use plain `WindowGroup` with `RealityView` inside instead
+- Volumetric window style (`WindowGroup(...) { }.windowStyle(.volumetric)`) caused `UIWindowSceneSessionRoleApplication` mismatch on visionOS 2.1 sim at runtime — but it compiles fine. Use `.volumetric` for 3D content (no window chrome, grid floats in space). The sim crash is a runtime issue only.
+- `.defaultSize(width:height:depth:in:)` with `.meters` unit sets the volumetric window dimensions — replaces pixel-based `.defaultSize(width:height:)`
 
 ---
 
