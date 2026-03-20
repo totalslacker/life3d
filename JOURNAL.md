@@ -4,6 +4,27 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 7 — Session 8 (2026-03-20)
+
+**Goal**: Migrate life3d to latest rig-seed template with dual Day/Session tracking.
+
+Ran rig-seed's `scripts/migrate.sh` to pull 11 upstream files into life3d:
+- Added dual tracking: SESSION_COUNT (total sessions) + DAY_DATE (last session date) alongside DAY_COUNT
+- Updated CLAUDE.md with new journal format (`Day N — Session M` with mandatory **Goal** and **Next Steps**)
+- Added docs: EVOLUTION, TROUBLESHOOTING, FORKING, DAY-ZERO, FORMULA-CUSTOMIZATION, UPGRADING
+- Added scripts: migrate.sh, release.sh, metrics.sh
+- Added .evolve/config.toml `[release]` section (strategy: manual)
+- Added /rig-spawn slash command
+- Updated .gitignore to exclude Gas Town internal dirs (.repo.git, mayor/, refinery/, witness/, polecats/)
+- Created SESSION_COUNT (set to 6 at time of migration, now 8)
+
+Also fixed bare repo fetch refspec (was missing origin/main) and test_command rig config
+(was `go test ./...`, now `xcodebuild build`).
+
+**Next Steps**: Test volumetric window background removal on device. Begin Phase 3 (Visual Beauty) — age-based cell coloring, glow materials, particle effects. Address 20s mesh generation performance.
+
+---
+
 ## Session 7 — Implement 3D cellular automata simulation engine (li-r02)
 
 Phase 2 complete. Polecat: furiosa.
