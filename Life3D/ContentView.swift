@@ -9,7 +9,6 @@ struct ContentView: View {
             RealityView { content in
                 // Empty scene — grid added via update closure
             } update: { content in
-                // Sync: add grid entity once it's ready
                 let existing = content.entities.first { $0.name == "CellGrid" }
                 if let grid = gridEntity, existing == nil {
                     content.add(grid)
@@ -23,8 +22,12 @@ struct ContentView: View {
             }
         }
         .task {
-            let grid = await GridRenderer.makeGridAsync(model: GridModel(size: 8))
-            gridEntity = grid
+            do {
+                let grid = try await GridRenderer.makeGridAsync(model: GridModel(size: 16))
+                gridEntity = grid
+            } catch {
+                print("Failed to build grid: \(error)")
+            }
         }
     }
 }
