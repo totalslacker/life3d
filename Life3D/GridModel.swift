@@ -10,7 +10,7 @@ struct GridModel: Sendable {
 
     var cellCount: Int { size * size * size }
 
-    init(size: Int, birthCounts: Set<Int> = [5], survivalCounts: Set<Int> = [6, 7]) {
+    init(size: Int, birthCounts: Set<Int> = [5, 6, 7], survivalCounts: Set<Int> = [5, 6, 7, 8]) {
         self.size = size
         self.cells = [Bool](repeating: false, count: size * size * size)
         self.birthCounts = birthCounts
@@ -104,23 +104,29 @@ struct GridModel: Sendable {
 
     // MARK: - Preset Patterns
 
-    mutating func randomSeed(density: Double = 0.1) {
+    mutating func randomSeed(density: Double = 0.25) {
         for i in 0..<cellCount {
             cells[i] = Double.random(in: 0...1) < density
         }
     }
 
-    /// A small 3D oscillator pattern centered in the grid (a "blinker" analog — 3 cells in a line)
-    mutating func loadBlinker() {
+    /// A dense random blob centered in the grid — produces interesting evolution
+    mutating func loadSoup() {
         clearAll()
-        let mid = size / 2
-        setCell(x: mid - 1, y: mid, z: mid, alive: true)
-        setCell(x: mid, y: mid, z: mid, alive: true)
-        setCell(x: mid + 1, y: mid, z: mid, alive: true)
+        let blobSize = 6
+        let start = (size - blobSize) / 2
+        for x in start..<(start + blobSize) {
+            for y in start..<(start + blobSize) {
+                for z in start..<(start + blobSize) {
+                    if Double.random(in: 0...1) < 0.45 {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
     }
 
-    /// A 3D "block" still life — 2x2x2 cube. Under 5766 rules each cell has 7 neighbors,
-    /// which means they survive (7 is in survival set). Stable.
+    /// A 3D "block" still life — 2x2x2 cube. Each cell has 7 neighbors (survives under B5-7/S5-8). Stable.
     mutating func loadBlock() {
         clearAll()
         let mid = size / 2
@@ -133,23 +139,20 @@ struct GridModel: Sendable {
         }
     }
 
-    /// A small cluster that produces interesting evolution under 5766 rules
+    /// A 4x4x4 checkerboard centered in the grid — grows and evolves under B5-7/S5-8
     mutating func loadCluster() {
         clearAll()
-        let mid = size / 2
-        // Cross shape with depth
-        setCell(x: mid, y: mid, z: mid, alive: true)
-        setCell(x: mid - 1, y: mid, z: mid, alive: true)
-        setCell(x: mid + 1, y: mid, z: mid, alive: true)
-        setCell(x: mid, y: mid - 1, z: mid, alive: true)
-        setCell(x: mid, y: mid + 1, z: mid, alive: true)
-        setCell(x: mid, y: mid, z: mid - 1, alive: true)
-        setCell(x: mid, y: mid, z: mid + 1, alive: true)
-        // Add some extra cells to seed more interesting dynamics
-        setCell(x: mid - 1, y: mid - 1, z: mid, alive: true)
-        setCell(x: mid + 1, y: mid + 1, z: mid, alive: true)
-        setCell(x: mid, y: mid - 1, z: mid - 1, alive: true)
-        setCell(x: mid, y: mid + 1, z: mid + 1, alive: true)
+        let clusterSize = 4
+        let start = (size - clusterSize) / 2
+        for x in start..<(start + clusterSize) {
+            for y in start..<(start + clusterSize) {
+                for z in start..<(start + clusterSize) {
+                    if (x + y + z) % 2 == 0 {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
     }
 
     mutating func clearAll() {

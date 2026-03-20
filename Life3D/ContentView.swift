@@ -8,15 +8,21 @@ struct ContentView: View {
     var body: some View {
         @Bindable var engine = engine
 
-        VStack(spacing: 16) {
-            Text("Life3D")
-                .font(.title)
+        VStack(spacing: 10) {
+            HStack {
+                Text("Life3D")
+                    .font(.headline)
+                Spacer()
+                Text(engine.rulesLabel)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             Text("Gen \(engine.generation) | Alive: \(engine.grid.aliveCount)")
-                .font(.headline)
+                .font(.subheadline)
                 .monospacedDigit()
 
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 Button(engine.isRunning ? "Pause" : "Play") {
                     if engine.isRunning {
                         engine.pause()
@@ -39,17 +45,15 @@ struct ContentView: View {
                 }
 
                 HStack(spacing: 4) {
-                    Text("Speed:")
-                        .font(.caption2)
-                    Text("\(Int(engine.speed))")
-                        .font(.caption2)
+                    Text("\(Int(engine.speed))×")
+                        .font(.caption)
                         .monospacedDigit()
                     Stepper("", value: $engine.speed, in: 1...30, step: 1)
                         .labelsHidden()
                 }
             }
         }
-        .padding()
+        .padding(12)
         .task {
             await openImmersiveSpace(id: "life3d-grid")
         }

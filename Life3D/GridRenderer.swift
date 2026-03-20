@@ -34,11 +34,7 @@ enum GridRenderer {
 
         let meshResource = try createMeshResource(from: data)
 
-        var material = PhysicallyBasedMaterial()
-        material.baseColor = .init(tint: .init(red: 0.3, green: 0.8, blue: 1.0, alpha: 0.35))
-        material.blending = .transparent(opacity: .init(floatLiteral: 0.35))
-        material.emissiveColor = .init(color: .init(red: 0.4, green: 0.9, blue: 1.0, alpha: 1.0))
-        material.emissiveIntensity = 0.3
+        var material = UnlitMaterial(color: .init(red: 0.0, green: 0.95, blue: 0.9, alpha: 1.0))
 
         let entity = ModelEntity(mesh: meshResource, materials: [material])
         entity.name = "CellGrid"

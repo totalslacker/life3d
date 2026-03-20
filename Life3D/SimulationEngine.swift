@@ -46,12 +46,18 @@ final class SimulationEngine {
         loadPattern(pattern)
     }
 
+    var rulesLabel: String {
+        let b = grid.birthCounts.sorted().map(String.init).joined(separator: ",")
+        let s = grid.survivalCounts.sorted().map(String.init).joined(separator: ",")
+        return "B\(b)/S\(s)"
+    }
+
     func loadPattern(_ pattern: Pattern) {
         switch pattern {
         case .random:
-            grid.randomSeed(density: 0.1)
-        case .blinker:
-            grid.loadBlinker()
+            grid.randomSeed()
+        case .soup:
+            grid.loadSoup()
         case .block:
             grid.loadBlock()
         case .cluster:
@@ -62,10 +68,10 @@ final class SimulationEngine {
     }
 
     enum Pattern: String, CaseIterable, Identifiable {
-        case random = "Random"
-        case blinker = "Blinker"
-        case block = "Block"
-        case cluster = "Cluster"
+        case random = "Random (25%)"
+        case soup = "Soup (6³ blob)"
+        case block = "Block (2³)"
+        case cluster = "Cluster (4³)"
         case clear = "Clear"
 
         var id: String { rawValue }

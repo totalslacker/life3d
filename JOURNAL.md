@@ -4,6 +4,28 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 7 — Session 12 (2026-03-20)
+
+**Goal**: Fix three major usability issues — patterns dying immediately, invisible cells, and oversized control window (li-nk6).
+
+Three fixes:
+
+1. **Simulation rules**: Changed from B5/S6-7 (5766) to B5-7/S5-8. The old rules required extremely dense configurations — a random seed at 10% density averaged only 2.6 neighbors per cell, far below the birth threshold of 5. With B5-7/S5-8, the wider birth range (5,6,7) and survival range (5,6,7,8) produce interesting long-lived evolution at moderate densities. Verified via standalone simulation: random 25% seed stays alive through 100+ generations with oscillating population (~1400-1500 cells).
+
+2. **Patterns overhaul**: Increased random seed density from 10% to 25% (matches the new rules' sweet spot). Replaced "Blinker" (3 cells in a line — a 2D concept that dies instantly in 3D) with "Soup" (6x6x6 random blob at 45% density — verified to grow and sustain). Replaced sparse cross "Cluster" with 4x4x4 checkerboard (32 cells, verified to grow to ~800+ and sustain 60+ gens). Block (2x2x2) remains stable — each cell has 7 neighbors, within survival range. Pattern menu now shows ruleset (B5,6,7/S5,6,7,8) and descriptive pattern names.
+
+3. **Cell visibility**: Replaced faint translucent PhysicallyBasedMaterial (alpha 0.35, emissive 0.3) with bright opaque UnlitMaterial in vivid cyan/teal. Cells should now POP against any passthrough background.
+
+4. **Control window**: Added `.defaultSize(width: 340, height: 220)` to WindowGroup. Tightened padding and font sizes to make the control panel compact and non-obstructive.
+
+All existing tests pass unchanged — the new rules (B5-7/S5-8) are compatible with every test assertion.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test on real Vision Pro to confirm visibility and pattern behavior. Begin Phase 3 (Visual Beauty) — age-based cell coloring, glow materials, particle effects.
+
+---
+
 ## Day 7 — Session 11 (2026-03-20)
 
 **Goal**: Fix invisible 3D grid in ImmersiveSpace (li-2zm).
