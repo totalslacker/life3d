@@ -4,6 +4,22 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 7 — Session 11 (2026-03-20)
+
+**Goal**: Fix invisible 3D grid in ImmersiveSpace (li-2zm).
+
+Four issues identified and fixed in `GridImmersiveView.swift`:
+1. **Grid position**: Entity had no explicit position, so it rendered at world origin (floor level/behind user). Set to `(0, 1.5, -1.5)` — 1.5m up (eye level) and 1.5m in front.
+2. **Step button not updating visuals**: `onChange(of: engine.generation)` only rebuilt mesh when `engine.isRunning` was true, meaning the Step button (which doesn't set `isRunning`) never triggered a visual update. Removed the `isRunning` guard.
+3. **Dropped mesh updates**: The `isRebuilding` guard silently dropped all generation changes during a rebuild. Replaced with a `needsRebuild` dirty flag and repeat-while loop so the final state is always rendered.
+4. **Initial pattern**: Already correct — `SimulationEngine.init` calls `randomSeed(density: 0.1)`, so the grid starts non-empty.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test on real Vision Pro to confirm grid visibility. Begin Phase 3 (Visual Beauty) — age-based cell coloring, glow materials, particle effects.
+
+---
+
 ## Day 7 — Session 10 (2026-03-20)
 
 **Goal**: Fix volumetric crash by migrating to ImmersiveSpace architecture (li-thq).
