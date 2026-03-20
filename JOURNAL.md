@@ -4,6 +4,16 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 7 — Session 9 (2026-03-20)
+
+**Goal**: Fix volumetric window crash caused by UIWindowSceneSessionRoleApplication mismatch (li-8pi).
+
+The app crashed on launch because `INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES` auto-generates an Info.plist with the default 2D window scene role (`UIWindowSceneSessionRoleApplication`), but the SwiftUI code uses `.windowStyle(.volumetric)` which requires the volumetric role. Added `INFOPLIST_KEY_UIApplicationPreferredDefaultSceneSessionRole = UIWindowSceneSessionRoleVolumetricApplication` to both Debug and Release build settings in project.pbxproj. Build verified clean.
+
+**Next Steps**: Begin Phase 3 (Visual Beauty) — age-based cell coloring, glow materials, particle effects. Address 20s mesh generation performance.
+
+---
+
 ## Day 7 — Session 8 (2026-03-20)
 
 **Goal**: Migrate life3d to latest rig-seed template with dual Day/Session tracking.
