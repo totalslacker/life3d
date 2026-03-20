@@ -21,7 +21,7 @@ formula steps shown in your hook. Follow them in order.
 ### Before You Push (ALL polecats, ALL molecules)
 
 Before running `gt done` or pushing your branch, you MUST:
-1. Write a journal entry at the TOP of JOURNAL.md (what you did, what worked, what didn't)
+1. Write a journal entry at the TOP of JOURNAL.md (what you did, what worked, what didn't, and a "Next:" line suggesting what should be tackled next)
 2. Update ROADMAP.md if you completed any roadmap items
 3. Update LEARNINGS.md if you discovered technical insights
 4. Increment DAY_COUNT
