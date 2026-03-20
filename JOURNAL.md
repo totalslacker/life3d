@@ -4,6 +4,58 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Session 7 — Implement 3D cellular automata simulation engine (li-r02)
+
+Phase 2 complete. Polecat: furiosa.
+
+Built the full simulation engine on top of the existing merged-mesh renderer:
+
+**GridModel expansion:**
+- Cell state stored as flat `[Bool]` array with get/set/neighborCount methods
+- 26-neighbor Moore neighborhood counting (edges treated as dead, no wrapping)
+- `advanceGeneration()` applies rules to produce next generation
+- Configurable birth/survival rule sets (default: 5766 — born with 5, survive with 6-7)
+
+**SimulationEngine (@Observable):**
+- Owns GridModel, tracks generation count
+- Step mode (advance one generation) and continuous mode (timer-based)
+- Speed control: 1-30 generations per second via Task.sleep-based loop
+- Pause/resume, pattern reset
+
+**Preset patterns:**
+- Random seed (10% density)
+- Blinker (3 cells in a line — oscillator analog)
+- Block (2x2x2 cube — stable still life under 5766, each cell has 7 neighbors)
+- Cluster (3D cross with extras — produces interesting evolution)
+
+**Rendering integration:**
+- GridRenderer now builds mesh from only alive cells via `aliveCellPositions()`
+- Dead cells are invisible — mesh is rebuilt each generation
+- Empty grid handled gracefully (returns empty Entity)
+
+**UI controls:**
+- Play/Pause, Step, Pattern selector (Menu), Speed stepper
+- Generation counter and alive cell count displayed in overlay
+
+**Tests (logic-only, no RealityKit):**
+- Cell state get/set, clear, out-of-bounds safety
+- Neighbor counting: isolated cell, adjacent pair, full 2x2x2 block (7 neighbors each), corner no-wrap
+- Rule application: birth with 5, survival with 6 and 7, death with <6, no birth with 4
+- 2x2x2 block stability verification under 5766 rules
+
+What worked: The @Observable macro + onChange(of: generation) pattern provides clean
+reactive mesh rebuilding. LowLevelMesh handles variable cell counts smoothly since we
+rebuild each frame anyway.
+
+What to watch: Mesh rebuild every generation could become a bottleneck at high speeds
+with many alive cells. Future optimization: update vertex buffers in-place rather than
+recreating LowLevelMesh each frame.
+
+Next: Phase 3 — Visual beauty. Replace plain cubes with glowing translucent cells,
+add age-based color evolution, particle effects on birth/death, and color themes.
+
+---
+
 ## Session 6 — Remove gray window background, use volumetric window (li-8z1)
 
 Switched from default flat WindowGroup to `.volumetric` window style. Polecat: furiosa.

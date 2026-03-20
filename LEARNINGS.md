@@ -50,3 +50,14 @@ the same things. Search here before looking things up externally.
 - Use interleaved vertex struct (position + normal + UV) with `MemoryLayout.offset(of:)` for attribute offsets
 - Must set `mesh.parts` with bounds via `replaceAll([part])` — without parts, nothing renders
 - For array building: pre-allocate with `[T](repeating:, count:)` and indexed writes is faster than `reserveCapacity` + `append` (avoids bounds checks and CoW overhead)
+
+---
+
+## Swift 6 Concurrency with @Observable and RealityKit
+
+- `@Observable` (from `Observation` framework) replaces `ObservableObject` in Swift 5.9+ / visionOS 2.0+
+- `@Observable @MainActor class` works well for simulation state — SwiftUI views observe changes automatically
+- `onChange(of:)` on `@Observable` properties triggers correctly for reactive mesh rebuilding
+- `Task.sleep(nanoseconds:)` in a loop is the simplest timer for continuous simulation — avoids Timer/RunLoop complexity
+- When rebuilding LowLevelMesh each generation: create new mesh from scratch rather than trying to resize buffers (LowLevelMesh capacity is fixed at creation)
+- Guard against concurrent rebuilds with a simple `isRebuilding` flag — prevents mesh rebuild pile-up at high simulation speeds

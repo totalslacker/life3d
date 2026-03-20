@@ -16,18 +16,22 @@ enum GridRenderer {
         let vertices: [GridVertex]
         let indices: [UInt32]
         let gridExtent: Float
+        let cellCount: Int
     }
 
-    /// Builds the entire grid as a SINGLE merged mesh entity using LowLevelMesh
-    /// for direct GPU buffer writes — bypasses MeshResource.generate() overhead.
+    /// Builds a merged mesh entity for only the alive cells in the grid.
     @MainActor
     static func makeGridAsync(model: GridModel) async throws -> Entity {
-        // Build raw vertex/index data off the main thread
         let data = await Task.detached {
             computeMeshData(model: model)
         }.value
 
-        // Create LowLevelMesh and MeshResource on MainActor
+        guard data.cellCount > 0 else {
+            let entity = Entity()
+            entity.name = "CellGrid"
+            return entity
+        }
+
         let meshResource = try createMeshResource(from: data)
 
         var material = PhysicallyBasedMaterial()
@@ -41,33 +45,29 @@ enum GridRenderer {
         return entity
     }
 
-    /// Computes raw vertex and index arrays. Runs off the main thread.
+    /// Computes raw vertex and index arrays for alive cells only.
     private static func computeMeshData(model: GridModel) -> MeshData {
+        let positions = model.aliveCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+        let aliveCells = positions.count
+
         let cubeVertexCount = 24
         let cubeIndexCount = 36
-        let totalVertices = model.cellCount * cubeVertexCount
-        let totalIndices = model.cellCount * cubeIndexCount
+        let totalVertices = aliveCells * cubeVertexCount
+        let totalIndices = aliveCells * cubeIndexCount
 
         let half = cellSize / 2.0
 
-        // Unit cube: 6 faces, 4 vertices each, with per-face normals
         let cubePositions: [SIMD3<Float>] = [
-            // +X face
             SIMD3( half, -half, -half), SIMD3( half,  half, -half),
             SIMD3( half,  half,  half), SIMD3( half, -half,  half),
-            // -X face
             SIMD3(-half, -half,  half), SIMD3(-half,  half,  half),
             SIMD3(-half,  half, -half), SIMD3(-half, -half, -half),
-            // +Y face
             SIMD3(-half,  half,  half), SIMD3( half,  half,  half),
             SIMD3( half,  half, -half), SIMD3(-half,  half, -half),
-            // -Y face
             SIMD3(-half, -half, -half), SIMD3( half, -half, -half),
             SIMD3( half, -half,  half), SIMD3(-half, -half,  half),
-            // +Z face
             SIMD3(-half, -half,  half), SIMD3( half, -half,  half),
             SIMD3( half,  half,  half), SIMD3(-half,  half,  half),
-            // -Z face
             SIMD3( half, -half, -half), SIMD3(-half, -half, -half),
             SIMD3(-half,  half, -half), SIMD3( half,  half, -half),
         ]
@@ -99,7 +99,12 @@ enum GridRenderer {
             20, 21, 22,  20, 22, 23,
         ]
 
-        // Build vertex array using direct indexed writes
+        guard aliveCells > 0 else {
+            let stride = cellSize + cellSpacing
+            let gridExtent = Float(model.size - 1) * stride / 2.0 + half
+            return MeshData(vertices: [], indices: [], gridExtent: gridExtent, cellCount: 0)
+        }
+
         var vertices = [GridVertex](
             repeating: GridVertex(position: .zero, normal: .zero, uv: .zero),
             count: totalVertices
@@ -108,36 +113,28 @@ enum GridRenderer {
 
         var vi = 0
         var ii = 0
-        for x in 0..<model.size {
-            for y in 0..<model.size {
-                for z in 0..<model.size {
-                    let center = model.cellPosition(
-                        x: x, y: y, z: z,
-                        cellSize: cellSize, cellSpacing: cellSpacing
-                    )
-                    let vertexOffset = UInt32(vi)
+        for center in positions {
+            let vertexOffset = UInt32(vi)
 
-                    for j in 0..<cubeVertexCount {
-                        vertices[vi] = GridVertex(
-                            position: cubePositions[j] + center,
-                            normal: cubeNormals[j],
-                            uv: cubeUVs[j]
-                        )
-                        vi += 1
-                    }
+            for j in 0..<cubeVertexCount {
+                vertices[vi] = GridVertex(
+                    position: cubePositions[j] + center,
+                    normal: cubeNormals[j],
+                    uv: cubeUVs[j]
+                )
+                vi += 1
+            }
 
-                    for idx in cubeIndices {
-                        indices[ii] = idx + vertexOffset
-                        ii += 1
-                    }
-                }
+            for idx in cubeIndices {
+                indices[ii] = idx + vertexOffset
+                ii += 1
             }
         }
 
         let stride = cellSize + cellSpacing
         let gridExtent = Float(model.size - 1) * stride / 2.0 + half
 
-        return MeshData(vertices: vertices, indices: indices, gridExtent: gridExtent)
+        return MeshData(vertices: vertices, indices: indices, gridExtent: gridExtent, cellCount: aliveCells)
     }
 
     /// Creates a MeshResource from pre-computed mesh data using LowLevelMesh.
@@ -164,7 +161,6 @@ enum GridRenderer {
 
         let mesh = try LowLevelMesh(descriptor: descriptor)
 
-        // Copy vertex data into GPU-accessible buffer
         mesh.withUnsafeMutableBytes(bufferIndex: 0) { buffer in
             let dest = buffer.bindMemory(to: GridVertex.self)
             for i in 0..<data.vertices.count {
@@ -172,7 +168,6 @@ enum GridRenderer {
             }
         }
 
-        // Copy index data into GPU-accessible buffer
         mesh.withUnsafeMutableIndices { buffer in
             let dest = buffer.bindMemory(to: UInt32.self)
             for i in 0..<data.indices.count {

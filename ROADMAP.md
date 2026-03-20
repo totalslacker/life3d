@@ -16,14 +16,14 @@ Living document. Updated each evolution session. Items come from three sources:
 
 ## Phase 2 — Simulation Engine (Day 4-7)
 
-- [ ] Implement 3D cellular automata grid data structure
-- [ ] 3D neighbor counting (26 neighbors per cell in a cube)
-- [ ] Standard 3D Game of Life rules (5766: born with 5, survive with 6-7, in 26-neighbor Moore neighborhood)
-- [ ] Configurable birth/survival rule sets
-- [ ] Step-by-step simulation mode (tap to advance one generation)
-- [ ] Continuous simulation with adjustable speed (generations per second)
-- [ ] Preset patterns: 3D gliders, oscillators, still lifes, random seed
-- [ ] Tests: rule correctness, pattern stability, neighbor counting edge cases
+- [x] Implement 3D cellular automata grid data structure
+- [x] 3D neighbor counting (26 neighbors per cell in a cube)
+- [x] Standard 3D Game of Life rules (5766: born with 5, survive with 6-7, in 26-neighbor Moore neighborhood)
+- [x] Configurable birth/survival rule sets
+- [x] Step-by-step simulation mode (tap to advance one generation)
+- [x] Continuous simulation with adjustable speed (generations per second)
+- [x] Preset patterns: 3D gliders, oscillators, still lifes, random seed
+- [x] Tests: rule correctness, pattern stability, neighbor counting edge cases
 
 ## Phase 3 — Visual Beauty (Day 8-14)
 
