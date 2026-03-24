@@ -27,9 +27,9 @@ Living document. Updated each evolution session. Items come from three sources:
 
 ## Phase 3 — Visual Beauty (Day 8-14)
 
-- [ ] Replace plain cubes with translucent, glowing cell meshes
-- [ ] Age-based visual evolution: newborn cells bright, old cells deeper/richer
-- [ ] Bloom and glow post-processing via RealityKit materials
+- [x] Replace plain cubes with translucent, glowing cell meshes
+- [x] Age-based visual evolution: newborn cells bright, old cells deeper/richer
+- [x] Bloom and glow post-processing via RealityKit materials
 - [ ] Particle effects on cell birth (bloom into existence)
 - [ ] Particle effects on cell death (dissolve into particles)
 - [ ] Color themes: neon on black, warm amber, ocean blues, aurora borealis

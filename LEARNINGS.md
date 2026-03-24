@@ -66,6 +66,17 @@ the same things. Search here before looking things up externally.
 
 ---
 
+## Translucency and Age-Based Materials in RealityKit
+
+- `PhysicallyBasedMaterial` with `.transparent(opacity:)` blending gives translucent cells that reveal inner 3D structure
+- Previous attempt with alpha 0.35 + emissive 0.3 was too faint — need emissiveIntensity ≥ 0.8 and opacity ≥ 0.25 to be visible against passthrough
+- `faceCulling = .none` is essential for translucent cubes — without it, back faces are invisible when viewed through front faces
+- Multi-material via `LowLevelMesh.Part.materialIndex`: sort cells by category, create contiguous index ranges per category, assign different materialIndex to each Part. ModelEntity materials array maps by index.
+- Age tracking in GridModel (Int instead of Bool) is cheap — same memory layout, simple increment on survival, reset to 0 on death, set to 1 on birth
+- Three age tiers (newborn/young/mature) with distinct color + opacity creates a natural depth cue: bright new cells pop against faded old ones
+
+---
+
 ## Swift 6 Concurrency with @Observable and RealityKit
 
 - `@Observable` (from `Observation` framework) replaces `ObservableObject` in Swift 5.9+ / visionOS 2.0+

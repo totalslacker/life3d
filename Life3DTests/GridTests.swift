@@ -221,3 +221,66 @@ struct RuleTests {
         #expect(!model.isAlive(x: 4, y: 4, z: 4))
     }
 }
+
+@Suite("Cell Age Tests")
+struct CellAgeTests {
+    @Test("New cell starts at age 1")
+    func newCellAge() {
+        var model = GridModel(size: 4)
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+        #expect(model.cellAge(x: 1, y: 1, z: 1) == 1)
+    }
+
+    @Test("Dead cell has age 0")
+    func deadCellAge() {
+        let model = GridModel(size: 4)
+        #expect(model.cellAge(x: 0, y: 0, z: 0) == 0)
+    }
+
+    @Test("Surviving cell increments age each generation")
+    func ageIncrements() {
+        // 2x2x2 block is stable — each cell survives every generation
+        var model = GridModel(size: 8)
+        for dx in 3...4 {
+            for dy in 3...4 {
+                for dz in 3...4 {
+                    model.setCell(x: dx, y: dy, z: dz, alive: true)
+                }
+            }
+        }
+        #expect(model.cellAge(x: 3, y: 3, z: 3) == 1) // Initial age
+
+        model.advanceGeneration()
+        #expect(model.cellAge(x: 3, y: 3, z: 3) == 2)
+
+        model.advanceGeneration()
+        #expect(model.cellAge(x: 3, y: 3, z: 3) == 3)
+    }
+
+    @Test("Newborn cell from birth rule has age 1")
+    func birthAge() {
+        var model = GridModel(size: 8)
+        // Place 5 neighbors around (4,4,4) — cell is dead, will be born
+        model.setCell(x: 3, y: 4, z: 4, alive: true)
+        model.setCell(x: 5, y: 4, z: 4, alive: true)
+        model.setCell(x: 4, y: 3, z: 4, alive: true)
+        model.setCell(x: 4, y: 5, z: 4, alive: true)
+        model.setCell(x: 4, y: 4, z: 3, alive: true)
+
+        model.advanceGeneration()
+        #expect(model.isAlive(x: 4, y: 4, z: 4))
+        #expect(model.cellAge(x: 4, y: 4, z: 4) == 1)
+    }
+
+    @Test("Dying cell resets age to 0")
+    func deathResetsAge() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 4, y: 4, z: 4, alive: true)
+        // Only 1 neighbor — will die
+        model.setCell(x: 3, y: 4, z: 4, alive: true)
+
+        model.advanceGeneration()
+        #expect(!model.isAlive(x: 4, y: 4, z: 4))
+        #expect(model.cellAge(x: 4, y: 4, z: 4) == 0)
+    }
+}

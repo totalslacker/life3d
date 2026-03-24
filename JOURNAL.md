@@ -4,6 +4,31 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 8 — Session 14 (2026-03-24)
+
+**Goal**: Phase 3 Visual Beauty — cell translucency and age-based coloring (li-59t).
+
+Made cells translucent with age-based visual evolution so the 3D structure is visible through outer layers:
+
+1. **Age tracking**: Changed GridModel cells from `[Bool]` to `[Int]` (0=dead, 1+=age in generations). Surviving cells increment age each generation; newborn cells start at age 1; dying cells reset to 0. Added `cellAge()` accessor and `aliveCellsWithAge()` for the renderer.
+
+2. **Three age tiers with distinct materials**:
+   - **Newborn (age 1-2)**: Bright cyan, 55% opacity, strong emissive glow (intensity 2.0)
+   - **Young (age 3-5)**: Teal-blue, 35% opacity, medium emissive (intensity 1.2)
+   - **Mature (age 6+)**: Deep indigo/purple, 25% opacity, subtle emissive (intensity 0.8)
+
+3. **Translucent PhysicallyBasedMaterial**: Replaced opaque `UnlitMaterial` with `PhysicallyBasedMaterial` using `.transparent` blending and emissive color. `faceCulling = .none` ensures both sides of translucent cubes render correctly.
+
+4. **Multi-part LowLevelMesh**: Cells sorted by age tier into contiguous index ranges, creating separate `LowLevelMesh.Part` entries with different `materialIndex` values. One draw call per tier (3 total) instead of one per cell.
+
+5. **Tests**: Added 5 age-tracking tests — new cell age, dead cell age, age increment on survival, birth age, death resets age. All existing tests pass unchanged.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test on Vision Pro to verify translucency looks good. Consider adding smooth fade-in animation for newborn cells and particle effects on death. Performance profiling at 32x32x32.
+
+---
+
 ## Day 7 — Session 13 (2026-03-20)
 
 **Goal**: UX polish — compact controls under grid, fix button text wrapping (li-t9v).

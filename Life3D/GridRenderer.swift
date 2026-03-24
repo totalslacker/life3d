@@ -4,6 +4,21 @@ enum GridRenderer {
     static let cellSize: Float = 0.02
     static let cellSpacing: Float = 0.005
 
+    /// Age tier for visual differentiation
+    enum AgeTier: Int, CaseIterable {
+        case newborn = 0  // age 1-2: bright, high opacity
+        case young = 1    // age 3-5: medium
+        case mature = 2   // age 6+: deep, low opacity
+
+        static func tier(for age: Int) -> AgeTier {
+            switch age {
+            case 1...2: return .newborn
+            case 3...5: return .young
+            default: return .mature
+            }
+        }
+    }
+
     /// Interleaved vertex layout for LowLevelMesh.
     struct GridVertex {
         var position: SIMD3<Float>
@@ -17,9 +32,11 @@ enum GridRenderer {
         let indices: [UInt32]
         let gridExtent: Float
         let cellCount: Int
+        /// Index ranges per age tier (start index count, index count)
+        let tierRanges: [(startIndex: Int, indexCount: Int)]
     }
 
-    /// Builds a merged mesh entity for only the alive cells in the grid.
+    /// Builds a merged mesh entity for alive cells with age-based translucent materials.
     @MainActor
     static func makeGridAsync(model: GridModel) async throws -> Entity {
         let data = await Task.detached {
@@ -33,25 +50,64 @@ enum GridRenderer {
         }
 
         let meshResource = try createMeshResource(from: data)
+        let materials = makeAgeMaterials()
 
-        var material = UnlitMaterial(color: .init(red: 0.0, green: 0.95, blue: 0.9, alpha: 1.0))
-
-        let entity = ModelEntity(mesh: meshResource, materials: [material])
+        let entity = ModelEntity(mesh: meshResource, materials: materials)
         entity.name = "CellGrid"
         return entity
     }
 
-    /// Computes raw vertex and index arrays for alive cells only.
+    /// Creates PhysicallyBasedMaterial for each age tier with translucency and emissive glow.
+    @MainActor
+    private static func makeAgeMaterials() -> [RealityKit.Material] {
+        // Newborn (age 1-2): bright cyan, higher opacity, strong glow
+        var newborn = PhysicallyBasedMaterial()
+        newborn.baseColor = .init(tint: .init(red: 0.0, green: 0.95, blue: 1.0, alpha: 1.0))
+        newborn.emissiveColor = .init(color: .init(red: 0.0, green: 0.9, blue: 1.0, alpha: 1.0))
+        newborn.emissiveIntensity = 2.0
+        newborn.blending = .transparent(opacity: .init(floatLiteral: 0.55))
+        newborn.faceCulling = .none
+
+        // Young (age 3-5): teal-blue, medium opacity
+        var young = PhysicallyBasedMaterial()
+        young.baseColor = .init(tint: .init(red: 0.0, green: 0.6, blue: 0.9, alpha: 1.0))
+        young.emissiveColor = .init(color: .init(red: 0.0, green: 0.5, blue: 0.8, alpha: 1.0))
+        young.emissiveIntensity = 1.2
+        young.blending = .transparent(opacity: .init(floatLiteral: 0.35))
+        young.faceCulling = .none
+
+        // Mature (age 6+): deep indigo/purple, low opacity
+        var mature = PhysicallyBasedMaterial()
+        mature.baseColor = .init(tint: .init(red: 0.3, green: 0.1, blue: 0.8, alpha: 1.0))
+        mature.emissiveColor = .init(color: .init(red: 0.2, green: 0.05, blue: 0.6, alpha: 1.0))
+        mature.emissiveIntensity = 0.8
+        mature.blending = .transparent(opacity: .init(floatLiteral: 0.25))
+        mature.faceCulling = .none
+
+        return [newborn, young, mature]
+    }
+
+    /// Computes raw vertex and index arrays for alive cells, sorted by age tier.
     private static func computeMeshData(model: GridModel) -> MeshData {
-        let positions = model.aliveCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
-        let aliveCells = positions.count
+        let cellsWithAge = model.aliveCellsWithAge(cellSize: cellSize, cellSpacing: cellSpacing)
+        let aliveCells = cellsWithAge.count
+
+        let half = cellSize / 2.0
+        let stride = cellSize + cellSpacing
+        let gridExtent = Float(model.size - 1) * stride / 2.0 + half
+
+        guard aliveCells > 0 else {
+            return MeshData(vertices: [], indices: [], gridExtent: gridExtent, cellCount: 0,
+                          tierRanges: AgeTier.allCases.map { _ in (0, 0) })
+        }
+
+        // Sort cells by age tier so we can create contiguous mesh parts
+        let sorted = cellsWithAge.sorted { AgeTier.tier(for: $0.age).rawValue < AgeTier.tier(for: $1.age).rawValue }
 
         let cubeVertexCount = 24
         let cubeIndexCount = 36
         let totalVertices = aliveCells * cubeVertexCount
         let totalIndices = aliveCells * cubeIndexCount
-
-        let half = cellSize / 2.0
 
         let cubePositions: [SIMD3<Float>] = [
             SIMD3( half, -half, -half), SIMD3( half,  half, -half),
@@ -95,42 +151,47 @@ enum GridRenderer {
             20, 21, 22,  20, 22, 23,
         ]
 
-        guard aliveCells > 0 else {
-            let stride = cellSize + cellSpacing
-            let gridExtent = Float(model.size - 1) * stride / 2.0 + half
-            return MeshData(vertices: [], indices: [], gridExtent: gridExtent, cellCount: 0)
-        }
-
         var vertices = [GridVertex](
             repeating: GridVertex(position: .zero, normal: .zero, uv: .zero),
             count: totalVertices
         )
         var indices = [UInt32](repeating: 0, count: totalIndices)
 
+        // Track tier boundaries for mesh parts
+        var tierCounts = [Int](repeating: 0, count: AgeTier.allCases.count)
+
         var vi = 0
         var ii = 0
-        for center in positions {
-            let vertexOffset = UInt32(vi)
+        for cell in sorted {
+            let tier = AgeTier.tier(for: cell.age)
+            tierCounts[tier.rawValue] += 1
 
+            let vertexOffset = UInt32(vi)
             for j in 0..<cubeVertexCount {
                 vertices[vi] = GridVertex(
-                    position: cubePositions[j] + center,
+                    position: cubePositions[j] + cell.position,
                     normal: cubeNormals[j],
                     uv: cubeUVs[j]
                 )
                 vi += 1
             }
-
             for idx in cubeIndices {
                 indices[ii] = idx + vertexOffset
                 ii += 1
             }
         }
 
-        let stride = cellSize + cellSpacing
-        let gridExtent = Float(model.size - 1) * stride / 2.0 + half
+        // Build tier ranges
+        var tierRanges: [(startIndex: Int, indexCount: Int)] = []
+        var indexOffset = 0
+        for tierIdx in 0..<AgeTier.allCases.count {
+            let count = tierCounts[tierIdx] * cubeIndexCount
+            tierRanges.append((startIndex: indexOffset, indexCount: count))
+            indexOffset += count
+        }
 
-        return MeshData(vertices: vertices, indices: indices, gridExtent: gridExtent, cellCount: aliveCells)
+        return MeshData(vertices: vertices, indices: indices, gridExtent: gridExtent,
+                       cellCount: aliveCells, tierRanges: tierRanges)
     }
 
     /// Creates a MeshResource from pre-computed mesh data using LowLevelMesh.
@@ -173,13 +234,24 @@ enum GridRenderer {
 
         let boundMin = SIMD3<Float>(repeating: -data.gridExtent)
         let boundMax = SIMD3<Float>(repeating: data.gridExtent)
+        let bounds = BoundingBox(min: boundMin, max: boundMax)
 
-        let part = LowLevelMesh.Part(
-            indexCount: data.indices.count,
-            topology: .triangle,
-            bounds: BoundingBox(min: boundMin, max: boundMax)
-        )
-        mesh.parts.replaceAll([part])
+        // Create separate mesh parts for each age tier (different material index)
+        var parts: [LowLevelMesh.Part] = []
+        for (tierIdx, range) in data.tierRanges.enumerated() {
+            if range.indexCount > 0 {
+                var part = LowLevelMesh.Part(
+                    indexCount: range.indexCount,
+                    topology: .triangle,
+                    bounds: bounds
+                )
+                part.indexOffset = range.startIndex
+                part.materialIndex = tierIdx
+                parts.append(part)
+            }
+        }
+
+        mesh.parts.replaceAll(parts)
 
         return try MeshResource(from: mesh)
     }

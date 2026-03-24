@@ -2,7 +2,8 @@ import Foundation
 
 struct GridModel: Sendable {
     let size: Int
-    private(set) var cells: [Bool]
+    /// Cell age: 0 = dead, 1+ = alive (value is age in generations)
+    private(set) var cells: [Int]
 
     /// Rule configuration: born when neighbor count is in birthCounts, survives when in survivalCounts
     var birthCounts: Set<Int>
@@ -12,7 +13,7 @@ struct GridModel: Sendable {
 
     init(size: Int, birthCounts: Set<Int> = [5, 6, 7], survivalCounts: Set<Int> = [5, 6, 7, 8]) {
         self.size = size
-        self.cells = [Bool](repeating: false, count: size * size * size)
+        self.cells = [Int](repeating: 0, count: size * size * size)
         self.birthCounts = birthCounts
         self.survivalCounts = survivalCounts
     }
@@ -25,12 +26,17 @@ struct GridModel: Sendable {
 
     func isAlive(x: Int, y: Int, z: Int) -> Bool {
         guard x >= 0, x < size, y >= 0, y < size, z >= 0, z < size else { return false }
+        return cells[index(x: x, y: y, z: z)] > 0
+    }
+
+    func cellAge(x: Int, y: Int, z: Int) -> Int {
+        guard x >= 0, x < size, y >= 0, y < size, z >= 0, z < size else { return 0 }
         return cells[index(x: x, y: y, z: z)]
     }
 
     mutating func setCell(x: Int, y: Int, z: Int, alive: Bool) {
         guard x >= 0, x < size, y >= 0, y < size, z >= 0, z < size else { return }
-        cells[index(x: x, y: y, z: z)] = alive
+        cells[index(x: x, y: y, z: z)] = alive ? 1 : 0
     }
 
     // MARK: - Neighbor Counting (26-cell Moore neighborhood)
@@ -53,16 +59,18 @@ struct GridModel: Sendable {
     // MARK: - Generation Advancement
 
     mutating func advanceGeneration() {
-        var next = [Bool](repeating: false, count: cellCount)
+        var next = [Int](repeating: 0, count: cellCount)
         for x in 0..<size {
             for y in 0..<size {
                 for z in 0..<size {
                     let neighbors = neighborCount(x: x, y: y, z: z)
                     let idx = index(x: x, y: y, z: z)
-                    if cells[idx] {
-                        next[idx] = survivalCounts.contains(neighbors)
+                    if cells[idx] > 0 {
+                        // Surviving cell: increment age
+                        next[idx] = survivalCounts.contains(neighbors) ? cells[idx] + 1 : 0
                     } else {
-                        next[idx] = birthCounts.contains(neighbors)
+                        // Dead cell: born with age 1
+                        next[idx] = birthCounts.contains(neighbors) ? 1 : 0
                     }
                 }
             }
@@ -72,12 +80,13 @@ struct GridModel: Sendable {
 
     // MARK: - Alive Cell Positions
 
+    /// Returns positions of alive cells.
     func aliveCellPositions(cellSize: Float, cellSpacing: Float) -> [SIMD3<Float>] {
         var positions: [SIMD3<Float>] = []
         for x in 0..<size {
             for y in 0..<size {
                 for z in 0..<size {
-                    if cells[index(x: x, y: y, z: z)] {
+                    if cells[index(x: x, y: y, z: z)] > 0 {
                         positions.append(cellPosition(x: x, y: y, z: z, cellSize: cellSize, cellSpacing: cellSpacing))
                     }
                 }
@@ -86,8 +95,24 @@ struct GridModel: Sendable {
         return positions
     }
 
+    /// Returns (position, age) for each alive cell, grouped for rendering.
+    func aliveCellsWithAge(cellSize: Float, cellSpacing: Float) -> [(position: SIMD3<Float>, age: Int)] {
+        var result: [(position: SIMD3<Float>, age: Int)] = []
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let age = cells[index(x: x, y: y, z: z)]
+                    if age > 0 {
+                        result.append((cellPosition(x: x, y: y, z: z, cellSize: cellSize, cellSpacing: cellSpacing), age))
+                    }
+                }
+            }
+        }
+        return result
+    }
+
     var aliveCount: Int {
-        cells.filter { $0 }.count
+        cells.filter { $0 > 0 }.count
     }
 
     // MARK: - Cell Positioning
@@ -106,7 +131,7 @@ struct GridModel: Sendable {
 
     mutating func randomSeed(density: Double = 0.25) {
         for i in 0..<cellCount {
-            cells[i] = Double.random(in: 0...1) < density
+            cells[i] = Double.random(in: 0...1) < density ? 1 : 0
         }
     }
 
@@ -156,6 +181,6 @@ struct GridModel: Sendable {
     }
 
     mutating func clearAll() {
-        cells = [Bool](repeating: false, count: cellCount)
+        cells = [Int](repeating: 0, count: cellCount)
     }
 }
