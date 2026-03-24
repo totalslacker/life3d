@@ -2,7 +2,7 @@
 # This file controls how the autonomous evolution process runs.
 
 [schedule]
-interval = "24h"               # Standard: once daily evolution
+interval = "8h"                # 3x daily evolution
 
 [limits]
 max_improvements_per_session = 3   # Max improvements per evolution cycle
