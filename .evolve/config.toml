@@ -18,11 +18,19 @@ tag_prefix = "v"               # Prefix for version tags (e.g., "v" → v0.1.0)
 default_bump = "patch"         # Default semver bump: "major", "minor", or "patch"
 push_tags = true               # Push tags to remote after creating them
 
+[merge]
+strategy = "refinery"          # "refinery" (auto-merge), "pr" (human reviews PR), "hybrid" (auto for small, PR for large)
+
 [build]
+check_script = "scripts/check.sh"
 commands = [
     "xcodebuild -project Life3D.xcodeproj -scheme Life3D -destination 'platform=visionOS Simulator,name=Apple Vision Pro' build"
 ]
 # WARNING: Do NOT add xcodebuild test — visionOS Simulator crashes the host machine
+
+[template]
+upstream = "https://github.com/totalslacker/rig-seed.git"
+sync = "manual"                # "manual" (run sync-upstream.sh), "on-evolution" (sync at start of each session)
 
 [safety]
 max_fix_attempts = 3           # Revert after N failed build attempts
