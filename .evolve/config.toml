@@ -10,7 +10,7 @@ bootstrap_days = 3                 # Days focused on infrastructure before featu
 
 [github]
 fetch_issues = true            # Pull GitHub issues into evolution context
-issue_label = "agent-input"    # Only fetch issues with this label
+issue_label = ""               # Fetch all open issues (no label filter)
 
 [release]
 strategy = "manual"            # "manual" (human runs release.sh), "per-session" (tag after every session), "milestone" (tag when roadmap milestone completes)
