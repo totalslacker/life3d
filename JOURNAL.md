@@ -4,6 +4,32 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 9 — Session 15 (2026-03-25)
+
+**Goal**: Phase 3 Visual Beauty — color themes (li-d09).
+
+Added four selectable color themes so the simulation can shift visual mood:
+
+1. **ColorTheme type**: Created a `ColorTheme` struct with per-tier material properties (base color, emissive color, emissive intensity, opacity). Each theme defines `TierColors` for newborn, young, and mature age tiers.
+
+2. **Four preset themes**:
+   - **Neon** (default): Cyan → teal → indigo. The original look.
+   - **Warm Amber**: Bright gold → burnt orange → deep red-brown. Firelike.
+   - **Ocean Blues**: Light aqua → medium blue → deep navy. Calm, oceanic.
+   - **Aurora**: Green → violet → magenta. Northern lights gradient across age tiers.
+
+3. **Theme-aware renderer**: `GridRenderer.makeGridAsync` now accepts a `ColorTheme` parameter. `makeAgeMaterials` builds `PhysicallyBasedMaterial` for each tier from the theme's color definitions instead of hardcoded values.
+
+4. **UI integration**: Added `theme` property to `SimulationEngine`. Theme picker menu in `ContentView` alongside existing pattern and speed controls. `GridImmersiveView` triggers mesh rebuild on theme change via `onChange(of: engine.theme)`.
+
+5. **Window width**: Widened from 480pt to 560pt to accommodate the theme picker without crowding.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test themes on real Vision Pro. Consider smooth cell birth/death animation (fade in/out). Particle effects on birth/death. Performance profiling at 32x32x32.
+
+---
+
 ## Day 8 — Session 14 (2026-03-24)
 
 **Goal**: Phase 3 Visual Beauty — cell translucency and age-based coloring (li-59t).

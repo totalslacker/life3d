@@ -39,6 +39,16 @@ struct ContentView: View {
             }
             .controlSize(.small)
 
+            // Theme menu
+            Menu("Theme") {
+                ForEach(ColorTheme.allThemes) { theme in
+                    Button(theme.name) {
+                        engine.theme = theme
+                    }
+                }
+            }
+            .controlSize(.small)
+
             // Speed slider
             HStack(spacing: 4) {
                 Text("\(Int(engine.speed))×")

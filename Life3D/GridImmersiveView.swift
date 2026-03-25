@@ -25,6 +25,9 @@ struct GridImmersiveView: View {
         .onChange(of: engine.generation) {
             Task { await rebuildMesh() }
         }
+        .onChange(of: engine.theme) {
+            Task { await rebuildMesh() }
+        }
     }
 
     private func rebuildMesh() async {
@@ -36,7 +39,7 @@ struct GridImmersiveView: View {
         repeat {
             needsRebuild = false
             do {
-                let grid = try await GridRenderer.makeGridAsync(model: engine.grid)
+                let grid = try await GridRenderer.makeGridAsync(model: engine.grid, theme: engine.theme)
                 // Position grid at eye level, 1.5m in front of user
                 grid.position = SIMD3<Float>(0, 1.5, -1.5)
                 gridEntity = grid

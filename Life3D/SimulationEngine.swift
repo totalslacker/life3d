@@ -8,6 +8,7 @@ final class SimulationEngine {
     var generation: Int = 0
     var isRunning: Bool = false
     var speed: Double = 5.0 // generations per second
+    var theme: ColorTheme = .neon
 
     private var timerTask: Task<Void, Never>?
 

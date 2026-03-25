@@ -1,4 +1,98 @@
 import RealityKit
+import CoreGraphics
+
+/// Color theme defining material properties for each age tier.
+struct ColorTheme: Sendable, Identifiable, Hashable {
+    let name: String
+    var id: String { name }
+
+    struct TierColors: Sendable, Hashable {
+        let baseColor: SIMD4<Float>      // RGBA
+        let emissiveColor: SIMD3<Float>  // RGB
+        let emissiveIntensity: Float
+        let opacity: Float
+    }
+
+    let newborn: TierColors
+    let young: TierColors
+    let mature: TierColors
+
+    func colors(for tier: GridRenderer.AgeTier) -> TierColors {
+        switch tier {
+        case .newborn: return newborn
+        case .young: return young
+        case .mature: return mature
+        }
+    }
+
+    // MARK: - Preset Themes
+
+    static let neon = ColorTheme(
+        name: "Neon",
+        newborn: TierColors(
+            baseColor: SIMD4(0.0, 0.95, 1.0, 1.0),
+            emissiveColor: SIMD3(0.0, 0.9, 1.0),
+            emissiveIntensity: 2.0, opacity: 0.55),
+        young: TierColors(
+            baseColor: SIMD4(0.0, 0.6, 0.9, 1.0),
+            emissiveColor: SIMD3(0.0, 0.5, 0.8),
+            emissiveIntensity: 1.2, opacity: 0.35),
+        mature: TierColors(
+            baseColor: SIMD4(0.3, 0.1, 0.8, 1.0),
+            emissiveColor: SIMD3(0.2, 0.05, 0.6),
+            emissiveIntensity: 0.8, opacity: 0.25)
+    )
+
+    static let warmAmber = ColorTheme(
+        name: "Warm Amber",
+        newborn: TierColors(
+            baseColor: SIMD4(1.0, 0.85, 0.2, 1.0),
+            emissiveColor: SIMD3(1.0, 0.7, 0.1),
+            emissiveIntensity: 2.0, opacity: 0.55),
+        young: TierColors(
+            baseColor: SIMD4(1.0, 0.5, 0.1, 1.0),
+            emissiveColor: SIMD3(0.9, 0.4, 0.05),
+            emissiveIntensity: 1.2, opacity: 0.35),
+        mature: TierColors(
+            baseColor: SIMD4(0.7, 0.2, 0.05, 1.0),
+            emissiveColor: SIMD3(0.5, 0.1, 0.02),
+            emissiveIntensity: 0.8, opacity: 0.25)
+    )
+
+    static let oceanBlues = ColorTheme(
+        name: "Ocean Blues",
+        newborn: TierColors(
+            baseColor: SIMD4(0.3, 0.9, 1.0, 1.0),
+            emissiveColor: SIMD3(0.2, 0.8, 1.0),
+            emissiveIntensity: 2.0, opacity: 0.55),
+        young: TierColors(
+            baseColor: SIMD4(0.1, 0.5, 0.9, 1.0),
+            emissiveColor: SIMD3(0.05, 0.4, 0.8),
+            emissiveIntensity: 1.2, opacity: 0.35),
+        mature: TierColors(
+            baseColor: SIMD4(0.0, 0.2, 0.5, 1.0),
+            emissiveColor: SIMD3(0.0, 0.1, 0.4),
+            emissiveIntensity: 0.8, opacity: 0.25)
+    )
+
+    static let aurora = ColorTheme(
+        name: "Aurora",
+        newborn: TierColors(
+            baseColor: SIMD4(0.2, 1.0, 0.5, 1.0),
+            emissiveColor: SIMD3(0.1, 0.9, 0.4),
+            emissiveIntensity: 2.0, opacity: 0.55),
+        young: TierColors(
+            baseColor: SIMD4(0.5, 0.3, 1.0, 1.0),
+            emissiveColor: SIMD3(0.4, 0.2, 0.9),
+            emissiveIntensity: 1.2, opacity: 0.35),
+        mature: TierColors(
+            baseColor: SIMD4(0.8, 0.1, 0.5, 1.0),
+            emissiveColor: SIMD3(0.6, 0.05, 0.4),
+            emissiveIntensity: 0.8, opacity: 0.25)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora]
+}
 
 enum GridRenderer {
     static let cellSize: Float = 0.02
@@ -38,7 +132,7 @@ enum GridRenderer {
 
     /// Builds a merged mesh entity for alive cells with age-based translucent materials.
     @MainActor
-    static func makeGridAsync(model: GridModel) async throws -> Entity {
+    static func makeGridAsync(model: GridModel, theme: ColorTheme = .neon) async throws -> Entity {
         let data = await Task.detached {
             computeMeshData(model: model)
         }.value
@@ -50,41 +144,30 @@ enum GridRenderer {
         }
 
         let meshResource = try createMeshResource(from: data)
-        let materials = makeAgeMaterials()
+        let materials = makeAgeMaterials(theme: theme)
 
         let entity = ModelEntity(mesh: meshResource, materials: materials)
         entity.name = "CellGrid"
         return entity
     }
 
-    /// Creates PhysicallyBasedMaterial for each age tier with translucency and emissive glow.
+    /// Creates PhysicallyBasedMaterial for each age tier from a color theme.
     @MainActor
-    private static func makeAgeMaterials() -> [RealityKit.Material] {
-        // Newborn (age 1-2): bright cyan, higher opacity, strong glow
-        var newborn = PhysicallyBasedMaterial()
-        newborn.baseColor = .init(tint: .init(red: 0.0, green: 0.95, blue: 1.0, alpha: 1.0))
-        newborn.emissiveColor = .init(color: .init(red: 0.0, green: 0.9, blue: 1.0, alpha: 1.0))
-        newborn.emissiveIntensity = 2.0
-        newborn.blending = .transparent(opacity: .init(floatLiteral: 0.55))
-        newborn.faceCulling = .none
-
-        // Young (age 3-5): teal-blue, medium opacity
-        var young = PhysicallyBasedMaterial()
-        young.baseColor = .init(tint: .init(red: 0.0, green: 0.6, blue: 0.9, alpha: 1.0))
-        young.emissiveColor = .init(color: .init(red: 0.0, green: 0.5, blue: 0.8, alpha: 1.0))
-        young.emissiveIntensity = 1.2
-        young.blending = .transparent(opacity: .init(floatLiteral: 0.35))
-        young.faceCulling = .none
-
-        // Mature (age 6+): deep indigo/purple, low opacity
-        var mature = PhysicallyBasedMaterial()
-        mature.baseColor = .init(tint: .init(red: 0.3, green: 0.1, blue: 0.8, alpha: 1.0))
-        mature.emissiveColor = .init(color: .init(red: 0.2, green: 0.05, blue: 0.6, alpha: 1.0))
-        mature.emissiveIntensity = 0.8
-        mature.blending = .transparent(opacity: .init(floatLiteral: 0.25))
-        mature.faceCulling = .none
-
-        return [newborn, young, mature]
+    private static func makeAgeMaterials(theme: ColorTheme) -> [RealityKit.Material] {
+        AgeTier.allCases.map { tier -> RealityKit.Material in
+            let colors = theme.colors(for: tier)
+            var mat = PhysicallyBasedMaterial()
+            mat.baseColor = .init(tint: .init(
+                red: CGFloat(colors.baseColor.x), green: CGFloat(colors.baseColor.y),
+                blue: CGFloat(colors.baseColor.z), alpha: CGFloat(colors.baseColor.w)))
+            mat.emissiveColor = .init(color: .init(
+                red: CGFloat(colors.emissiveColor.x), green: CGFloat(colors.emissiveColor.y),
+                blue: CGFloat(colors.emissiveColor.z), alpha: 1.0))
+            mat.emissiveIntensity = colors.emissiveIntensity
+            mat.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(scale: colors.opacity))
+            mat.faceCulling = .none
+            return mat
+        }
     }
 
     /// Computes raw vertex and index arrays for alive cells, sorted by age tier.
