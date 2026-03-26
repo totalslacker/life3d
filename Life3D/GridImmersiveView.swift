@@ -57,6 +57,8 @@ struct GridImmersiveView: View {
             container.components.set(CollisionComponent(
                 shapes: [.generateBox(size: SIMD3<Float>(repeating: gridExtent * 2.5))]
             ))
+            // Hover effect: spotlight follows gaze, giving spatial feedback on where you're looking
+            container.components.set(HoverEffectComponent())
 
             content.add(container)
             containerEntity = container

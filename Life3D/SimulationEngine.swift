@@ -15,9 +15,60 @@ final class SimulationEngine {
 
     private var timerTask: Task<Void, Never>?
 
+    // MARK: - User Defaults Keys
+    private enum PrefKey {
+        static let theme = "life3d.theme"
+        static let gridSize = "life3d.gridSize"
+        static let speed = "life3d.speed"
+        static let ruleSet = "life3d.ruleSet"
+        static let audioMuted = "life3d.audioMuted"
+    }
+
     init(size: Int = 16) {
-        self.grid = GridModel(size: size)
+        // Load saved preferences or use defaults
+        let defaults = UserDefaults.standard
+        let savedSize = defaults.integer(forKey: PrefKey.gridSize)
+        let effectiveSize = savedSize > 0 ? savedSize : size
+
+        self.grid = GridModel(size: effectiveSize)
         self.grid.randomSeed()
+
+        // Restore saved speed
+        let savedSpeed = defaults.double(forKey: PrefKey.speed)
+        if savedSpeed > 0 { self.speed = savedSpeed }
+
+        // Restore saved theme
+        if let themeName = defaults.string(forKey: PrefKey.theme),
+           let savedTheme = ColorTheme.allThemes.first(where: { $0.name == themeName }) {
+            self.theme = savedTheme
+        }
+
+        // Restore saved rules
+        if let ruleSetName = defaults.string(forKey: PrefKey.ruleSet),
+           let savedRuleSet = RuleSet.allCases.first(where: { $0.rawValue == ruleSetName }) {
+            self.grid.birthCounts = savedRuleSet.birthCounts
+            self.grid.survivalCounts = savedRuleSet.survivalCounts
+        }
+
+        // Restore audio muted state
+        if defaults.object(forKey: PrefKey.audioMuted) != nil {
+            self.audioMuted = defaults.bool(forKey: PrefKey.audioMuted)
+        }
+    }
+
+    /// Saves current user preferences to UserDefaults.
+    func savePreferences() {
+        let defaults = UserDefaults.standard
+        defaults.set(theme.name, forKey: PrefKey.theme)
+        defaults.set(grid.size, forKey: PrefKey.gridSize)
+        defaults.set(speed, forKey: PrefKey.speed)
+        defaults.set(audioMuted, forKey: PrefKey.audioMuted)
+        // Find matching rule set
+        if let ruleSet = RuleSet.allCases.first(where: {
+            $0.birthCounts == grid.birthCounts && $0.survivalCounts == grid.survivalCounts
+        }) {
+            defaults.set(ruleSet.rawValue, forKey: PrefKey.ruleSet)
+        }
     }
 
     func step() {
@@ -76,6 +127,7 @@ final class SimulationEngine {
         generation = 0
         grid = GridModel(size: newSize)
         grid.randomSeed()
+        savePreferences()
     }
 
     enum Pattern: String, CaseIterable, Identifiable {
@@ -118,6 +170,7 @@ final class SimulationEngine {
     func applyRuleSet(_ ruleSet: RuleSet) {
         grid.birthCounts = ruleSet.birthCounts
         grid.survivalCounts = ruleSet.survivalCounts
+        savePreferences()
     }
 
     /// Toggles the cell nearest to a 3D position (in grid local space).

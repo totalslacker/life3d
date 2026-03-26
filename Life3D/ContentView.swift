@@ -122,5 +122,8 @@ struct ContentView: View {
         .task {
             await openImmersiveSpace(id: "life3d-grid")
         }
+        .onChange(of: engine.theme) { engine.savePreferences() }
+        .onChange(of: engine.speed) { engine.savePreferences() }
+        .onChange(of: engine.audioMuted) { engine.savePreferences() }
     }
 }
