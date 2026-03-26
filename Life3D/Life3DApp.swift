@@ -10,7 +10,7 @@ struct Life3DApp: App {
             ContentView()
                 .environment(engine)
         }
-        .defaultSize(width: 620, height: 120)
+        .defaultSize(width: 700, height: 120)
 
         ImmersiveSpace(id: "life3d-grid") {
             GridImmersiveView()

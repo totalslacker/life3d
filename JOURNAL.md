@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 20 (2026-03-26)
+
+**Goal**: Particle effects on birth/death events and rules configuration UI.
+
+Two improvements:
+
+1. **Particle burst effects on cell birth/death**: Added RealityKit `ParticleEmitterComponent`-based particle effects that trigger at sampled cell positions each generation. Birth particles burst outward and float upward with bright theme-colored particles. Death particles drift downward with muted colors. Uses up to 6 emitters per type (12 total), sampling evenly from birth/death positions to avoid per-cell emitter overhead. Emitters use `.once` timing with 0.3s burst duration and fade-out opacity curves. Added `bornCells` tracking to `GridModel.advanceGeneration()` alongside existing `dyingCells` tracking, plus `bornCellPositions()` helper for position retrieval.
+
+2. **Rules configuration UI**: Added a `RuleSet` enum to `SimulationEngine` with 4 presets — Standard (B5-7/S5-8, the default), Conservative (B6/S5-7, slower growth), Expansive (B4-6/S4-8, faster expansion), and Sparse (B5/S4-6, thin structures). New "Rules" menu in `ContentView` lets users switch rule sets mid-simulation. Current rules displayed in the stats bar (e.g., "B5,6,7/S5,6,7,8").
+
+3. **Tests**: Added 3 new tests for born cell tracking — born cells appear after birth events, stable blocks produce no born cells, clearAll resets born cells.
+
+Window widened from 620pt to 700pt to accommodate the new Rules menu.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test particle effects on real Vision Pro — may need tuning for burst count and particle size. Depth of field effect. Light emission from living cells. Hand tracking for cell toggling (Phase 4).
+
+---
+
 ## Day 10 — Session 19 (2026-03-26)
 
 **Goal**: Performance optimization for 32³ grids, collision box fix, and drag momentum.

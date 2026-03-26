@@ -9,16 +9,15 @@ Structured planning intent from the last evolution session. Categories:
 
 ## Priority
 
-- Phase 3: Smooth cell birth/death animation (fade in/out instead of snap)
-- Phase 3: Particle effects on cell birth (bloom into existence)
-- Phase 3: Particle effects on cell death (dissolve into particles)
+- Phase 3: Depth of field (cells far from gaze softly blurred)
+- Phase 3: Light emission (living cells cast soft light onto nearby surfaces)
+- Phase 4: Hand tracking interaction (pinch to toggle cells)
 
 ## Suggested
 
-- Phase 3: Depth of field (cells far from gaze softly blurred)
-- Phase 3: Light emission (living cells cast soft light onto nearby surfaces)
 - Phase 3: Performance profiling at 32x32x32 grid — maintain 60fps
-- Phase 4: Hand tracking interaction (pinch to toggle cells)
+- Tune particle burst count and size on real Vision Pro hardware
+- Phase 4: Draw mode (paint cells by pointing and pinching in 3D)
 
 ## Deferred
 

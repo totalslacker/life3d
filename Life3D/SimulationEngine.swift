@@ -85,6 +85,38 @@ final class SimulationEngine {
         var id: String { rawValue }
     }
 
+    enum RuleSet: String, CaseIterable, Identifiable {
+        case standard = "B5-7/S5-8"
+        case conservative = "B6/S5-7"
+        case expansive = "B4-6/S4-8"
+        case sparse = "B5/S4-6"
+
+        var id: String { rawValue }
+
+        var birthCounts: Set<Int> {
+            switch self {
+            case .standard: return [5, 6, 7]
+            case .conservative: return [6]
+            case .expansive: return [4, 5, 6]
+            case .sparse: return [5]
+            }
+        }
+
+        var survivalCounts: Set<Int> {
+            switch self {
+            case .standard: return [5, 6, 7, 8]
+            case .conservative: return [5, 6, 7]
+            case .expansive: return [4, 5, 6, 7, 8]
+            case .sparse: return [4, 5, 6]
+            }
+        }
+    }
+
+    func applyRuleSet(_ ruleSet: RuleSet) {
+        grid.birthCounts = ruleSet.birthCounts
+        grid.survivalCounts = ruleSet.survivalCounts
+    }
+
     enum GridSize: Int, CaseIterable, Identifiable {
         case small = 12
         case medium = 16

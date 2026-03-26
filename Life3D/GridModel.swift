@@ -6,6 +6,8 @@ struct GridModel: Sendable {
     private(set) var cells: [Int]
     /// Cells that died in the most recent generation (positions stored for fade-out rendering)
     private(set) var dyingCells: [Int] = []
+    /// Cells born in the most recent generation (for particle effects)
+    private(set) var bornCells: [Int] = []
 
     /// Rule configuration: born when neighbor count is in birthCounts, survives when in survivalCounts
     var birthCounts: Set<Int>
@@ -81,6 +83,7 @@ struct GridModel: Sendable {
         let offsets = Self.neighborOffsets(size: size)
         var next = [Int](repeating: 0, count: cellCount)
         var dying: [Int] = []
+        var born: [Int] = []
 
         for x in 0..<size {
             for y in 0..<size {
@@ -116,13 +119,17 @@ struct GridModel: Sendable {
                             dying.append(idx)
                         }
                     } else {
-                        next[idx] = birthCounts.contains(neighbors) ? 1 : 0
+                        if birthCounts.contains(neighbors) {
+                            next[idx] = 1
+                            born.append(idx)
+                        }
                     }
                 }
             }
         }
         cells = next
         dyingCells = dying
+        bornCells = born
     }
 
     // MARK: - Alive Cell Positions
@@ -161,6 +168,16 @@ struct GridModel: Sendable {
     /// Returns positions of cells that just died (for fade-out rendering).
     func dyingCellPositions(cellSize: Float, cellSpacing: Float) -> [SIMD3<Float>] {
         dyingCells.map { idx in
+            let x = idx / (size * size)
+            let y = (idx / size) % size
+            let z = idx % size
+            return cellPosition(x: x, y: y, z: z, cellSize: cellSize, cellSpacing: cellSpacing)
+        }
+    }
+
+    /// Returns positions of cells born this generation (for particle effects).
+    func bornCellPositions(cellSize: Float, cellSpacing: Float) -> [SIMD3<Float>] {
+        bornCells.map { idx in
             let x = idx / (size * size)
             let y = (idx / size) % size
             let z = idx % size
@@ -240,5 +257,6 @@ struct GridModel: Sendable {
     mutating func clearAll() {
         cells = [Int](repeating: 0, count: cellCount)
         dyingCells = []
+        bornCells = []
     }
 }

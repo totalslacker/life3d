@@ -49,6 +49,16 @@ struct ContentView: View {
             }
             .controlSize(.small)
 
+            // Rules menu
+            Menu("Rules") {
+                ForEach(SimulationEngine.RuleSet.allCases) { ruleSet in
+                    Button(ruleSet.rawValue) {
+                        engine.applyRuleSet(ruleSet)
+                    }
+                }
+            }
+            .controlSize(.small)
+
             // Grid size menu
             Menu("Size") {
                 ForEach(SimulationEngine.GridSize.allCases) { size in
@@ -72,7 +82,7 @@ struct ContentView: View {
             Spacer()
 
             // Stats
-            Text("Gen \(engine.generation) | \(engine.grid.aliveCount)")
+            Text("Gen \(engine.generation) | \(engine.grid.aliveCount) | \(engine.rulesLabel)")
                 .font(.caption)
                 .monospacedDigit()
                 .foregroundStyle(.secondary)

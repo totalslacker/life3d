@@ -5,6 +5,20 @@ the same things. Search here before looking things up externally.
 
 ---
 
+## ParticleEmitterComponent in visionOS RealityKit
+
+- `ParticleEmitterComponent` has no top-level `birthRate` property — particle properties live on `mainEmitter`
+- `spreadingAngle` takes a Float in radians, not `.degrees()` — use `.pi` for 180°
+- No `speed`/`speedVariation` on `ParticleEmitter` — control velocity via `acceleration` (SIMD3<Float>)
+- Color: `emitter.mainEmitter.color = .constant(.single(.init(red:green:blue:alpha:)))` for solid color
+- Timing: `.once(warmUp:emit:)` with `VariableDuration(duration:)` for single burst effects
+- `burstCount` controls how many particles per burst event
+- `opacityCurve = .linearFadeOut` for natural particle fading
+- Per-cell emitters don't scale — with thousands of births/deaths per generation, use a small pool (6-12 emitters) positioned at sampled locations
+- Emitters attached to a container entity inherit its transform (rotation/scale) — particles move with the grid
+
+---
+
 ## 3D Game of Life Rule Selection (26-neighbor Moore)
 
 - **B5/S6-7 (5766)** requires extremely dense seeds. At 10% density, avg neighbors ≈ 2.6 — far below birth=5 threshold. Most patterns die in 1-2 generations.

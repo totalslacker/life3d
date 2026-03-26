@@ -8,6 +8,11 @@ struct GridImmersiveView: View {
     @State private var isRebuilding = false
     @State private var needsRebuild = false
 
+    // Particle effect entities
+    @State private var birthParticleEntities: [Entity] = []
+    @State private var deathParticleEntities: [Entity] = []
+    private static let maxParticleEmitters = 6
+
     // Rotation state
     @State private var yawAngle: Float = 0
     @State private var pitchAngle: Float = 0
@@ -42,6 +47,7 @@ struct GridImmersiveView: View {
 
             content.add(container)
             containerEntity = container
+            setupParticleEmitters(in: container)
         } update: { content in
             guard let container = containerEntity else { return }
 
@@ -71,6 +77,7 @@ struct GridImmersiveView: View {
             startAutoRotation()
         }
         .onChange(of: engine.generation) {
+            triggerParticles()
             Task { await rebuildMesh() }
         }
         .onChange(of: engine.theme) {
@@ -155,6 +162,109 @@ struct GridImmersiveView: View {
                 try? await Task.sleep(nanoseconds: frameInterval)
             }
         }
+    }
+
+    // MARK: - Particle Effects
+
+    /// Creates a particle emitter entity configured for birth or death effects.
+    private static func makeParticleEmitter(isBirth: Bool, themeColors: ColorTheme.TierColors) -> Entity {
+        let entity = Entity()
+        var emitter = ParticleEmitterComponent()
+
+        emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: 0.3))
+        emitter.emitterShape = .sphere
+        emitter.emitterShapeSize = SIMD3<Float>(repeating: 0.01)
+        emitter.burstCount = isBirth ? 12 : 8
+
+        emitter.mainEmitter.lifeSpan = isBirth ? 0.5 : 0.8
+        emitter.mainEmitter.size = isBirth ? 0.003 : 0.002
+        emitter.mainEmitter.sizeVariation = isBirth ? 0.002 : 0.001
+        emitter.mainEmitter.spreadingAngle = isBirth ? .pi : (.pi * 2.0 / 3.0)
+        emitter.mainEmitter.acceleration = isBirth
+            ? SIMD3<Float>(0, 0.01, 0)   // Birth: particles float up
+            : SIMD3<Float>(0, -0.02, 0)  // Death: particles drift down
+
+        let color = themeColors.emissiveColor
+        emitter.mainEmitter.color = .constant(.single(.init(
+            red: CGFloat(color.x), green: CGFloat(color.y), blue: CGFloat(color.z), alpha: 1.0)))
+
+        emitter.mainEmitter.opacityCurve = .linearFadeOut
+
+        emitter.isEmitting = false
+        entity.components.set(emitter)
+        entity.name = isBirth ? "BirthParticles" : "DeathParticles"
+        return entity
+    }
+
+    /// Sets up particle emitter entities in the container.
+    private func setupParticleEmitters(in container: Entity) {
+        let birthColors = engine.theme.newborn
+        let deathColors = engine.theme.dying
+
+        var birthEntities: [Entity] = []
+        var deathEntities: [Entity] = []
+
+        for _ in 0..<Self.maxParticleEmitters {
+            let birthEntity = Self.makeParticleEmitter(isBirth: true, themeColors: birthColors)
+            container.addChild(birthEntity)
+            birthEntities.append(birthEntity)
+
+            let deathEntity = Self.makeParticleEmitter(isBirth: false, themeColors: deathColors)
+            container.addChild(deathEntity)
+            deathEntities.append(deathEntity)
+        }
+
+        birthParticleEntities = birthEntities
+        deathParticleEntities = deathEntities
+    }
+
+    /// Triggers particle bursts at sampled birth/death positions.
+    private func triggerParticles() {
+        let cellSize = GridRenderer.cellSize
+        let cellSpacing = GridRenderer.cellSpacing
+
+        let bornPositions = engine.grid.bornCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+        let dyingPositions = engine.grid.dyingCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+
+        // Sample up to maxParticleEmitters positions from births
+        let birthSample = samplePositions(bornPositions, count: Self.maxParticleEmitters)
+        for (i, entity) in birthParticleEntities.enumerated() {
+            if i < birthSample.count {
+                entity.position = birthSample[i]
+                entity.isEnabled = true
+                if var emitter = entity.components[ParticleEmitterComponent.self] {
+                    emitter.isEmitting = true
+                    emitter.burstCount = min(12, max(4, bornPositions.count / Self.maxParticleEmitters))
+                    entity.components.set(emitter)
+                }
+            } else {
+                entity.isEnabled = false
+            }
+        }
+
+        // Sample death positions
+        let deathSample = samplePositions(dyingPositions, count: Self.maxParticleEmitters)
+        for (i, entity) in deathParticleEntities.enumerated() {
+            if i < deathSample.count {
+                entity.position = deathSample[i]
+                entity.isEnabled = true
+                if var emitter = entity.components[ParticleEmitterComponent.self] {
+                    emitter.isEmitting = true
+                    emitter.burstCount = min(8, max(3, dyingPositions.count / Self.maxParticleEmitters))
+                    entity.components.set(emitter)
+                }
+            } else {
+                entity.isEnabled = false
+            }
+        }
+    }
+
+    /// Evenly samples positions from an array.
+    private func samplePositions(_ positions: [SIMD3<Float>], count: Int) -> [SIMD3<Float>] {
+        guard !positions.isEmpty else { return [] }
+        if positions.count <= count { return positions }
+        let step = positions.count / count
+        return (0..<count).map { positions[$0 * step] }
     }
 
     // MARK: - Mesh Building

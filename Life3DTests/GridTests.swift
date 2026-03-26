@@ -321,6 +321,52 @@ struct CellAgeTests {
     }
 }
 
+@Suite("Born Cell Tracking Tests")
+struct BornCellTests {
+    @Test("Born cells tracked when new cells appear")
+    func bornCellsTracked() {
+        var model = GridModel(size: 8)
+        // Place 5 neighbors around (4,4,4) — cell will be born
+        model.setCell(x: 3, y: 4, z: 4, alive: true)
+        model.setCell(x: 5, y: 4, z: 4, alive: true)
+        model.setCell(x: 4, y: 3, z: 4, alive: true)
+        model.setCell(x: 4, y: 5, z: 4, alive: true)
+        model.setCell(x: 4, y: 4, z: 3, alive: true)
+        #expect(model.bornCells.isEmpty)
+
+        model.advanceGeneration()
+        #expect(model.bornCells.contains(model.index(x: 4, y: 4, z: 4)))
+    }
+
+    @Test("Stable block produces no born cells")
+    func stableBlockNoBorn() {
+        var model = GridModel(size: 8)
+        for dx in 3...4 {
+            for dy in 3...4 {
+                for dz in 3...4 {
+                    model.setCell(x: dx, y: dy, z: dz, alive: true)
+                }
+            }
+        }
+        model.advanceGeneration()
+        #expect(model.bornCells.isEmpty)
+    }
+
+    @Test("Clear all resets born cells")
+    func clearAllResetsBorn() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 3, y: 4, z: 4, alive: true)
+        model.setCell(x: 5, y: 4, z: 4, alive: true)
+        model.setCell(x: 4, y: 3, z: 4, alive: true)
+        model.setCell(x: 4, y: 5, z: 4, alive: true)
+        model.setCell(x: 4, y: 4, z: 3, alive: true)
+        model.advanceGeneration()
+        #expect(!model.bornCells.isEmpty)
+        model.clearAll()
+        #expect(model.bornCells.isEmpty)
+    }
+}
+
 @Suite("Performance Optimization Tests")
 struct PerformanceTests {
     @Test("Optimized advanceGeneration matches neighborCount for random grid")
