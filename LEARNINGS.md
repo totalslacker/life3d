@@ -138,3 +138,18 @@ the same things. Search here before looking things up externally.
 - Original 4:1 ratio (cellSize 0.02, spacing 0.005) made cells blend together, especially inner layers invisible
 - 1:1 ratio (cellSize 0.015, spacing 0.015) gives clear cell differentiation while keeping grid compact (~45cm for 16³)
 - Total grid extent formula: `(size - 1) * stride / 2 + cellSize / 2` where `stride = cellSize + spacing`
+
+---
+
+## AVAudioEngine Spatial Audio for visionOS
+
+- `AVAudioEnvironmentNode` provides HRTF-based 3D audio positioning — attach player nodes to it for spatial sound
+- `AVAudioPlayerNode.renderingAlgorithm = .HRTFHQ` gives high-quality head-related transfer function on Vision Pro
+- `AVAudioPlayerNode.sourceMode = .pointSource` makes the audio emanate from a specific 3D point
+- `AVAudioPlayerNode.position = AVAudio3DPoint(x:y:z:)` positions the sound source; multiply by ~5 for audible separation at grid scale (cells are ~1.5cm apart)
+- Programmatic tone generation: create `AVAudioPCMBuffer` with mono format, write sine wave samples with envelope shaping
+- Bell curve envelope (Gaussian) works well for birth tones — smooth attack and decay with no click
+- Linear fade-out envelope works for death tones — immediate onset with gradual decay
+- Pool of 4 player nodes per type is sufficient — `.interrupts` option prevents overlapping the same player
+- Volume should scale with activity density to create a natural "busier = louder" soundscape
+- Death tones at ~60% volume of birth tones gives a natural feel — births are events, deaths are fading away

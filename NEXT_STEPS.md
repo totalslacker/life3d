@@ -15,12 +15,13 @@ Structured planning intent from the last evolution session. Categories:
 
 ## Suggested
 
+- Tune spatial audio frequencies and volume on real Vision Pro
+- Tune surround mode scale/position on real Vision Pro
 - Tune draw mode gesture sensitivity on real Vision Pro hardware
-- Tune particle burst count and size on real Vision Pro hardware
 - Phase 4: Gesture recognition and cell toggle accuracy tests
 
 ## Deferred
 
 - Phase 5: Launch screen / configuration UI
-- Phase 6: Spatial audio
+- Phase 6: Transition animation between shared and immersive space
 - Multiplayer (not in v1 scope)

@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 24 (2026-03-26)
+
+**Goal**: Generative spatial audio and surround mode toggle.
+
+Two improvements:
+
+1. **Generative spatial audio (Phase 6 roadmap)**: Created `SpatialAudioEngine` using AVAudioEngine with AVAudioEnvironmentNode for HRTF-based 3D audio. Programmatically generates sine wave tones — birth events play ascending tones (C5 to E5, bell curve envelope) and death events play descending tones (A4 to E4, fade-out envelope). Uses a pool of 4 player nodes per type, positioned at sampled birth/death cell locations each generation. Volume scales with activity density (busier regions produce slightly louder audio). Integrated with GridImmersiveView — tones trigger on each generation advance. Added mute toggle button (speaker icon) to ContentView.
+
+2. **Surround mode toggle (Phase 6 roadmap)**: Added a tabletop/surround mode toggle to ContentView (cube icon). Tabletop mode (default) positions the grid at (0, 1.5, -1.5) at normal scale — the standard "floating in front of you" view. Surround mode repositions the grid to (0, 1.5, 0) at 3× scale, centering it around the user so cells evolve all around them. Uses the existing .mixed immersion style — no need to dismiss/reopen the immersive space.
+
+Window widened from 750pt to 850pt to accommodate surround and mute toggle buttons.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test spatial audio on real Vision Pro — may need frequency/volume tuning for the spatial environment. Test surround mode positioning and scale. Depth of field effect. Visual feedback on hover. Phase 5 configuration UI.
+
+---
+
 ## Day 10 — Session 23 (2026-03-26)
 
 **Goal**: Draw mode for continuous cell painting and fix initial seed density.

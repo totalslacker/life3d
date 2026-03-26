@@ -79,6 +79,26 @@ struct ContentView: View {
             .controlSize(.small)
             .help(engine.drawMode ? "Draw mode: drag to paint cells" : "Rotate mode: drag to rotate")
 
+            // Surround mode toggle
+            Button {
+                engine.surroundMode.toggle()
+            } label: {
+                Image(systemName: engine.surroundMode ? "cube.fill" : "cube.transparent")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .help(engine.surroundMode ? "Surround mode: grid around you" : "Tabletop mode: grid in front")
+
+            // Audio mute toggle
+            Button {
+                engine.audioMuted.toggle()
+            } label: {
+                Image(systemName: engine.audioMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .help(engine.audioMuted ? "Audio muted" : "Audio on")
+
             // Speed slider
             HStack(spacing: 4) {
                 Text("\(Int(engine.speed))×")

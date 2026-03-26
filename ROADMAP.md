@@ -59,10 +59,10 @@ Living document. Updated each evolution session. Items come from three sources:
 
 ## Phase 6 — Audio & Polish (Day 26-30)
 
-- [ ] Generative spatial audio: tones on cell birth/death, positioned in 3D
-- [ ] Audio follows activity density (busier regions are louder)
-- [ ] Volume control and mute toggle
-- [ ] Immersive space mode: expand grid to fill the room
+- [x] Generative spatial audio: tones on cell birth/death, positioned in 3D (session 24)
+- [x] Audio follows activity density (busier regions are louder) (session 24)
+- [x] Volume control and mute toggle (session 24)
+- [x] Immersive space mode: expand grid to fill the room — surround mode toggle (session 24)
 - [ ] Transition animation between shared and immersive space
 - [ ] Performance profiling and optimization pass
 - [ ] App icon and launch experience polish

@@ -10,6 +10,8 @@ final class SimulationEngine {
     var speed: Double = 5.0 // generations per second
     var theme: ColorTheme = .neon
     var drawMode: Bool = false
+    var surroundMode: Bool = false  // false = tabletop, true = room-scale
+    var audioMuted: Bool = false
 
     private var timerTask: Task<Void, Never>?
 

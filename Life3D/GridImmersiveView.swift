@@ -20,6 +20,9 @@ struct GridImmersiveView: View {
     // Toggle pulse effect
     @State private var pulseEntity: Entity?
 
+    // Spatial audio engine
+    @State private var audioEngine = SpatialAudioEngine()
+
     // Rotation state
     @State private var yawAngle: Float = 0
     @State private var pitchAngle: Float = 0
@@ -88,15 +91,23 @@ struct GridImmersiveView: View {
         }
         .task {
             startAutoRotation()
+            audioEngine.setup()
         }
         .onChange(of: engine.generation) {
             triggerParticles()
+            triggerAudio()
             updatePointLights()
             Task { await rebuildMesh() }
         }
         .onChange(of: engine.theme) {
             updatePointLights()
             Task { await rebuildMesh() }
+        }
+        .onChange(of: engine.surroundMode) {
+            applySurroundMode()
+        }
+        .onChange(of: engine.audioMuted) {
+            audioEngine.isMuted = engine.audioMuted
         }
     }
 
@@ -421,6 +432,33 @@ struct GridImmersiveView: View {
         Task {
             try? await Task.sleep(nanoseconds: 500_000_000)  // 0.5s
             entity.isEnabled = false
+        }
+    }
+
+    // MARK: - Spatial Audio
+
+    private func triggerAudio() {
+        let cellSize = GridRenderer.cellSize
+        let cellSpacing = GridRenderer.cellSpacing
+        let birthPositions = engine.grid.bornCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+        let deathPositions = engine.grid.dyingCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+        audioEngine.triggerTones(birthPositions: birthPositions, deathPositions: deathPositions)
+    }
+
+    // MARK: - Surround Mode
+
+    private func applySurroundMode() {
+        guard let container = containerEntity else { return }
+        if engine.surroundMode {
+            // Surround: grid centered on user, scaled up to fill room
+            container.position = SIMD3<Float>(0, 1.5, 0)
+            currentScale = 3.0
+            magnifyStartScale = 3.0
+        } else {
+            // Tabletop: grid in front of user at eye level
+            container.position = SIMD3<Float>(0, 1.5, -1.5)
+            currentScale = 1.0
+            magnifyStartScale = 1.0
         }
     }
 
