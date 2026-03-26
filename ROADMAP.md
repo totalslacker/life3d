@@ -40,7 +40,7 @@ Living document. Updated each evolution session. Items come from three sources:
 
 ## Phase 4 — Spatial Interaction (Day 15-20)
 
-- [ ] Hand tracking: pinch to toggle individual cells on/off
+- [x] Hand tracking: pinch to toggle individual cells on/off — spatial tap gesture (session 21)
 - [x] Drag gesture to rotate the grid volume
 - [x] Two-hand pinch to scale the grid up/down
 - [ ] Draw mode: point and pinch to paint cells in 3D space

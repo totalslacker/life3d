@@ -68,6 +68,7 @@ struct GridImmersiveView: View {
                 }
             }
         }
+        .gesture(spatialTapGesture)
         .gesture(dragGesture)
         .gesture(magnifyGesture)
         .task {
@@ -86,6 +87,22 @@ struct GridImmersiveView: View {
     }
 
     // MARK: - Gestures
+
+    private var spatialTapGesture: some Gesture {
+        SpatialTapGesture()
+            .targetedToAnyEntity()
+            .onEnded { value in
+                guard let container = containerEntity else { return }
+                // location3D is in the tapped entity's local coordinate space
+                // The entity with collision is the container, so this is already in grid space
+                let localPos = value.convert(value.location3D, from: .local, to: .scene)
+                // Transform scene position into container's local space
+                let containerWorldTransform = container.transformMatrix(relativeTo: nil)
+                let inverseTransform = containerWorldTransform.inverse
+                let localPoint = inverseTransform * SIMD4<Float>(localPos.x, localPos.y, localPos.z, 1.0)
+                engine.toggleCell(at: SIMD3<Float>(localPoint.x, localPoint.y, localPoint.z))
+            }
+    }
 
     private var dragGesture: some Gesture {
         DragGesture()

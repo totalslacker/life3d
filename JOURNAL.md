@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 21 (2026-03-26)
+
+**Goal**: Spatial tap gesture for cell toggling and aliveCount performance optimization.
+
+Two improvements:
+
+1. **Spatial tap to toggle cells (Phase 4 hand tracking)**: Added `SpatialTapGesture` to `GridImmersiveView` that lets users tap on cells to toggle them alive/dead. Tap position is converted from scene space to the grid container's local coordinate space via inverse transform, then mapped to the nearest grid cell using `nearestGridCoords()`. Added `toggleCell(x:y:z:)` to `GridModel` and `toggleCell(at:)` to `SimulationEngine`. Toggling increments the generation counter to trigger mesh rebuild. This is the first Phase 4 interactive feature — users can now directly manipulate the simulation by tapping on cells.
+
+2. **Cached aliveCount**: Replaced the computed `aliveCount` property (which filtered all n³ cells every access) with a stored property maintained incrementally. `setCell`, `toggleCell`, `clearAll`, `randomSeed`, and `advanceGeneration` all keep the count accurate. For a 32³ grid, this avoids 32,768 comparisons on every UI redraw cycle.
+
+3. **Tests**: Added 4 new tests — toggle dead cell, toggle alive cell, nearest grid coords round-trip, and aliveCount accuracy through mutations.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test tap gesture on real Vision Pro — verify coordinate mapping accuracy and gesture responsiveness. Visual feedback on hover (cell highlights before tap). Draw mode (continuous cell painting). Depth of field effect. Light emission from cells.
+
+---
+
 ## Day 10 — Session 20 (2026-03-26)
 
 **Goal**: Particle effects on birth/death events and rules configuration UI.

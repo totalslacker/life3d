@@ -40,7 +40,37 @@ struct GridModel: Sendable {
 
     mutating func setCell(x: Int, y: Int, z: Int, alive: Bool) {
         guard x >= 0, x < size, y >= 0, y < size, z >= 0, z < size else { return }
-        cells[index(x: x, y: y, z: z)] = alive ? 1 : 0
+        let idx = index(x: x, y: y, z: z)
+        let wasAlive = cells[idx] > 0
+        cells[idx] = alive ? 1 : 0
+        if alive && !wasAlive { aliveCount += 1 }
+        else if !alive && wasAlive { aliveCount -= 1 }
+    }
+
+    mutating func toggleCell(x: Int, y: Int, z: Int) {
+        guard x >= 0, x < size, y >= 0, y < size, z >= 0, z < size else { return }
+        let idx = index(x: x, y: y, z: z)
+        if cells[idx] > 0 {
+            cells[idx] = 0
+            aliveCount -= 1
+        } else {
+            cells[idx] = 1
+            aliveCount += 1
+        }
+    }
+
+    /// Converts a 3D position (in grid local space) to the nearest grid coordinates.
+    func nearestGridCoords(for position: SIMD3<Float>, cellSize: Float, cellSpacing: Float) -> (x: Int, y: Int, z: Int) {
+        let stride = cellSize + cellSpacing
+        let offset = Float(size - 1) * stride / 2.0
+        let x = Int(round((position.x + offset) / stride))
+        let y = Int(round((position.y + offset) / stride))
+        let z = Int(round((position.z + offset) / stride))
+        return (
+            min(max(x, 0), size - 1),
+            min(max(y, 0), size - 1),
+            min(max(z, 0), size - 1)
+        )
     }
 
     // MARK: - Neighbor Counting (26-cell Moore neighborhood)
@@ -130,6 +160,7 @@ struct GridModel: Sendable {
         cells = next
         dyingCells = dying
         bornCells = born
+        recomputeAliveCount()
     }
 
     // MARK: - Alive Cell Positions
@@ -185,8 +216,10 @@ struct GridModel: Sendable {
         }
     }
 
-    var aliveCount: Int {
-        cells.filter { $0 > 0 }.count
+    private(set) var aliveCount: Int = 0
+
+    private mutating func recomputeAliveCount() {
+        aliveCount = cells.reduce(0) { $0 + ($1 > 0 ? 1 : 0) }
     }
 
     // MARK: - Cell Positioning
@@ -207,6 +240,7 @@ struct GridModel: Sendable {
         for i in 0..<cellCount {
             cells[i] = Double.random(in: 0...1) < density ? 1 : 0
         }
+        recomputeAliveCount()
     }
 
     /// A dense random blob centered in the grid — produces interesting evolution
@@ -258,5 +292,6 @@ struct GridModel: Sendable {
         cells = [Int](repeating: 0, count: cellCount)
         dyingCells = []
         bornCells = []
+        aliveCount = 0
     }
 }

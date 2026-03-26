@@ -117,6 +117,13 @@ final class SimulationEngine {
         grid.survivalCounts = ruleSet.survivalCounts
     }
 
+    /// Toggles the cell nearest to a 3D position (in grid local space).
+    func toggleCell(at position: SIMD3<Float>) {
+        let coords = grid.nearestGridCoords(for: position, cellSize: GridRenderer.cellSize, cellSpacing: GridRenderer.cellSpacing)
+        grid.toggleCell(x: coords.x, y: coords.y, z: coords.z)
+        generation += 1  // trigger mesh rebuild via onChange
+    }
+
     enum GridSize: Int, CaseIterable, Identifiable {
         case small = 12
         case medium = 16

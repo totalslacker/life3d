@@ -438,4 +438,69 @@ struct PerformanceTests {
         // Simulation should produce some alive cells
         #expect(model.aliveCount > 0)
     }
+
+    // MARK: - Cell Toggle Tests
+
+    @Test("Toggle dead cell makes it alive")
+    func toggleDeadCell() {
+        var model = GridModel(size: 8)
+        #expect(!model.isAlive(x: 3, y: 3, z: 3))
+        model.toggleCell(x: 3, y: 3, z: 3)
+        #expect(model.isAlive(x: 3, y: 3, z: 3))
+        #expect(model.aliveCount == 1)
+    }
+
+    @Test("Toggle alive cell makes it dead")
+    func toggleAliveCell() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        #expect(model.aliveCount == 1)
+        model.toggleCell(x: 3, y: 3, z: 3)
+        #expect(!model.isAlive(x: 3, y: 3, z: 3))
+        #expect(model.aliveCount == 0)
+    }
+
+    @Test("Nearest grid coords from 3D position")
+    func nearestGridCoords() {
+        let model = GridModel(size: 16)
+        let cellSize: Float = 0.015
+        let cellSpacing: Float = 0.015
+
+        // Origin maps to center cell (7 or 8 depending on rounding)
+        let center = model.nearestGridCoords(for: SIMD3<Float>(0, 0, 0), cellSize: cellSize, cellSpacing: cellSpacing)
+        #expect(center.x >= 7 && center.x <= 8)
+        #expect(center.y >= 7 && center.y <= 8)
+        #expect(center.z >= 7 && center.z <= 8)
+
+        // Position at cell (0,0,0) should map back correctly
+        let pos = model.cellPosition(x: 5, y: 10, z: 3, cellSize: cellSize, cellSpacing: cellSpacing)
+        let coords = model.nearestGridCoords(for: pos, cellSize: cellSize, cellSpacing: cellSpacing)
+        #expect(coords.x == 5)
+        #expect(coords.y == 10)
+        #expect(coords.z == 3)
+    }
+
+    // MARK: - Alive Count Caching Tests
+
+    @Test("aliveCount stays accurate through mutations")
+    func aliveCountAccuracy() {
+        var model = GridModel(size: 8)
+        #expect(model.aliveCount == 0)
+
+        model.setCell(x: 0, y: 0, z: 0, alive: true)
+        #expect(model.aliveCount == 1)
+
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+        #expect(model.aliveCount == 2)
+
+        model.setCell(x: 0, y: 0, z: 0, alive: false)
+        #expect(model.aliveCount == 1)
+
+        model.clearAll()
+        #expect(model.aliveCount == 0)
+
+        model.randomSeed(density: 0.25)
+        let counted = model.cells.filter { $0 > 0 }.count
+        #expect(model.aliveCount == counted)
+    }
 }
