@@ -10,14 +10,14 @@ Structured planning intent from the last evolution session. Categories:
 ## Priority
 
 - Phase 3: Depth of field (cells far from gaze softly blurred)
-- Phase 3: Light emission (living cells cast soft light onto nearby surfaces)
-- Phase 4: Hand tracking interaction (pinch to toggle cells)
+- Phase 4: Visual feedback on hover (cell highlights before selection)
+- Phase 3: Performance profiling at 32x32x32 grid — maintain 60fps
 
 ## Suggested
 
-- Phase 3: Performance profiling at 32x32x32 grid — maintain 60fps
+- Tune draw mode gesture sensitivity on real Vision Pro hardware
 - Tune particle burst count and size on real Vision Pro hardware
-- Phase 4: Draw mode (paint cells by pointing and pinching in 3D)
+- Phase 4: Gesture recognition and cell toggle accuracy tests
 
 ## Deferred
 

@@ -480,6 +480,40 @@ struct PerformanceTests {
         #expect(coords.z == 3)
     }
 
+    // MARK: - Draw Mode / Paint Tests
+
+    @Test("setCell alive on already alive cell preserves age")
+    func setCellAlivePreservesAge() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        #expect(model.cellAge(x: 3, y: 3, z: 3) == 1)
+        #expect(model.aliveCount == 1)
+        // Setting alive again should not double-count
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        #expect(model.aliveCount == 1)
+    }
+
+    @Test("Multiple cells can be set alive sequentially (paint mode)")
+    func paintMultipleCells() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+        model.setCell(x: 2, y: 1, z: 1, alive: true)
+        model.setCell(x: 3, y: 1, z: 1, alive: true)
+        #expect(model.aliveCount == 3)
+        #expect(model.isAlive(x: 1, y: 1, z: 1))
+        #expect(model.isAlive(x: 2, y: 1, z: 1))
+        #expect(model.isAlive(x: 3, y: 1, z: 1))
+    }
+
+    @Test("Default random seed uses 25% density")
+    func defaultSeedDensity() {
+        var model = GridModel(size: 16)
+        model.randomSeed()
+        // At 25% density on 16³ (4096 cells), expect ~1024 alive
+        // Allow wide margin for randomness but verify it's not 10% (~410)
+        #expect(model.aliveCount > 600)
+    }
+
     // MARK: - Alive Count Caching Tests
 
     @Test("aliveCount stays accurate through mutations")

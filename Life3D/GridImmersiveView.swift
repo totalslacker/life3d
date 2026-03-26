@@ -26,6 +26,9 @@ struct GridImmersiveView: View {
     @State private var dragStartYaw: Float = 0
     @State private var dragStartPitch: Float = 0
 
+    // Draw mode state — tracks which cells were already painted during this drag
+    @State private var paintedCells: Set<Int> = []
+
     // Scale state
     @State private var currentScale: Float = 1.0
     @State private var magnifyStartScale: Float = 1.0
@@ -121,24 +124,50 @@ struct GridImmersiveView: View {
         DragGesture()
             .targetedToAnyEntity()
             .onChanged { value in
-                isDragging = true
-                momentumTask?.cancel()
-                let sensitivity: Float = 0.005
-                let newYaw = dragStartYaw + Float(value.translation.width) * sensitivity
-                let newPitch = dragStartPitch - Float(value.translation.height) * sensitivity
-                // Track velocity from frame-to-frame translation delta
-                yawVelocity = Float(value.translation.width - lastDragTranslation.width) * sensitivity
-                pitchVelocity = Float(-(value.translation.height - lastDragTranslation.height)) * sensitivity
-                lastDragTranslation = value.translation
-                yawAngle = newYaw
-                pitchAngle = min(max(newPitch, -.pi / 2), .pi / 2)
+                if engine.drawMode {
+                    // Draw mode: convert drag position to cell coordinates and paint
+                    guard let container = containerEntity else { return }
+                    isDragging = true
+                    let scenePos = value.convert(value.location3D, from: .local, to: .scene)
+                    let containerWorldTransform = container.transformMatrix(relativeTo: nil)
+                    let inverseTransform = containerWorldTransform.inverse
+                    let localPoint = inverseTransform * SIMD4<Float>(scenePos.x, scenePos.y, scenePos.z, 1.0)
+                    let pos = SIMD3<Float>(localPoint.x, localPoint.y, localPoint.z)
+                    let coords = engine.grid.nearestGridCoords(for: pos, cellSize: GridRenderer.cellSize, cellSpacing: GridRenderer.cellSpacing)
+                    let cellKey = coords.x * engine.grid.size * engine.grid.size + coords.y * engine.grid.size + coords.z
+                    if !paintedCells.contains(cellKey) {
+                        paintedCells.insert(cellKey)
+                        // In draw mode, always set cells alive (paint on)
+                        if !engine.grid.isAlive(x: coords.x, y: coords.y, z: coords.z) {
+                            engine.grid.setCell(x: coords.x, y: coords.y, z: coords.z, alive: true)
+                            engine.generation += 1  // trigger mesh rebuild
+                        }
+                        triggerPulse(at: pos)
+                    }
+                } else {
+                    // Rotate mode: normal rotation behavior
+                    isDragging = true
+                    momentumTask?.cancel()
+                    let sensitivity: Float = 0.005
+                    let newYaw = dragStartYaw + Float(value.translation.width) * sensitivity
+                    let newPitch = dragStartPitch - Float(value.translation.height) * sensitivity
+                    yawVelocity = Float(value.translation.width - lastDragTranslation.width) * sensitivity
+                    pitchVelocity = Float(-(value.translation.height - lastDragTranslation.height)) * sensitivity
+                    lastDragTranslation = value.translation
+                    yawAngle = newYaw
+                    pitchAngle = min(max(newPitch, -.pi / 2), .pi / 2)
+                }
             }
             .onEnded { _ in
                 isDragging = false
-                dragStartYaw = yawAngle
-                dragStartPitch = pitchAngle
-                lastDragTranslation = .zero
-                startMomentum()
+                if engine.drawMode {
+                    paintedCells.removeAll()
+                } else {
+                    dragStartYaw = yawAngle
+                    dragStartPitch = pitchAngle
+                    lastDragTranslation = .zero
+                    startMomentum()
+                }
             }
     }
 

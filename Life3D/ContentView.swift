@@ -69,6 +69,16 @@ struct ContentView: View {
             }
             .controlSize(.small)
 
+            // Draw mode toggle
+            Button {
+                engine.drawMode.toggle()
+            } label: {
+                Image(systemName: engine.drawMode ? "pencil.circle.fill" : "arrow.triangle.2.circlepath")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .help(engine.drawMode ? "Draw mode: drag to paint cells" : "Rotate mode: drag to rotate")
+
             // Speed slider
             HStack(spacing: 4) {
                 Text("\(Int(engine.speed))×")

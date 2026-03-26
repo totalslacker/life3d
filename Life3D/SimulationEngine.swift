@@ -9,12 +9,13 @@ final class SimulationEngine {
     var isRunning: Bool = false
     var speed: Double = 5.0 // generations per second
     var theme: ColorTheme = .neon
+    var drawMode: Bool = false
 
     private var timerTask: Task<Void, Never>?
 
     init(size: Int = 16) {
         self.grid = GridModel(size: size)
-        self.grid.randomSeed(density: 0.1)
+        self.grid.randomSeed()
     }
 
     func step() {

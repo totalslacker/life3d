@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 23 (2026-03-26)
+
+**Goal**: Draw mode for continuous cell painting and fix initial seed density.
+
+Two improvements:
+
+1. **Draw mode (Phase 4 roadmap)**: Added a rotate/draw mode toggle to the control panel. When draw mode is active (pencil icon), dragging on the grid paints cells alive along the drag path instead of rotating. Uses the existing `DragGesture` with mode-dependent behavior — in draw mode, the drag position is converted to grid coordinates via inverse container transform and `nearestGridCoords()`. A `paintedCells` set tracks which cells have already been painted during the current drag to avoid redundant toggles and mesh rebuilds. Each newly painted cell triggers a pulse particle effect for visual feedback. In rotate mode (default, circular arrows icon), drag behavior is unchanged.
+
+2. **Fix initial seed density**: `SimulationEngine.init` was calling `randomSeed(density: 0.1)` — 10% density — while the "Random (25%)" pattern used the default 0.25. At 10% density, average neighbor count (~2.6) is far below the B5-7 birth threshold, causing most initial simulations to die quickly. Fixed to use the default 25% density which produces healthy long-lived simulations.
+
+3. **Tests**: Added 3 new tests — setCell alive preserves age and doesn't double-count, sequential cell painting tracks alive count correctly, and default random seed produces >600 alive cells (verifying 25% density).
+
+Window widened from 700pt to 750pt to accommodate the draw mode toggle button.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test draw mode gesture accuracy on real Vision Pro. Depth of field effect. Visual feedback on hover (cell highlights before selection). Phase 5 configuration UI.
+
+---
+
 ## Day 10 — Session 22 (2026-03-26)
 
 **Goal**: Point light emission from living cells and visual pulse on cell toggle.
