@@ -12,6 +12,7 @@ final class SimulationEngine {
     var drawMode: Bool = false
     var surroundMode: Bool = false  // false = tabletop, true = room-scale
     var audioMuted: Bool = false
+    var selectedPattern: Pattern = .random
 
     private var timerTask: Task<Void, Never>?
 

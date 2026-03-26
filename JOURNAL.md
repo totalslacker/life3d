@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 26 (2026-03-26)
+
+**Goal**: Launch screen and return-to-settings flow (Phase 5).
+
+Two improvements:
+
+1. **Launch screen (Phase 5 roadmap)**: Created `LaunchView.swift` — a floating configuration panel shown before the simulation starts. Users can select pattern, color theme, grid size, rules, and speed before hitting "Start Simulation." Uses SwiftUI `Grid` layout with `Picker` controls for each setting. Added `selectedPattern` property to `SimulationEngine` so the chosen pattern is applied when starting.
+
+2. **Return-to-settings flow (Phase 5 roadmap)**: Added a back button (chevron.left) to the simulation control bar that pauses the simulation, dismisses the immersive space, and returns to the launch screen. The `ContentView` now acts as a state machine: shows `LaunchView` when not simulating, switches to `SimulationControlBar` when active. Window uses `.windowResizability(.contentSize)` so it adapts to the larger launch panel and compact control bar.
+
+Extracted the simulation control bar into its own `SimulationControlBar` view for clean separation. The immersive space is opened via `onChange(of: showingSimulation)` to ensure it fires after the view tree updates.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test launch → simulate → back → relaunch cycle on real Vision Pro. Mid-simulation settings overlay (Phase 5). Smooth grid materialize/dissolve transition. Depth of field. Performance profiling at 32³.
+
+---
+
 ## Day 10 — Session 25 (2026-03-26)
 
 **Goal**: Hover feedback, user preferences persistence, and boundary wireframe.

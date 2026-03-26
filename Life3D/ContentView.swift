@@ -4,11 +4,55 @@ struct ContentView: View {
     @Environment(SimulationEngine.self) private var engine
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
+    @State private var showingSimulation = false
+
+    var body: some View {
+        Group {
+            if showingSimulation {
+                SimulationControlBar(onBack: {
+                    Task {
+                        engine.pause()
+                        await dismissImmersiveSpace()
+                        showingSimulation = false
+                    }
+                })
+                .environment(engine)
+            } else {
+                LaunchView(onStart: {
+                    showingSimulation = true
+                })
+                .environment(engine)
+            }
+        }
+        .onChange(of: showingSimulation) {
+            if showingSimulation {
+                Task {
+                    await openImmersiveSpace(id: "life3d-grid")
+                }
+            }
+        }
+    }
+}
+
+/// The compact control bar shown during active simulation.
+struct SimulationControlBar: View {
+    @Environment(SimulationEngine.self) private var engine
+    let onBack: () -> Void
 
     var body: some View {
         @Bindable var engine = engine
 
         HStack(spacing: 12) {
+            // Back to settings
+            Button {
+                onBack()
+            } label: {
+                Image(systemName: "chevron.left")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .help("Back to settings")
+
             // Play/Pause + Step
             HStack(spacing: 6) {
                 Button {
@@ -119,9 +163,6 @@ struct ContentView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
-        .task {
-            await openImmersiveSpace(id: "life3d-grid")
-        }
         .onChange(of: engine.theme) { engine.savePreferences() }
         .onChange(of: engine.speed) { engine.savePreferences() }
         .onChange(of: engine.audioMuted) { engine.savePreferences() }

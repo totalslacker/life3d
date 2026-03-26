@@ -50,9 +50,9 @@ Living document. Updated each evolution session. Items come from three sources:
 
 ## Phase 5 — Configuration & Navigation (Day 21-25)
 
-- [ ] Launch screen: floating SwiftUI panel with mode, pattern, grid size, rules, color theme selection
+- [x] Launch screen: floating SwiftUI panel with mode, pattern, grid size, rules, color theme selection (session 26)
 - [ ] Mid-simulation menu: pause, reset, change pattern, tweak rules, adjust visuals
-- [ ] Return to launch screen from simulation
+- [x] Return to launch screen from simulation (session 26)
 - [ ] Smooth transition: grid materializes from launch screen, dissolves on exit
 - [ ] Palm-up gesture or minimal persistent HUD to invoke menu
 - [x] Persist user preferences (theme, grid size, rules, speed, audio muted) via UserDefaults (session 25)
