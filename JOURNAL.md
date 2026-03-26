@@ -4,6 +4,22 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 16 (2026-03-26)
+
+**Goal**: Address community issues — cell visibility (GitHub #1) and rotation/zoom controls (GitHub #2).
+
+Two changes driven by real user feedback:
+
+1. **Cell spacing (GitHub #1)**: Reduced cell size from 2cm to 1.5cm and tripled spacing from 0.5cm to 1.5cm. The previous 4:1 cell-to-gap ratio made cells indistinguishable and blocked view of inner layers. New 1:1 ratio gives each cell clear visual separation while keeping the 16³ grid at a comfortable ~45cm total extent.
+
+2. **Rotation and zoom (GitHub #2)**: Added drag-to-rotate and pinch-to-zoom gestures to the immersive view. Grid now lives inside a container entity with `InputTargetComponent` and `CollisionComponent` for gesture targeting. Drag maps horizontal/vertical movement to yaw/pitch rotation; magnify gesture scales 0.3×–5.0×. Container approach keeps the grid mesh rebuild independent of transform state.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test both changes on real Vision Pro. Smooth cell birth/death animation (fade in/out). Particle effects on birth/death. Performance profiling at 32×32×32.
+
+---
+
 ## Day 9 — Session 15 (2026-03-25)
 
 **Goal**: Phase 3 Visual Beauty — color themes (li-d09).

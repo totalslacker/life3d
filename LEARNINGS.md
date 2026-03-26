@@ -85,3 +85,21 @@ the same things. Search here before looking things up externally.
 - `Task.sleep(nanoseconds:)` in a loop is the simplest timer for continuous simulation — avoids Timer/RunLoop complexity
 - When rebuilding LowLevelMesh each generation: create new mesh from scratch rather than trying to resize buffers (LowLevelMesh capacity is fixed at creation)
 - Guard against concurrent rebuilds with a simple `isRebuilding` flag — prevents mesh rebuild pile-up at high simulation speeds
+
+---
+
+## Entity Gestures in visionOS ImmersiveSpace
+
+- Entities need `InputTargetComponent` and `CollisionComponent` to receive gestures
+- `DragGesture().targetedToAnyEntity()` provides `EntityTargetValue<DragGesture.Value>` — access 2D `translation` (CGSize with `.width`/`.height`), NOT `translation3D` (doesn't exist on `DragGesture.Value`)
+- `MagnifyGesture().targetedToAnyEntity()` provides `magnification` (CGFloat scale factor)
+- Container entity pattern: put the grid inside a parent entity, apply rotation/scale to the parent, rebuild the grid mesh independently — this separates transform state from mesh state
+- `CollisionComponent(shapes: [.generateBox(size:)])` — use a generous box size (larger than actual grid) for easy grab targeting
+- Yaw/pitch from 2D drag: horizontal → yaw (Y-axis rotation), vertical → pitch (X-axis rotation). Clamp pitch to ±π/2 to prevent flipping
+
+## Cell Spacing for 3D Grid Readability
+
+- Cell-to-gap ratio matters more than absolute sizes for readability
+- Original 4:1 ratio (cellSize 0.02, spacing 0.005) made cells blend together, especially inner layers invisible
+- 1:1 ratio (cellSize 0.015, spacing 0.015) gives clear cell differentiation while keeping grid compact (~45cm for 16³)
+- Total grid extent formula: `(size - 1) * stride / 2 + cellSize / 2` where `stride = cellSize + spacing`
