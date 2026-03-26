@@ -95,8 +95,8 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
 }
 
 enum GridRenderer {
-    static let cellSize: Float = 0.02
-    static let cellSpacing: Float = 0.005
+    static let cellSize: Float = 0.015
+    static let cellSpacing: Float = 0.015
 
     /// Age tier for visual differentiation
     enum AgeTier: Int, CaseIterable {
