@@ -26,7 +26,7 @@ Before running `gt done` or pushing your branch, you MUST:
 
 1. Write a journal entry at the TOP of JOURNAL.md using this format:
    ```
-   ## Day N — Session M (YYYY-MM-DD)
+   ## Day N — Session M (YYYY-MM-DD HH:MM TZ)
 
    **Goal**: What you set out to do this session.
 
