@@ -47,6 +47,10 @@ struct GridImmersiveView: View {
     @State private var pitchVelocity: Float = 0
     @State private var lastDragTranslation: CGSize = .zero
 
+    // Materialize/dissolve transition
+    @State private var materializeScale: Float = 0.01
+    @State private var materializeOpacity: Float = 0.0
+
     var body: some View {
         RealityView { content in
             let container = Entity()
@@ -80,7 +84,8 @@ struct GridImmersiveView: View {
             let yawRotation = simd_quatf(angle: yawAngle, axis: SIMD3<Float>(0, 1, 0))
             let pitchRotation = simd_quatf(angle: pitchAngle, axis: SIMD3<Float>(1, 0, 0))
             container.orientation = yawRotation * pitchRotation
-            container.scale = SIMD3<Float>(repeating: currentScale)
+            container.scale = SIMD3<Float>(repeating: currentScale * materializeScale)
+            container.components[OpacityComponent.self] = OpacityComponent(opacity: materializeOpacity)
 
             // Swap grid entity if updated
             if let grid = gridEntity {
@@ -102,6 +107,8 @@ struct GridImmersiveView: View {
         .task {
             startAutoRotation()
             audioEngine.setup()
+            // Materialize animation: scale up and fade in over ~0.6s
+            await materializeIn()
         }
         .onChange(of: engine.generation) {
             triggerParticles()
@@ -481,6 +488,24 @@ struct GridImmersiveView: View {
         let wireframe = GridRenderer.makeBoundaryWireframe(gridSize: engine.grid.size, theme: engine.theme)
         container.addChild(wireframe)
         wireframeEntity = wireframe
+    }
+
+    // MARK: - Materialize/Dissolve Transition
+
+    /// Animates the grid scaling up from near-zero and fading in.
+    private func materializeIn() async {
+        let steps = 30  // ~0.5s at 60fps
+        let frameInterval: UInt64 = 16_000_000
+        for i in 1...steps {
+            let t = Float(i) / Float(steps)
+            // Ease-out curve for snappy entry
+            let eased = 1.0 - (1.0 - t) * (1.0 - t)
+            materializeScale = eased
+            materializeOpacity = eased
+            try? await Task.sleep(nanoseconds: frameInterval)
+        }
+        materializeScale = 1.0
+        materializeOpacity = 1.0
     }
 
     // MARK: - Mesh Building

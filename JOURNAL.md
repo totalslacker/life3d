@@ -4,6 +4,22 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 27 (2026-03-26)
+
+**Goal**: Mid-simulation settings overlay and grid materialize transition (Phase 5).
+
+Two improvements:
+
+1. **Mid-simulation settings overlay (Phase 5 roadmap)**: The control bar was overcrowded with 11+ controls crammed into one row (Pattern, Theme, Rules, Size menus alongside play/step/draw/surround/audio/speed). Extracted configuration menus into a `MidSimulationSettings` panel that slides open below the control bar when the user taps a gear icon. The settings panel uses a `Grid` layout with labeled rows of buttons for Pattern, Theme, Rules, and Size — each option is a visible button rather than a hidden dropdown menu, making it faster to discover and switch settings. The control bar now contains only the primary simulation controls (play/pause, step, draw mode, surround, audio, speed, gear, stats), keeping it clean and focused. Animation uses `.easeInOut` with `.move(edge: .top).combined(with: .opacity)` transition.
+
+2. **Grid materialize transition (Phase 5 roadmap)**: When the immersive space opens, the grid now scales up from near-zero and fades in over ~0.5 seconds using an ease-out curve, creating a "materialization" effect. Implemented via `OpacityComponent` and multiplied `materializeScale` on the container entity. The animation runs 30 steps at ~60fps with quadratic ease-out for a snappy, natural entry. This replaces the previous instant pop-in which felt jarring.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test settings overlay and materialize transition on real Vision Pro. Add dissolve-out animation when returning to launch screen. Palm-up gesture or minimal HUD for invoking settings. Depth of field. Performance profiling at 32³.
+
+---
+
 ## Day 10 — Session 26 (2026-03-26)
 
 **Goal**: Launch screen and return-to-settings flow (Phase 5).
