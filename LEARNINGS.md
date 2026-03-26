@@ -141,6 +141,26 @@ the same things. Search here before looking things up externally.
 
 ---
 
+## HoverEffectComponent in visionOS RealityKit
+
+- `HoverEffectComponent()` with default style provides system-standard gaze highlight on entities
+- Requires `InputTargetComponent` and `CollisionComponent` on the same entity to work
+- Works on container entities — the highlight applies to all visible child entities in the subtree
+- For merged mesh grids, per-cell hover isn't practical; container-level hover gives "this is interactive" feedback
+- No additional gesture configuration needed — visionOS handles gaze tracking automatically
+
+---
+
+## Wireframe Boundary with MeshResource.generateBox
+
+- 12 thin `MeshResource.generateBox` entities (one per cube edge) is a simple way to render a wireframe boundary
+- Edge thickness of 0.0008m (0.8mm) is visible but unobtrusive at typical grid scales
+- `UnlitMaterial` with low alpha (0.3) keeps the wireframe subtle against translucent cell rendering
+- Using theme's mature emissive color for wireframe makes it feel integrated with the visual style
+- 12 entities is lightweight — no measurable performance impact on visionOS
+
+---
+
 ## AVAudioEngine Spatial Audio for visionOS
 
 - `AVAudioEnvironmentNode` provides HRTF-based 3D audio positioning — attach player nodes to it for spatial sound

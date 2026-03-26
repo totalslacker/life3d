@@ -20,6 +20,9 @@ struct GridImmersiveView: View {
     // Toggle pulse effect
     @State private var pulseEntity: Entity?
 
+    // Boundary wireframe entity
+    @State private var wireframeEntity: Entity?
+
     // Spatial audio engine
     @State private var audioEngine = SpatialAudioEngine()
 
@@ -59,6 +62,11 @@ struct GridImmersiveView: View {
             ))
             // Hover effect: spotlight follows gaze, giving spatial feedback on where you're looking
             container.components.set(HoverEffectComponent())
+
+            // Add boundary wireframe
+            let wireframe = GridRenderer.makeBoundaryWireframe(gridSize: engine.grid.size, theme: engine.theme)
+            container.addChild(wireframe)
+            wireframeEntity = wireframe
 
             content.add(container)
             containerEntity = container
@@ -103,6 +111,7 @@ struct GridImmersiveView: View {
         }
         .onChange(of: engine.theme) {
             updatePointLights()
+            rebuildWireframe()
             Task { await rebuildMesh() }
         }
         .onChange(of: engine.surroundMode) {
@@ -462,6 +471,16 @@ struct GridImmersiveView: View {
             currentScale = 1.0
             magnifyStartScale = 1.0
         }
+    }
+
+    // MARK: - Wireframe
+
+    private func rebuildWireframe() {
+        guard let container = containerEntity else { return }
+        wireframeEntity?.removeFromParent()
+        let wireframe = GridRenderer.makeBoundaryWireframe(gridSize: engine.grid.size, theme: engine.theme)
+        container.addChild(wireframe)
+        wireframeEntity = wireframe
     }
 
     // MARK: - Mesh Building

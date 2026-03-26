@@ -314,6 +314,58 @@ enum GridRenderer {
                        cellCount: aliveCells, tierRanges: tierRanges)
     }
 
+    /// Creates a wireframe boundary cube entity showing the simulation volume.
+    @MainActor
+    static func makeBoundaryWireframe(gridSize: Int, theme: ColorTheme) -> Entity {
+        let stride = cellSize + cellSpacing
+        let extent = Float(gridSize - 1) * stride / 2.0 + cellSize / 2.0 + cellSpacing * 0.5
+        let edgeThickness: Float = 0.0008
+
+        let entity = Entity()
+        entity.name = "BoundaryWireframe"
+
+        // 12 edges of a cube: 4 along each axis
+        struct Edge { var start: SIMD3<Float>; var end: SIMD3<Float> }
+        let e = extent
+        let corners: [(Float, Float)] = [(-e, -e), (-e, e), (e, -e), (e, e)]
+        var edges: [Edge] = []
+
+        // X-axis edges (along x, at 4 y/z corners)
+        for (y, z) in corners {
+            edges.append(Edge(start: SIMD3(-e, y, z), end: SIMD3(e, y, z)))
+        }
+        // Y-axis edges (along y, at 4 x/z corners)
+        for (x, z) in corners {
+            edges.append(Edge(start: SIMD3(x, -e, z), end: SIMD3(x, e, z)))
+        }
+        // Z-axis edges (along z, at 4 x/y corners)
+        for (x, y) in corners {
+            edges.append(Edge(start: SIMD3(x, y, -e), end: SIMD3(x, y, e)))
+        }
+
+        let emissive = theme.mature.emissiveColor
+        var mat = UnlitMaterial()
+        mat.color = .init(tint: .init(
+            red: CGFloat(emissive.x), green: CGFloat(emissive.y),
+            blue: CGFloat(emissive.z), alpha: 0.3))
+
+        for edge in edges {
+            let mid = (edge.start + edge.end) / 2.0
+            let diff = edge.end - edge.start
+            let length = simd_length(diff)
+            let mesh = MeshResource.generateBox(
+                width: abs(diff.x) > 0.001 ? length : edgeThickness,
+                height: abs(diff.y) > 0.001 ? length : edgeThickness,
+                depth: abs(diff.z) > 0.001 ? length : edgeThickness
+            )
+            let edgeEntity = ModelEntity(mesh: mesh, materials: [mat])
+            edgeEntity.position = mid
+            entity.addChild(edgeEntity)
+        }
+
+        return entity
+    }
+
     /// Creates a MeshResource from pre-computed mesh data using LowLevelMesh.
     @MainActor
     private static func createMeshResource(from data: MeshData) throws -> MeshResource {

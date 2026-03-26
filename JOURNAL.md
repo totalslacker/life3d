@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 25 (2026-03-26)
+
+**Goal**: Hover feedback, user preferences persistence, and boundary wireframe.
+
+Three improvements:
+
+1. **Hover effect (Phase 4 roadmap)**: Added `HoverEffectComponent` to the grid container entity. When the user's gaze lands on the grid, visionOS shows a system-standard highlight, indicating the grid is interactive before any gesture is made. This is the first visual feedback before tap/drag.
+
+2. **Persist user preferences (Phase 5 roadmap)**: Added UserDefaults-based persistence for theme, grid size, speed, rule set, and audio muted state. Preferences are saved when settings change (via `onChange` handlers and explicit calls in `changeGridSize`/`applyRuleSet`). On launch, `SimulationEngine.init` restores saved preferences, so the experience is consistent across sessions.
+
+3. **Boundary wireframe (visual polish)**: Added a subtle wireframe cube outlining the simulation volume. Built from 12 thin box edges using `MeshResource.generateBox`, colored to match the current theme's mature emissive color at 30% opacity. Wireframe updates on theme change. Helps users understand the simulation boundaries, especially in areas with few or no cells.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test hover effect and wireframe on real Vision Pro — verify wireframe visibility and hover responsiveness. Phase 5 launch screen / mid-simulation menu. Depth of field. Performance profiling at 32³.
+
+---
+
 ## Day 10 — Session 24 (2026-03-26)
 
 **Goal**: Generative spatial audio and surround mode toggle.

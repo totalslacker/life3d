@@ -44,7 +44,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Drag gesture to rotate the grid volume
 - [x] Two-hand pinch to scale the grid up/down
 - [x] Draw mode: drag to paint cells in 3D space with rotate/draw toggle (session 23)
-- [ ] Visual feedback on hover (cell highlights before selection)
+- [x] Visual feedback on hover — HoverEffectComponent on grid container (session 25)
 - [x] Haptic-style visual pulse on cell toggle — particle burst at tap position (session 22)
 - [ ] Tests: gesture recognition, cell toggle accuracy
 
@@ -55,7 +55,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [ ] Return to launch screen from simulation
 - [ ] Smooth transition: grid materializes from launch screen, dissolves on exit
 - [ ] Palm-up gesture or minimal persistent HUD to invoke menu
-- [ ] Persist user preferences (last used theme, grid size, rules)
+- [x] Persist user preferences (theme, grid size, rules, speed, audio muted) via UserDefaults (session 25)
 
 ## Phase 6 — Audio & Polish (Day 26-30)
 
