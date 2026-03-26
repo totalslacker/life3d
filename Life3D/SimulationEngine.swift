@@ -68,6 +68,13 @@ final class SimulationEngine {
         }
     }
 
+    func changeGridSize(_ newSize: Int) {
+        pause()
+        generation = 0
+        grid = GridModel(size: newSize)
+        grid.randomSeed()
+    }
+
     enum Pattern: String, CaseIterable, Identifiable {
         case random = "Random (25%)"
         case soup = "Soup (6³ blob)"
@@ -76,5 +83,15 @@ final class SimulationEngine {
         case clear = "Clear"
 
         var id: String { rawValue }
+    }
+
+    enum GridSize: Int, CaseIterable, Identifiable {
+        case small = 12
+        case medium = 16
+        case large = 24
+        case extraLarge = 32
+
+        var id: Int { rawValue }
+        var label: String { "\(rawValue)³" }
     }
 }

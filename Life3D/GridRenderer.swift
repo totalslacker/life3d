@@ -16,12 +16,14 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
     let newborn: TierColors
     let young: TierColors
     let mature: TierColors
+    let dying: TierColors
 
     func colors(for tier: GridRenderer.AgeTier) -> TierColors {
         switch tier {
         case .newborn: return newborn
         case .young: return young
         case .mature: return mature
+        case .dying: return dying
         }
     }
 
@@ -40,7 +42,11 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
         mature: TierColors(
             baseColor: SIMD4(0.3, 0.1, 0.8, 1.0),
             emissiveColor: SIMD3(0.2, 0.05, 0.6),
-            emissiveIntensity: 0.8, opacity: 0.25)
+            emissiveIntensity: 0.8, opacity: 0.25),
+        dying: TierColors(
+            baseColor: SIMD4(0.1, 0.3, 0.5, 1.0),
+            emissiveColor: SIMD3(0.05, 0.2, 0.4),
+            emissiveIntensity: 0.4, opacity: 0.10)
     )
 
     static let warmAmber = ColorTheme(
@@ -56,7 +62,11 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
         mature: TierColors(
             baseColor: SIMD4(0.7, 0.2, 0.05, 1.0),
             emissiveColor: SIMD3(0.5, 0.1, 0.02),
-            emissiveIntensity: 0.8, opacity: 0.25)
+            emissiveIntensity: 0.8, opacity: 0.25),
+        dying: TierColors(
+            baseColor: SIMD4(0.4, 0.15, 0.05, 1.0),
+            emissiveColor: SIMD3(0.3, 0.08, 0.02),
+            emissiveIntensity: 0.4, opacity: 0.10)
     )
 
     static let oceanBlues = ColorTheme(
@@ -72,7 +82,11 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
         mature: TierColors(
             baseColor: SIMD4(0.0, 0.2, 0.5, 1.0),
             emissiveColor: SIMD3(0.0, 0.1, 0.4),
-            emissiveIntensity: 0.8, opacity: 0.25)
+            emissiveIntensity: 0.8, opacity: 0.25),
+        dying: TierColors(
+            baseColor: SIMD4(0.0, 0.1, 0.25, 1.0),
+            emissiveColor: SIMD3(0.0, 0.05, 0.2),
+            emissiveIntensity: 0.4, opacity: 0.10)
     )
 
     static let aurora = ColorTheme(
@@ -88,7 +102,11 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
         mature: TierColors(
             baseColor: SIMD4(0.8, 0.1, 0.5, 1.0),
             emissiveColor: SIMD3(0.6, 0.05, 0.4),
-            emissiveIntensity: 0.8, opacity: 0.25)
+            emissiveIntensity: 0.8, opacity: 0.25),
+        dying: TierColors(
+            baseColor: SIMD4(0.3, 0.05, 0.2, 1.0),
+            emissiveColor: SIMD3(0.2, 0.02, 0.15),
+            emissiveIntensity: 0.4, opacity: 0.10)
     )
 
     static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora]
@@ -103,9 +121,11 @@ enum GridRenderer {
         case newborn = 0  // age 1-2: bright, high opacity
         case young = 1    // age 3-5: medium
         case mature = 2   // age 6+: deep, low opacity
+        case dying = 3    // just died: fading out
 
         static func tier(for age: Int) -> AgeTier {
             switch age {
+            case ...0: return .dying
             case 1...2: return .newborn
             case 3...5: return .young
             default: return .mature
@@ -170,9 +190,14 @@ enum GridRenderer {
         }
     }
 
-    /// Computes raw vertex and index arrays for alive cells, sorted by age tier.
+    /// Computes raw vertex and index arrays for alive cells + dying cells, sorted by age tier.
     private static func computeMeshData(model: GridModel) -> MeshData {
-        let cellsWithAge = model.aliveCellsWithAge(cellSize: cellSize, cellSpacing: cellSpacing)
+        var cellsWithAge = model.aliveCellsWithAge(cellSize: cellSize, cellSpacing: cellSpacing)
+        // Add dying cells with a sentinel age of -1 (mapped to .dying tier)
+        let dyingPositions = model.dyingCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+        for pos in dyingPositions {
+            cellsWithAge.append((position: pos, age: -1))
+        }
         let aliveCells = cellsWithAge.count
 
         let half = cellSize / 2.0

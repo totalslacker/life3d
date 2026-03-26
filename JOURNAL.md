@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 17 (2026-03-26)
+
+**Goal**: Smooth cell death animation and configurable grid size.
+
+Two improvements:
+
+1. **Death fade-out animation**: Cells that die are now rendered for one additional generation at very low opacity (10%) before disappearing. Added `dyingCells` tracking to `GridModel.advanceGeneration()` — stores indices of cells that transition from alive to dead. A new `.dying` age tier in `GridRenderer` renders these ghost cells with muted color and minimal emissive glow. Each color theme has a matching dying tier (desaturated, dim version of the mature tier). This eliminates the visual "popping" where cells snap off instantly, replacing it with a subtle fade that makes the simulation feel more organic.
+
+2. **Grid size selector**: Added a Size menu to the control panel with 4 options (12³, 16³, 24³, 32³). `SimulationEngine.changeGridSize()` replaces the grid model and reseeds. Window widened from 560pt to 620pt to accommodate the new menu. This addresses GitHub issue #1 which requested larger grids.
+
+3. **Tests**: Added 3 new tests — dying cells tracked after generation advance, stable block produces no dying cells, clearAll resets dying cells.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test death fade on real Vision Pro — verify it's visible but not distracting. Performance profiling at 32×32×32 (13,824 alive cells at 25% = ~3,456 cubes). Particle effects on birth/death. Smooth birth animation (scale up from zero).
+
+---
+
 ## Day 10 — Session 16 (2026-03-26)
 
 **Goal**: Address community issues — cell visibility (GitHub #1) and rotation/zoom controls (GitHub #2).

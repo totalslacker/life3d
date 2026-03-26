@@ -4,6 +4,8 @@ struct GridModel: Sendable {
     let size: Int
     /// Cell age: 0 = dead, 1+ = alive (value is age in generations)
     private(set) var cells: [Int]
+    /// Cells that died in the most recent generation (positions stored for fade-out rendering)
+    private(set) var dyingCells: [Int] = []
 
     /// Rule configuration: born when neighbor count is in birthCounts, survives when in survivalCounts
     var birthCounts: Set<Int>
@@ -60,6 +62,7 @@ struct GridModel: Sendable {
 
     mutating func advanceGeneration() {
         var next = [Int](repeating: 0, count: cellCount)
+        var dying: [Int] = []
         for x in 0..<size {
             for y in 0..<size {
                 for z in 0..<size {
@@ -67,7 +70,12 @@ struct GridModel: Sendable {
                     let idx = index(x: x, y: y, z: z)
                     if cells[idx] > 0 {
                         // Surviving cell: increment age
-                        next[idx] = survivalCounts.contains(neighbors) ? cells[idx] + 1 : 0
+                        if survivalCounts.contains(neighbors) {
+                            next[idx] = cells[idx] + 1
+                        } else {
+                            next[idx] = 0
+                            dying.append(idx)
+                        }
                     } else {
                         // Dead cell: born with age 1
                         next[idx] = birthCounts.contains(neighbors) ? 1 : 0
@@ -76,6 +84,7 @@ struct GridModel: Sendable {
             }
         }
         cells = next
+        dyingCells = dying
     }
 
     // MARK: - Alive Cell Positions
@@ -109,6 +118,16 @@ struct GridModel: Sendable {
             }
         }
         return result
+    }
+
+    /// Returns positions of cells that just died (for fade-out rendering).
+    func dyingCellPositions(cellSize: Float, cellSpacing: Float) -> [SIMD3<Float>] {
+        dyingCells.map { idx in
+            let x = idx / (size * size)
+            let y = (idx / size) % size
+            let z = idx % size
+            return cellPosition(x: x, y: y, z: z, cellSize: cellSize, cellSpacing: cellSpacing)
+        }
     }
 
     var aliveCount: Int {
@@ -182,5 +201,6 @@ struct GridModel: Sendable {
 
     mutating func clearAll() {
         cells = [Int](repeating: 0, count: cellCount)
+        dyingCells = []
     }
 }

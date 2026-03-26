@@ -49,6 +49,16 @@ struct ContentView: View {
             }
             .controlSize(.small)
 
+            // Grid size menu
+            Menu("Size") {
+                ForEach(SimulationEngine.GridSize.allCases) { size in
+                    Button(size.label) {
+                        engine.changeGridSize(size.rawValue)
+                    }
+                }
+            }
+            .controlSize(.small)
+
             // Speed slider
             HStack(spacing: 4) {
                 Text("\(Int(engine.speed))×")

@@ -35,7 +35,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Color themes: neon on black, warm amber, ocean blues, aurora borealis
 - [ ] Depth of field: cells further from gaze softly blurred
 - [ ] Light emission: living cells cast soft light onto nearby surfaces
-- [ ] Smooth animation between cell states (no snap in/out)
+- [x] Smooth animation between cell states (death fade-out via dying tier)
 - [ ] Performance: maintain 60fps at 32x32x32 grid
 
 ## Phase 4 — Spatial Interaction (Day 15-20)

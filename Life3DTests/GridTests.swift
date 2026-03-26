@@ -283,4 +283,40 @@ struct CellAgeTests {
         #expect(!model.isAlive(x: 4, y: 4, z: 4))
         #expect(model.cellAge(x: 4, y: 4, z: 4) == 0)
     }
+
+    @Test("Dying cells tracked after generation advance")
+    func dyingCellsTracked() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 4, y: 4, z: 4, alive: true)
+        // Only 1 neighbor — both will die
+        model.setCell(x: 3, y: 4, z: 4, alive: true)
+        #expect(model.dyingCells.isEmpty)
+
+        model.advanceGeneration()
+        #expect(model.dyingCells.count == 2)
+    }
+
+    @Test("Stable block produces no dying cells")
+    func stableBlockNoDying() {
+        var model = GridModel(size: 8)
+        for dx in 3...4 {
+            for dy in 3...4 {
+                for dz in 3...4 {
+                    model.setCell(x: dx, y: dy, z: dz, alive: true)
+                }
+            }
+        }
+        model.advanceGeneration()
+        #expect(model.dyingCells.isEmpty)
+    }
+
+    @Test("Clear all resets dying cells")
+    func clearAllResetsDying() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 4, y: 4, z: 4, alive: true)
+        model.advanceGeneration()
+        #expect(!model.dyingCells.isEmpty)
+        model.clearAll()
+        #expect(model.dyingCells.isEmpty)
+    }
 }
