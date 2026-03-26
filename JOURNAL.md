@@ -4,6 +4,22 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 18 (2026-03-26)
+
+**Goal**: Birth scale animation and idle auto-rotation.
+
+Two visual improvements to make the simulation feel more organic and alive:
+
+1. **Birth scale animation**: Newborn cells now "bloom into existence" by rendering at scaled sizes based on age. Age 1 cells render at 50% size, age 2 at 75%, age 3 at 90%, and mature cells (age 4+) at full size. Dying cells also shrink to 50%. This is implemented via a `birthScale(for:)` function in `GridRenderer` that multiplies cube vertex positions by the scale factor relative to each cell's center. Combined with the death fade-out from session 17, cells now have a complete lifecycle animation: bloom in small → grow → live → fade and shrink out.
+
+2. **Idle auto-rotation**: The grid now gently auto-rotates around the Y axis at ~6°/second (~0.1 rad/s) when not being actively dragged. A background Task at 30fps updates the yaw angle. When the user starts a drag gesture, auto-rotation pauses; when they release, it resumes from the new orientation. This makes the grid feel alive even when paused, and showcases the 3D structure from all angles without user input — important for the "art installation" feel.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test birth animation timing on real Vision Pro — verify growth is perceptible at different speeds. Particle effects on birth/death. Performance profiling at 32×32×32. Hand tracking for cell toggling (Phase 4).
+
+---
+
 ## Day 10 — Session 17 (2026-03-26)
 
 **Goal**: Smooth cell death animation and configurable grid size.

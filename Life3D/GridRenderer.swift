@@ -190,6 +190,17 @@ enum GridRenderer {
         }
     }
 
+    /// Scale factor for birth animation — cells grow over their first few generations.
+    private static func birthScale(for age: Int) -> Float {
+        switch age {
+        case ...0: return 0.5   // dying cells: shrunk
+        case 1: return 0.5      // just born: half size
+        case 2: return 0.75     // growing
+        case 3: return 0.9      // almost full
+        default: return 1.0     // mature: full size
+        }
+    }
+
     /// Computes raw vertex and index arrays for alive cells + dying cells, sorted by age tier.
     private static func computeMeshData(model: GridModel) -> MeshData {
         var cellsWithAge = model.aliveCellsWithAge(cellSize: cellSize, cellSpacing: cellSpacing)
@@ -274,10 +285,11 @@ enum GridRenderer {
             let tier = AgeTier.tier(for: cell.age)
             tierCounts[tier.rawValue] += 1
 
+            let scale = birthScale(for: cell.age)
             let vertexOffset = UInt32(vi)
             for j in 0..<cubeVertexCount {
                 vertices[vi] = GridVertex(
-                    position: cubePositions[j] + cell.position,
+                    position: cubePositions[j] * scale + cell.position,
                     normal: cubeNormals[j],
                     uv: cubeUVs[j]
                 )

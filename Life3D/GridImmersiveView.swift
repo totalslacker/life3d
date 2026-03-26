@@ -18,6 +18,10 @@ struct GridImmersiveView: View {
     @State private var currentScale: Float = 1.0
     @State private var magnifyStartScale: Float = 1.0
 
+    // Auto-rotation state
+    @State private var isDragging = false
+    @State private var autoRotateTask: Task<Void, Never>?
+
     var body: some View {
         RealityView { content in
             let container = Entity()
@@ -58,6 +62,9 @@ struct GridImmersiveView: View {
         .task {
             await rebuildMesh()
         }
+        .task {
+            startAutoRotation()
+        }
         .onChange(of: engine.generation) {
             Task { await rebuildMesh() }
         }
@@ -72,6 +79,7 @@ struct GridImmersiveView: View {
         DragGesture()
             .targetedToAnyEntity()
             .onChanged { value in
+                isDragging = true
                 // Map 2D drag to yaw/pitch rotation
                 let sensitivity: Float = 0.005
                 yawAngle = dragStartYaw + Float(value.translation.width) * sensitivity
@@ -80,6 +88,7 @@ struct GridImmersiveView: View {
                 pitchAngle = min(max(pitchAngle, -.pi / 2), .pi / 2)
             }
             .onEnded { _ in
+                isDragging = false
                 dragStartYaw = yawAngle
                 dragStartPitch = pitchAngle
             }
@@ -96,6 +105,23 @@ struct GridImmersiveView: View {
             .onEnded { _ in
                 magnifyStartScale = currentScale
             }
+    }
+
+    // MARK: - Auto-Rotation
+
+    private func startAutoRotation() {
+        autoRotateTask = Task {
+            let rotationSpeed: Float = 0.1  // radians per second (~6°/s)
+            let frameInterval: UInt64 = 33_000_000  // ~30fps
+            let delta = rotationSpeed / 30.0
+            while !Task.isCancelled {
+                if !isDragging {
+                    yawAngle += delta
+                    dragStartYaw = yawAngle
+                }
+                try? await Task.sleep(nanoseconds: frameInterval)
+            }
+        }
     }
 
     // MARK: - Mesh Building
