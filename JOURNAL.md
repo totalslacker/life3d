@@ -4,6 +4,22 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 22 (2026-03-26)
+
+**Goal**: Point light emission from living cells and visual pulse on cell toggle.
+
+Two improvements:
+
+1. **Point light emission (Phase 3 roadmap)**: Added a pool of 4 `PointLightComponent` entities that sample positions from alive cells each generation. Lights have 50 lumen intensity with 0.15m attenuation radius, creating a soft ambient glow around active regions of the grid. Light color matches the current theme's newborn emissive color and updates on theme change. Uses the same sampling pattern as particle emitters — evenly distributed across alive cell positions.
+
+2. **Toggle pulse effect (Phase 4 roadmap)**: When a user taps to toggle a cell, a brief particle burst fires at the tap position providing immediate visual feedback. The pulse uses 20 particles in a spherical burst with 0.15s emit duration and 0.4s lifespan with linear fade-out. Pulse color matches the current theme's newborn emissive color. A single reusable emitter entity avoids per-tap allocation.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test light emission on real Vision Pro — may need intensity/radius tuning for mixed immersion. Draw mode (continuous cell painting). Depth of field effect. Phase 5 configuration UI.
+
+---
+
 ## Day 10 — Session 21 (2026-03-26)
 
 **Goal**: Spatial tap gesture for cell toggling and aliveCount performance optimization.

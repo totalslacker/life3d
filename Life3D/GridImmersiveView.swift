@@ -13,6 +13,13 @@ struct GridImmersiveView: View {
     @State private var deathParticleEntities: [Entity] = []
     private static let maxParticleEmitters = 6
 
+    // Point light entities for ambient cell glow
+    @State private var lightEntities: [Entity] = []
+    private static let maxPointLights = 4
+
+    // Toggle pulse effect
+    @State private var pulseEntity: Entity?
+
     // Rotation state
     @State private var yawAngle: Float = 0
     @State private var pitchAngle: Float = 0
@@ -48,6 +55,8 @@ struct GridImmersiveView: View {
             content.add(container)
             containerEntity = container
             setupParticleEmitters(in: container)
+            setupPointLights(in: container)
+            setupPulseEntity(in: container)
         } update: { content in
             guard let container = containerEntity else { return }
 
@@ -79,9 +88,11 @@ struct GridImmersiveView: View {
         }
         .onChange(of: engine.generation) {
             triggerParticles()
+            updatePointLights()
             Task { await rebuildMesh() }
         }
         .onChange(of: engine.theme) {
+            updatePointLights()
             Task { await rebuildMesh() }
         }
     }
@@ -100,7 +111,9 @@ struct GridImmersiveView: View {
                 let containerWorldTransform = container.transformMatrix(relativeTo: nil)
                 let inverseTransform = containerWorldTransform.inverse
                 let localPoint = inverseTransform * SIMD4<Float>(localPos.x, localPos.y, localPos.z, 1.0)
-                engine.toggleCell(at: SIMD3<Float>(localPoint.x, localPoint.y, localPoint.z))
+                let togglePos = SIMD3<Float>(localPoint.x, localPoint.y, localPoint.z)
+                engine.toggleCell(at: togglePos)
+                triggerPulse(at: togglePos)
             }
     }
 
@@ -282,6 +295,104 @@ struct GridImmersiveView: View {
         if positions.count <= count { return positions }
         let step = positions.count / count
         return (0..<count).map { positions[$0 * step] }
+    }
+
+    // MARK: - Point Lights
+
+    /// Sets up a pool of point light entities that will be positioned at alive cell locations.
+    private func setupPointLights(in container: Entity) {
+        var lights: [Entity] = []
+        for _ in 0..<Self.maxPointLights {
+            let lightEntity = Entity()
+            lightEntity.name = "CellLight"
+            var light = PointLightComponent()
+            light.intensity = 50  // lumens — soft ambient glow
+            light.attenuationRadius = 0.15  // light fades within 15cm
+            lightEntity.components.set(light)
+            lightEntity.isEnabled = false
+            container.addChild(lightEntity)
+            lights.append(lightEntity)
+        }
+        lightEntities = lights
+    }
+
+    /// Repositions point lights at sampled alive cell positions with theme-appropriate color.
+    private func updatePointLights() {
+        let cellSize = GridRenderer.cellSize
+        let cellSpacing = GridRenderer.cellSpacing
+        let positions = engine.grid.aliveCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+
+        let sample = samplePositions(positions, count: Self.maxPointLights)
+        let emissive = engine.theme.newborn.emissiveColor
+
+        for (i, entity) in lightEntities.enumerated() {
+            if i < sample.count {
+                entity.position = sample[i]
+                entity.isEnabled = true
+                if var light = entity.components[PointLightComponent.self] {
+                    light.color = .init(
+                        red: CGFloat(emissive.x),
+                        green: CGFloat(emissive.y),
+                        blue: CGFloat(emissive.z),
+                        alpha: 1.0)
+                    entity.components.set(light)
+                }
+            } else {
+                entity.isEnabled = false
+            }
+        }
+    }
+
+    // MARK: - Toggle Pulse Effect
+
+    /// Sets up a reusable pulse entity with a particle emitter for tap feedback.
+    private func setupPulseEntity(in container: Entity) {
+        let entity = Entity()
+        entity.name = "TogglePulse"
+        var emitter = ParticleEmitterComponent()
+        emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: 0.15))
+        emitter.emitterShape = .sphere
+        emitter.emitterShapeSize = SIMD3<Float>(repeating: 0.005)
+        emitter.burstCount = 20
+
+        emitter.mainEmitter.lifeSpan = 0.4
+        emitter.mainEmitter.size = 0.004
+        emitter.mainEmitter.sizeVariation = 0.002
+        emitter.mainEmitter.spreadingAngle = .pi
+        emitter.mainEmitter.acceleration = SIMD3<Float>(0, 0, 0)
+        emitter.mainEmitter.color = .constant(.single(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
+        emitter.mainEmitter.opacityCurve = .linearFadeOut
+
+        emitter.isEmitting = false
+        entity.components.set(emitter)
+        entity.isEnabled = false
+        container.addChild(entity)
+        pulseEntity = entity
+    }
+
+    /// Fires a brief white particle burst at the toggled cell position.
+    private func triggerPulse(at position: SIMD3<Float>) {
+        guard let entity = pulseEntity else { return }
+        entity.position = position
+        entity.isEnabled = true
+
+        // Set color to match current theme's newborn emissive
+        let emissive = engine.theme.newborn.emissiveColor
+        if var emitter = entity.components[ParticleEmitterComponent.self] {
+            emitter.mainEmitter.color = .constant(.single(.init(
+                red: CGFloat(emissive.x),
+                green: CGFloat(emissive.y),
+                blue: CGFloat(emissive.z),
+                alpha: 1.0)))
+            emitter.isEmitting = true
+            entity.components.set(emitter)
+        }
+
+        // Disable after the effect completes
+        Task {
+            try? await Task.sleep(nanoseconds: 500_000_000)  // 0.5s
+            entity.isEnabled = false
+        }
     }
 
     // MARK: - Mesh Building

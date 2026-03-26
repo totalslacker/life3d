@@ -121,6 +121,17 @@ the same things. Search here before looking things up externally.
 
 ---
 
+## PointLightComponent in visionOS RealityKit
+
+- `PointLightComponent` provides real-time point lighting on nearby entities
+- `intensity` is in lumens — 50 lumens gives a soft ambient glow without washing out translucent materials
+- `attenuationRadius` controls how far the light reaches — 0.15m works well for cell-scale grids
+- `color` accepts a platform color (UIColor/CGColor) — match to theme emissive for cohesive look
+- Point lights are cheap in small quantities (4-8) but expensive at scale — use a sampling pool like particle emitters
+- Lights attached to a container entity inherit its transform (rotation/scale), so they move with the grid automatically
+
+---
+
 ## Cell Spacing for 3D Grid Readability
 
 - Cell-to-gap ratio matters more than absolute sizes for readability

@@ -34,7 +34,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Particle effects on cell death (dissolve into particles) — drift-down emitters at sampled positions (session 20)
 - [x] Color themes: neon on black, warm amber, ocean blues, aurora borealis
 - [ ] Depth of field: cells further from gaze softly blurred
-- [ ] Light emission: living cells cast soft light onto nearby surfaces
+- [x] Light emission: living cells cast soft light via sampled PointLight entities (session 22)
 - [x] Smooth animation between cell states (death fade-out via dying tier, birth scale-up via age-based sizing)
 - [ ] Performance: maintain 60fps at 32x32x32 grid (neighbor counting optimized — session 19)
 
@@ -45,7 +45,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Two-hand pinch to scale the grid up/down
 - [ ] Draw mode: point and pinch to paint cells in 3D space
 - [ ] Visual feedback on hover (cell highlights before selection)
-- [ ] Haptic-style visual pulse on cell toggle
+- [x] Haptic-style visual pulse on cell toggle — particle burst at tap position (session 22)
 - [ ] Tests: gesture recognition, cell toggle accuracy
 
 ## Phase 5 — Configuration & Navigation (Day 21-25)
