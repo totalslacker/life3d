@@ -320,3 +320,76 @@ struct CellAgeTests {
         #expect(model.dyingCells.isEmpty)
     }
 }
+
+@Suite("Performance Optimization Tests")
+struct PerformanceTests {
+    @Test("Optimized advanceGeneration matches neighborCount for random grid")
+    func optimizedMatchesOriginal() {
+        // Create a random grid and verify advanceGeneration produces correct results
+        // by comparing against the public neighborCount function
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+
+        // Snapshot neighbor counts using the public bounds-checked method
+        var expectedAlive = [Bool](repeating: false, count: model.cellCount)
+        for x in 0..<8 {
+            for y in 0..<8 {
+                for z in 0..<8 {
+                    let neighbors = model.neighborCount(x: x, y: y, z: z)
+                    let isAlive = model.isAlive(x: x, y: y, z: z)
+                    if isAlive {
+                        expectedAlive[model.index(x: x, y: y, z: z)] = model.survivalCounts.contains(neighbors)
+                    } else {
+                        expectedAlive[model.index(x: x, y: y, z: z)] = model.birthCounts.contains(neighbors)
+                    }
+                }
+            }
+        }
+
+        // Run the optimized advanceGeneration
+        model.advanceGeneration()
+
+        // Verify results match
+        for x in 0..<8 {
+            for y in 0..<8 {
+                for z in 0..<8 {
+                    let idx = model.index(x: x, y: y, z: z)
+                    #expect(model.isAlive(x: x, y: y, z: z) == expectedAlive[idx],
+                            "Mismatch at (\(x),\(y),\(z))")
+                }
+            }
+        }
+    }
+
+    @Test("Interior cell neighbor counting is correct")
+    func interiorCellNeighbors() {
+        // Interior cell (not on boundary) should use fast path
+        var model = GridModel(size: 8)
+        // Place a ring of 6 face-adjacent neighbors around interior cell (4,4,4)
+        model.setCell(x: 3, y: 4, z: 4, alive: true)
+        model.setCell(x: 5, y: 4, z: 4, alive: true)
+        model.setCell(x: 4, y: 3, z: 4, alive: true)
+        model.setCell(x: 4, y: 5, z: 4, alive: true)
+        model.setCell(x: 4, y: 4, z: 3, alive: true)
+        model.setCell(x: 4, y: 4, z: 5, alive: true)
+        // Public method uses bounds-checked path
+        #expect(model.neighborCount(x: 4, y: 4, z: 4) == 6)
+
+        // Advance and verify cell survives (6 is in survival range)
+        model.advanceGeneration()
+        // (4,4,4) was dead with 6 neighbors — born since 6 is in birth range
+        #expect(model.isAlive(x: 4, y: 4, z: 4))
+    }
+
+    @Test("32-cube grid advances generation without error")
+    func largeGridAdvance() {
+        var model = GridModel(size: 32)
+        model.randomSeed(density: 0.25)
+        let initialAlive = model.aliveCount
+        #expect(initialAlive > 0)
+
+        model.advanceGeneration()
+        // Simulation should produce some alive cells
+        #expect(model.aliveCount > 0)
+    }
+}

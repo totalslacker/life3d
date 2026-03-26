@@ -36,7 +36,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [ ] Depth of field: cells further from gaze softly blurred
 - [ ] Light emission: living cells cast soft light onto nearby surfaces
 - [x] Smooth animation between cell states (death fade-out via dying tier, birth scale-up via age-based sizing)
-- [ ] Performance: maintain 60fps at 32x32x32 grid
+- [ ] Performance: maintain 60fps at 32x32x32 grid (neighbor counting optimized — session 19)
 
 ## Phase 4 — Spatial Interaction (Day 15-20)
 

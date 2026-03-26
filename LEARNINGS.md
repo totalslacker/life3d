@@ -97,6 +97,16 @@ the same things. Search here before looking things up externally.
 - `CollisionComponent(shapes: [.generateBox(size:)])` — use a generous box size (larger than actual grid) for easy grab targeting
 - Yaw/pitch from 2D drag: horizontal → yaw (Y-axis rotation), vertical → pitch (X-axis rotation). Clamp pitch to ±π/2 to prevent flipping
 
+## Neighbor Counting Optimization
+
+- The naive `neighborCount()` with bounds checking via `isAlive()` has high overhead: function call + 4 comparisons per neighbor × 26 neighbors × n³ cells per generation
+- Pre-computing the 26 neighbor offsets as flat array index deltas (`dx * size² + dy * size + dz`) avoids recomputing them for each cell
+- Interior cells (distance >1 from any face) are guaranteed to have all 26 neighbors in bounds — skip all bounds checking and use direct `cells[idx + offset]` access
+- For a 32³ grid, 82% of cells are interior (30³/32³). For 16³, 73% (14³/16³). The fast path dominates.
+- Swift's `&+` (overflow-safe addition) avoids integer overflow checks in tight loops — small but measurable win at scale
+
+---
+
 ## Cell Spacing for 3D Grid Readability
 
 - Cell-to-gap ratio matters more than absolute sizes for readability

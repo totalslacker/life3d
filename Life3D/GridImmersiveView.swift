@@ -18,9 +18,13 @@ struct GridImmersiveView: View {
     @State private var currentScale: Float = 1.0
     @State private var magnifyStartScale: Float = 1.0
 
-    // Auto-rotation state
+    // Auto-rotation and momentum state
     @State private var isDragging = false
     @State private var autoRotateTask: Task<Void, Never>?
+    @State private var momentumTask: Task<Void, Never>?
+    @State private var yawVelocity: Float = 0
+    @State private var pitchVelocity: Float = 0
+    @State private var lastDragTranslation: CGSize = .zero
 
     var body: some View {
         RealityView { content in
@@ -28,11 +32,12 @@ struct GridImmersiveView: View {
             container.name = "GridContainer"
             container.position = SIMD3<Float>(0, 1.5, -1.5)
 
-            // Add collision for gesture targeting (sphere matching grid extent)
-            let gridExtent: Float = 0.5
+            // Collision box sized to actual grid extent for accurate gesture targeting
+            let stride = GridRenderer.cellSize + GridRenderer.cellSpacing
+            let gridExtent = Float(engine.grid.size - 1) * stride / 2.0 + GridRenderer.cellSize / 2.0
             container.components.set(InputTargetComponent())
             container.components.set(CollisionComponent(
-                shapes: [.generateBox(size: SIMD3<Float>(repeating: gridExtent * 2))]
+                shapes: [.generateBox(size: SIMD3<Float>(repeating: gridExtent * 2.5))]
             ))
 
             content.add(container)
@@ -80,17 +85,23 @@ struct GridImmersiveView: View {
             .targetedToAnyEntity()
             .onChanged { value in
                 isDragging = true
-                // Map 2D drag to yaw/pitch rotation
+                momentumTask?.cancel()
                 let sensitivity: Float = 0.005
-                yawAngle = dragStartYaw + Float(value.translation.width) * sensitivity
-                pitchAngle = dragStartPitch - Float(value.translation.height) * sensitivity
-                // Clamp pitch to avoid flipping
-                pitchAngle = min(max(pitchAngle, -.pi / 2), .pi / 2)
+                let newYaw = dragStartYaw + Float(value.translation.width) * sensitivity
+                let newPitch = dragStartPitch - Float(value.translation.height) * sensitivity
+                // Track velocity from frame-to-frame translation delta
+                yawVelocity = Float(value.translation.width - lastDragTranslation.width) * sensitivity
+                pitchVelocity = Float(-(value.translation.height - lastDragTranslation.height)) * sensitivity
+                lastDragTranslation = value.translation
+                yawAngle = newYaw
+                pitchAngle = min(max(newPitch, -.pi / 2), .pi / 2)
             }
             .onEnded { _ in
                 isDragging = false
                 dragStartYaw = yawAngle
                 dragStartPitch = pitchAngle
+                lastDragTranslation = .zero
+                startMomentum()
             }
     }
 
@@ -105,6 +116,28 @@ struct GridImmersiveView: View {
             .onEnded { _ in
                 magnifyStartScale = currentScale
             }
+    }
+
+    // MARK: - Drag Momentum
+
+    private func startMomentum() {
+        let threshold: Float = 0.0005
+        guard abs(yawVelocity) > threshold || abs(pitchVelocity) > threshold else { return }
+        momentumTask = Task {
+            let friction: Float = 0.92
+            let frameInterval: UInt64 = 16_000_000  // ~60fps
+            while !Task.isCancelled {
+                yawVelocity *= friction
+                pitchVelocity *= friction
+                if abs(yawVelocity) < threshold && abs(pitchVelocity) < threshold { break }
+                yawAngle += yawVelocity
+                pitchAngle += pitchVelocity
+                pitchAngle = min(max(pitchAngle, -.pi / 2), .pi / 2)
+                dragStartYaw = yawAngle
+                dragStartPitch = pitchAngle
+                try? await Task.sleep(nanoseconds: frameInterval)
+            }
+        }
     }
 
     // MARK: - Auto-Rotation

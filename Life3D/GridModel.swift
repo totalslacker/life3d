@@ -60,16 +60,55 @@ struct GridModel: Sendable {
 
     // MARK: - Generation Advancement
 
+    /// Pre-computed neighbor offsets as flat array index deltas for the 26-cell Moore neighborhood.
+    private static func neighborOffsets(size: Int) -> [Int] {
+        let ss = size * size
+        var offsets: [Int] = []
+        offsets.reserveCapacity(26)
+        for dx in -1...1 {
+            for dy in -1...1 {
+                for dz in -1...1 {
+                    if dx == 0 && dy == 0 && dz == 0 { continue }
+                    offsets.append(dx * ss + dy * size + dz)
+                }
+            }
+        }
+        return offsets
+    }
+
     mutating func advanceGeneration() {
+        let ss = size * size
+        let offsets = Self.neighborOffsets(size: size)
         var next = [Int](repeating: 0, count: cellCount)
         var dying: [Int] = []
+
         for x in 0..<size {
             for y in 0..<size {
                 for z in 0..<size {
-                    let neighbors = neighborCount(x: x, y: y, z: z)
-                    let idx = index(x: x, y: y, z: z)
+                    let idx = x * ss + y * size + z
+                    var neighbors = 0
+
+                    // Interior cells: skip bounds checking (82% of cells for 32³)
+                    if x > 0 && x < size - 1 && y > 0 && y < size - 1 && z > 0 && z < size - 1 {
+                        for offset in offsets {
+                            if cells[idx &+ offset] > 0 { neighbors &+= 1 }
+                        }
+                    } else {
+                        // Boundary cells: need bounds checking
+                        for dx in -1...1 {
+                            for dy in -1...1 {
+                                for dz in -1...1 {
+                                    if dx == 0 && dy == 0 && dz == 0 { continue }
+                                    let nx = x + dx, ny = y + dy, nz = z + dz
+                                    if nx >= 0 && nx < size && ny >= 0 && ny < size && nz >= 0 && nz < size {
+                                        if cells[nx * ss + ny * size + nz] > 0 { neighbors &+= 1 }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if cells[idx] > 0 {
-                        // Surviving cell: increment age
                         if survivalCounts.contains(neighbors) {
                             next[idx] = cells[idx] + 1
                         } else {
@@ -77,7 +116,6 @@ struct GridModel: Sendable {
                             dying.append(idx)
                         }
                     } else {
-                        // Dead cell: born with age 1
                         next[idx] = birthCounts.contains(neighbors) ? 1 : 0
                     }
                 }

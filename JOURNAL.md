@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 19 (2026-03-26)
+
+**Goal**: Performance optimization for 32³ grids, collision box fix, and drag momentum.
+
+Three improvements:
+
+1. **Optimized neighbor counting in `advanceGeneration()`**: Pre-computes the 26 neighbor offsets as flat array index deltas. Interior cells (not on any boundary face) use direct `cells[idx + offset]` access with overflow-safe arithmetic (`&+`), skipping all bounds checking. For a 32³ grid, 82% of cells (30³ = 27,000 of 32,768) take the fast path. Boundary cells still use the bounds-checked approach. This eliminates per-neighbor function call overhead and redundant bounds checks for the vast majority of cells.
+
+2. **Fixed collision box size mismatch**: The `GridImmersiveView` collision box was hardcoded at 0.5, regardless of actual grid size. Now computes the real grid extent from `GridRenderer.cellSize`, `cellSpacing`, and the engine's grid size. Uses 2.5× the extent for comfortable grab targeting. This means gestures work correctly at all grid sizes (12³ through 32³).
+
+3. **Drag momentum/inertia**: After releasing a drag gesture, the grid continues rotating with decaying velocity (friction factor 0.92 at 60fps). Velocity is tracked from frame-to-frame translation deltas during the drag. A threshold prevents micro-drifting. This makes rotation feel more natural and spatial — important for the "art installation" feel where physical behavior is expected.
+
+Added 3 new tests: optimized advanceGeneration consistency check (random grid, verify against public neighborCount), interior cell neighbor correctness, and 32³ grid advance without error.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32×32×32 under continuous simulation. Particle effects on birth/death (Phase 3). Hand tracking for cell toggling (Phase 4). Test momentum feel on real Vision Pro — may need to tune friction factor.
+
+---
+
 ## Day 10 — Session 18 (2026-03-26)
 
 **Goal**: Birth scale animation and idle auto-rotation.
