@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 29 (2026-03-26 17:50 PDT)
+
+**Goal**: Multi-generation death fade and auto-restart on extinction.
+
+Two improvements focused on making the simulation feel more alive and organic:
+
+1. **Multi-generation death fade (visual beauty)**: Previously, dying cells rendered for only a single frame before vanishing — they popped out of existence. Now cells fade out over 3 generations, progressively shrinking (50% → 30% → 15% scale) while retaining the dying tier's dim material. This creates a gradual dissolve effect that makes the simulation feel organic rather than digital. Implemented via a `fadingCells` array on GridModel that tracks (flatIndex, framesLeft) pairs, decremented each generation and cleaned up when expired or when the cell is reborn at the same position.
+
+2. **Auto-restart on extinction**: When the population reaches zero and all fading cells have completed their dissolve, the simulation waits 3 empty generations (~0.6s at default speed) then automatically reseeds with a fresh random pattern. This makes Life3D work as a perpetual art installation — users never see a dead, empty grid. The brief pause lets the last fading cells dissolve before the new pattern blooms in.
+
+Added 3 tests: fading cell persistence across generations, fading cell removal on rebirth, and clearAll reset.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Palm-up gesture or minimal HUD for settings. Depth of field effect. Performance profiling at 32³. Transition animation between shared and immersive space modes. Consider making fade duration configurable per-theme.
+
+---
+
 ## Day 10 — Session 28 (2026-03-26 17:03 PDT)
 
 **Goal**: Dissolve-out animation and new 3D preset patterns.

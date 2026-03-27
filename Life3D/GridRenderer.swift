@@ -190,24 +190,32 @@ enum GridRenderer {
         }
     }
 
-    /// Scale factor for birth animation — cells grow over their first few generations.
+    /// Scale factor for birth animation and death fade.
+    /// Positive ages: cells grow over their first few generations.
+    /// Negative ages: fading cells shrink (-1 = just died/largest, -3 = nearly gone/smallest).
     private static func birthScale(for age: Int) -> Float {
         switch age {
-        case ...0: return 0.5   // dying cells: shrunk
-        case 1: return 0.5      // just born: half size
-        case 2: return 0.75     // growing
-        case 3: return 0.9      // almost full
-        default: return 1.0     // mature: full size
+        case ...(-3): return 0.15  // nearly gone
+        case -2: return 0.3        // mid-fade
+        case -1: return 0.5        // just died
+        case 0: return 0.5         // dead (shouldn't render, but safe fallback)
+        case 1: return 0.5         // just born: half size
+        case 2: return 0.75        // growing
+        case 3: return 0.9         // almost full
+        default: return 1.0        // mature: full size
         }
     }
 
-    /// Computes raw vertex and index arrays for alive cells + dying cells, sorted by age tier.
+    /// Computes raw vertex and index arrays for alive cells + fading cells, sorted by age tier.
     private static func computeMeshData(model: GridModel) -> MeshData {
         var cellsWithAge = model.aliveCellsWithAge(cellSize: cellSize, cellSpacing: cellSpacing)
-        // Add dying cells with a sentinel age of -1 (mapped to .dying tier)
-        let dyingPositions = model.dyingCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
-        for pos in dyingPositions {
-            cellsWithAge.append((position: pos, age: -1))
+        // Add fading cells with negative age sentinel (mapped to .dying tier).
+        // Encode framesLeft as negative value: -1 = just died, -2 = mid-fade, -3 = nearly gone.
+        // birthScale uses this to progressively shrink fading cells.
+        let fadingCells = model.fadingCellsWithProgress(cellSize: cellSize, cellSpacing: cellSpacing)
+        for fading in fadingCells {
+            let framesLeft = Int(round(fading.progress * Float(GridModel.fadeDuration)))
+            cellsWithAge.append((position: fading.position, age: -max(framesLeft, 1)))
         }
         let aliveCells = cellsWithAge.count
 

@@ -8,6 +8,11 @@ struct GridModel: Sendable {
     private(set) var dyingCells: [Int] = []
     /// Cells born in the most recent generation (for particle effects)
     private(set) var bornCells: [Int] = []
+    /// Cells fading out over multiple generations: (flatIndex, remainingFrames)
+    /// Starts at fadeDuration and decrements each generation until 0.
+    private(set) var fadingCells: [(index: Int, framesLeft: Int)] = []
+    /// Number of generations a dying cell takes to fully fade out.
+    static let fadeDuration: Int = 3
 
     /// Rule configuration: born when neighbor count is in birthCounts, survives when in survivalCounts
     var birthCounts: Set<Int>
@@ -160,6 +165,19 @@ struct GridModel: Sendable {
         cells = next
         dyingCells = dying
         bornCells = born
+
+        // Update fading cells: decrement counters, remove expired, add newly dying
+        fadingCells = fadingCells.compactMap { entry in
+            let remaining = entry.framesLeft - 1
+            // If a fading cell was reborn, stop fading it
+            guard next[entry.index] == 0, remaining > 0 else { return nil }
+            return (index: entry.index, framesLeft: remaining)
+        }
+        // Add newly dying cells at full fade duration
+        for idx in dying {
+            fadingCells.append((index: idx, framesLeft: Self.fadeDuration))
+        }
+
         recomputeAliveCount()
     }
 
@@ -203,6 +221,18 @@ struct GridModel: Sendable {
             let y = (idx / size) % size
             let z = idx % size
             return cellPosition(x: x, y: y, z: z, cellSize: cellSize, cellSpacing: cellSpacing)
+        }
+    }
+
+    /// Returns all fading cells with their progress (0.0 = about to vanish, 1.0 = just died).
+    func fadingCellsWithProgress(cellSize: Float, cellSpacing: Float) -> [(position: SIMD3<Float>, progress: Float)] {
+        fadingCells.map { entry in
+            let x = entry.index / (size * size)
+            let y = (entry.index / size) % size
+            let z = entry.index % size
+            let pos = cellPosition(x: x, y: y, z: z, cellSize: cellSize, cellSpacing: cellSpacing)
+            let progress = Float(entry.framesLeft) / Float(Self.fadeDuration)
+            return (position: pos, progress: progress)
         }
     }
 
@@ -357,6 +387,7 @@ struct GridModel: Sendable {
         cells = [Int](repeating: 0, count: cellCount)
         dyingCells = []
         bornCells = []
+        fadingCells = []
         aliveCount = 0
     }
 }

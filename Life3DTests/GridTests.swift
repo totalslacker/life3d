@@ -516,6 +516,68 @@ struct PerformanceTests {
 
     // MARK: - Alive Count Caching Tests
 
+    @Test("Fading cells persist across multiple generations")
+    func fadingCellsPersist() {
+        // Create a small grid with a single cell that will die (no neighbors = no survival)
+        var model = GridModel(size: 4, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+        #expect(model.fadingCells.isEmpty)
+
+        // After one generation, the lone cell dies — should appear in fadingCells
+        model.advanceGeneration()
+        #expect(model.aliveCount == 0)
+        #expect(model.fadingCells.count == 1)
+        #expect(model.fadingCells[0].framesLeft == GridModel.fadeDuration)
+
+        // After second generation, fading cell still present but decremented
+        model.advanceGeneration()
+        #expect(model.fadingCells.count == 1)
+        #expect(model.fadingCells[0].framesLeft == GridModel.fadeDuration - 1)
+
+        // After third generation, fading cell decremented again
+        model.advanceGeneration()
+        #expect(model.fadingCells.count == 1)
+        #expect(model.fadingCells[0].framesLeft == GridModel.fadeDuration - 2)
+
+        // After fourth generation (past fadeDuration=3), fading cell gone
+        model.advanceGeneration()
+        #expect(model.fadingCells.isEmpty)
+    }
+
+    @Test("Fading cells removed when cell is reborn")
+    func fadingCellRebornRemoved() {
+        // Set up conditions where a cell dies then is reborn at same position
+        var model = GridModel(size: 4, birthCounts: [0], survivalCounts: [])
+        // With birthCounts=[0] and survivalCounts=[], every dead cell with 0 neighbors is born,
+        // and every alive cell dies. This creates a toggle pattern.
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+
+        // Gen 1: the alive cell dies (no survival), all dead cells with 0 neighbors are born
+        model.advanceGeneration()
+        // Cell at (1,1,1) should be fading
+        let fadingIdx = model.index(x: 1, y: 1, z: 1)
+        let hasFading = model.fadingCells.contains { $0.index == fadingIdx }
+        #expect(hasFading)
+
+        // Gen 2: (1,1,1) might be reborn — if so, fading entry should be removed
+        model.advanceGeneration()
+        if model.isAlive(x: 1, y: 1, z: 1) {
+            let stillFading = model.fadingCells.contains { $0.index == fadingIdx }
+            #expect(!stillFading, "Fading cell should be removed when reborn")
+        }
+    }
+
+    @Test("clearAll resets fading cells")
+    func clearAllResetsFading() {
+        var model = GridModel(size: 4, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+        model.advanceGeneration()
+        #expect(!model.fadingCells.isEmpty)
+
+        model.clearAll()
+        #expect(model.fadingCells.isEmpty)
+    }
+
     @Test("aliveCount stays accurate through mutations")
     func aliveCountAccuracy() {
         var model = GridModel(size: 8)

@@ -173,3 +173,23 @@ the same things. Search here before looking things up externally.
 - Pool of 4 player nodes per type is sufficient — `.interrupts` option prevents overlapping the same player
 - Volume should scale with activity density to create a natural "busier = louder" soundscape
 - Death tones at ~60% volume of birth tones gives a natural feel — births are events, deaths are fading away
+
+---
+
+## Multi-Generation Death Fade
+
+- Single-frame dying cell rendering looks jarring — cells "pop" out of existence, breaking the organic feel
+- Tracking `fadingCells: [(index: Int, framesLeft: Int)]` on GridModel gives smooth multi-frame dissolve
+- 3 generations is the sweet spot for fade duration — visible but not lingering. At 5 gen/s this is ~0.6s
+- Fading cells must be removed when reborn at the same position, otherwise you get ghost cubes overlapping live cells
+- Encoding fade progress as negative age values (−1 = just died, −3 = nearly gone) in the render pipeline avoids changing the vertex struct or adding a new mesh part type
+- Progressive scale reduction (50% → 30% → 15%) reads better than opacity-only fade because translucent materials are already low-opacity
+
+---
+
+## Auto-Restart on Extinction
+
+- Many 3D cellular automata configurations die within 50-100 generations, leaving an empty grid
+- Waiting for `aliveCount == 0 && fadingCells.isEmpty` ensures the last cells finish their dissolve before reseed
+- A brief delay (3 empty generations) between extinction and reseed creates a natural "breath" — the grid goes dark, pauses, then blooms fresh
+- Using `randomSeed()` for restart gives maximum variety; pattern-cycling would be an alternative for curated experiences

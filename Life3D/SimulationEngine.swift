@@ -76,6 +76,10 @@ final class SimulationEngine {
         }
     }
 
+    /// Number of consecutive generations with zero alive cells before auto-restart.
+    private var extinctionCounter: Int = 0
+    private static let extinctionDelay: Int = 3  // wait 3 empty generations (~0.6s at 5 gen/s)
+
     func step() {
         grid.advanceGeneration()
         generation += 1
@@ -88,6 +92,19 @@ final class SimulationEngine {
             while !Task.isCancelled {
                 guard let self, self.isRunning else { break }
                 self.step()
+
+                // Auto-restart: if population is extinct (and all fading done), reseed
+                if self.grid.aliveCount == 0 && self.grid.fadingCells.isEmpty {
+                    self.extinctionCounter += 1
+                    if self.extinctionCounter >= Self.extinctionDelay {
+                        self.extinctionCounter = 0
+                        self.generation = 0
+                        self.grid.randomSeed()
+                    }
+                } else {
+                    self.extinctionCounter = 0
+                }
+
                 let interval = UInt64(1_000_000_000 / max(self.speed, 1.0))
                 try? await Task.sleep(nanoseconds: interval)
             }
