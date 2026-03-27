@@ -25,6 +25,7 @@ struct ContentView: View {
             if showingSimulation {
                 Task {
                     await openImmersiveSpace(id: "life3d-grid")
+                    engine.start()
                 }
             }
         }
@@ -207,8 +208,19 @@ struct MidSimulationSettings: View {
                     .font(.callout)
                 HStack(spacing: 8) {
                     ForEach(ColorTheme.allThemes) { theme in
-                        Button(theme.name) {
+                        Button {
                             engine.theme = theme
+                        } label: {
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(Color(
+                                        red: Double(theme.newborn.emissiveColor.x),
+                                        green: Double(theme.newborn.emissiveColor.y),
+                                        blue: Double(theme.newborn.emissiveColor.z)
+                                    ))
+                                    .frame(width: 8, height: 8)
+                                Text(theme.name)
+                            }
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)

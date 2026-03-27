@@ -43,7 +43,18 @@ struct LaunchView: View {
                         set: { engine.theme = $0 }
                     )) {
                         ForEach(ColorTheme.allThemes) { theme in
-                            Text(theme.name).tag(theme)
+                            Label {
+                                Text(theme.name)
+                            } icon: {
+                                Circle()
+                                    .fill(Color(
+                                        red: Double(theme.newborn.emissiveColor.x),
+                                        green: Double(theme.newborn.emissiveColor.y),
+                                        blue: Double(theme.newborn.emissiveColor.z)
+                                    ))
+                                    .frame(width: 10, height: 10)
+                            }
+                            .tag(theme)
                         }
                     }
                     .pickerStyle(.menu)

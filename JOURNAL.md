@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 33 (2026-03-27 00:22 PDT)
+
+**Goal**: Auto-start simulation, Monochrome theme, color preview dots in theme pickers.
+
+Three improvements focused on UX polish and visual variety:
+
+1. **Auto-start simulation on entering immersive space**: Previously, pressing "Start Simulation" opened the immersive space but left the simulation paused — users had to separately press Play. Now `engine.start()` is called immediately after the immersive space opens, so the simulation begins evolving as soon as the grid materializes. Eliminates an unnecessary interaction step.
+
+2. **New Monochrome color theme**: Added a fifth theme with white/gray palette — bright white newborn cells fading to dark gray with age. Provides an understated, minimalist aesthetic that contrasts with the more vivid existing themes. Useful for users who want the simulation to feel like a sculptural art piece rather than a neon light show.
+
+3. **Color preview dots in theme pickers**: Both the launch screen and mid-simulation settings now show a small colored circle next to each theme name, using the theme's newborn emissive color. This gives users an instant visual preview of what each theme looks like without needing to select it first.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Depth of field effect. Performance profiling at 32x32x32. Palm-up gesture or minimal HUD. App icon and launch experience polish.
+
+---
+
 ## Day 10 — Session 32 (2026-03-26 21:29 PDT)
 
 **Goal**: Fix auto-restart pattern bug, add active selection highlighting in mid-sim settings, add population trend indicator.
