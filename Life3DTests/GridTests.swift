@@ -631,6 +631,45 @@ struct PerformanceTests {
         }
     }
 
+    @Test("Sphere pattern creates a hollow sphere shell")
+    func spherePattern() {
+        var model = GridModel(size: 16)
+        model.loadSphere()
+        // Should have a significant number of alive cells forming a shell
+        #expect(model.aliveCount > 50)
+        // Center of sphere should be dead (hollow)
+        #expect(!model.isAlive(x: 8, y: 8, z: 8))
+        // Surface of sphere should have alive cells
+        // At radius ~5 from center (8,8,8), check a point on the surface
+        let hasShellCell = model.isAlive(x: 8, y: 8, z: 13) || model.isAlive(x: 8, y: 8, z: 12) || model.isAlive(x: 8, y: 8, z: 11)
+        #expect(hasShellCell)
+    }
+
+    @Test("Peak population tracks maximum alive count")
+    @MainActor func peakPopulation() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        #expect(engine.peakPopulation == 0)
+
+        // Step a few times to establish peak
+        for _ in 0..<5 {
+            engine.step()
+        }
+        let peak = engine.peakPopulation
+        #expect(peak > 0)
+        #expect(peak >= engine.grid.aliveCount)
+    }
+
+    @Test("Reset clears peak population")
+    @MainActor func resetClearsPeak() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        for _ in 0..<5 { engine.step() }
+        #expect(engine.peakPopulation > 0)
+        engine.reset(pattern: .random)
+        #expect(engine.peakPopulation == 0)
+    }
+
     @Test("aliveCount stays accurate through mutations")
     func aliveCountAccuracy() {
         var model = GridModel(size: 8)

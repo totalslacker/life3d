@@ -388,6 +388,28 @@ struct GridModel: Sendable {
         }
     }
 
+    /// A hollow sphere shell centered in the grid.
+    /// Creates radially symmetric evolution that expands and contracts beautifully.
+    mutating func loadSphere() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let outerR = Float(min(size / 3, 5))
+        let innerR = outerR - 1.3
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let dx = Float(x) - mid + 0.5
+                    let dy = Float(y) - mid + 0.5
+                    let dz = Float(z) - mid + 0.5
+                    let dist = (dx * dx + dy * dy + dz * dz).squareRoot()
+                    if dist >= innerR && dist <= outerR {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+    }
+
     mutating func clearAll() {
         cells = [Int](repeating: 0, count: cellCount)
         dyingCells = []

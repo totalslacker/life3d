@@ -23,6 +23,9 @@ final class SimulationEngine {
     private var recentPopulations: [Int] = []
     private static let trendWindow = 5  // number of generations to average over
 
+    /// Peak population reached since last reset.
+    var peakPopulation: Int = 0
+
     /// Population trend: positive = growing, negative = shrinking, zero = stable.
     var populationTrend: Int {
         guard recentPopulations.count >= 2 else { return 0 }
@@ -116,6 +119,10 @@ final class SimulationEngine {
         if recentPopulations.count > Self.trendWindow * 2 {
             recentPopulations.removeFirst(recentPopulations.count - Self.trendWindow * 2)
         }
+        // Track peak population
+        if grid.aliveCount > peakPopulation {
+            peakPopulation = grid.aliveCount
+        }
     }
 
     func start() {
@@ -154,6 +161,7 @@ final class SimulationEngine {
         pause()
         generation = 0
         recentPopulations.removeAll()
+        peakPopulation = 0
         selectedPattern = pattern
         loadPattern(pattern)
     }
@@ -180,6 +188,8 @@ final class SimulationEngine {
             grid.loadCross()
         case .tube:
             grid.loadTube()
+        case .sphere:
+            grid.loadSphere()
         case .clear:
             grid.clearAll()
         }
@@ -201,6 +211,7 @@ final class SimulationEngine {
         case diamond = "Diamond"
         case cross = "Cross"
         case tube = "Tube"
+        case sphere = "Sphere"
         case clear = "Clear"
 
         var id: String { rawValue }

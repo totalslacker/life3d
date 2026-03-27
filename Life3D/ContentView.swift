@@ -83,6 +83,17 @@ struct SimulationControlBar: View {
                     .disabled(engine.isRunning)
                 }
 
+                // Quick reset
+                Button {
+                    engine.reset(pattern: engine.selectedPattern)
+                    engine.start()
+                } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help("Reset simulation")
+
                 // Draw mode toggle
                 Button {
                     engine.drawMode.toggle()
@@ -157,7 +168,10 @@ struct SimulationControlBar: View {
                         .font(.caption2)
                         .foregroundStyle(engine.populationTrend > 0 ? .green :
                                         engine.populationTrend < 0 ? .orange : .secondary)
-                    Text("\(engine.grid.aliveCount) | \(engine.rulesLabel)")
+                    Text("\(engine.grid.aliveCount)")
+                    Text("peak \(engine.peakPopulation)")
+                        .foregroundStyle(.tertiary)
+                    Text("| \(engine.rulesLabel)")
                 }
                 .font(.caption)
                 .monospacedDigit()

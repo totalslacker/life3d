@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 34 (2026-03-27 01:08 PDT)
+
+**Goal**: Quick reset button, sphere pattern, peak population tracking.
+
+Three improvements focused on UX convenience, pattern variety, and stats:
+
+1. **Quick reset button in control bar**: Previously, resetting the simulation required opening the settings panel and selecting a pattern. Added a dedicated reset button (counterclockwise arrow icon) to the control bar that resets with the current selected pattern and immediately restarts. Saves an interaction step for the most common action during exploration.
+
+2. **Sphere pattern preset**: Added a hollow sphere shell pattern to complement the existing 7 patterns. Uses radial distance from center to create a shell between inner and outer radii. Produces beautiful radially symmetric evolution that expands and contracts, distinct from the blob-like (Soup/Random) and geometric (Diamond/Cross) existing patterns.
+
+3. **Peak population tracking**: Added `peakPopulation` tracking to SimulationEngine that records the highest alive count reached since the last reset. Displayed in the stats bar as "peak N" in a subdued tertiary style alongside the current alive count. Gives users a sense of how dynamic their simulation was, and makes extinction feel more meaningful (you can see how high the population climbed before dying out). Resets on pattern reset.
+
+Added 3 tests: sphere pattern structure, peak population tracking, reset clears peak.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Depth of field effect. Performance profiling at 32x32x32. Palm-up gesture or minimal HUD. Transition animation between shared and immersive space.
+
+---
+
 ## Day 11 — Session 33 (2026-03-27 00:22 PDT)
 
 **Goal**: Auto-start simulation, Monochrome theme, color preview dots in theme pickers.
