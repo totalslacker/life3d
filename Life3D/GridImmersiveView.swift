@@ -51,6 +51,9 @@ struct GridImmersiveView: View {
     @State private var materializeScale: Float = 0.01
     @State private var materializeOpacity: Float = 0.0
 
+    // Gesture onboarding overlay
+    @State private var showOnboarding = false
+
     var body: some View {
         RealityView { content in
             let container = Entity()
@@ -109,6 +112,18 @@ struct GridImmersiveView: View {
             audioEngine.setup()
             // Materialize animation: scale up and fade in over ~0.6s
             await materializeIn()
+            // Show gesture onboarding on first launch
+            if !UserDefaults.standard.bool(forKey: "life3d.hasSeenOnboarding") {
+                withAnimation(.easeIn(duration: 0.4)) {
+                    showOnboarding = true
+                }
+                UserDefaults.standard.set(true, forKey: "life3d.hasSeenOnboarding")
+                // Auto-dismiss after 5 seconds
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
+                withAnimation(.easeOut(duration: 0.3)) {
+                    showOnboarding = false
+                }
+            }
         }
         .onChange(of: engine.generation) {
             triggerParticles()
@@ -135,6 +150,17 @@ struct GridImmersiveView: View {
         }
         .onChange(of: engine.audioMuted) {
             audioEngine.isMuted = engine.audioMuted
+        }
+        .overlay {
+            if showOnboarding {
+                GestureOnboardingOverlay()
+                    .transition(.opacity)
+                    .onTapGesture {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            showOnboarding = false
+                        }
+                    }
+            }
         }
     }
 
@@ -175,10 +201,19 @@ struct GridImmersiveView: View {
                     let cellKey = coords.x * engine.grid.size * engine.grid.size + coords.y * engine.grid.size + coords.z
                     if !paintedCells.contains(cellKey) {
                         paintedCells.insert(cellKey)
-                        // In draw mode, always set cells alive (paint on)
-                        if !engine.grid.isAlive(x: coords.x, y: coords.y, z: coords.z) {
-                            engine.grid.setCell(x: coords.x, y: coords.y, z: coords.z, alive: true)
-                            engine.generation += 1  // trigger mesh rebuild
+                        let isAlive = engine.grid.isAlive(x: coords.x, y: coords.y, z: coords.z)
+                        if engine.eraserMode {
+                            // Eraser: remove cells
+                            if isAlive {
+                                engine.grid.setCell(x: coords.x, y: coords.y, z: coords.z, alive: false)
+                                engine.generation += 1
+                            }
+                        } else {
+                            // Paint: add cells
+                            if !isAlive {
+                                engine.grid.setCell(x: coords.x, y: coords.y, z: coords.z, alive: true)
+                                engine.generation += 1
+                            }
                         }
                         triggerPulse(at: pos)
                     }
@@ -599,5 +634,39 @@ struct GridImmersiveView: View {
             }
         } while needsRebuild
         isRebuilding = false
+    }
+}
+
+/// Brief overlay showing available gestures on first simulation launch.
+struct GestureOnboardingOverlay: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Gestures")
+                .font(.headline)
+
+            HStack(spacing: 24) {
+                gestureHint(icon: "hand.tap", label: "Tap to toggle")
+                gestureHint(icon: "hand.draw", label: "Drag to rotate")
+                gestureHint(icon: "arrow.up.left.and.arrow.down.right", label: "Pinch to zoom")
+            }
+
+            Text("Tap anywhere to dismiss")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .padding(20)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    private func gestureHint(icon: String, label: String) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(.primary)
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(width: 90)
     }
 }

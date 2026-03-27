@@ -85,12 +85,25 @@ struct SimulationControlBar: View {
                 // Draw mode toggle
                 Button {
                     engine.drawMode.toggle()
+                    if !engine.drawMode { engine.eraserMode = false }
                 } label: {
                     Image(systemName: engine.drawMode ? "pencil.circle.fill" : "arrow.triangle.2.circlepath")
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
                 .help(engine.drawMode ? "Draw mode: drag to paint cells" : "Rotate mode: drag to rotate")
+
+                // Eraser toggle (only visible in draw mode)
+                if engine.drawMode {
+                    Button {
+                        engine.eraserMode.toggle()
+                    } label: {
+                        Image(systemName: engine.eraserMode ? "eraser.fill" : "eraser")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .help(engine.eraserMode ? "Eraser: drag to remove cells" : "Pencil: drag to add cells")
+                }
 
                 // Surround mode toggle
                 Button {

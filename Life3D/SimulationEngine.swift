@@ -10,6 +10,7 @@ final class SimulationEngine {
     var speed: Double = 5.0 // generations per second
     var theme: ColorTheme = .neon
     var drawMode: Bool = false
+    var eraserMode: Bool = false    // false = paint cells on, true = erase cells
     var surroundMode: Bool = false  // false = tabletop, true = room-scale
     var audioMuted: Bool = false
     var selectedPattern: Pattern = .random
@@ -99,7 +100,7 @@ final class SimulationEngine {
                     if self.extinctionCounter >= Self.extinctionDelay {
                         self.extinctionCounter = 0
                         self.generation = 0
-                        self.grid.randomSeed()
+                        self.loadPattern(self.selectedPattern)
                     }
                 } else {
                     self.extinctionCounter = 0

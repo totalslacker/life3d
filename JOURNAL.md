@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 31 (2026-03-26 21:25 PDT)
+
+**Goal**: Fix auto-restart pattern, add eraser for draw mode, gesture onboarding overlay.
+
+Three improvements focused on UX and interaction polish:
+
+1. **Auto-restart respects selected pattern** (bug fix): Previously, when the population went extinct and auto-restart triggered, it always reseeded with `randomSeed()` regardless of what pattern the user had selected. Now uses `loadPattern(selectedPattern)` so if the user chose Diamond or Cross, extinction restarts with the same pattern type rather than always defaulting to random.
+
+2. **Eraser for draw mode** (feature): Draw mode previously only added cells — there was no way to remove cells by dragging. Added an `eraserMode` toggle on SimulationEngine. When draw mode is active, an eraser button appears in the control bar (eraser icon). When eraser is on, dragging removes cells instead of adding them. Exiting draw mode automatically resets eraser to off. This lets users sculpt patterns by both adding and subtracting cells.
+
+3. **Gesture discovery onboarding** (UX): On the first time a user enters the simulation, a translucent overlay appears showing the three primary gestures: tap to toggle, drag to rotate, pinch to zoom. Uses SF Symbols for visual clarity. Auto-dismisses after 5 seconds or on tap. Tracks "has seen" state in UserDefaults so it only shows once.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Depth of field effect. Performance profiling at 32³ on real hardware. Palm-up gesture or minimal HUD. Transition animation between shared and immersive space modes. Final visual tuning across all color themes.
+
+---
+
 ## Day 10 — Session 30 (2026-03-26 21:10 PDT)
 
 **Goal**: Fix stale particle colors on theme change, animate surround mode transition, optimize neighbor counting performance.
