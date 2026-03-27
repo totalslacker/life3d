@@ -22,7 +22,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Configurable birth/survival rule sets
 - [x] Step-by-step simulation mode (tap to advance one generation)
 - [x] Continuous simulation with adjustable speed (generations per second)
-- [x] Preset patterns: 3D gliders, oscillators, still lifes, random seed
+- [x] Preset patterns: 3D gliders, oscillators, still lifes, random seed, diamond, cross, tube (session 28)
 - [x] Tests: rule correctness, pattern stability, neighbor counting edge cases
 
 ## Phase 3 — Visual Beauty (Day 8-14)
@@ -54,7 +54,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Mid-simulation menu: settings overlay with pattern, theme, rules, size — gear icon toggle (session 27)
 - [x] Return to launch screen from simulation (session 26)
 - [x] Smooth transition: grid materializes with scale+opacity animation on entry (session 27)
-- [ ] Smooth transition: dissolve-out animation on exit
+- [x] Smooth transition: dissolve-out animation on exit (session 28)
 - [ ] Palm-up gesture or minimal persistent HUD to invoke menu
 - [x] Persist user preferences (theme, grid size, rules, speed, audio muted) via UserDefaults (session 25)
 

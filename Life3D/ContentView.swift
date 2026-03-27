@@ -10,11 +10,8 @@ struct ContentView: View {
         Group {
             if showingSimulation {
                 SimulationControlBar(onBack: {
-                    Task {
-                        engine.pause()
-                        await dismissImmersiveSpace()
-                        showingSimulation = false
-                    }
+                    engine.pause()
+                    engine.isExiting = true
                 })
                 .environment(engine)
             } else {
@@ -28,6 +25,16 @@ struct ContentView: View {
             if showingSimulation {
                 Task {
                     await openImmersiveSpace(id: "life3d-grid")
+                }
+            }
+        }
+        .onChange(of: engine.exitAnimationComplete) {
+            if engine.exitAnimationComplete {
+                Task {
+                    await dismissImmersiveSpace()
+                    showingSimulation = false
+                    engine.isExiting = false
+                    engine.exitAnimationComplete = false
                 }
             }
         }

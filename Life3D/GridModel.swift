@@ -288,6 +288,71 @@ struct GridModel: Sendable {
         }
     }
 
+    /// A diamond (octahedron) shell — cells at Manhattan distance exactly r from center.
+    /// Produces symmetric growth patterns that expand outward like a crystal.
+    mutating func loadDiamond() {
+        clearAll()
+        let mid = size / 2
+        let radius = min(size / 4, 4)
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let dist = abs(x - mid) + abs(y - mid) + abs(z - mid)
+                    if dist == radius || dist == radius - 1 {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+    }
+
+    /// A 3D cross/plus shape — three orthogonal bars through the center.
+    /// Creates interesting axial growth that breaks symmetry over time.
+    mutating func loadCross() {
+        clearAll()
+        let mid = size / 2
+        let arm = min(size / 4, 3)
+        for d in -arm...arm {
+            // X-axis bar
+            setCell(x: mid + d, y: mid, z: mid, alive: true)
+            // Y-axis bar
+            setCell(x: mid, y: mid + d, z: mid, alive: true)
+            // Z-axis bar
+            setCell(x: mid, y: mid, z: mid + d, alive: true)
+            // Thicken the bars — add adjacent cells for enough neighbor density
+            for offset in [-1, 1] {
+                setCell(x: mid + d, y: mid + offset, z: mid, alive: true)
+                setCell(x: mid + d, y: mid, z: mid + offset, alive: true)
+                setCell(x: mid, y: mid + d, z: mid + offset, alive: true)
+                setCell(x: mid + offset, y: mid + d, z: mid, alive: true)
+                setCell(x: mid, y: mid + offset, z: mid + d, alive: true)
+                setCell(x: mid + offset, y: mid, z: mid + d, alive: true)
+            }
+        }
+    }
+
+    /// A hollow tube aligned along the Y axis — ring cross-section.
+    /// Evolves differently from blob-like seeds, often producing wave-like behavior.
+    mutating func loadTube() {
+        clearAll()
+        let mid = size / 2
+        let height = min(size / 3, 5)
+        let outerR: Float = Float(min(size / 5, 3))
+        let innerR: Float = outerR - 1.2
+        for y in (mid - height)...(mid + height) {
+            for x in 0..<size {
+                for z in 0..<size {
+                    let dx = Float(x - mid)
+                    let dz = Float(z - mid)
+                    let dist = (dx * dx + dz * dz).squareRoot()
+                    if dist >= innerR && dist <= outerR {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+    }
+
     mutating func clearAll() {
         cells = [Int](repeating: 0, count: cellCount)
         dyingCells = []

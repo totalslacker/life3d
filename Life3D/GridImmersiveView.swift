@@ -124,6 +124,14 @@ struct GridImmersiveView: View {
         .onChange(of: engine.surroundMode) {
             applySurroundMode()
         }
+        .onChange(of: engine.isExiting) {
+            if engine.isExiting {
+                Task {
+                    await dissolveOut()
+                    engine.exitAnimationComplete = true
+                }
+            }
+        }
         .onChange(of: engine.audioMuted) {
             audioEngine.isMuted = engine.audioMuted
         }
@@ -506,6 +514,22 @@ struct GridImmersiveView: View {
         }
         materializeScale = 1.0
         materializeOpacity = 1.0
+    }
+
+    /// Animates the grid dissolving away — reverse of materializeIn.
+    private func dissolveOut() async {
+        let steps = 25  // ~0.4s at 60fps — slightly faster than materialize for snappy exit
+        let frameInterval: UInt64 = 16_000_000
+        for i in 1...steps {
+            let t = Float(i) / Float(steps)
+            // Ease-in curve: starts slow, accelerates into disappearance
+            let eased = t * t
+            materializeScale = 1.0 - eased * 0.7  // shrink to 30% (don't go to zero — feels more natural)
+            materializeOpacity = 1.0 - eased
+            try? await Task.sleep(nanoseconds: frameInterval)
+        }
+        materializeScale = 0.01
+        materializeOpacity = 0.0
     }
 
     // MARK: - Mesh Building

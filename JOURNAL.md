@@ -4,6 +4,27 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 28 (2026-03-26 17:03 PDT)
+
+**Goal**: Dissolve-out animation and new 3D preset patterns.
+
+Two improvements:
+
+1. **Dissolve-out animation (Phase 5 roadmap)**: When the user taps the back button to return to the launch screen, the grid now dissolves away before the immersive space is dismissed. The animation runs ~0.4s with an ease-in curve (starts slow, accelerates into disappearance) — the grid shrinks to 30% scale while fading to zero opacity. This is the reverse of the materialize-in effect from session 27. Coordinated via `isExiting`/`exitAnimationComplete` flags on SimulationEngine so ContentView waits for the animation to finish before dismissing the immersive space.
+
+2. **New 3D preset patterns (Phase 2 roadmap gap)**: Added three structurally distinct seed patterns beyond the existing generic blobs:
+   - **Diamond**: Octahedral shell — cells at Manhattan distance r and r-1 from center. Produces symmetric crystalline growth.
+   - **Cross**: Three thick orthogonal bars through the center. Creates axial growth that breaks symmetry over time.
+   - **Tube**: Hollow cylinder along the Y axis. Evolves with wave-like dynamics unlike blob seeds.
+
+   These give users visually distinct starting conditions that showcase different aspects of 3D cellular automata behavior.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test dissolve animation timing on real Vision Pro. Palm-up gesture or minimal HUD for settings. Depth of field. Performance profiling at 32³. Transition animation between shared and immersive space modes.
+
+---
+
 ## Day 10 — Session 27 (2026-03-26)
 
 **Goal**: Mid-simulation settings overlay and grid materialize transition (Phase 5).

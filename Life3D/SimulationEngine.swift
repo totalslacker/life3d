@@ -14,6 +14,10 @@ final class SimulationEngine {
     var audioMuted: Bool = false
     var selectedPattern: Pattern = .random
 
+    // Exit animation coordination
+    var isExiting: Bool = false
+    var exitAnimationComplete: Bool = false
+
     private var timerTask: Task<Void, Never>?
 
     // MARK: - User Defaults Keys
@@ -118,6 +122,12 @@ final class SimulationEngine {
             grid.loadBlock()
         case .cluster:
             grid.loadCluster()
+        case .diamond:
+            grid.loadDiamond()
+        case .cross:
+            grid.loadCross()
+        case .tube:
+            grid.loadTube()
         case .clear:
             grid.clearAll()
         }
@@ -136,6 +146,9 @@ final class SimulationEngine {
         case soup = "Soup (6³ blob)"
         case block = "Block (2³)"
         case cluster = "Cluster (4³)"
+        case diamond = "Diamond"
+        case cross = "Cross"
+        case tube = "Tube"
         case clear = "Clear"
 
         var id: String { rawValue }
