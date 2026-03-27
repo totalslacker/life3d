@@ -30,8 +30,21 @@ final class SimulationEngine {
     private static let trendWindow = 5  // number of generations to average over
 
     /// Population history for sparkline display (last N generations).
-    var populationHistory: [Int] = []
+    /// Uses a circular buffer for O(1) append instead of O(n) removeFirst.
+    private var _historyBuffer: [Int]
+    private var _historyWriteIndex: Int = 0
+    private var _historyCount: Int = 0
     private static let historyLength = 60  // ~12 seconds at 5 gen/s
+
+    /// Returns population history in chronological order (oldest first).
+    var populationHistory: [Int] {
+        guard _historyCount > 0 else { return [] }
+        if _historyCount < Self.historyLength {
+            return Array(_historyBuffer[0..<_historyCount])
+        }
+        let start = _historyWriteIndex
+        return Array(_historyBuffer[start..<Self.historyLength]) + Array(_historyBuffer[0..<start])
+    }
 
     /// Peak population reached since last reset.
     var peakPopulation: Int = 0
@@ -80,6 +93,9 @@ final class SimulationEngine {
     }
 
     init(size: Int = 16) {
+        // Initialize circular buffer for population history
+        self._historyBuffer = [Int](repeating: 0, count: Self.historyLength)
+
         // Load saved preferences or use defaults
         let defaults = UserDefaults.standard
         let savedSize = defaults.integer(forKey: PrefKey.gridSize)
@@ -147,11 +163,10 @@ final class SimulationEngine {
         if recentPopulations.count > Self.trendWindow * 2 {
             recentPopulations.removeFirst(recentPopulations.count - Self.trendWindow * 2)
         }
-        // Track population history for sparkline
-        populationHistory.append(grid.aliveCount)
-        if populationHistory.count > Self.historyLength {
-            populationHistory.removeFirst(populationHistory.count - Self.historyLength)
-        }
+        // Track population history for sparkline (circular buffer — O(1))
+        _historyBuffer[_historyWriteIndex] = grid.aliveCount
+        _historyWriteIndex = (_historyWriteIndex + 1) % Self.historyLength
+        if _historyCount < Self.historyLength { _historyCount += 1 }
         // Track peak population
         if grid.aliveCount > peakPopulation {
             peakPopulation = grid.aliveCount
@@ -173,7 +188,8 @@ final class SimulationEngine {
                         self.extinctionCounter = 0
                         self.showExtinctionNotice = true
                         self.generation = 0
-                        self.populationHistory.removeAll()
+                        self._historyWriteIndex = 0
+                        self._historyCount = 0
                         self.recentPopulations.removeAll()
                         self.loadPattern(self.selectedPattern)
                         // Auto-dismiss extinction notice after 2 seconds
@@ -202,7 +218,8 @@ final class SimulationEngine {
         pause()
         generation = 0
         recentPopulations.removeAll()
-        populationHistory.removeAll()
+        _historyWriteIndex = 0
+        _historyCount = 0
         peakPopulation = 0
         showExtinctionNotice = false
         generationRate = 0.0

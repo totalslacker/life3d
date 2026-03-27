@@ -878,6 +878,26 @@ struct PerformanceTests {
         #expect(bio.newborn.emissiveIntensity >= 2.5)
         #expect(bio.newborn.opacity >= 0.55)
     }
+
+    @Test("Glacier theme exists and brings total to 11")
+    func glacierThemeExists() {
+        #expect(ColorTheme.allThemes.contains(where: { $0.name == "Glacier" }))
+        #expect(ColorTheme.allThemes.count == 11)
+    }
+
+    @Test("Glacier theme has icy blue-white color progression")
+    func glacierThemeColors() {
+        let glacier = ColorTheme.glacier
+        // Newborn: icy white-blue (high all channels, blue dominant)
+        #expect(glacier.newborn.emissiveColor.x > 0.7)  // high red (white component)
+        #expect(glacier.newborn.emissiveColor.y > 0.8)   // high green (white component)
+        #expect(glacier.newborn.emissiveColor.z > 0.9)   // highest blue
+        // Young: more distinctly blue
+        #expect(glacier.young.emissiveColor.z > glacier.young.emissiveColor.x) // blue > red
+        // Mature: deep dark blue
+        #expect(glacier.mature.emissiveColor.z > glacier.mature.emissiveColor.x)
+        #expect(glacier.mature.emissiveIntensity < glacier.young.emissiveIntensity)
+    }
 }
 
 @Suite("Control Bar Auto-Hide Tests")
@@ -947,6 +967,59 @@ struct ExitTransitionTests {
         engine.isExiting = true
         #expect(engine.isExiting == true)
         #expect(engine.exitAnimationComplete == false)
+    }
+}
+
+@Suite("Population History Circular Buffer Tests")
+struct PopulationHistoryTests {
+    @Test("Population history fills correctly")
+    @MainActor
+    func historyFillsUp() {
+        let engine = SimulationEngine(size: 8)
+        for _ in 0..<10 {
+            engine.step()
+        }
+        #expect(engine.populationHistory.count == 10)
+    }
+
+    @Test("Population history wraps at capacity")
+    @MainActor
+    func historyWrapsAtCapacity() {
+        let engine = SimulationEngine(size: 8)
+        // Run more than historyLength (60) steps
+        for _ in 0..<80 {
+            engine.step()
+        }
+        #expect(engine.populationHistory.count == 60)
+    }
+
+    @Test("Population history preserves chronological order")
+    @MainActor
+    func historyChronologicalOrder() {
+        let engine = SimulationEngine(size: 4)
+        engine.grid.clearAll()
+        // Load a block so population is stable and non-zero
+        engine.grid.loadBlock()
+        for _ in 0..<5 {
+            engine.step()
+        }
+        let history = engine.populationHistory
+        // All entries should be the block population (8 cells)
+        for pop in history {
+            #expect(pop == 8)
+        }
+    }
+
+    @Test("Reset clears population history")
+    @MainActor
+    func resetClearsHistory() {
+        let engine = SimulationEngine(size: 8)
+        for _ in 0..<10 {
+            engine.step()
+        }
+        #expect(!engine.populationHistory.isEmpty)
+        engine.reset()
+        #expect(engine.populationHistory.isEmpty)
     }
 }
 

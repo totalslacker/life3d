@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 44 (2026-03-27 07:07 PDT)
+
+**Goal**: Fix wireframe stale on grid size change, circular buffer for population history, Glacier color theme.
+
+Three improvements across bug fix, performance, and visual variety:
+
+1. **Bug fix: wireframe updates on grid size change**: Previously the boundary wireframe was created once in `RealityView.make` and never rebuilt when the user changed grid size. The wireframe edges stayed at the old size while cells rendered at the new size, creating a mismatched boundary. Added `onChange(of: engine.grid.size)` handler that rebuilds the wireframe and updates the collision box extent. Now switching from 16³ to 32³ correctly resizes the boundary.
+
+2. **Performance: circular buffer for population history**: The sparkline's `populationHistory` used `Array.removeFirst()` which is O(n) — shifting all elements left on every generation once the buffer is full. Replaced with a pre-allocated circular buffer using a write index and count, making append O(1). At 5 gen/s with a 60-entry buffer, this eliminates 60 element shifts per second during steady-state operation. The computed `populationHistory` property reconstructs chronological order for the sparkline view.
+
+3. **Glacier color theme**: Added an eleventh theme with an icy blue-white aesthetic — bright near-white newborn cells with a cool blue tint (emissive intensity 2.2) transitioning through medium blue to deep navy for mature cells, with near-black dark blue dying cells. The color progression evokes glacial ice: bright white-blue surface → deeper blue interior → dark compressed ice. Distinct from Ocean Blues (which has more green/teal) in that Glacier stays in the pure blue-white family.
+
+Added 7 tests: Glacier theme existence and count (11 themes), Glacier icy blue-white color progression, circular buffer fill, wrap-at-capacity, chronological order preservation, and reset clearing.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Transition animation between shared and immersive space. Performance profiling at 32x32x32. App icon design.
+
+---
+
 ## Day 11 — Session 43 (2026-03-27 06:50 PDT)
 
 **Goal**: Add Nebula color theme, optimize empty particle/audio triggers, theme-tinted population sparkline.

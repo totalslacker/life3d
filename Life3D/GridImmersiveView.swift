@@ -148,6 +148,9 @@ struct GridImmersiveView: View {
             updateWireframeColor()
             Task { await rebuildMesh() }
         }
+        .onChange(of: engine.grid.size) {
+            rebuildWireframe()
+        }
         .onChange(of: engine.surroundMode) {
             applySurroundMode()
         }
@@ -615,6 +618,22 @@ struct GridImmersiveView: View {
     }
 
     // MARK: - Wireframe
+
+    /// Rebuilds the wireframe boundary to match the current grid size.
+    private func rebuildWireframe() {
+        guard let container = containerEntity else { return }
+        wireframeEntity?.removeFromParent()
+        let wireframe = GridRenderer.makeBoundaryWireframe(gridSize: engine.grid.size, theme: engine.theme)
+        container.addChild(wireframe)
+        wireframeEntity = wireframe
+
+        // Update collision box to match new grid extent
+        let stride = GridRenderer.cellSize + GridRenderer.cellSpacing
+        let gridExtent = Float(engine.grid.size - 1) * stride / 2.0 + GridRenderer.cellSize / 2.0
+        container.components.set(CollisionComponent(
+            shapes: [.generateBox(size: SIMD3<Float>(repeating: gridExtent * 2.5))]
+        ))
+    }
 
     /// Updates wireframe edge colors to match the current theme without rebuilding entities.
     private func updateWireframeColor() {
