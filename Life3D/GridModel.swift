@@ -436,6 +436,35 @@ struct GridModel: Sendable {
         }
     }
 
+    /// A mirror-symmetric random seed — generates one octant randomly, then mirrors
+    /// across all three axes. Symmetric initial conditions produce visually striking
+    /// evolutions with kaleidoscopic structure that persists for many generations.
+    mutating func loadMirror(density: Double = 0.35) {
+        clearAll()
+        let half = size / 2
+        // Fill one octant randomly
+        for x in 0..<half {
+            for y in 0..<half {
+                for z in 0..<half {
+                    if Double.random(in: 0...1) < density {
+                        // Mirror across all three axes (8-fold symmetry)
+                        let mx = size - 1 - x
+                        let my = size - 1 - y
+                        let mz = size - 1 - z
+                        setCell(x: x,  y: y,  z: z,  alive: true)
+                        setCell(x: mx, y: y,  z: z,  alive: true)
+                        setCell(x: x,  y: my, z: z,  alive: true)
+                        setCell(x: x,  y: y,  z: mz, alive: true)
+                        setCell(x: mx, y: my, z: z,  alive: true)
+                        setCell(x: mx, y: y,  z: mz, alive: true)
+                        setCell(x: x,  y: my, z: mz, alive: true)
+                        setCell(x: mx, y: my, z: mz, alive: true)
+                    }
+                }
+            }
+        }
+    }
+
     mutating func clearAll() {
         for i in 0..<cellCount { cells[i] = 0 }
         dyingCells = []

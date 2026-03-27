@@ -815,7 +815,6 @@ struct PerformanceTests {
     @Test("Nebula theme exists in allThemes")
     func nebulaThemeExists() {
         #expect(ColorTheme.allThemes.contains { $0.name == "Nebula" })
-        #expect(ColorTheme.allThemes.count == 10)
     }
 
     @Test("Nebula theme has cosmic purple color progression")
@@ -879,10 +878,9 @@ struct PerformanceTests {
         #expect(bio.newborn.opacity >= 0.55)
     }
 
-    @Test("Glacier theme exists and brings total to 11")
+    @Test("Glacier theme exists in allThemes")
     func glacierThemeExists() {
         #expect(ColorTheme.allThemes.contains(where: { $0.name == "Glacier" }))
-        #expect(ColorTheme.allThemes.count == 11)
     }
 
     @Test("Glacier theme has icy blue-white color progression")
@@ -1041,5 +1039,83 @@ struct DrawModeTests {
         let positions = grid.bornCellPositions(cellSize: 0.015, cellSpacing: 0.015)
         // After a generation from random seed, there should be born cells
         #expect(positions.count == grid.bornCells.count)
+    }
+}
+
+@Suite("Coral Theme Tests")
+struct CoralThemeTests {
+    @Test("Coral theme exists and brings total to 12")
+    func coralThemeExists() {
+        #expect(ColorTheme.allThemes.contains(where: { $0.name == "Coral" }))
+        #expect(ColorTheme.allThemes.count == 12)
+    }
+
+    @Test("Coral theme has warm orange-red color progression")
+    func coralThemeColors() {
+        let coral = ColorTheme.coral
+        // Newborn: bright coral (high red, medium green, lower blue)
+        #expect(coral.newborn.emissiveColor.x > 0.8)  // strong red
+        #expect(coral.newborn.emissiveColor.y > 0.3)   // warm green component
+        #expect(coral.newborn.emissiveColor.z < coral.newborn.emissiveColor.x)  // red dominant
+        // Young: deeper red-orange
+        #expect(coral.young.emissiveColor.x > coral.young.emissiveColor.y)  // red > green
+        // Mature: dark burgundy
+        #expect(coral.mature.emissiveIntensity < coral.young.emissiveIntensity)
+    }
+}
+
+@Suite("Mirror Symmetry Pattern Tests")
+struct MirrorPatternTests {
+    @Test("Mirror pattern produces 8-fold symmetric grid")
+    func mirrorSymmetry() {
+        var grid = GridModel(size: 16)
+        grid.loadMirror(density: 0.5)
+        // Check that mirrored positions match across all three axes
+        for x in 0..<8 {
+            for y in 0..<8 {
+                for z in 0..<8 {
+                    let alive = grid.isAlive(x: x, y: y, z: z)
+                    let mx = 15 - x, my = 15 - y, mz = 15 - z
+                    #expect(grid.isAlive(x: mx, y: y, z: z) == alive, "X-mirror mismatch at (\(x),\(y),\(z))")
+                    #expect(grid.isAlive(x: x, y: my, z: z) == alive, "Y-mirror mismatch")
+                    #expect(grid.isAlive(x: x, y: y, z: mz) == alive, "Z-mirror mismatch")
+                    #expect(grid.isAlive(x: mx, y: my, z: mz) == alive, "Full-mirror mismatch")
+                }
+            }
+        }
+    }
+
+    @Test("Mirror pattern produces non-empty grid")
+    func mirrorProducesCells() {
+        var grid = GridModel(size: 12)
+        grid.loadMirror(density: 0.35)
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Mirror pattern is selectable in engine")
+    @MainActor
+    func mirrorPatternInEngine() {
+        let engine = SimulationEngine(size: 12)
+        engine.reset(pattern: .mirror)
+        #expect(engine.grid.aliveCount > 0)
+        #expect(engine.selectedPattern == .mirror)
+    }
+}
+
+@Suite("Grid Size Rule Preservation Tests")
+struct GridSizeRuleTests {
+    @Test("Changing grid size preserves custom rules")
+    @MainActor
+    func changeGridSizePreservesRules() {
+        let engine = SimulationEngine(size: 12)
+        // Apply non-default rules
+        engine.applyRuleSet(.conservative)
+        let expectedBirth = SimulationEngine.RuleSet.conservative.birthCounts
+        let expectedSurvival = SimulationEngine.RuleSet.conservative.survivalCounts
+        // Change grid size
+        engine.changeGridSize(16)
+        // Rules should be preserved
+        #expect(engine.grid.birthCounts == expectedBirth)
+        #expect(engine.grid.survivalCounts == expectedSurvival)
     }
 }

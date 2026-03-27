@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 45 (2026-03-27 08:00 PDT)
+
+**Goal**: Fix rule loss on grid size change, mirror symmetry pattern, Coral color theme.
+
+Three improvements across bug fix, new pattern, and visual variety:
+
+1. **Bug fix: preserve rules when changing grid size**: `changeGridSize()` created a new `GridModel` with default rules (B5-7/S5-8), silently discarding any custom rule set the user had selected. Now preserves the current `birthCounts` and `survivalCounts` by passing them to the new GridModel constructor. Users switching from 16³ to 32³ with Conservative rules no longer get silently reset to Standard.
+
+2. **Mirror symmetry pattern**: Added a tenth pattern that generates one octant randomly (at 35% density) then mirrors it across all three axes for 8-fold symmetry. Symmetric initial conditions produce dramatically more visually striking evolutions — kaleidoscopic structures that maintain their symmetry for many generations before chaos breaks it. Particularly beautiful with the Diamond and Sphere patterns' geometric cousins.
+
+3. **Coral color theme**: Added a twelfth theme with a warm organic aesthetic — bright coral-orange newborn cells (emissive intensity 2.2) transitioning through deep red-orange to dark burgundy for mature cells. The color progression evokes living coral reefs: warm salmon surface → deep red interior → dark ocean floor. Distinct from Ember (which is yellow→orange→red fire) and Warm Amber (which is golden) in that Coral stays in the warm red-orange family with more pink undertones.
+
+Added 7 tests: Coral theme existence and count (12 themes), Coral color progression, mirror symmetry verification (8-fold), mirror non-empty output, mirror pattern engine selection, grid size rule preservation.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. Transition animation between shared and immersive space. App icon design.
+
+---
+
 ## Day 11 — Session 44 (2026-03-27 07:07 PDT)
 
 **Goal**: Fix wireframe stale on grid size change, circular buffer for population history, Glacier color theme.

@@ -253,6 +253,8 @@ final class SimulationEngine {
             grid.loadTube()
         case .sphere:
             grid.loadSphere()
+        case .mirror:
+            grid.loadMirror()
         case .clear:
             grid.clearAll()
         }
@@ -261,7 +263,10 @@ final class SimulationEngine {
     func changeGridSize(_ newSize: Int) {
         pause()
         generation = 0
-        grid = GridModel(size: newSize)
+        // Preserve current birth/survival rules when changing grid size
+        let currentBirth = grid.birthCounts
+        let currentSurvival = grid.survivalCounts
+        grid = GridModel(size: newSize, birthCounts: currentBirth, survivalCounts: currentSurvival)
         grid.randomSeed()
         savePreferences()
     }
@@ -275,6 +280,7 @@ final class SimulationEngine {
         case cross = "Cross"
         case tube = "Tube"
         case sphere = "Sphere"
+        case mirror = "Mirror (8-fold)"
         case clear = "Clear"
 
         var id: String { rawValue }
