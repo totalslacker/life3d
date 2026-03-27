@@ -691,4 +691,40 @@ struct PerformanceTests {
         let counted = model.cells.filter { $0 > 0 }.count
         #expect(model.aliveCount == counted)
     }
+
+    // MARK: - Population History & Extinction Notice
+
+    @Test("Population history accumulates during simulation")
+    @MainActor func populationHistoryAccumulates() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        #expect(engine.populationHistory.isEmpty)
+        for _ in 0..<10 { engine.step() }
+        #expect(engine.populationHistory.count == 10)
+    }
+
+    @Test("Population history capped at historyLength")
+    @MainActor func populationHistoryCapped() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        // Step more than 60 times (history cap)
+        for _ in 0..<80 { engine.step() }
+        #expect(engine.populationHistory.count <= 60)
+    }
+
+    @Test("Reset clears population history")
+    @MainActor func resetClearsHistory() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        for _ in 0..<5 { engine.step() }
+        #expect(!engine.populationHistory.isEmpty)
+        engine.reset(pattern: .random)
+        #expect(engine.populationHistory.isEmpty)
+    }
+
+    @Test("Extinction notice is initially false")
+    @MainActor func extinctionNoticeInitiallyFalse() {
+        let engine = SimulationEngine(size: 8)
+        #expect(!engine.showExtinctionNotice)
+    }
 }

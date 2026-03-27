@@ -227,6 +227,8 @@ enum GridRenderer {
     }
 
     /// Computes raw vertex and index arrays for alive cells + fading cells, sorted by age tier.
+    /// Applies depth-based scaling: cells further from grid center are slightly smaller,
+    /// creating a natural depth-of-field effect without shader-level blur.
     private static func computeMeshData(model: GridModel) -> MeshData {
         var cellsWithAge = model.aliveCellsWithAge(cellSize: cellSize, cellSpacing: cellSpacing)
         // Add fading cells with negative age sentinel (mapped to .dying tier).
@@ -250,6 +252,11 @@ enum GridRenderer {
 
         // Sort cells by age tier so we can create contiguous mesh parts
         let sorted = cellsWithAge.sorted { AgeTier.tier(for: $0.age).rawValue < AgeTier.tier(for: $1.age).rawValue }
+
+        // Pre-compute depth scale: cells at the grid edge are slightly smaller (80% of full size)
+        // This creates a pseudo depth-of-field effect — peripheral cells recede visually
+        let depthFalloff: Float = 0.2  // 20% size reduction at maximum distance
+        let maxDist = gridExtent * 1.732  // sqrt(3) for 3D diagonal
 
         let cubeVertexCount = 24
         let cubeIndexCount = 36
@@ -313,7 +320,11 @@ enum GridRenderer {
             let tier = AgeTier.tier(for: cell.age)
             tierCounts[tier.rawValue] += 1
 
-            let scale = birthScale(for: cell.age)
+            let ageScale = birthScale(for: cell.age)
+            // Depth-based scale: cells further from center shrink slightly
+            let dist = simd_length(cell.position)
+            let depthScale = 1.0 - depthFalloff * min(dist / maxDist, 1.0)
+            let scale = ageScale * depthScale
             let vertexOffset = UInt32(vi)
             for j in 0..<cubeVertexCount {
                 vertices[vi] = GridVertex(

@@ -23,8 +23,15 @@ final class SimulationEngine {
     private var recentPopulations: [Int] = []
     private static let trendWindow = 5  // number of generations to average over
 
+    /// Population history for sparkline display (last N generations).
+    var populationHistory: [Int] = []
+    private static let historyLength = 60  // ~12 seconds at 5 gen/s
+
     /// Peak population reached since last reset.
     var peakPopulation: Int = 0
+
+    /// Whether the population just went extinct (for notification overlay).
+    var showExtinctionNotice: Bool = false
 
     /// Population trend: positive = growing, negative = shrinking, zero = stable.
     var populationTrend: Int {
@@ -119,6 +126,11 @@ final class SimulationEngine {
         if recentPopulations.count > Self.trendWindow * 2 {
             recentPopulations.removeFirst(recentPopulations.count - Self.trendWindow * 2)
         }
+        // Track population history for sparkline
+        populationHistory.append(grid.aliveCount)
+        if populationHistory.count > Self.historyLength {
+            populationHistory.removeFirst(populationHistory.count - Self.historyLength)
+        }
         // Track peak population
         if grid.aliveCount > peakPopulation {
             peakPopulation = grid.aliveCount
@@ -138,8 +150,16 @@ final class SimulationEngine {
                     self.extinctionCounter += 1
                     if self.extinctionCounter >= Self.extinctionDelay {
                         self.extinctionCounter = 0
+                        self.showExtinctionNotice = true
                         self.generation = 0
+                        self.populationHistory.removeAll()
+                        self.recentPopulations.removeAll()
                         self.loadPattern(self.selectedPattern)
+                        // Auto-dismiss extinction notice after 2 seconds
+                        Task { @MainActor [weak self] in
+                            try? await Task.sleep(nanoseconds: 2_000_000_000)
+                            self?.showExtinctionNotice = false
+                        }
                     }
                 } else {
                     self.extinctionCounter = 0
@@ -161,7 +181,9 @@ final class SimulationEngine {
         pause()
         generation = 0
         recentPopulations.removeAll()
+        populationHistory.removeAll()
         peakPopulation = 0
+        showExtinctionNotice = false
         selectedPattern = pattern
         loadPattern(pattern)
     }

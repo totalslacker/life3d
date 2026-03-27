@@ -161,6 +161,10 @@ struct SimulationControlBar: View {
 
                 Spacer()
 
+                // Population sparkline
+                PopulationSparkline(data: engine.populationHistory)
+                    .frame(width: 60, height: 16)
+
                 // Stats with population trend
                 HStack(spacing: 4) {
                     Text("Gen \(engine.generation)")
@@ -281,5 +285,38 @@ struct MidSimulationSettings: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
+    }
+}
+
+/// Tiny inline sparkline showing population history over recent generations.
+struct PopulationSparkline: View {
+    let data: [Int]
+
+    var body: some View {
+        Canvas { context, size in
+            guard data.count >= 2 else { return }
+            let maxVal = max(data.max() ?? 1, 1)
+            let step = size.width / CGFloat(data.count - 1)
+
+            var path = Path()
+            for (i, value) in data.enumerated() {
+                let x = CGFloat(i) * step
+                let y = size.height - (CGFloat(value) / CGFloat(maxVal)) * size.height
+                if i == 0 {
+                    path.move(to: CGPoint(x: x, y: y))
+                } else {
+                    path.addLine(to: CGPoint(x: x, y: y))
+                }
+            }
+
+            context.stroke(path, with: .color(.secondary.opacity(0.6)), lineWidth: 1)
+
+            // Fill under the curve
+            var fillPath = path
+            fillPath.addLine(to: CGPoint(x: size.width, y: size.height))
+            fillPath.addLine(to: CGPoint(x: 0, y: size.height))
+            fillPath.closeSubpath()
+            context.fill(fillPath, with: .color(.secondary.opacity(0.15)))
+        }
     }
 }

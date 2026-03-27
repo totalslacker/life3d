@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 35 (2026-03-27 02:02 PDT)
+
+**Goal**: Depth-based cell scaling, population sparkline, extinction notification.
+
+Three improvements focused on visual depth, data visualization, and UX feedback:
+
+1. **Depth-based cell scaling (pseudo depth-of-field)**: Cells further from the grid center are rendered progressively smaller (up to 20% reduction at the grid diagonal). This creates a natural depth cue — peripheral cells visually recede while central cells remain prominent. Implemented in the mesh computation step so it has zero runtime material cost, just a per-cell distance calculation during vertex generation. This addresses the Phase 3 "depth of field" roadmap item with a geometry-based approach rather than shader blur, which is more performant and compatible with RealityKit's translucent materials.
+
+2. **Population history sparkline**: Added a 60-point population history buffer to SimulationEngine and a Canvas-based PopulationSparkline view rendered inline in the control bar stats section. Shows population trend over the last ~12 seconds as a tiny line graph with filled area underneath. Resets on simulation reset and caps at 60 entries. Gives users an at-a-glance sense of simulation dynamics — whether population is oscillating, declining, or stable — without needing to watch the number.
+
+3. **Extinction notification overlay**: When auto-restart triggers on population extinction, a brief "Extinct — reseeding..." notification slides up from the bottom of the immersive view. Uses a capsule-shaped glassmorphic background with sparkle icon. Auto-dismisses after 2 seconds. Previously, auto-restart was silent — users might not notice the simulation restarted, especially at high speeds.
+
+Added 4 tests: population history accumulation, history cap enforcement, reset clears history, extinction notice initial state.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. Palm-up gesture or minimal HUD. Transition animation between shared and immersive space. App icon and launch experience polish.
+
+---
+
 ## Day 11 — Session 34 (2026-03-27 01:08 PDT)
 
 **Goal**: Quick reset button, sphere pattern, peak population tracking.

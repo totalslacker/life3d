@@ -162,6 +162,14 @@ struct GridImmersiveView: View {
                     }
             }
         }
+        .overlay(alignment: .bottom) {
+            if engine.showExtinctionNotice {
+                ExtinctionNoticeView()
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .padding(.bottom, 40)
+            }
+        }
+        .animation(.easeInOut(duration: 0.4), value: engine.showExtinctionNotice)
     }
 
     // MARK: - Gestures
@@ -668,5 +676,21 @@ struct GestureOnboardingOverlay: View {
                 .foregroundStyle(.secondary)
         }
         .frame(width: 90)
+    }
+}
+
+/// Brief notification shown when population goes extinct before auto-restart.
+struct ExtinctionNoticeView: View {
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "sparkles")
+                .font(.callout)
+            Text("Extinct — reseeding...")
+                .font(.callout)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(.ultraThinMaterial, in: Capsule())
+        .foregroundStyle(.secondary)
     }
 }
