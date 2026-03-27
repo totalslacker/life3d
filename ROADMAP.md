@@ -32,7 +32,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Bloom and glow post-processing via RealityKit materials
 - [x] Particle effects on cell birth (bloom into existence) — burst emitters at sampled positions (session 20)
 - [x] Particle effects on cell death (dissolve into particles) — drift-down emitters at sampled positions (session 20)
-- [x] Color themes: neon on black, warm amber, ocean blues, aurora borealis
+- [x] Color themes: neon on black, warm amber, ocean blues, aurora borealis, ember
 - [x] Depth of field: cells further from center rendered smaller for depth cue (session 35)
 - [x] Light emission: living cells cast soft light via sampled PointLight entities (session 22)
 - [x] Smooth animation between cell states (death fade-out via dying tier, birth scale-up via age-based sizing)

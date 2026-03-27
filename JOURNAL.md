@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 42 (2026-03-27 06:35 PDT)
+
+**Goal**: Eliminate redundant per-generation computation, add Ember color theme, optimize wireframe color updates.
+
+Three improvements focused on performance, visual variety, and rendering efficiency:
+
+1. **Performance: compute birth/death positions once per generation**: Previously `bornCellPositions()` and `dyingCellPositions()` were each called 3 times per generation — once for particle effects, once for point light updates, and once for spatial audio. Now positions are computed once in the `onChange(of: engine.generation)` handler and passed to all three consumers. For a 32³ grid with ~8K alive cells, this eliminates 4 redundant position array computations per generation (~5 gen/s = 20 eliminated per second).
+
+2. **Ember color theme**: Added a ninth theme with a fire/lava aesthetic — bright yellow-white newborn cells (high emissive intensity 2.4) transitioning through vivid orange to deep red/dark crimson for mature cells, with near-black dying cells. The color progression mirrors cooling embers: white-hot → orange → red → dark ash. Higher opacity on newborn cells (0.60) gives them a more solid, incandescent appearance. Distinct from Warm Amber (which is golden-toned) and Infrared (which is more uniform heat-map style).
+
+3. **Wireframe color-only update on theme change**: Previously switching themes rebuilt all 12 wireframe box entities from scratch (MeshResource.generateBox + ModelEntity creation). Now `updateWireframeColor()` just updates the UnlitMaterial color on existing entities, avoiding geometry regeneration for a purely cosmetic change.
+
+Added 3 tests: Ember theme existence and count (9 themes), Ember fire-like color progression verification (yellow → orange → red intensity decrease).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 (measure gen/s improvement from reduced position computation). Transition animation between shared and immersive space. App icon design.
+
+---
+
 ## Day 11 — Session 41 (2026-03-27 06:15 PDT)
 
 **Goal**: Double-buffered grid for performance, Sakura color theme, launch view polish.

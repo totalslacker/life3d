@@ -22,6 +22,8 @@ struct GridImmersiveView: View {
 
     // Boundary wireframe entity
     @State private var wireframeEntity: Entity?
+    // Wireframe material for color-only updates (avoids rebuilding 12 entities)
+    @State private var wireframeMaterial: UnlitMaterial?
 
     // Spatial audio engine
     @State private var audioEngine = SpatialAudioEngine()
@@ -126,18 +128,24 @@ struct GridImmersiveView: View {
             }
         }
         .onChange(of: engine.generation) {
-            triggerParticles()
-            triggerAudio()
-            updatePointLights()
+            // Compute birth/death positions once per generation (used by particles, lights, and audio)
+            let cellSize = GridRenderer.cellSize
+            let cellSpacing = GridRenderer.cellSpacing
+            let birthPositions = engine.grid.bornCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+            let deathPositions = engine.grid.dyingCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+
+            triggerParticles(birthPositions: birthPositions, deathPositions: deathPositions)
+            triggerAudio(birthPositions: birthPositions, deathPositions: deathPositions)
+            updatePointLights(birthPositions: birthPositions)
             // Skip mesh rebuild when no cells changed (stable state or extinction)
             if !engine.grid.bornCells.isEmpty || !engine.grid.dyingCells.isEmpty || !engine.grid.fadingCells.isEmpty {
                 Task { await rebuildMesh() }
             }
         }
         .onChange(of: engine.theme) {
-            updatePointLights()
+            updatePointLights(birthPositions: [])
             updateParticleEmitterColors()
-            rebuildWireframe()
+            updateWireframeColor()
             Task { await rebuildMesh() }
         }
         .onChange(of: engine.surroundMode) {
@@ -379,12 +387,7 @@ struct GridImmersiveView: View {
     }
 
     /// Triggers particle bursts at sampled birth/death positions.
-    private func triggerParticles() {
-        let cellSize = GridRenderer.cellSize
-        let cellSpacing = GridRenderer.cellSpacing
-
-        let bornPositions = engine.grid.bornCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
-        let dyingPositions = engine.grid.dyingCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+    private func triggerParticles(birthPositions bornPositions: [SIMD3<Float>], deathPositions dyingPositions: [SIMD3<Float>]) {
 
         // Sample up to maxParticleEmitters positions from births
         let birthSample = samplePositions(bornPositions, count: Self.maxParticleEmitters)
@@ -449,10 +452,7 @@ struct GridImmersiveView: View {
     /// Repositions point lights at born cell positions (avoids scanning all n³ cells).
     /// Lights that have no new births nearby keep their previous position, creating
     /// a stable ambient glow that gradually shifts with simulation activity.
-    private func updatePointLights() {
-        let cellSize = GridRenderer.cellSize
-        let cellSpacing = GridRenderer.cellSpacing
-        let birthPositions = engine.grid.bornCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+    private func updatePointLights(birthPositions: [SIMD3<Float>]) {
         let emissive = engine.theme.newborn.emissiveColor
 
         // Place lights at newly born cell positions (most visually active areas)
@@ -563,11 +563,7 @@ struct GridImmersiveView: View {
 
     // MARK: - Spatial Audio
 
-    private func triggerAudio() {
-        let cellSize = GridRenderer.cellSize
-        let cellSpacing = GridRenderer.cellSpacing
-        let birthPositions = engine.grid.bornCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
-        let deathPositions = engine.grid.dyingCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
+    private func triggerAudio(birthPositions: [SIMD3<Float>], deathPositions: [SIMD3<Float>]) {
         audioEngine.triggerTones(birthPositions: birthPositions, deathPositions: deathPositions)
     }
 
@@ -614,12 +610,19 @@ struct GridImmersiveView: View {
 
     // MARK: - Wireframe
 
-    private func rebuildWireframe() {
-        guard let container = containerEntity else { return }
-        wireframeEntity?.removeFromParent()
-        let wireframe = GridRenderer.makeBoundaryWireframe(gridSize: engine.grid.size, theme: engine.theme)
-        container.addChild(wireframe)
-        wireframeEntity = wireframe
+    /// Updates wireframe edge colors to match the current theme without rebuilding entities.
+    private func updateWireframeColor() {
+        guard let wireframe = wireframeEntity else { return }
+        let emissive = engine.theme.mature.emissiveColor
+        var mat = UnlitMaterial()
+        mat.color = .init(tint: .init(
+            red: CGFloat(emissive.x), green: CGFloat(emissive.y),
+            blue: CGFloat(emissive.z), alpha: 0.3))
+        for child in wireframe.children {
+            if let modelEntity = child as? ModelEntity {
+                modelEntity.model?.materials = [mat]
+            }
+        }
     }
 
     // MARK: - Materialize/Dissolve Transition

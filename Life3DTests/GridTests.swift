@@ -805,7 +805,29 @@ struct PerformanceTests {
     @Test("Sakura theme exists in allThemes")
     func sakuraThemeExists() {
         #expect(ColorTheme.allThemes.contains { $0.name == "Sakura" })
-        #expect(ColorTheme.allThemes.count == 8)
+    }
+
+    @Test("Ember theme exists in allThemes")
+    func emberThemeExists() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Ember" })
+        #expect(ColorTheme.allThemes.count == 9)
+    }
+
+    @Test("Ember theme has fire-like color progression")
+    func emberThemeColors() {
+        let ember = ColorTheme.ember
+        // Newborn: bright yellow-white (high red + green, lower blue)
+        #expect(ember.newborn.emissiveColor.x > 0.8)  // strong red
+        #expect(ember.newborn.emissiveColor.y > 0.5)   // significant green (yellow)
+        #expect(ember.newborn.emissiveColor.z < 0.5)   // low blue
+        // Young: orange-red (red stays high, green drops)
+        #expect(ember.young.emissiveColor.x > 0.8)     // still strong red
+        #expect(ember.young.emissiveColor.y < ember.newborn.emissiveColor.y) // less green = more orange
+        // Mature: deep red/dark (low everything)
+        #expect(ember.mature.emissiveColor.x < ember.young.emissiveColor.x) // red fades
+        #expect(ember.mature.emissiveIntensity < ember.young.emissiveIntensity)
+        // Higher intensity than standard themes for vivid glow
+        #expect(ember.newborn.emissiveIntensity >= 2.4)
     }
 
     @Test("Sakura theme has warm pink emissive colors")
