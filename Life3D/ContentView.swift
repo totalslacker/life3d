@@ -5,6 +5,9 @@ struct ContentView: View {
     @Environment(\.openImmersiveSpace) private var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @State private var showingSimulation = false
+    @State private var launchOpacity: Double = 1.0
+    @State private var autoHideTask: Task<Void, Never>?
+    private static let autoHideDelay: UInt64 = 4_000_000_000 // 4 seconds
 
     var body: some View {
         Group {
@@ -14,11 +17,27 @@ struct ContentView: View {
                     engine.isExiting = true
                 })
                 .environment(engine)
+                .opacity(engine.controlBarVisible ? 1.0 : 0.0)
+                .animation(.easeInOut(duration: 0.35), value: engine.controlBarVisible)
+                .onHover { hovering in
+                    if hovering {
+                        showControlBar()
+                    }
+                }
             } else {
                 LaunchView(onStart: {
-                    showingSimulation = true
+                    Task {
+                        // Fade out launch view, then open immersive space
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            launchOpacity = 0.0
+                        }
+                        try? await Task.sleep(nanoseconds: 300_000_000)
+                        showingSimulation = true
+                        launchOpacity = 1.0
+                    }
                 })
                 .environment(engine)
+                .opacity(launchOpacity)
             }
         }
         .onChange(of: showingSimulation) {
@@ -26,11 +45,14 @@ struct ContentView: View {
                 Task {
                     await openImmersiveSpace(id: "life3d-grid")
                     engine.start()
+                    scheduleAutoHide()
                 }
             }
         }
         .onChange(of: engine.exitAnimationComplete) {
             if engine.exitAnimationComplete {
+                autoHideTask?.cancel()
+                engine.controlBarVisible = true
                 Task {
                     await dismissImmersiveSpace()
                     showingSimulation = false
@@ -38,6 +60,28 @@ struct ContentView: View {
                     engine.exitAnimationComplete = false
                 }
             }
+        }
+        .onChange(of: engine.generation) {
+            // Any simulation activity resets the auto-hide timer
+            if showingSimulation && !engine.controlBarVisible {
+                // Don't show on every generation — only on direct interaction
+            }
+        }
+    }
+
+    /// Shows the control bar and resets the auto-hide timer.
+    private func showControlBar() {
+        engine.controlBarVisible = true
+        scheduleAutoHide()
+    }
+
+    /// Schedules the control bar to fade out after a delay.
+    private func scheduleAutoHide() {
+        autoHideTask?.cancel()
+        autoHideTask = Task {
+            try? await Task.sleep(nanoseconds: Self.autoHideDelay)
+            guard !Task.isCancelled else { return }
+            engine.controlBarVisible = false
         }
     }
 }
@@ -206,8 +250,14 @@ struct SimulationControlBar: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .onChange(of: engine.theme) { engine.savePreferences() }
-        .onChange(of: engine.speed) { engine.savePreferences() }
+        .onChange(of: engine.theme) {
+            engine.savePreferences()
+            engine.controlBarVisible = true  // keep visible during interaction
+        }
+        .onChange(of: engine.speed) {
+            engine.savePreferences()
+            engine.controlBarVisible = true
+        }
         .onChange(of: engine.audioMuted) { engine.savePreferences() }
     }
 }

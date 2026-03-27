@@ -55,7 +55,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Return to launch screen from simulation (session 26)
 - [x] Smooth transition: grid materializes with scale+opacity animation on entry (session 27)
 - [x] Smooth transition: dissolve-out animation on exit (session 28)
-- [ ] Palm-up gesture or minimal persistent HUD to invoke menu
+- [x] Auto-hide control bar with hover-to-show for minimal HUD experience (session 38)
 - [x] Persist user preferences (theme, grid size, rules, speed, audio muted) via UserDefaults (session 25)
 
 ## Phase 6 — Audio & Polish (Day 26-30)

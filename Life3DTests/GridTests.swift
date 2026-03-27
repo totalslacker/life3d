@@ -798,3 +798,23 @@ struct PerformanceTests {
         #expect(ColorTheme.allThemes.count == 6)
     }
 }
+
+@Suite("Control Bar Auto-Hide Tests")
+struct ControlBarTests {
+    @Test("Control bar starts visible")
+    @MainActor
+    func controlBarInitiallyVisible() {
+        let engine = SimulationEngine(size: 4)
+        #expect(engine.controlBarVisible == true)
+    }
+
+    @Test("Control bar visibility can be toggled")
+    @MainActor
+    func controlBarToggle() {
+        let engine = SimulationEngine(size: 4)
+        engine.controlBarVisible = false
+        #expect(engine.controlBarVisible == false)
+        engine.controlBarVisible = true
+        #expect(engine.controlBarVisible == true)
+    }
+}

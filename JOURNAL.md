@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 38 (2026-03-27 04:44 PDT)
+
+**Goal**: Auto-hide control bar, increased particle/light pools for 32³, smoother launch transition.
+
+Three improvements focused on immersion, visual quality at scale, and transition polish:
+
+1. **Auto-hide control bar**: The control bar now fades out after 4 seconds of inactivity, creating a cleaner viewing experience. Hovering over the bar area or interacting with settings brings it back immediately with a smooth 0.35s fade animation. This addresses the long-pending "minimal HUD" roadmap item — rather than a complex palm-up gesture, this provides natural auto-hide behavior that works with existing input modalities.
+
+2. **Increased particle emitter and point light pools**: Bumped particle emitters from 6→10 and point lights from 4→8. At 32³ grid size with ~8K alive cells, the previous pools only sampled a tiny fraction of activity. With larger pools, birth/death effects and ambient lighting cover significantly more of the grid volume, making large-grid simulations feel more alive.
+
+3. **Smooth launch-to-simulation transition**: Added a coordinated fade-out of the launch view (0.3s opacity animation) before opening the immersive space. Previously the launch panel disappeared instantly when the immersive space opened, creating a jarring visual cut. The staggered timing creates a more polished spatial computing experience.
+
+Added 2 tests: control bar initial visibility, control bar toggle behavior.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 (measure actual gen/s). Transition animation between shared and immersive space (the reverse direction — immersive to launch). App icon and launch experience polish.
+
+---
+
 ## Day 11 — Session 37 (2026-03-27 03:45 PDT)
 
 **Goal**: Performance optimization (array-based rule lookup), generation rate display, Infrared color theme.

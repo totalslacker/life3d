@@ -22,6 +22,9 @@ final class SimulationEngine {
     // Help overlay trigger
     var showHelp: Bool = false
 
+    // Control bar auto-hide: bar fades out after inactivity, reappears on interaction
+    var controlBarVisible: Bool = true
+
     // Population trend tracking
     private var recentPopulations: [Int] = []
     private static let trendWindow = 5  // number of generations to average over

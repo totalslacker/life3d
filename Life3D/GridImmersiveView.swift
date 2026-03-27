@@ -11,11 +11,11 @@ struct GridImmersiveView: View {
     // Particle effect entities
     @State private var birthParticleEntities: [Entity] = []
     @State private var deathParticleEntities: [Entity] = []
-    private static let maxParticleEmitters = 6
+    private static let maxParticleEmitters = 10
 
     // Point light entities for ambient cell glow
     @State private var lightEntities: [Entity] = []
-    private static let maxPointLights = 4
+    private static let maxPointLights = 8
 
     // Toggle pulse effect
     @State private var pulseEntity: Entity?
