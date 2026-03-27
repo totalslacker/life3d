@@ -19,6 +19,9 @@ final class SimulationEngine {
     var isExiting: Bool = false
     var exitAnimationComplete: Bool = false
 
+    // Help overlay trigger
+    var showHelp: Bool = false
+
     // Population trend tracking
     private var recentPopulations: [Int] = []
     private static let trendWindow = 5  // number of generations to average over

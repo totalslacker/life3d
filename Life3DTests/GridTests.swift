@@ -727,4 +727,18 @@ struct PerformanceTests {
         let engine = SimulationEngine(size: 8)
         #expect(!engine.showExtinctionNotice)
     }
+
+    @Test("showHelp is initially false")
+    @MainActor func showHelpInitiallyFalse() {
+        let engine = SimulationEngine(size: 8)
+        #expect(!engine.showHelp)
+    }
+
+    @Test("Reset clears extinction notice")
+    @MainActor func resetClearsExtinctionNotice() {
+        let engine = SimulationEngine(size: 8)
+        engine.showExtinctionNotice = true
+        engine.reset(pattern: .random)
+        #expect(!engine.showExtinctionNotice)
+    }
 }

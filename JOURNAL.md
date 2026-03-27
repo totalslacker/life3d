@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 36 (2026-03-27 02:25 PDT)
+
+**Goal**: Fix momentum/surround mode bug, add gesture help button, clean up audio engine on exit.
+
+Three improvements focused on bug fixes, UX discoverability, and resource management:
+
+1. **Bug fix: Cancel momentum on surround mode toggle**: When toggling between tabletop and surround mode while the grid had drag momentum, the momentum task continued running and interfered with the surround transition animation — the grid would jitter or drift during the scale/position change. Fixed by cancelling the momentum task and resetting the drag state before starting the surround transition.
+
+2. **Gesture help button in control bar**: The gesture onboarding overlay only showed once on first launch and auto-dismissed after 5 seconds. Users who missed it or forgot the gestures had no way to see it again. Added a "?" button in the control bar (between settings gear and stats) that replays the onboarding overlay with the same auto-dismiss behavior. Uses a `showHelp` trigger on SimulationEngine to communicate between the control bar and the immersive view.
+
+3. **Audio and task cleanup on simulation exit**: When leaving the simulation back to the launch screen, the audio engine was never stopped and auto-rotation/momentum tasks were not cancelled. This leaked resources — the audio engine continued running in the background. Now `audioEngine.stop()`, `autoRotateTask?.cancel()`, and `momentumTask?.cancel()` are called during the exit dissolve animation.
+
+Added 2 tests: showHelp initial state, reset clears extinction notice.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. Palm-up gesture or minimal HUD. Transition animation between shared and immersive space. App icon and launch experience polish.
+
+---
+
 ## Day 11 — Session 35 (2026-03-27 02:02 PDT)
 
 **Goal**: Depth-based cell scaling, population sparkline, extinction notification.

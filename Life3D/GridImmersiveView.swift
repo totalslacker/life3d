@@ -143,6 +143,9 @@ struct GridImmersiveView: View {
         .onChange(of: engine.isExiting) {
             if engine.isExiting {
                 Task {
+                    audioEngine.stop()
+                    autoRotateTask?.cancel()
+                    momentumTask?.cancel()
                     await dissolveOut()
                     engine.exitAnimationComplete = true
                 }
@@ -150,6 +153,20 @@ struct GridImmersiveView: View {
         }
         .onChange(of: engine.audioMuted) {
             audioEngine.isMuted = engine.audioMuted
+        }
+        .onChange(of: engine.showHelp) {
+            if engine.showHelp {
+                engine.showHelp = false
+                withAnimation(.easeIn(duration: 0.4)) {
+                    showOnboarding = true
+                }
+                Task {
+                    try? await Task.sleep(nanoseconds: 5_000_000_000)
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        showOnboarding = false
+                    }
+                }
+            }
         }
         .overlay {
             if showOnboarding {
@@ -545,6 +562,9 @@ struct GridImmersiveView: View {
 
     private func applySurroundMode() {
         guard let container = containerEntity else { return }
+        // Cancel any active drag momentum to prevent interference with transition
+        momentumTask?.cancel()
+        isDragging = false
         let targetPosition: SIMD3<Float>
         let targetScale: Float
         if engine.surroundMode {

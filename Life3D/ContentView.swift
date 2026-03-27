@@ -159,6 +159,16 @@ struct SimulationControlBar: View {
                 .controlSize(.small)
                 .help("Simulation settings")
 
+                // Help: replay gesture onboarding
+                Button {
+                    engine.showHelp = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help("Show gesture help")
+
                 Spacer()
 
                 // Population sparkline
