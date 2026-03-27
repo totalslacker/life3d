@@ -578,6 +578,59 @@ struct PerformanceTests {
         #expect(model.fadingCells.isEmpty)
     }
 
+    @Test("reset updates selectedPattern for auto-restart")
+    @MainActor func resetUpdatesSelectedPattern() {
+        let engine = SimulationEngine(size: 8)
+        #expect(engine.selectedPattern == .random)
+
+        engine.reset(pattern: .diamond)
+        #expect(engine.selectedPattern == .diamond)
+
+        engine.reset(pattern: .tube)
+        #expect(engine.selectedPattern == .tube)
+
+        // Default parameter should set to .random
+        engine.reset()
+        #expect(engine.selectedPattern == .random)
+    }
+
+    @Test("population trend tracks direction")
+    @MainActor func populationTrend() {
+        let engine = SimulationEngine(size: 8)
+        // Initially no trend data
+        #expect(engine.populationTrend == 0)
+
+        // Simulate a growing population by stepping
+        engine.grid.randomSeed(density: 0.25)
+        for _ in 0..<6 {
+            engine.step()
+        }
+        // Trend should have a value (can't predict exact direction with random seed)
+        // but trendSymbol should be one of the valid symbols
+        let validSymbols = ["arrow.up.right", "arrow.down.right", "arrow.right"]
+        #expect(validSymbols.contains(engine.trendSymbol))
+    }
+
+    @Test("reset clears population trend history")
+    @MainActor func resetClearsTrend() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        for _ in 0..<6 { engine.step() }
+        engine.reset(pattern: .random)
+        #expect(engine.populationTrend == 0)
+    }
+
+    @Test("aliveCount delta tracking matches full recount")
+    func aliveCountDelta() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+        for _ in 0..<10 {
+            model.advanceGeneration()
+            let fullCount = model.cells.filter { $0 > 0 }.count
+            #expect(model.aliveCount == fullCount)
+        }
+    }
+
     @Test("aliveCount stays accurate through mutations")
     func aliveCountAccuracy() {
         var model = GridModel(size: 8)

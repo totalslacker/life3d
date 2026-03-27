@@ -149,11 +149,18 @@ struct SimulationControlBar: View {
 
                 Spacer()
 
-                // Stats
-                Text("Gen \(engine.generation) | \(engine.grid.aliveCount) | \(engine.rulesLabel)")
-                    .font(.caption)
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
+                // Stats with population trend
+                HStack(spacing: 4) {
+                    Text("Gen \(engine.generation)")
+                    Image(systemName: engine.trendSymbol)
+                        .font(.caption2)
+                        .foregroundStyle(engine.populationTrend > 0 ? .green :
+                                        engine.populationTrend < 0 ? .orange : .secondary)
+                    Text("\(engine.grid.aliveCount) | \(engine.rulesLabel)")
+                }
+                .font(.caption)
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
@@ -189,6 +196,7 @@ struct MidSimulationSettings: View {
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
+                        .tint(pattern == engine.selectedPattern ? .accentColor : .gray)
                     }
                 }
             }
@@ -204,6 +212,7 @@ struct MidSimulationSettings: View {
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
+                        .tint(theme == engine.theme ? .accentColor : .gray)
                     }
                 }
             }
@@ -213,12 +222,17 @@ struct MidSimulationSettings: View {
                     .foregroundStyle(.secondary)
                     .font(.callout)
                 HStack(spacing: 8) {
+                    let currentRuleSet = SimulationEngine.RuleSet.allCases.first {
+                        $0.birthCounts == engine.grid.birthCounts &&
+                        $0.survivalCounts == engine.grid.survivalCounts
+                    }
                     ForEach(SimulationEngine.RuleSet.allCases) { ruleSet in
                         Button(ruleSet.rawValue) {
                             engine.applyRuleSet(ruleSet)
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
+                        .tint(ruleSet == currentRuleSet ? .accentColor : .gray)
                     }
                 }
             }
@@ -234,6 +248,7 @@ struct MidSimulationSettings: View {
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
+                        .tint(size.rawValue == engine.grid.size ? .accentColor : .gray)
                     }
                 }
             }

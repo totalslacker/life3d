@@ -19,6 +19,33 @@ final class SimulationEngine {
     var isExiting: Bool = false
     var exitAnimationComplete: Bool = false
 
+    // Population trend tracking
+    private var recentPopulations: [Int] = []
+    private static let trendWindow = 5  // number of generations to average over
+
+    /// Population trend: positive = growing, negative = shrinking, zero = stable.
+    var populationTrend: Int {
+        guard recentPopulations.count >= 2 else { return 0 }
+        let recent = recentPopulations.suffix(Self.trendWindow)
+        let first = recent.first ?? 0
+        let last = recent.last ?? 0
+        let delta = last - first
+        // Use a threshold to avoid jitter on small fluctuations
+        let threshold = max(1, first / 20)  // 5% of population
+        if delta > threshold { return 1 }
+        if delta < -threshold { return -1 }
+        return 0
+    }
+
+    /// Symbol name for the current population trend.
+    var trendSymbol: String {
+        switch populationTrend {
+        case 1: return "arrow.up.right"
+        case -1: return "arrow.down.right"
+        default: return "arrow.right"
+        }
+    }
+
     private var timerTask: Task<Void, Never>?
 
     // MARK: - User Defaults Keys
@@ -84,6 +111,11 @@ final class SimulationEngine {
     func step() {
         grid.advanceGeneration()
         generation += 1
+        // Track population for trend indicator
+        recentPopulations.append(grid.aliveCount)
+        if recentPopulations.count > Self.trendWindow * 2 {
+            recentPopulations.removeFirst(recentPopulations.count - Self.trendWindow * 2)
+        }
     }
 
     func start() {
@@ -121,6 +153,8 @@ final class SimulationEngine {
     func reset(pattern: Pattern = .random) {
         pause()
         generation = 0
+        recentPopulations.removeAll()
+        selectedPattern = pattern
         loadPattern(pattern)
     }
 

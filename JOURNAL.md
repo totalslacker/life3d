@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 32 (2026-03-26 21:29 PDT)
+
+**Goal**: Fix auto-restart pattern bug, add active selection highlighting in mid-sim settings, add population trend indicator.
+
+Three improvements focused on correctness, UX clarity, and visual feedback:
+
+1. **Bug fix: auto-restart respects selected pattern**: When the user changed the pattern mid-simulation via the settings overlay (e.g. switching from Random to Diamond), the `reset(pattern:)` method loaded the new pattern but didn't update `selectedPattern`. On extinction, auto-restart would reseed with the stale `selectedPattern` from launch, ignoring the user's mid-sim choice. Fixed by updating `selectedPattern` in `reset()` so auto-restart always uses the most recently selected pattern.
+
+2. **Active selection highlighting in mid-sim settings**: The settings overlay showed all pattern/theme/rules/size buttons identically — no indicator of what's currently active. Users had to remember their selections. Added `.tint(.accentColor)` to the active option in each row (pattern matches `selectedPattern`, theme matches `engine.theme`, rules compared by birth/survival counts, size compared by grid dimension). Inactive options use `.tint(.gray)` for clear differentiation.
+
+3. **Population trend indicator in stats bar**: Added a trend arrow next to the alive count showing whether the population is growing (green arrow up-right), shrinking (orange arrow down-right), or stable (arrow right). Tracks the last 10 population values and uses a 5% threshold to filter out small fluctuations. Clears on reset. Gives users an at-a-glance sense of simulation dynamics without requiring them to watch the number closely.
+
+Added 4 tests: auto-restart pattern update, population trend tracking, trend reset on clear, aliveCount delta accuracy across generations.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Depth of field effect. Performance profiling at 32x32x32 on real hardware. Palm-up gesture or minimal HUD. Transition animation between shared and immersive space modes.
+
+---
+
 ## Day 10 — Session 31 (2026-03-26 21:25 PDT)
 
 **Goal**: Fix auto-restart pattern, add eraser for draw mode, gesture onboarding overlay.
