@@ -9,9 +9,9 @@ Structured planning intent from the last evolution session. Categories:
 
 ## Priority
 
-- Phase 3: Depth of field (cells far from gaze softly blurred)
-- Phase 3: Performance profiling at 32x32x32 grid — maintain 60fps
+- Phase 3: Performance profiling at 32x32x32 grid — measure actual gen/s with the new rate display
 - Phase 5: Palm-up gesture or minimal HUD to invoke settings
+- Phase 6: Transition animation between shared and immersive space
 
 ## Suggested
 

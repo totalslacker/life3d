@@ -186,6 +186,10 @@ struct SimulationControlBar: View {
                     Text("peak \(engine.peakPopulation)")
                         .foregroundStyle(.tertiary)
                     Text("| \(engine.rulesLabel)")
+                    if engine.generationRate > 0 {
+                        Text("| \(String(format: "%.1f", engine.generationRate)) gen/s")
+                            .foregroundStyle(.tertiary)
+                    }
                 }
                 .font(.caption)
                 .monospacedDigit()

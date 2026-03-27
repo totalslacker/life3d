@@ -36,7 +36,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Depth of field: cells further from center rendered smaller for depth cue (session 35)
 - [x] Light emission: living cells cast soft light via sampled PointLight entities (session 22)
 - [x] Smooth animation between cell states (death fade-out via dying tier, birth scale-up via age-based sizing)
-- [ ] Performance: maintain 60fps at 32x32x32 grid (neighbor counting optimized — session 19)
+- [ ] Performance: maintain 60fps at 32x32x32 grid (neighbor counting optimized — session 19, array-based rule lookup — session 37)
 
 ## Phase 4 — Spatial Interaction (Day 15-20)
 

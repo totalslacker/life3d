@@ -741,4 +741,60 @@ struct PerformanceTests {
         engine.reset(pattern: .random)
         #expect(!engine.showExtinctionNotice)
     }
+
+    @Test("Generation rate starts at zero")
+    @MainActor func generationRateInitiallyZero() {
+        let engine = SimulationEngine(size: 8)
+        #expect(engine.generationRate == 0.0)
+    }
+
+    @Test("Reset clears generation rate")
+    @MainActor func resetClearsGenerationRate() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        for _ in 0..<5 { engine.step() }
+        engine.reset(pattern: .random)
+        #expect(engine.generationRate == 0.0)
+    }
+
+    @Test("Array-based rule lookup matches Set-based rules")
+    func arrayLookupMatchesSet() {
+        // Verify that advanceGeneration with array lookups produces
+        // the same results as the Set-based neighborCount
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+
+        // Snapshot expected results using Set-based neighbor counting
+        var expectedAlive = [Bool](repeating: false, count: model.cellCount)
+        for x in 0..<8 {
+            for y in 0..<8 {
+                for z in 0..<8 {
+                    let neighbors = model.neighborCount(x: x, y: y, z: z)
+                    let isAlive = model.isAlive(x: x, y: y, z: z)
+                    if isAlive {
+                        expectedAlive[model.index(x: x, y: y, z: z)] = model.survivalCounts.contains(neighbors)
+                    } else {
+                        expectedAlive[model.index(x: x, y: y, z: z)] = model.birthCounts.contains(neighbors)
+                    }
+                }
+            }
+        }
+
+        model.advanceGeneration()
+        for x in 0..<8 {
+            for y in 0..<8 {
+                for z in 0..<8 {
+                    let idx = model.index(x: x, y: y, z: z)
+                    #expect(model.isAlive(x: x, y: y, z: z) == expectedAlive[idx],
+                            "Mismatch at (\(x),\(y),\(z))")
+                }
+            }
+        }
+    }
+
+    @Test("Infrared theme exists in allThemes")
+    func infraredThemeExists() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Infrared" })
+        #expect(ColorTheme.allThemes.count == 6)
+    }
 }

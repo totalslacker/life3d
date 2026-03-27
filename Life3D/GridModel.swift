@@ -15,11 +15,20 @@ struct GridModel: Sendable {
     static let fadeDuration: Int = 3
 
     /// Rule configuration: born when neighbor count is in birthCounts, survives when in survivalCounts
-    var birthCounts: Set<Int>
-    var survivalCounts: Set<Int>
+    var birthCounts: Set<Int> {
+        didSet { birthLookup = Self.buildLookup(from: birthCounts) }
+    }
+    var survivalCounts: Set<Int> {
+        didSet { survivalLookup = Self.buildLookup(from: survivalCounts) }
+    }
 
     /// Pre-computed neighbor offsets as flat array index deltas (cached for the grid's size).
     private let cachedNeighborOffsets: [Int]
+
+    /// Lookup tables for birth/survival rules: index by neighbor count (0-26), true = applies.
+    /// Avoids Set.contains() hash overhead in the hot inner loop.
+    private var birthLookup: [Bool]
+    private var survivalLookup: [Bool]
 
     var cellCount: Int { size * size * size }
 
@@ -29,7 +38,19 @@ struct GridModel: Sendable {
         self.birthCounts = birthCounts
         self.survivalCounts = survivalCounts
         self.cachedNeighborOffsets = Self.neighborOffsets(size: size)
+        self.birthLookup = Self.buildLookup(from: birthCounts)
+        self.survivalLookup = Self.buildLookup(from: survivalCounts)
     }
+
+    /// Builds a 27-element Bool array for O(1) neighbor count lookup.
+    private static func buildLookup(from counts: Set<Int>) -> [Bool] {
+        var lookup = [Bool](repeating: false, count: 27)
+        for count in counts where count >= 0 && count < 27 {
+            lookup[count] = true
+        }
+        return lookup
+    }
+
 
     // MARK: - Indexing
 
@@ -151,14 +172,14 @@ struct GridModel: Sendable {
                     }
 
                     if cells[idx] > 0 {
-                        if survivalCounts.contains(neighbors) {
+                        if survivalLookup[neighbors] {
                             next[idx] = cells[idx] + 1
                         } else {
                             next[idx] = 0
                             dying.append(idx)
                         }
                     } else {
-                        if birthCounts.contains(neighbors) {
+                        if birthLookup[neighbors] {
                             next[idx] = 1
                             born.append(idx)
                         }

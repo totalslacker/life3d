@@ -193,3 +193,13 @@ the same things. Search here before looking things up externally.
 - Waiting for `aliveCount == 0 && fadingCells.isEmpty` ensures the last cells finish their dissolve before reseed
 - A brief delay (3 empty generations) between extinction and reseed creates a natural "breath" — the grid goes dark, pauses, then blooms fresh
 - Using `randomSeed()` for restart gives maximum variety; pattern-cycling would be an alternative for curated experiences
+
+---
+
+## Array-Based Rule Lookup Performance
+
+- `Set<Int>.contains()` in Swift is O(1) amortized but involves hashing overhead per call
+- For the 3D Game of Life inner loop (n³ cells × 26 neighbors), this adds up: 32³ = 32K cells means ~850K contains() calls per generation
+- Replacing with a pre-computed `[Bool]` lookup table indexed by neighbor count (0-26) eliminates all hashing — direct array subscript is a single pointer offset
+- `didSet` on the `birthCounts`/`survivalCounts` properties automatically rebuilds the lookup tables when rules change, keeping the optimization transparent
+- Combined with the existing interior-cell fast path (no bounds checking for 82% of cells), this makes `advanceGeneration` significantly tighter

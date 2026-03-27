@@ -36,6 +36,12 @@ final class SimulationEngine {
     /// Whether the population just went extinct (for notification overlay).
     var showExtinctionNotice: Bool = false
 
+    /// Actual generations per second (measured).
+    var generationRate: Double = 0.0
+    private var rateTimestamp: Date = .now
+    private var rateGenerationCount: Int = 0
+    private static let rateSampleInterval: Double = 1.0  // recalculate every 1s
+
     /// Population trend: positive = growing, negative = shrinking, zero = stable.
     var populationTrend: Int {
         guard recentPopulations.count >= 2 else { return 0 }
@@ -124,6 +130,15 @@ final class SimulationEngine {
     func step() {
         grid.advanceGeneration()
         generation += 1
+        // Track generation rate
+        rateGenerationCount += 1
+        let now = Date.now
+        let elapsed = now.timeIntervalSince(rateTimestamp)
+        if elapsed >= Self.rateSampleInterval {
+            generationRate = Double(rateGenerationCount) / elapsed
+            rateGenerationCount = 0
+            rateTimestamp = now
+        }
         // Track population for trend indicator
         recentPopulations.append(grid.aliveCount)
         if recentPopulations.count > Self.trendWindow * 2 {
@@ -187,6 +202,9 @@ final class SimulationEngine {
         populationHistory.removeAll()
         peakPopulation = 0
         showExtinctionNotice = false
+        generationRate = 0.0
+        rateGenerationCount = 0
+        rateTimestamp = .now
         selectedPattern = pattern
         loadPattern(pattern)
     }

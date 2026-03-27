@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 37 (2026-03-27 03:45 PDT)
+
+**Goal**: Performance optimization (array-based rule lookup), generation rate display, Infrared color theme.
+
+Three improvements focused on performance, diagnostics, and visual variety:
+
+1. **Array-based rule lookup for advanceGeneration**: Replaced `Set<Int>.contains()` calls in the hot inner loop with pre-computed `[Bool]` lookup tables indexed by neighbor count (0-26). For a 32³ grid, this eliminates ~850K hash lookups per generation. The lookup tables are rebuilt automatically via `didSet` when `birthCounts` or `survivalCounts` change, so rule switching works transparently. This is a step toward the Phase 3 performance goal of 60fps at 32x32x32.
+
+2. **Generation rate display**: Added a measured generations-per-second counter to SimulationEngine that samples actual throughput every 1 second. Displayed in the control bar stats as "N.N gen/s" in tertiary style. This gives users visibility into whether the simulation is keeping up with the target speed — especially useful when comparing 16³ vs 32³ grid sizes or when running at high speed settings.
+
+3. **Infrared color theme**: Added a sixth theme with a thermal camera aesthetic — bright yellow newborn cells transitioning through orange to deep red for mature cells, fading to dark maroon on death. Produces a striking heat-map look that's visually distinct from all existing themes.
+
+Added 4 tests: generation rate initial state, reset clears generation rate, array lookup matches Set-based rules, Infrared theme existence.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 (measure actual gen/s with the new rate display). Palm-up gesture or minimal HUD. Transition animation between shared and immersive space.
+
+---
+
 ## Day 11 — Session 36 (2026-03-27 02:25 PDT)
 
 **Goal**: Fix momentum/surround mode bug, add gesture help button, clean up audio engine on exit.
