@@ -118,6 +118,7 @@ struct GridImmersiveView: View {
         }
         .onChange(of: engine.theme) {
             updatePointLights()
+            updateParticleEmitterColors()
             rebuildWireframe()
             Task { await rebuildMesh() }
         }
@@ -461,6 +462,32 @@ struct GridImmersiveView: View {
         }
     }
 
+    // MARK: - Particle Color Updates
+
+    /// Updates all particle emitter colors to match the current theme.
+    private func updateParticleEmitterColors() {
+        let birthColor = engine.theme.newborn.emissiveColor
+        let deathColor = engine.theme.dying.emissiveColor
+
+        for entity in birthParticleEntities {
+            if var emitter = entity.components[ParticleEmitterComponent.self] {
+                emitter.mainEmitter.color = .constant(.single(.init(
+                    red: CGFloat(birthColor.x), green: CGFloat(birthColor.y),
+                    blue: CGFloat(birthColor.z), alpha: 1.0)))
+                entity.components.set(emitter)
+            }
+        }
+
+        for entity in deathParticleEntities {
+            if var emitter = entity.components[ParticleEmitterComponent.self] {
+                emitter.mainEmitter.color = .constant(.single(.init(
+                    red: CGFloat(deathColor.x), green: CGFloat(deathColor.y),
+                    blue: CGFloat(deathColor.z), alpha: 1.0)))
+                entity.components.set(emitter)
+            }
+        }
+    }
+
     // MARK: - Spatial Audio
 
     private func triggerAudio() {
@@ -475,17 +502,38 @@ struct GridImmersiveView: View {
 
     private func applySurroundMode() {
         guard let container = containerEntity else { return }
+        let targetPosition: SIMD3<Float>
+        let targetScale: Float
         if engine.surroundMode {
-            // Surround: grid centered on user, scaled up to fill room
-            container.position = SIMD3<Float>(0, 1.5, 0)
-            currentScale = 3.0
-            magnifyStartScale = 3.0
+            targetPosition = SIMD3<Float>(0, 1.5, 0)
+            targetScale = 3.0
         } else {
-            // Tabletop: grid in front of user at eye level
-            container.position = SIMD3<Float>(0, 1.5, -1.5)
-            currentScale = 1.0
-            magnifyStartScale = 1.0
+            targetPosition = SIMD3<Float>(0, 1.5, -1.5)
+            targetScale = 1.0
         }
+        Task {
+            await animateSurroundTransition(container: container, targetPosition: targetPosition, targetScale: targetScale)
+        }
+    }
+
+    /// Smoothly interpolates position and scale for surround mode transitions.
+    private func animateSurroundTransition(container: Entity, targetPosition: SIMD3<Float>, targetScale: Float) async {
+        let steps = 25  // ~0.4s at 60fps
+        let frameInterval: UInt64 = 16_000_000
+        let startPosition = container.position
+        let startScale = currentScale
+
+        for i in 1...steps {
+            let t = Float(i) / Float(steps)
+            // Ease-in-out curve: smooth acceleration and deceleration
+            let eased = t * t * (3.0 - 2.0 * t)
+            container.position = startPosition + (targetPosition - startPosition) * eased
+            currentScale = startScale + (targetScale - startScale) * eased
+            try? await Task.sleep(nanoseconds: frameInterval)
+        }
+        container.position = targetPosition
+        currentScale = targetScale
+        magnifyStartScale = targetScale
     }
 
     // MARK: - Wireframe

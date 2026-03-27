@@ -18,6 +18,9 @@ struct GridModel: Sendable {
     var birthCounts: Set<Int>
     var survivalCounts: Set<Int>
 
+    /// Pre-computed neighbor offsets as flat array index deltas (cached for the grid's size).
+    private let cachedNeighborOffsets: [Int]
+
     var cellCount: Int { size * size * size }
 
     init(size: Int, birthCounts: Set<Int> = [5, 6, 7], survivalCounts: Set<Int> = [5, 6, 7, 8]) {
@@ -25,6 +28,7 @@ struct GridModel: Sendable {
         self.cells = [Int](repeating: 0, count: size * size * size)
         self.birthCounts = birthCounts
         self.survivalCounts = survivalCounts
+        self.cachedNeighborOffsets = Self.neighborOffsets(size: size)
     }
 
     // MARK: - Indexing
@@ -115,7 +119,7 @@ struct GridModel: Sendable {
 
     mutating func advanceGeneration() {
         let ss = size * size
-        let offsets = Self.neighborOffsets(size: size)
+        let offsets = cachedNeighborOffsets
         var next = [Int](repeating: 0, count: cellCount)
         var dying: [Int] = []
         var born: [Int] = []
@@ -178,7 +182,8 @@ struct GridModel: Sendable {
             fadingCells.append((index: idx, framesLeft: Self.fadeDuration))
         }
 
-        recomputeAliveCount()
+        // Delta-based alive count: born cells added, dying cells removed
+        aliveCount += born.count - dying.count
     }
 
     // MARK: - Alive Cell Positions

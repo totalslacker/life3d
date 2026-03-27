@@ -4,6 +4,24 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 10 — Session 30 (2026-03-26 21:10 PDT)
+
+**Goal**: Fix stale particle colors on theme change, animate surround mode transition, optimize neighbor counting performance.
+
+Three improvements focused on visual polish and performance:
+
+1. **Particle emitter colors sync on theme change**: Previously, switching color themes (e.g. Neon → Warm Amber) left particle emitters firing in the old theme's colors for the rest of the session. Birth, death, and pulse emitters were only colored once during `setupParticleEmitters`. Added `updateParticleEmitterColors()` that re-assigns `mainEmitter.color` on all birth and death particle entities, called from the `onChange(of: engine.theme)` handler alongside the existing point light and wireframe updates.
+
+2. **Animated surround mode transition**: Toggling surround mode (tabletop ↔ room-scale) previously snapped the grid position and scale instantly — jarring compared to the polished materialize/dissolve animations. Now uses a 25-frame (~0.4s) smooth-step interpolation (Hermite ease-in-out) for both position and scale, matching the spatial quality of other transitions.
+
+3. **Performance: cached neighbor offsets and delta alive count**: `advanceGeneration()` was calling `Self.neighborOffsets(size:)` every generation, allocating a fresh 26-element array each tick. Now computed once in `init` and stored as `cachedNeighborOffsets`. Also replaced the O(n) `recomputeAliveCount()` full-array scan with a simple `aliveCount += born.count - dying.count` delta, eliminating a 32K-iteration reduce on every generation for 32³ grids.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Depth of field effect. Performance profiling at 32³ on real hardware. Palm-up gesture or minimal HUD. Gesture discovery/onboarding text. Auto-restart should respect selected pattern (not always random). Eraser for draw mode.
+
+---
+
 ## Day 10 — Session 29 (2026-03-26 17:50 PDT)
 
 **Goal**: Multi-generation death fade and auto-restart on extinction.
