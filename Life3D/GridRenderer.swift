@@ -149,7 +149,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.4, opacity: 0.10)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared]
+    static let bioluminescence = ColorTheme(
+        name: "Bioluminescence",
+        newborn: TierColors(
+            baseColor: SIMD4(0.0, 1.0, 0.8, 1.0),
+            emissiveColor: SIMD3(0.0, 1.0, 0.7),
+            emissiveIntensity: 2.5, opacity: 0.60),
+        young: TierColors(
+            baseColor: SIMD4(0.0, 0.6, 0.7, 1.0),
+            emissiveColor: SIMD3(0.0, 0.5, 0.6),
+            emissiveIntensity: 1.4, opacity: 0.40),
+        mature: TierColors(
+            baseColor: SIMD4(0.05, 0.15, 0.4, 1.0),
+            emissiveColor: SIMD3(0.02, 0.1, 0.35),
+            emissiveIntensity: 0.6, opacity: 0.20),
+        dying: TierColors(
+            baseColor: SIMD4(0.02, 0.05, 0.2, 1.0),
+            emissiveColor: SIMD3(0.01, 0.03, 0.15),
+            emissiveIntensity: 0.3, opacity: 0.08)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence]
 }
 
 enum GridRenderer {

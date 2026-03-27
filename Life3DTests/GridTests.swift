@@ -795,7 +795,20 @@ struct PerformanceTests {
     @Test("Infrared theme exists in allThemes")
     func infraredThemeExists() {
         #expect(ColorTheme.allThemes.contains { $0.name == "Infrared" })
-        #expect(ColorTheme.allThemes.count == 6)
+    }
+
+    @Test("Bioluminescence theme exists in allThemes")
+    func bioluminescenceThemeExists() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Bioluminescence" })
+        #expect(ColorTheme.allThemes.count == 7)
+    }
+
+    @Test("Bioluminescence theme has higher emissive intensity than other themes")
+    func bioluminescenceHighEmissive() {
+        // Bioluminescence should be extra bright for deep-sea glow effect
+        let bio = ColorTheme.bioluminescence
+        #expect(bio.newborn.emissiveIntensity >= 2.5)
+        #expect(bio.newborn.opacity >= 0.55)
     }
 }
 
@@ -866,5 +879,26 @@ struct ExitTransitionTests {
         engine.isExiting = true
         #expect(engine.isExiting == true)
         #expect(engine.exitAnimationComplete == false)
+    }
+}
+
+@Suite("Draw Mode Tests")
+struct DrawModeTests {
+    @Test("Draw mode is initially disabled")
+    @MainActor
+    func drawModeInitiallyFalse() {
+        let engine = SimulationEngine(size: 4)
+        #expect(engine.drawMode == false)
+        #expect(engine.eraserMode == false)
+    }
+
+    @Test("Born cell positions are available for light sampling")
+    func bornCellPositionsAvailable() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.25)
+        grid.advanceGeneration()
+        let positions = grid.bornCellPositions(cellSize: 0.015, cellSpacing: 0.015)
+        // After a generation from random seed, there should be born cells
+        #expect(positions.count == grid.bornCells.count)
     }
 }

@@ -315,7 +315,7 @@ struct GridImmersiveView: View {
             let frameInterval: UInt64 = 33_000_000  // ~30fps
             let delta = rotationSpeed / 30.0
             while !Task.isCancelled {
-                if !isDragging {
+                if !isDragging && !engine.drawMode {
                     yawAngle += delta
                     dragStartYaw = yawAngle
                 }
@@ -446,19 +446,31 @@ struct GridImmersiveView: View {
         lightEntities = lights
     }
 
-    /// Repositions point lights at sampled alive cell positions with theme-appropriate color.
+    /// Repositions point lights at born cell positions (avoids scanning all n³ cells).
+    /// Lights that have no new births nearby keep their previous position, creating
+    /// a stable ambient glow that gradually shifts with simulation activity.
     private func updatePointLights() {
         let cellSize = GridRenderer.cellSize
         let cellSpacing = GridRenderer.cellSpacing
-        let positions = engine.grid.aliveCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
-
-        let sample = samplePositions(positions, count: Self.maxPointLights)
+        let birthPositions = engine.grid.bornCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
         let emissive = engine.theme.newborn.emissiveColor
+
+        // Place lights at newly born cell positions (most visually active areas)
+        let sample = samplePositions(birthPositions, count: Self.maxPointLights)
 
         for (i, entity) in lightEntities.enumerated() {
             if i < sample.count {
+                // New birth position: move light there
                 entity.position = sample[i]
                 entity.isEnabled = true
+            } else if engine.grid.aliveCount == 0 {
+                // No alive cells: disable lights
+                entity.isEnabled = false
+            }
+            // Otherwise: keep previous position (stable ambient glow)
+
+            // Update color for all enabled lights (theme may have changed)
+            if entity.isEnabled {
                 if var light = entity.components[PointLightComponent.self] {
                     light.color = .init(
                         red: CGFloat(emissive.x),
@@ -467,8 +479,6 @@ struct GridImmersiveView: View {
                         alpha: 1.0)
                     entity.components.set(light)
                 }
-            } else {
-                entity.isEnabled = false
             }
         }
     }

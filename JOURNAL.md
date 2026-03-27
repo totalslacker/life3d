@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 40 (2026-03-27 05:30 PDT)
+
+**Goal**: Fix draw mode auto-rotation conflict, optimize point light positioning, add Bioluminescence theme.
+
+Three improvements focused on UX, performance, and visual variety:
+
+1. **Bug fix: pause auto-rotation in draw mode**: When draw mode was active, auto-rotation continued spinning the grid while the user tried to paint cells, making precise placement nearly impossible. Now auto-rotation checks `engine.drawMode` and pauses rotation when drawing is active. Rotation resumes automatically when draw mode is toggled off.
+
+2. **Performance: point light positioning uses born cells instead of full grid scan**: Previously `updatePointLights()` called `aliveCellPositions()` which scans all n³ cells every generation just to position 8 lights. Now it uses `bornCellPositions()` (already computed during `advanceGeneration`) to move lights to where new activity is happening. Lights without new births nearby keep their previous position, creating stable ambient glow. For 32³ grid, this eliminates scanning 32K cells per generation for light placement.
+
+3. **Bioluminescence color theme**: Added a seventh theme inspired by deep-sea bioluminescence. Bright teal/cyan newborn cells with higher emissive intensity (2.5 vs standard 2.0) fade through ocean teal to deep indigo for mature cells. The extra brightness creates a vivid underwater glow effect distinct from Ocean Blues (which is more subdued). Moves toward the "final visual tuning" roadmap item.
+
+Added 4 tests: Bioluminescence theme existence, Bioluminescence emissive intensity, draw mode initial state, born cell positions available for light sampling.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 (measure actual gen/s). Transition animation between shared and immersive space. App icon and launch experience polish.
+
+---
+
 ## Day 11 — Session 39 (2026-03-27 05:17 PDT)
 
 **Goal**: Code quality cleanup, smooth exit transition, mesh rebuild optimization.
