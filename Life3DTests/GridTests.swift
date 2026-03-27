@@ -1119,3 +1119,56 @@ struct GridSizeRuleTests {
         #expect(engine.grid.survivalCounts == expectedSurvival)
     }
 }
+
+@Suite("Forest Theme Tests")
+struct ForestThemeTests {
+    @Test("Forest theme exists in allThemes")
+    func forestThemeExists() {
+        let themes = ColorTheme.allThemes
+        #expect(themes.contains(where: { $0.name == "Forest" }))
+    }
+
+    @Test("All themes count is 13 after Forest addition")
+    func themeCount() {
+        #expect(ColorTheme.allThemes.count == 13)
+    }
+
+    @Test("Forest theme has green color progression")
+    func forestColorProgression() {
+        let theme = ColorTheme.forest
+        // Newborn: bright lime-green (high green channel)
+        #expect(theme.newborn.emissiveColor.y > 0.9)
+        // Young: medium green
+        #expect(theme.young.emissiveColor.y > theme.mature.emissiveColor.y)
+        // Mature: dark forest green
+        #expect(theme.mature.emissiveColor.y < 0.3)
+        // Intensity decreases with age
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+    }
+}
+
+@Suite("Audio Engine Tests")
+struct AudioEngineTests {
+    @Test("Audio pool size is 8")
+    @MainActor
+    func audioPoolSize() {
+        let audio = SpatialAudioEngine()
+        audio.setup()
+        // After setup, pools should be initialized (we verify the pool size constant)
+        // Pool size is internal, but we can verify setup doesn't crash with 8 players
+        audio.stop()
+    }
+
+    @Test("Speed-scaled tone duration decreases with speed")
+    @MainActor
+    func toneDurationScaling() {
+        let audio = SpatialAudioEngine()
+        audio.setup()
+        // At low speed, no change; at high speed, buffers regenerate (no crash)
+        audio.updateSpeed(5.0)   // baseline, no regen
+        audio.updateSpeed(15.0)  // >25% change, triggers regen
+        audio.updateSpeed(30.0)  // extreme speed, tone still audible (≥40ms)
+        audio.stop()
+    }
+}

@@ -19,9 +19,9 @@ final class SpatialAudioEngine {
     private var nextDeathPlayer: Int = 0
     private var isSetup = false
 
-    private static let poolSize = 4
+    private static let poolSize = 8
     private static let sampleRate: Double = 44100
-    private static let toneDuration: Double = 0.15 // seconds
+    private static let baseToneDuration: Double = 0.15 // seconds at ≤5 gen/s
 
     // Birth: bright ascending tone (C5 to E5)
     private static let birthFreqStart: Float = 523.25  // C5
@@ -30,6 +30,9 @@ final class SpatialAudioEngine {
     // Death: somber descending tone (A4 to E4)
     private static let deathFreqStart: Float = 440.0   // A4
     private static let deathFreqEnd: Float = 329.63    // E4
+
+    /// Current speed for tone duration scaling. Cached to avoid regenerating buffers every frame.
+    private var currentSpeed: Double = 5.0
 
     func setup() {
         guard !isSetup else { return }
@@ -62,21 +65,8 @@ final class SpatialAudioEngine {
             deathPlayers.append(deathPlayer)
         }
 
-        // Generate tone buffers
-        birthBuffer = Self.generateTone(
-            startFreq: Self.birthFreqStart,
-            endFreq: Self.birthFreqEnd,
-            duration: Self.toneDuration,
-            sampleRate: Self.sampleRate,
-            envelope: .bellCurve
-        )
-        deathBuffer = Self.generateTone(
-            startFreq: Self.deathFreqStart,
-            endFreq: Self.deathFreqEnd,
-            duration: Self.toneDuration * 1.5, // death tones slightly longer
-            sampleRate: Self.sampleRate,
-            envelope: .fadeOut
-        )
+        // Generate tone buffers at default speed
+        regenerateToneBuffers(forSpeed: 5.0)
 
         do {
             try engine.start()
@@ -87,6 +77,46 @@ final class SpatialAudioEngine {
             isSetup = true
         } catch {
             print("SpatialAudioEngine: failed to start: \(error)")
+        }
+    }
+
+    /// Computes tone duration scaled to simulation speed.
+    /// At ≤5 gen/s, use full base duration. At higher speeds, shorten proportionally
+    /// so tones don't overlap between generations.
+    private static func toneDuration(forSpeed speed: Double) -> Double {
+        let effectiveSpeed = max(speed, 1.0)
+        if effectiveSpeed <= 5.0 { return baseToneDuration }
+        // Scale inversely: at 10 gen/s → 75ms, at 20 gen/s → 50ms, at 30 gen/s → 40ms
+        // Floor at 40ms to keep tones audible
+        return max(0.04, baseToneDuration * (5.0 / effectiveSpeed))
+    }
+
+    /// Regenerates tone buffers when speed changes enough to matter.
+    private func regenerateToneBuffers(forSpeed speed: Double) {
+        let duration = Self.toneDuration(forSpeed: speed)
+        birthBuffer = Self.generateTone(
+            startFreq: Self.birthFreqStart,
+            endFreq: Self.birthFreqEnd,
+            duration: duration,
+            sampleRate: Self.sampleRate,
+            envelope: .bellCurve
+        )
+        deathBuffer = Self.generateTone(
+            startFreq: Self.deathFreqStart,
+            endFreq: Self.deathFreqEnd,
+            duration: duration * 1.5, // death tones slightly longer
+            sampleRate: Self.sampleRate,
+            envelope: .fadeOut
+        )
+        currentSpeed = speed
+    }
+
+    /// Updates tone buffers if the simulation speed has changed significantly.
+    func updateSpeed(_ speed: Double) {
+        // Only regenerate if speed changed by more than 20% to avoid constant buffer churn
+        let ratio = speed / max(currentSpeed, 0.1)
+        if ratio < 0.8 || ratio > 1.25 {
+            regenerateToneBuffers(forSpeed: speed)
         }
     }
 

@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 46 (2026-03-27 08:25 PDT)
+
+**Goal**: Forest color theme, audio pool upgrade with speed-scaled tones, cinematic space transition.
+
+Three improvements across audio quality, visual variety, and transition polish:
+
+1. **Audio pool upgrade + speed-scaled tone duration**: Doubled the spatial audio player pool from 4 to 8 nodes per type (birth/death), fixing tone drops at high cell activity where 4 players caused constant interruptions. Additionally, tone buffers now regenerate when simulation speed changes by >20% — at ≤5 gen/s tones play at full 150ms duration, scaling down proportionally at higher speeds (75ms at 10 gen/s, 50ms at 20 gen/s, floor at 40ms) to prevent chaotic overlapping. The `updateSpeed()` method is called via `onChange(of: engine.speed)` to keep tones synchronized.
+
+2. **Forest color theme**: Added a thirteenth theme with a natural green/earth aesthetic — bright lime-green newborn cells (emissive intensity 2.2) transitioning through medium forest green to dark undergrowth for mature cells. The color progression evokes a forest canopy: bright new growth → established foliage → deep shadow floor. Fills the green gap in the palette — Aurora uses green→purple transitions while Forest stays in the pure green family throughout.
+
+3. **Cinematic space transition**: Enhanced the materialize/dissolve animations with rotation flourish. Entry now includes a 60° yaw sweep over 0.67s with cubic ease-out, opacity leading scale slightly for a more cinematic reveal. Exit adds a gentle 30° spin-out during dissolve. The grid spirals into and out of view rather than just scaling, giving the immersive space transitions a more polished, intentional feel.
+
+Added 5 tests: Forest theme existence and count (13 themes), Forest green color progression, audio pool setup verification, speed-scaled tone duration regen.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 11 — Session 45 (2026-03-27 08:00 PDT)
 
 **Goal**: Fix rule loss on grid size change, mirror symmetry pattern, Coral color theme.

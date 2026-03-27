@@ -32,7 +32,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Bloom and glow post-processing via RealityKit materials
 - [x] Particle effects on cell birth (bloom into existence) — burst emitters at sampled positions (session 20)
 - [x] Particle effects on cell death (dissolve into particles) — drift-down emitters at sampled positions (session 20)
-- [x] Color themes: neon on black, warm amber, ocean blues, aurora borealis, ember, coral (12 total)
+- [x] Color themes: neon on black, warm amber, ocean blues, aurora borealis, ember, coral, forest (13 total)
 - [x] Depth of field: cells further from center rendered smaller for depth cue (session 35)
 - [x] Light emission: living cells cast soft light via sampled PointLight entities (session 22)
 - [x] Smooth animation between cell states (death fade-out via dying tier, birth scale-up via age-based sizing)
@@ -64,7 +64,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Audio follows activity density (busier regions are louder) (session 24)
 - [x] Volume control and mute toggle (session 24)
 - [x] Immersive space mode: expand grid to fill the room — surround mode toggle (session 24)
-- [ ] Transition animation between shared and immersive space
+- [x] Transition animation between shared and immersive space — rotation flourish on entry/exit (session 46)
 - [ ] Performance profiling and optimization pass
 - [ ] App icon and launch experience polish
 - [ ] Final visual tuning across all color themes

@@ -214,3 +214,14 @@ the same things. Search here before looking things up externally.
 - After the swap, `cells` holds the new generation and `nextCells` (now pointing to old data) will be zeroed on the next call
 - `clearAll()` was also updated to zero in-place instead of allocating, since the buffer sizes never change
 - References to the old `next` array in post-swap code (e.g., fading cell logic) must use `cells` instead, since `cells` is the new data after swap
+
+---
+
+## AVAudioPlayerNode Pool Sizing and Tone Duration Scaling
+
+- Pool size of 4 per type (birth/death) causes audible drops when >4 cells are born/dying per generation — common at 16³+ grids
+- Pool size of 8 gives enough headroom for high-activity generations without excessive resource use
+- Fixed-duration tones (150ms) overlap chaotically at high simulation speeds (>10 gen/s) — tones from consecutive generations pile up
+- Scale tone duration inversely with speed: `max(40ms, 150ms * (5 / speed))` keeps tones distinct per generation
+- Regenerate `AVAudioPCMBuffer` only when speed changes by >20% — avoids per-frame buffer allocation while staying responsive
+- Floor of 40ms ensures tones remain perceptible even at 30 gen/s (the UI maximum)

@@ -168,6 +168,9 @@ struct GridImmersiveView: View {
         .onChange(of: engine.audioMuted) {
             audioEngine.isMuted = engine.audioMuted
         }
+        .onChange(of: engine.speed) {
+            audioEngine.updateSpeed(engine.speed)
+        }
         .onChange(of: engine.showHelp) {
             if engine.showHelp {
                 engine.showHelp = false
@@ -652,32 +655,44 @@ struct GridImmersiveView: View {
 
     // MARK: - Materialize/Dissolve Transition
 
-    /// Animates the grid scaling up from near-zero and fading in.
+    /// Animates the grid scaling up from near-zero and fading in with a gentle rotation flourish.
+    /// The rotation adds cinematic presence — the grid spirals into view rather than just popping.
     private func materializeIn() async {
-        let steps = 30  // ~0.5s at 60fps
+        let steps = 40  // ~0.67s at 60fps — slightly longer for the rotation to read
         let frameInterval: UInt64 = 16_000_000
+        let rotationSweep: Float = .pi / 3  // 60° rotation during entry
+        let startYaw = yawAngle - rotationSweep
+
         for i in 1...steps {
             let t = Float(i) / Float(steps)
-            // Ease-out curve for snappy entry
-            let eased = 1.0 - (1.0 - t) * (1.0 - t)
+            // Ease-out cubic for snappy entry that settles smoothly
+            let eased = 1.0 - (1.0 - t) * (1.0 - t) * (1.0 - t)
             materializeScale = eased
-            materializeOpacity = eased
+            // Opacity leads slightly: fully visible by 80% of animation
+            materializeOpacity = min(1.0, eased * 1.25)
+            // Rotation flourish: sweep from offset to current yaw
+            yawAngle = startYaw + rotationSweep * eased
+            dragStartYaw = yawAngle
             try? await Task.sleep(nanoseconds: frameInterval)
         }
         materializeScale = 1.0
         materializeOpacity = 1.0
     }
 
-    /// Animates the grid dissolving away — reverse of materializeIn.
+    /// Animates the grid dissolving away with a slight spin-out and scale shrink.
     private func dissolveOut() async {
-        let steps = 25  // ~0.4s at 60fps — slightly faster than materialize for snappy exit
+        let steps = 30  // ~0.5s at 60fps
         let frameInterval: UInt64 = 16_000_000
+        let startYaw = yawAngle
+
         for i in 1...steps {
             let t = Float(i) / Float(steps)
             // Ease-in curve: starts slow, accelerates into disappearance
             let eased = t * t
-            materializeScale = 1.0 - eased * 0.7  // shrink to 30% (don't go to zero — feels more natural)
+            materializeScale = 1.0 - eased * 0.7  // shrink to 30%
             materializeOpacity = 1.0 - eased
+            // Gentle spin during exit (30° over the dissolve)
+            yawAngle = startYaw + eased * (.pi / 6)
             try? await Task.sleep(nanoseconds: frameInterval)
         }
         materializeScale = 0.01
