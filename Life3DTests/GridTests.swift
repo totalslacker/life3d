@@ -810,7 +810,25 @@ struct PerformanceTests {
     @Test("Ember theme exists in allThemes")
     func emberThemeExists() {
         #expect(ColorTheme.allThemes.contains { $0.name == "Ember" })
-        #expect(ColorTheme.allThemes.count == 9)
+    }
+
+    @Test("Nebula theme exists in allThemes")
+    func nebulaThemeExists() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Nebula" })
+        #expect(ColorTheme.allThemes.count == 10)
+    }
+
+    @Test("Nebula theme has cosmic purple color progression")
+    func nebulaThemeColors() {
+        let nebula = ColorTheme.nebula
+        // Newborn: bright lavender-white (high blue, high red, medium green)
+        #expect(nebula.newborn.emissiveColor.z > 0.8)  // strong blue
+        #expect(nebula.newborn.emissiveColor.x > 0.6)  // strong red (lavender)
+        // Young: deep purple (blue dominant, lower red)
+        #expect(nebula.young.emissiveColor.z > nebula.young.emissiveColor.x)  // more blue than red
+        // Mature: dark space purple (very low values)
+        #expect(nebula.mature.emissiveColor.z < 0.5)
+        #expect(nebula.mature.emissiveIntensity < nebula.young.emissiveIntensity)
     }
 
     @Test("Ember theme has fire-like color progression")

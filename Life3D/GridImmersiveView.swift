@@ -388,6 +388,12 @@ struct GridImmersiveView: View {
 
     /// Triggers particle bursts at sampled birth/death positions.
     private func triggerParticles(birthPositions bornPositions: [SIMD3<Float>], deathPositions dyingPositions: [SIMD3<Float>]) {
+        guard !bornPositions.isEmpty || !dyingPositions.isEmpty else {
+            // No births or deaths — disable all emitters to avoid stale particles
+            for entity in birthParticleEntities { entity.isEnabled = false }
+            for entity in deathParticleEntities { entity.isEnabled = false }
+            return
+        }
 
         // Sample up to maxParticleEmitters positions from births
         let birthSample = samplePositions(bornPositions, count: Self.maxParticleEmitters)

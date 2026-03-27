@@ -214,8 +214,8 @@ struct SimulationControlBar: View {
 
                 Spacer()
 
-                // Population sparkline
-                PopulationSparkline(data: engine.populationHistory)
+                // Population sparkline (theme-tinted)
+                PopulationSparkline(data: engine.populationHistory, themeColor: engine.theme.newborn.emissiveColor)
                     .frame(width: 60, height: 16)
 
                 // Stats with population trend
@@ -352,10 +352,25 @@ struct MidSimulationSettings: View {
 }
 
 /// Tiny inline sparkline showing population history over recent generations.
+/// Uses the current theme's newborn emissive color for a cohesive look.
 struct PopulationSparkline: View {
     let data: [Int]
+    var themeColor: SIMD3<Float>? = nil
 
     var body: some View {
+        let strokeColor: Color = {
+            if let c = themeColor {
+                return Color(red: Double(c.x), green: Double(c.y), blue: Double(c.z)).opacity(0.7)
+            }
+            return .secondary.opacity(0.6)
+        }()
+        let fillColor: Color = {
+            if let c = themeColor {
+                return Color(red: Double(c.x), green: Double(c.y), blue: Double(c.z)).opacity(0.18)
+            }
+            return .secondary.opacity(0.15)
+        }()
+
         Canvas { context, size in
             guard data.count >= 2 else { return }
             let maxVal = max(data.max() ?? 1, 1)
@@ -372,14 +387,14 @@ struct PopulationSparkline: View {
                 }
             }
 
-            context.stroke(path, with: .color(.secondary.opacity(0.6)), lineWidth: 1)
+            context.stroke(path, with: .color(strokeColor), lineWidth: 1)
 
             // Fill under the curve
             var fillPath = path
             fillPath.addLine(to: CGPoint(x: size.width, y: size.height))
             fillPath.addLine(to: CGPoint(x: 0, y: size.height))
             fillPath.closeSubpath()
-            context.fill(fillPath, with: .color(.secondary.opacity(0.15)))
+            context.fill(fillPath, with: .color(fillColor))
         }
     }
 }

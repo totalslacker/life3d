@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 43 (2026-03-27 06:50 PDT)
+
+**Goal**: Add Nebula color theme, optimize empty particle/audio triggers, theme-tinted population sparkline.
+
+Three improvements across visual variety, performance, and UI polish:
+
+1. **Nebula color theme**: Added a tenth theme with a cosmic purple/magenta aesthetic — bright lavender-white newborn cells (emissive intensity 2.3) transitioning through deep violet to dark space-purple for mature cells, with near-black dying cells. The color progression evokes a stellar nebula: hot white-pink cores cooling through purple into deep space. Distinct from Aurora (which is green → purple → magenta) in that Nebula stays in the purple/blue family throughout.
+
+2. **Performance: skip empty particle/audio/light triggers**: When no cells are born or dying in a generation (stable state or extinction), `triggerParticles()` now returns early after disabling all emitters, avoiding unnecessary iteration through 20 particle entities and audio player pools. For a 2x2x2 stable block at 5 gen/s, this eliminates ~100 entity component reads per second during idle periods.
+
+3. **Theme-tinted population sparkline**: The population sparkline in the control bar now uses the current theme's newborn emissive color for its stroke and fill instead of generic secondary gray. The sparkline visually integrates with the active theme — Neon shows cyan, Ember shows yellow-orange, Nebula shows lavender. Stroke opacity 0.7 and fill opacity 0.18 keep it readable without being distracting.
+
+Added 3 tests: Nebula theme existence and count (10 themes), Nebula cosmic purple color progression verification.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 (measure gen/s with all optimizations). Transition animation between shared and immersive space. App icon design.
+
+---
+
 ## Day 11 — Session 42 (2026-03-27 06:35 PDT)
 
 **Goal**: Eliminate redundant per-generation computation, add Ember color theme, optimize wireframe color updates.
