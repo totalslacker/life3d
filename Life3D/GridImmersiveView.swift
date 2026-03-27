@@ -129,7 +129,10 @@ struct GridImmersiveView: View {
             triggerParticles()
             triggerAudio()
             updatePointLights()
-            Task { await rebuildMesh() }
+            // Skip mesh rebuild when no cells changed (stable state or extinction)
+            if !engine.grid.bornCells.isEmpty || !engine.grid.dyingCells.isEmpty || !engine.grid.fadingCells.isEmpty {
+                Task { await rebuildMesh() }
+            }
         }
         .onChange(of: engine.theme) {
             updatePointLights()

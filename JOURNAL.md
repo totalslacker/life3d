@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 39 (2026-03-27 05:17 PDT)
+
+**Goal**: Code quality cleanup, smooth exit transition, mesh rebuild optimization.
+
+Three improvements focused on code quality, polish, and performance:
+
+1. **Dead code removal**: Removed an unused `onChange(of: engine.generation)` handler in ContentView that contained only a comment and no-op branch. This was a leftover from the auto-hide implementation that never served a purpose.
+
+2. **Smooth exit transition (immersive → launch)**: When exiting the simulation back to the launch screen, the launch view now fades in over 0.4s instead of appearing instantly. This mirrors the existing fade-out when entering the simulation, creating a symmetrical transition experience. Previously only the entry direction had a smooth transition.
+
+3. **Skip mesh rebuild on stable state**: The mesh rebuild in GridImmersiveView now checks whether any cells actually changed (born, dying, or fading) before triggering a rebuild. When the simulation reaches a still life (e.g., 2x2x2 block) or all cells are extinct and fading is complete, mesh rebuilds are skipped entirely. For a 32³ grid at 5 gen/s, this saves 5 LowLevelMesh constructions per second during stable periods.
+
+Added 4 tests: stable state detection (no born/dying/fading cells after block stabilizes), active simulation has cell changes, exit animation initial state, exit does not auto-complete.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 with real gen/s measurements. Transition animation between shared and immersive space (surround mode toggle polish). App icon and launch experience polish.
+
+---
+
 ## Day 11 — Session 38 (2026-03-27 04:44 PDT)
 
 **Goal**: Auto-hide control bar, increased particle/light pools for 32³, smoother launch transition.

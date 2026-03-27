@@ -818,3 +818,53 @@ struct ControlBarTests {
         #expect(engine.controlBarVisible == true)
     }
 }
+
+@Suite("Mesh Rebuild Skip Tests")
+struct MeshRebuildSkipTests {
+    @Test("Stable state has no born, dying, or fading cells")
+    func stableStateNoCellChanges() {
+        // A 2x2x2 block is stable under B5-7/S5-8 — each cell has 7 neighbors
+        var grid = GridModel(size: 8)
+        grid.loadBlock()
+        grid.advanceGeneration()
+        // After one generation, block is stable: no births, deaths, or fading
+        // (initial step may have some fading from cells outside block that were never alive)
+        grid.advanceGeneration()
+        grid.advanceGeneration()
+        grid.advanceGeneration()
+        // After several stable generations, all fading should have expired
+        #expect(grid.bornCells.isEmpty)
+        #expect(grid.dyingCells.isEmpty)
+        #expect(grid.fadingCells.isEmpty)
+    }
+
+    @Test("Active simulation has born or dying cells")
+    func activeSimulationHasCellChanges() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.25)
+        grid.advanceGeneration()
+        // A random seed at 25% density should have activity
+        let hasActivity = !grid.bornCells.isEmpty || !grid.dyingCells.isEmpty
+        #expect(hasActivity)
+    }
+}
+
+@Suite("Exit Transition Tests")
+struct ExitTransitionTests {
+    @Test("Exit animation flags start in correct state")
+    @MainActor
+    func exitAnimationInitialState() {
+        let engine = SimulationEngine(size: 4)
+        #expect(engine.isExiting == false)
+        #expect(engine.exitAnimationComplete == false)
+    }
+
+    @Test("Setting isExiting does not auto-complete")
+    @MainActor
+    func exitDoesNotAutoComplete() {
+        let engine = SimulationEngine(size: 4)
+        engine.isExiting = true
+        #expect(engine.isExiting == true)
+        #expect(engine.exitAnimationComplete == false)
+    }
+}

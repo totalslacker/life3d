@@ -55,16 +55,15 @@ struct ContentView: View {
                 engine.controlBarVisible = true
                 Task {
                     await dismissImmersiveSpace()
+                    // Fade in launch view for smooth return transition
+                    launchOpacity = 0.0
                     showingSimulation = false
                     engine.isExiting = false
                     engine.exitAnimationComplete = false
+                    withAnimation(.easeOut(duration: 0.4)) {
+                        launchOpacity = 1.0
+                    }
                 }
-            }
-        }
-        .onChange(of: engine.generation) {
-            // Any simulation activity resets the auto-hide timer
-            if showingSimulation && !engine.controlBarVisible {
-                // Don't show on every generation — only on direct interaction
             }
         }
     }
