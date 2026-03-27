@@ -9,13 +9,19 @@ struct LaunchView: View {
 
         VStack(spacing: 20) {
             // Title
-            Text("Life3D")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+            VStack(spacing: 6) {
+                Text("Life3D")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
 
-            Text("3D Game of Life for Apple Vision Pro")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                Text("3D Game of Life for Apple Vision Pro")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                Text("Watch luminous cells evolve in spatial 3D")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
 
             Divider()
 

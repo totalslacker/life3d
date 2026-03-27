@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 11 — Session 41 (2026-03-27 06:15 PDT)
+
+**Goal**: Double-buffered grid for performance, Sakura color theme, launch view polish.
+
+Three improvements focused on performance, visual variety, and UX polish:
+
+1. **Performance: double-buffered advanceGeneration**: Previously `advanceGeneration()` allocated a new `[Int]` array (32K elements for 32³) every generation. Now GridModel pre-allocates two buffers at init time and swaps them with `swap(&cells, &nextCells)` after each generation. The old next buffer is zeroed in-place rather than heap-allocated. For 32³ at 5 gen/s, this eliminates ~5 heap allocations per second. Also updated `clearAll()` to zero the existing buffer in-place instead of allocating a fresh array.
+
+2. **Sakura color theme**: Added an eighth theme with a cherry blossom aesthetic — bright pink newborn cells (high emissive intensity 2.2) fading through dusty rose to deep plum for mature cells, with dark ash dying cells. Produces a warm, organic look distinct from the cooler-toned existing themes.
+
+3. **Launch view polish**: Added a descriptive tagline "Watch luminous cells evolve in spatial 3D" below the subtitle, grouped the title section with tighter spacing for better visual hierarchy.
+
+Added 4 tests: Sakura theme existence, Sakura emissive colors, double-buffer correctness over 20 generations, theme count verification.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 (measure gen/s improvement from double buffering). Transition animation between shared and immersive space. App icon design.
+
+---
+
 ## Day 11 — Session 40 (2026-03-27 05:30 PDT)
 
 **Goal**: Fix draw mode auto-rotation conflict, optimize point light positioning, add Bioluminescence theme.

@@ -203,3 +203,14 @@ the same things. Search here before looking things up externally.
 - Replacing with a pre-computed `[Bool]` lookup table indexed by neighbor count (0-26) eliminates all hashing — direct array subscript is a single pointer offset
 - `didSet` on the `birthCounts`/`survivalCounts` properties automatically rebuilds the lookup tables when rules change, keeping the optimization transparent
 - Combined with the existing interior-cell fast path (no bounds checking for 82% of cells), this makes `advanceGeneration` significantly tighter
+
+---
+
+## Double-Buffered Grid Generation
+
+- `advanceGeneration()` originally allocated `[Int](repeating: 0, count: cellCount)` every generation — heap alloc + zero-fill of 32K ints at 32³
+- Pre-allocating two buffers (`cells` and `nextCells`) at init and using `swap(&cells, &nextCells)` eliminates per-generation allocation entirely
+- The "next" buffer must be zeroed before use (`for i in 0..<cellCount { nextCells[i] = 0 }`) — this is a memset equivalent that's faster than heap allocation
+- After the swap, `cells` holds the new generation and `nextCells` (now pointing to old data) will be zeroed on the next call
+- `clearAll()` was also updated to zero in-place instead of allocating, since the buffer sizes never change
+- References to the old `next` array in post-swap code (e.g., fading cell logic) must use `cells` instead, since `cells` is the new data after swap

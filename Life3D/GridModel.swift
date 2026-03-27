@@ -4,6 +4,8 @@ struct GridModel: Sendable {
     let size: Int
     /// Cell age: 0 = dead, 1+ = alive (value is age in generations)
     private(set) var cells: [Int]
+    /// Second buffer for double-buffered generation advancement (avoids per-generation allocation).
+    private var nextCells: [Int]
     /// Cells that died in the most recent generation (positions stored for fade-out rendering)
     private(set) var dyingCells: [Int] = []
     /// Cells born in the most recent generation (for particle effects)
@@ -34,7 +36,9 @@ struct GridModel: Sendable {
 
     init(size: Int, birthCounts: Set<Int> = [5, 6, 7], survivalCounts: Set<Int> = [5, 6, 7, 8]) {
         self.size = size
-        self.cells = [Int](repeating: 0, count: size * size * size)
+        let count = size * size * size
+        self.cells = [Int](repeating: 0, count: count)
+        self.nextCells = [Int](repeating: 0, count: count)
         self.birthCounts = birthCounts
         self.survivalCounts = survivalCounts
         self.cachedNeighborOffsets = Self.neighborOffsets(size: size)
@@ -141,7 +145,8 @@ struct GridModel: Sendable {
     mutating func advanceGeneration() {
         let ss = size * size
         let offsets = cachedNeighborOffsets
-        var next = [Int](repeating: 0, count: cellCount)
+        // Zero the next buffer (reuse pre-allocated array instead of allocating each generation)
+        for i in 0..<cellCount { nextCells[i] = 0 }
         var dying: [Int] = []
         var born: [Int] = []
 
@@ -173,21 +178,21 @@ struct GridModel: Sendable {
 
                     if cells[idx] > 0 {
                         if survivalLookup[neighbors] {
-                            next[idx] = cells[idx] + 1
+                            nextCells[idx] = cells[idx] + 1
                         } else {
-                            next[idx] = 0
+                            nextCells[idx] = 0
                             dying.append(idx)
                         }
                     } else {
                         if birthLookup[neighbors] {
-                            next[idx] = 1
+                            nextCells[idx] = 1
                             born.append(idx)
                         }
                     }
                 }
             }
         }
-        cells = next
+        swap(&cells, &nextCells)
         dyingCells = dying
         bornCells = born
 
@@ -195,7 +200,7 @@ struct GridModel: Sendable {
         fadingCells = fadingCells.compactMap { entry in
             let remaining = entry.framesLeft - 1
             // If a fading cell was reborn, stop fading it
-            guard next[entry.index] == 0, remaining > 0 else { return nil }
+            guard cells[entry.index] == 0, remaining > 0 else { return nil }
             return (index: entry.index, framesLeft: remaining)
         }
         // Add newly dying cells at full fade duration
@@ -432,7 +437,7 @@ struct GridModel: Sendable {
     }
 
     mutating func clearAll() {
-        cells = [Int](repeating: 0, count: cellCount)
+        for i in 0..<cellCount { cells[i] = 0 }
         dyingCells = []
         bornCells = []
         fadingCells = []

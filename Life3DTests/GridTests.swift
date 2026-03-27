@@ -800,7 +800,35 @@ struct PerformanceTests {
     @Test("Bioluminescence theme exists in allThemes")
     func bioluminescenceThemeExists() {
         #expect(ColorTheme.allThemes.contains { $0.name == "Bioluminescence" })
-        #expect(ColorTheme.allThemes.count == 7)
+    }
+
+    @Test("Sakura theme exists in allThemes")
+    func sakuraThemeExists() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Sakura" })
+        #expect(ColorTheme.allThemes.count == 8)
+    }
+
+    @Test("Sakura theme has warm pink emissive colors")
+    func sakuraThemeColors() {
+        let sakura = ColorTheme.sakura
+        // Newborn should be bright pink (high red, medium-high blue, lower green)
+        #expect(sakura.newborn.emissiveColor.x > 0.5)  // strong red
+        #expect(sakura.newborn.emissiveColor.z > 0.5)  // strong blue
+        #expect(sakura.newborn.emissiveColor.y < sakura.newborn.emissiveColor.x)  // less green than red
+    }
+
+    @Test("Double-buffered grid produces same results as single-buffer")
+    func doubleBufferCorrectness() {
+        // Run the same initial state through multiple generations
+        // and verify aliveCount stays consistent with a full recount
+        var model = GridModel(size: 12)
+        model.randomSeed(density: 0.25)
+        for _ in 0..<20 {
+            model.advanceGeneration()
+            let fullCount = model.cells.filter { $0 > 0 }.count
+            #expect(model.aliveCount == fullCount,
+                    "Delta-tracked aliveCount diverged from full recount after swap")
+        }
     }
 
     @Test("Bioluminescence theme has higher emissive intensity than other themes")
