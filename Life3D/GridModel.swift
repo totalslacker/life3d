@@ -206,7 +206,6 @@ struct GridModel: Sendable {
         // For a 32³ grid with ~5K alive cells, this resets ~5K entries vs 32K.
         for idx in aliveCellIndices { aliveIndexMap[idx] = -1 }
         aliveCellIndices.removeAll(keepingCapacity: true)
-        aliveIndexMap.withUnsafeMutableBufferPointer { $0.update(repeating: -1) }
 
         for x in 0..<size {
             for y in 0..<size {
@@ -950,6 +949,68 @@ struct GridModel: Sendable {
             setCell(x: lo, y: hi, z: z, alive: true)
             setCell(x: hi, y: lo, z: z, alive: true)
             setCell(x: hi, y: hi, z: z, alive: true)
+        }
+        rebuildAliveCellIndices()
+    }
+
+    /// A 3D snowflake — 6 radial arms along the positive/negative X, Y, Z axes
+    /// emanating from a dense central core, with perpendicular cross-bars at intervals
+    /// for structural support. Creates 6-fold axial symmetry (octahedral point group).
+    /// The arms have enough thickness to sustain evolution under standard rules, and
+    /// the cross-bars create localized high-density nodes that persist while the arms erode.
+    mutating func loadSnowflake() {
+        clearAll()
+        let mid = size / 2
+        let armLength = min(size / 3, 6)
+        let coreR = max(1, armLength / 3)
+
+        // Dense spherical core
+        for x in (mid - coreR)...(mid + coreR) {
+            for y in (mid - coreR)...(mid + coreR) {
+                for z in (mid - coreR)...(mid + coreR) {
+                    let dx = x - mid, dy = y - mid, dz = z - mid
+                    if dx * dx + dy * dy + dz * dz <= coreR * coreR {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+
+        // 6 arms along ±X, ±Y, ±Z with thickness of 1 cell on each side
+        for d in 1...armLength {
+            for offset in -1...1 {
+                // +X arm
+                setCell(x: mid + d, y: mid + offset, z: mid, alive: true)
+                setCell(x: mid + d, y: mid, z: mid + offset, alive: true)
+                // -X arm
+                setCell(x: mid - d, y: mid + offset, z: mid, alive: true)
+                setCell(x: mid - d, y: mid, z: mid + offset, alive: true)
+                // +Y arm
+                setCell(x: mid + offset, y: mid + d, z: mid, alive: true)
+                setCell(x: mid, y: mid + d, z: mid + offset, alive: true)
+                // -Y arm
+                setCell(x: mid + offset, y: mid - d, z: mid, alive: true)
+                setCell(x: mid, y: mid - d, z: mid + offset, alive: true)
+                // +Z arm
+                setCell(x: mid + offset, y: mid, z: mid + d, alive: true)
+                setCell(x: mid, y: mid + offset, z: mid + d, alive: true)
+                // -Z arm
+                setCell(x: mid + offset, y: mid, z: mid - d, alive: true)
+                setCell(x: mid, y: mid + offset, z: mid - d, alive: true)
+            }
+            // Cross-bars at midpoints along each arm for structural nodes
+            if d == armLength / 2 || d == armLength {
+                for o1 in -1...1 {
+                    for o2 in -1...1 {
+                        setCell(x: mid + d, y: mid + o1, z: mid + o2, alive: true)
+                        setCell(x: mid - d, y: mid + o1, z: mid + o2, alive: true)
+                        setCell(x: mid + o1, y: mid + d, z: mid + o2, alive: true)
+                        setCell(x: mid + o1, y: mid - d, z: mid + o2, alive: true)
+                        setCell(x: mid + o1, y: mid + o2, z: mid + d, alive: true)
+                        setCell(x: mid + o1, y: mid + o2, z: mid - d, alive: true)
+                    }
+                }
+            }
         }
         rebuildAliveCellIndices()
     }

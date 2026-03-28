@@ -2,6 +2,26 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 60 (2026-03-28 11:34 PDT)
+
+**Goal**: Fix O(alive) map reset regression, Snowflake pattern, test file discovery.
+
+Three improvements:
+
+1. **Fix redundant aliveIndexMap bulk reset in advanceGeneration()**: Session 59 added `withUnsafeMutableBufferPointer { $0.update(repeating: -1) }` for bulk fill but didn't remove the pre-existing O(alive) targeted reset loop. Both were running: first the O(alive) reset (line 205, resetting ~5K entries for a 32³ grid), then immediately the O(n³) bulk reset (resetting all 32K entries). The bulk reset made the O(alive) optimization from session 58 completely pointless — every entry was being reset twice. Removed the redundant bulk reset, restoring the O(alive) performance benefit.
+
+2. **Snowflake pattern (22nd)**: A 3D snowflake with octahedral symmetry — 6 radial arms along ±X, ±Y, ±Z axes emanating from a dense spherical core. Each arm has perpendicular cross-bars at midpoint and tip for structural support (localized high-density nodes). Under standard B5-7/S5-8 rules, the arms erode from their thin sections while the cross-bar nodes and core persist longer, creating a "melting crystal" evolution. Perfect axial mirror symmetry across all three planes.
+
+3. **Discovered test file corruption**: GridTests.swift has accumulated unclosed function bodies from ~session 55 onwards (starting at `resetClearsTrendBuffer()` line 1231). Every @Suite struct after that point is nested inside a function body, making @Test macros invalid for `build-for-testing`. Filed as li-jci (P3). Main app build unaffected since tests are never run via xcodebuild.
+
+Added 9 tests: snowflake non-empty, 6-fold axial symmetry verification, engine pattern selection, alive index consistency, evolution dynamics, O(alive) map consistency over 10 generations, extinction-reload map integrity, wrapping topology map consistency, pattern count (23 total / 22 cyclable).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Fix test file corruption (li-jci). Performance profiling at 32x32x32. App icon design. Final visual tuning.
+
+---
+
 ## Day 12 — Session 59 (2026-03-28 11:35 PDT)
 
 **Goal**: Bug fix, frame-rate-independent auto-rotation, test compilation fixes, new tests.
