@@ -6,6 +6,7 @@ struct ContentView: View {
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @State private var showingSimulation = false
     @State private var launchOpacity: Double = 1.0
+    @State private var isLaunching = false
 
     var body: some View {
         Group {
@@ -18,15 +19,16 @@ struct ContentView: View {
             } else {
                 LaunchView(onStart: {
                     Task {
+                        isLaunching = true
                         // Fade out launch view, then open immersive space
-                        withAnimation(.easeOut(duration: 0.3)) {
+                        withAnimation(.easeOut(duration: 0.35)) {
                             launchOpacity = 0.0
                         }
-                        try? await Task.sleep(nanoseconds: 300_000_000)
+                        try? await Task.sleep(nanoseconds: 350_000_000)
                         showingSimulation = true
                         launchOpacity = 1.0
                     }
-                })
+                }, isLaunching: isLaunching)
                 .environment(engine)
                 .opacity(launchOpacity)
             }
@@ -34,8 +36,20 @@ struct ContentView: View {
         .onChange(of: showingSimulation) {
             if showingSimulation {
                 Task {
-                    await openImmersiveSpace(id: "life3d-grid")
-                    engine.start()
+                    let result = await openImmersiveSpace(id: "life3d-grid")
+                    switch result {
+                    case .opened:
+                        engine.start()
+                    case .userCancelled, .error:
+                        // Immersive space failed — return to launch screen
+                        showingSimulation = false
+                        isLaunching = false
+                        withAnimation(.easeIn(duration: 0.35)) {
+                            launchOpacity = 1.0
+                        }
+                    @unknown default:
+                        engine.start()
+                    }
                 }
             }
         }
@@ -46,9 +60,10 @@ struct ContentView: View {
                     // Fade in launch view for smooth return transition
                     launchOpacity = 0.0
                     showingSimulation = false
+                    isLaunching = false
                     engine.isExiting = false
                     engine.exitAnimationComplete = false
-                    withAnimation(.easeOut(duration: 0.4)) {
+                    withAnimation(.easeOut(duration: 0.35)) {
                         launchOpacity = 1.0
                     }
                 }

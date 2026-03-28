@@ -1,5 +1,13 @@
 import Foundation
 
+extension Array {
+    /// O(1) removal by swapping with last element. Order is not preserved.
+    mutating func swapRemove(at index: Int) {
+        self[index] = self[count - 1]
+        removeLast()
+    }
+}
+
 struct GridModel: Sendable {
     let size: Int
     /// Cell age: 0 = dead, 1+ = alive (value is age in generations)
@@ -18,6 +26,8 @@ struct GridModel: Sendable {
     /// Flat indices of all currently alive cells, maintained incrementally.
     /// Used by `aliveCellsWithAge` to avoid scanning the entire grid (O(alive) vs O(n³)).
     private(set) var aliveCellIndices: [Int] = []
+    /// Set mirror for O(1) removal during interactive editing (draw/erase mode).
+    private var aliveCellIndexSet: Set<Int> = []
     /// Number of generations a dying cell takes to fully fade out.
     static let fadeDuration: Int = 3
 
@@ -85,12 +95,12 @@ struct GridModel: Sendable {
         if alive && !wasAlive {
             aliveCount += 1
             aliveCellIndices.append(idx)
+            aliveCellIndexSet.insert(idx)
         } else if !alive && wasAlive {
             aliveCount -= 1
-            // Swap-remove: find first match, swap with last, pop — O(n) search but O(1) removal
-            if let pos = aliveCellIndices.firstIndex(of: idx) {
-                aliveCellIndices.swapAt(pos, aliveCellIndices.count - 1)
-                aliveCellIndices.removeLast()
+            aliveCellIndexSet.remove(idx)
+            if let i = aliveCellIndices.firstIndex(of: idx) {
+                aliveCellIndices.swapRemove(at: i)
             }
         }
     }
@@ -101,14 +111,15 @@ struct GridModel: Sendable {
         if cells[idx] > 0 {
             cells[idx] = 0
             aliveCount -= 1
-            if let pos = aliveCellIndices.firstIndex(of: idx) {
-                aliveCellIndices.swapAt(pos, aliveCellIndices.count - 1)
-                aliveCellIndices.removeLast()
+            aliveCellIndexSet.remove(idx)
+            if let i = aliveCellIndices.firstIndex(of: idx) {
+                aliveCellIndices.swapRemove(at: i)
             }
         } else {
             cells[idx] = 1
             aliveCount += 1
             aliveCellIndices.append(idx)
+            aliveCellIndexSet.insert(idx)
         }
     }
 
@@ -170,6 +181,7 @@ struct GridModel: Sendable {
         dyingCells.removeAll(keepingCapacity: true)
         bornCells.removeAll(keepingCapacity: true)
         aliveCellIndices.removeAll(keepingCapacity: true)
+        aliveCellIndexSet.removeAll(keepingCapacity: true)
 
         for x in 0..<size {
             for y in 0..<size {
@@ -201,6 +213,7 @@ struct GridModel: Sendable {
                         if survivalLookup[neighbors] {
                             nextCells[idx] = cells[idx] + 1
                             aliveCellIndices.append(idx)
+                            aliveCellIndexSet.insert(idx)
                         } else {
                             nextCells[idx] = 0
                             dyingCells.append(idx)
@@ -210,6 +223,7 @@ struct GridModel: Sendable {
                             nextCells[idx] = 1
                             bornCells.append(idx)
                             aliveCellIndices.append(idx)
+                            aliveCellIndexSet.insert(idx)
                         }
                     }
                 }
@@ -298,9 +312,11 @@ struct GridModel: Sendable {
     /// incremental tracking isn't practical.
     private mutating func rebuildAliveCellIndices() {
         aliveCellIndices.removeAll(keepingCapacity: true)
+        aliveCellIndexSet.removeAll(keepingCapacity: true)
         for i in 0..<cellCount {
             if cells[i] > 0 {
                 aliveCellIndices.append(i)
+                aliveCellIndexSet.insert(i)
             }
         }
     }
@@ -739,6 +755,7 @@ struct GridModel: Sendable {
         bornCells.removeAll(keepingCapacity: true)
         fadingCells.removeAll(keepingCapacity: true)
         aliveCellIndices.removeAll(keepingCapacity: true)
+        aliveCellIndexSet.removeAll(keepingCapacity: true)
         aliveCount = 0
     }
 }

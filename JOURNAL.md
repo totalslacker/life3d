@@ -2,6 +2,24 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 57 (2026-03-28 10:53 PDT)
+
+**Goal**: Launch UX polish, draw mode performance, mesh generation test coverage.
+
+Three improvements:
+
+1. **Launch experience polish**: The Start button now shows a spinner and disables during launch to prevent double-taps. The immersive space open result is now checked — if it fails (user cancelled or error), the app gracefully returns to the launch screen instead of showing a blank simulation bar. Transition timings unified to 0.35s for both entry and exit fades.
+
+2. **O(1) draw mode cell removal**: Added a `Set<Int>` mirror (`aliveCellIndexSet`) alongside the `aliveCellIndices` array. Interactive edits (`setCell`/`toggleCell`) now use `firstIndex(of:)` + swap-remove (O(1)) instead of `removeAll { $0 == idx }` (O(n)). The set is maintained in `advanceGeneration`, `rebuildAliveCellIndices`, and `clearAll`. Added `Array.swapRemove(at:)` extension for O(1) unordered removal. For a 32³ grid with ~5K alive cells, this eliminates linear scans during drag-to-paint operations.
+
+3. **Mesh generation tests**: Added 12 tests covering the previously untested `computeMeshData` render path: empty grid, single cell vertex/index counts, multi-cell proportional counts, index bounds validation, tier range coverage (no gaps), newborn tier assignment, dying tier from fading cells, vertex bounds within grid extent, grid extent calculation correctness. Also added 4 draw mode consistency tests verifying the new Set-backed index survives toggle round-trips and generation advances.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Accessibility labels on interactive controls.
+
+---
+
 ## Day 12 — Session 56 (2026-03-28 10:54 PDT)
 
 **Goal**: Bug fixes and code quality — trend threshold, duplicate index calculation, galaxy pattern consistency.

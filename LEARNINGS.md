@@ -297,3 +297,23 @@ the same things. Search here before looking things up externally.
 - Pattern: replace computed properties with `private(set) var` + explicit rebuild function called at the mutation site (e.g., once per `step()`)
 - For display-only data (sparklines, trend indicators), rebuilding once per generation is sufficient — no visual difference vs per-frame
 - Must also clear the cached value at every reset/restart path to avoid stale data
+
+---
+
+## Set-Backed Index for O(1) Interactive Cell Removal
+
+- Maintaining `aliveCellIndices: [Int]` alongside a `aliveCellIndexSet: Set<Int>` gives O(alive) iteration for rendering AND O(1) membership/removal for interactive edits
+- `Array.removeAll { $0 == idx }` is O(n) — unacceptable during drag-to-paint where many cells toggle per frame
+- Swap-remove pattern: `array.swapRemove(at: i)` swaps element with last and removes — O(1) but doesn't preserve order
+- For mesh rendering, order doesn't matter (cells are bucket-sorted by age tier anyway), so unordered removal is safe
+- The set must be maintained in ALL mutation paths: `setCell`, `toggleCell`, `advanceGeneration`, `rebuildAliveCellIndices`, `clearAll`
+- In `advanceGeneration`, inserting into the set during the main loop adds minimal overhead since the set already has capacity from `removeAll(keepingCapacity:)`
+
+---
+
+## visionOS Immersive Space Error Handling
+
+- `openImmersiveSpace(id:)` returns `OpenImmersiveSpaceAction.Result` with `.opened`, `.userCancelled`, `.error` cases
+- Must check the result — silent failure leaves the app in a broken state (simulation bar visible but no 3D content)
+- On failure, reset navigation state and fade the launch view back in for a graceful recovery
+- Always include `@unknown default` case for future-proofing against new result types

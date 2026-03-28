@@ -3,6 +3,7 @@ import SwiftUI
 struct LaunchView: View {
     @Environment(SimulationEngine.self) private var engine
     let onStart: () -> Void
+    var isLaunching: Bool = false
 
     var body: some View {
         @Bindable var engine = engine
@@ -118,12 +119,23 @@ struct LaunchView: View {
                 engine.loadPattern(engine.selectedPattern)
                 onStart()
             } label: {
-                Label("Start Simulation", systemImage: "play.fill")
-                    .font(.headline)
+                if isLaunching {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("Launching…")
+                            .font(.headline)
+                    }
                     .frame(maxWidth: .infinity)
+                } else {
+                    Label("Start Simulation", systemImage: "play.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                }
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
+            .disabled(isLaunching)
         }
         .padding(24)
     }

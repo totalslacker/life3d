@@ -2422,3 +2422,177 @@ struct FlatIndexConsistencyTests {
         }
     }
 }
+
+// MARK: - Mesh Generation Tests
+
+@Suite("Mesh Generation Tests")
+struct MeshGenerationTests {
+    @Test("Empty grid produces zero-cell mesh data")
+    func emptyGridMesh() {
+        let model = GridModel(size: 4)
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        #expect(data.cellCount == 0)
+        #expect(data.vertices.isEmpty)
+        #expect(data.indices.isEmpty)
+    }
+
+    @Test("Single cell produces correct vertex and index count")
+    func singleCellMesh() {
+        var model = GridModel(size: 4)
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        #expect(data.cellCount == 1)
+        // 24 vertices per cube (4 per face × 6 faces), 36 indices (6 faces × 2 triangles × 3)
+        #expect(data.vertices.count == 24)
+        #expect(data.indices.count == 36)
+    }
+
+    @Test("Multiple cells produce proportional vertex/index counts")
+    func multipleCellsMesh() {
+        var model = GridModel(size: 8)
+        model.loadBlock()  // 2x2x2 = 8 cells
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        #expect(data.cellCount == 8)
+        #expect(data.vertices.count == 8 * 24)
+        #expect(data.indices.count == 8 * 36)
+    }
+
+    @Test("All indices reference valid vertices")
+    func indicesInBounds() {
+        var model = GridModel(size: 8)
+        model.loadCluster()
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        let maxVertex = UInt32(data.vertices.count)
+        for idx in data.indices {
+            #expect(idx < maxVertex, "Index \(idx) exceeds vertex count \(maxVertex)")
+        }
+    }
+
+    @Test("Tier ranges cover all indices without gaps")
+    func tierRangesCoverage() {
+        var model = GridModel(size: 8)
+        model.loadSoup()
+        // Advance a few generations to get multiple age tiers
+        for _ in 0..<3 { model.advanceGeneration() }
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        let totalTierIndices = data.tierRanges.reduce(0) { $0 + $1.indexCount }
+        #expect(totalTierIndices == data.indices.count)
+    }
+
+    @Test("Newborn cells are assigned to tier 0")
+    func newbornTier() {
+        var model = GridModel(size: 4)
+        model.setCell(x: 1, y: 1, z: 1, alive: true)  // age 1 = newborn
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        // All indices should be in tier 0 (newborn)
+        #expect(data.tierRanges[0].indexCount == 36)
+        #expect(data.tierRanges[1].indexCount == 0)
+        #expect(data.tierRanges[2].indexCount == 0)
+    }
+
+    @Test("Fading cells produce dying tier mesh data")
+    func fadingCellsTier() {
+        var model = GridModel(size: 8)
+        model.loadBlock()
+        // Advance to create dying cells
+        for _ in 0..<5 { model.advanceGeneration() }
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        // Should have some dying tier data if cells died
+        let dyingTierIndex = GridRenderer.AgeTier.dying.rawValue
+        // At least some cells should be in the dying tier (fading)
+        if !model.fadingCells.isEmpty {
+            #expect(data.tierRanges[dyingTierIndex].indexCount > 0)
+        }
+    }
+
+    @Test("Vertex positions are bounded by grid extent")
+    func vertexBounds() {
+        var model = GridModel(size: 8)
+        model.loadDiamond()
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        let maxExtent = data.gridExtent + GridRenderer.cellSize  // small margin for cell half-size
+        for vertex in data.vertices {
+            #expect(abs(vertex.position.x) <= maxExtent)
+            #expect(abs(vertex.position.y) <= maxExtent)
+            #expect(abs(vertex.position.z) <= maxExtent)
+        }
+    }
+
+    @Test("Grid extent is correct for grid size")
+    func gridExtentCalculation() {
+        let model = GridModel(size: 16)
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        let stride = GridRenderer.cellSize + GridRenderer.cellSpacing
+        let expectedExtent = Float(15) * stride / 2.0 + GridRenderer.cellSize / 2.0
+        let epsilon: Float = 0.0001
+        #expect(abs(data.gridExtent - expectedExtent) < epsilon)
+    }
+}
+
+// MARK: - Draw Mode Performance Tests (Set-backed index)
+
+@Suite("Draw Mode Index Tests")
+struct DrawModeIndexTests {
+    @Test("toggleCell maintains consistent index set")
+    func toggleConsistency() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 2, y: 3, z: 4, alive: true)
+        model.setCell(x: 5, y: 5, z: 5, alive: true)
+        #expect(model.aliveCount == 2)
+
+        // Toggle off one cell
+        model.toggleCell(x: 2, y: 3, z: 4)
+        #expect(model.aliveCount == 1)
+        #expect(!model.isAlive(x: 2, y: 3, z: 4))
+
+        // Alive cell indices should only contain the remaining cell
+        let remaining = model.aliveCellsWithAge(
+            cellSize: GridRenderer.cellSize,
+            cellSpacing: GridRenderer.cellSpacing
+        )
+        #expect(remaining.count == 1)
+    }
+
+    @Test("setCell remove and re-add keeps indices consistent")
+    func setCellToggleRoundTrip() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        model.setCell(x: 3, y: 3, z: 3, alive: false)
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        #expect(model.aliveCount == 1)
+        let cells = model.aliveCellsWithAge(
+            cellSize: GridRenderer.cellSize,
+            cellSpacing: GridRenderer.cellSpacing
+        )
+        #expect(cells.count == 1)
+    }
+
+    @Test("Rapid toggles produce correct alive count")
+    func rapidToggles() {
+        var model = GridModel(size: 8)
+        // Toggle same cell on/off rapidly
+        for _ in 0..<10 {
+            model.toggleCell(x: 4, y: 4, z: 4)
+        }
+        // 10 toggles = even number = back to dead
+        #expect(model.aliveCount == 0)
+        #expect(!model.isAlive(x: 4, y: 4, z: 4))
+    }
+
+    @Test("advanceGeneration rebuilds indices correctly after interactive edits")
+    func advanceAfterEdits() {
+        var model = GridModel(size: 8)
+        model.loadBlock()
+        let countBefore = model.aliveCount
+        // Toggle a cell interactively
+        model.toggleCell(x: 0, y: 0, z: 0)
+        #expect(model.aliveCount == countBefore + 1)
+        // Advance generation — should rebuild indices from scratch
+        model.advanceGeneration()
+        let cells = model.aliveCellsWithAge(
+            cellSize: GridRenderer.cellSize,
+            cellSpacing: GridRenderer.cellSpacing
+        )
+        #expect(cells.count == model.aliveCount)
+    }
+}
