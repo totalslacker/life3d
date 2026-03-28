@@ -60,7 +60,7 @@ struct GridImmersiveView: View {
         RealityView { content in
             let container = Entity()
             container.name = "GridContainer"
-            container.position = SIMD3<Float>(0, 1.5, -1.5)
+            container.position = SIMD3<Float>(0, 1.8, -1.5)
 
             // Collision box sized to actual grid extent for accurate gesture targeting
             let stride = GridRenderer.cellSize + GridRenderer.cellSpacing
@@ -592,7 +592,7 @@ struct GridImmersiveView: View {
             targetPosition = SIMD3<Float>(0, 1.5, 0)
             targetScale = 3.0
         } else {
-            targetPosition = SIMD3<Float>(0, 1.5, -1.5)
+            targetPosition = SIMD3<Float>(0, 1.8, -1.5)
             targetScale = 1.0
         }
         Task {

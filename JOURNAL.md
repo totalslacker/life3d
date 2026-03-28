@@ -12,6 +12,20 @@ Changed `audioMuted` default from `false` to `true` in both `SimulationEngine` a
 
 ---
 
+## Day 12 — Session 50 (2026-03-28 10:00 PDT)
+
+**Goal**: Fix control panel inaccessible behind immersive view (li-rih).
+
+Raised the grid container Y position from 1.5m to 1.8m in tabletop mode. The grid at Y=1.5 placed the bottom of the simulation volume at ~1.27m, overlapping with the visionOS default window position (~1.2m eye level). This made the control panel difficult or impossible to interact with — it was behind/beneath the immersive grid entity and its oversized collision box.
+
+Changed both the initial container position and the surround-mode return-to-tabletop target position. Surround mode (user inside the grid) stays at Y=1.5 since the window isn't the primary interaction surface in that mode.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Test with different grid sizes (32x32x32) to verify clearance. Consider making the collision box tighter to the actual grid extent.
+
+---
+
 ## Day 12 — Session 49 (2026-03-28 09:58 PDT)
 
 **Goal**: Fix launch dialog size — UI elements cut off at bottom.
