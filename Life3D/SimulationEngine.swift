@@ -163,7 +163,7 @@ final class SimulationEngine {
     private var extinctionCounter: Int = 0
     private static let extinctionDelay: Int = 3  // wait 3 empty generations (~0.6s at 5 gen/s)
 
-    /// Patterns to cycle through on auto-restart (excludes Clear and user-selected).
+    /// Patterns to cycle through on auto-restart (excludes Clear).
     private static let cyclablePatterns: [Pattern] = Pattern.allCases.filter { $0 != .clear }
     /// Index into cyclablePatterns for auto-restart cycling.
     private var cycleIndex: Int = 0
@@ -301,6 +301,8 @@ final class SimulationEngine {
             grid.loadRings()
         case .spiral:
             grid.loadSpiral()
+        case .torus:
+            grid.loadTorus()
         case .clear:
             grid.clearAll()
         }
@@ -331,6 +333,7 @@ final class SimulationEngine {
         case helix = "Helix (DNA)"
         case rings = "Rings (shells)"
         case spiral = "Spiral"
+        case torus = "Torus"
         case clear = "Clear"
 
         var id: String { rawValue }

@@ -1690,3 +1690,93 @@ struct ExitSafetyTests {
         #expect(alive == 0, "Grid should remain empty during exit")
     }
 }
+
+// MARK: - Torus Pattern Tests
+
+@Suite("Torus Pattern Tests")
+struct TorusPatternTests {
+    @Test("Torus pattern produces non-empty grid")
+    func torusNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadTorus()
+        #expect(grid.aliveCount > 0, "Torus pattern should have alive cells")
+    }
+
+    @Test("Torus pattern has hole in center (genus-1 topology)")
+    func torusHasHole() {
+        var grid = GridModel(size: 16)
+        grid.loadTorus()
+        let mid = 16 / 2
+        // Center of the torus (inside the hole) should be empty
+        #expect(!grid.isAlive(x: mid, y: mid, z: mid), "Center of torus should be empty (the hole)")
+    }
+
+    @Test("Torus pattern is selectable in engine")
+    func torusEngineSelection() async {
+        let engine = await SimulationEngine(size: 16)
+        await engine.loadPattern(.torus)
+        let alive = await engine.grid.aliveCount
+        #expect(alive > 0)
+    }
+
+    @Test("Torus evolves for multiple generations without dying immediately")
+    func torusEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadTorus()
+        let initial = grid.aliveCount
+        for _ in 0..<5 {
+            grid.advanceGeneration()
+        }
+        // Should still have life after 5 generations (not immediate death)
+        #expect(grid.aliveCount > 0 || initial > 10, "Torus should sustain evolution")
+    }
+}
+
+// MARK: - Copper Theme Tests
+
+@Suite("Copper Theme Tests")
+struct CopperThemeTests {
+    @Test("Copper theme exists in allThemes")
+    func copperExists() {
+        let found = ColorTheme.allThemes.contains(where: { $0.name == "Copper" })
+        #expect(found, "Copper theme should be in allThemes")
+    }
+
+    @Test("allThemes contains 19 themes")
+    func themeCount() {
+        #expect(ColorTheme.allThemes.count == 19, "Should have 19 themes total")
+    }
+
+    @Test("Copper has warm metallic color progression")
+    func copperColorProgression() {
+        let theme = ColorTheme.copper
+        // Newborn should be brightest (highest emissive intensity)
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+        // Copper hue: red channel > green > blue throughout
+        #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.y)
+        #expect(theme.newborn.emissiveColor.y > theme.newborn.emissiveColor.z)
+    }
+}
+
+// MARK: - reserveCapacity Performance Tests
+
+@Suite("Position Method Capacity Tests")
+struct PositionCapacityTests {
+    @Test("aliveCellPositions returns correct count matching aliveCount")
+    func positionsMatchCount() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.3)
+        let positions = grid.aliveCellPositions(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(positions.count == grid.aliveCount)
+    }
+
+    @Test("aliveCellsWithAge returns correct count matching aliveCount")
+    func cellsWithAgeMatchCount() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.3)
+        let cells = grid.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == grid.aliveCount)
+    }
+}

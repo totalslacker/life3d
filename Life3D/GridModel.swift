@@ -225,6 +225,7 @@ struct GridModel: Sendable {
     /// Returns positions of alive cells.
     func aliveCellPositions(cellSize: Float, cellSpacing: Float) -> [SIMD3<Float>] {
         var positions: [SIMD3<Float>] = []
+        positions.reserveCapacity(aliveCount)
         for x in 0..<size {
             for y in 0..<size {
                 for z in 0..<size {
@@ -240,6 +241,7 @@ struct GridModel: Sendable {
     /// Returns (position, age) for each alive cell, grouped for rendering.
     func aliveCellsWithAge(cellSize: Float, cellSpacing: Float) -> [(position: SIMD3<Float>, age: Int)] {
         var result: [(position: SIMD3<Float>, age: Int)] = []
+        result.reserveCapacity(aliveCount)
         for x in 0..<size {
             for y in 0..<size {
                 for z in 0..<size {
@@ -583,6 +585,35 @@ struct GridModel: Sendable {
                         if yi >= 0 && yi < size {
                             setCell(x: x, y: yi, z: z, alive: true)
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    /// A 3D torus (doughnut) lying in the XZ plane — ring of circular cross-section.
+    /// The only pattern with genus-1 topology (has a hole). Produces unique evolution
+    /// as cells on the inner ring face higher neighbor density than the outer ring,
+    /// creating asymmetric growth that breaks the initial symmetry beautifully.
+    mutating func loadTorus() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let majorR = Float(min(size / 4, 4))  // distance from center to tube center
+        let minorR: Float = majorR * 0.4       // tube radius
+        let thickness: Float = 1.2             // fill thickness for neighbor density
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let dx = Float(x) - mid + 0.5
+                    let dy = Float(y) - mid + 0.5
+                    let dz = Float(z) - mid + 0.5
+                    // Distance from the Y axis in XZ plane
+                    let distXZ = (dx * dx + dz * dz).squareRoot()
+                    // Distance from the major ring (circle in XZ plane at radius majorR)
+                    let ringDx = distXZ - majorR
+                    let dist = (ringDx * ringDx + dy * dy).squareRoot()
+                    if dist <= minorR + thickness && dist >= minorR - thickness {
+                        setCell(x: x, y: y, z: z, alive: true)
                     }
                 }
             }

@@ -2,6 +2,26 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 54 (2026-03-28 10:22 PDT)
+
+**Goal**: Torus pattern, Copper theme, rendering allocation optimization.
+
+Three improvements:
+
+1. **Torus pattern (doughnut)**: Added a fourteenth pattern — a 3D torus lying in the XZ plane with configurable major/minor radii and fill thickness. The only pattern with genus-1 topology (has a hole through the center). The inner ring has higher neighbor density than the outer, creating asymmetric evolution where the inner surface evolves differently from the outer — cells in the inner ring face more neighbors and tend to die faster, breaking the initial symmetry into organic branching forms.
+
+2. **Copper theme**: 19th theme with warm metallic tones — bright polished copper newborn cells (emissive intensity 2.2) transitioning through dark copper to deep bronze patina for mature cells. The color progression evokes metal cooling/aging: bright copper surface → oxidized middle → dark patina. Distinct from Warm Amber (golden/honey tones) and Ember (fire yellow→red) in that Copper stays in the warm brown-orange metallic family throughout — no bright yellow or deep red, just natural copper darkening.
+
+3. **reserveCapacity on position methods**: Added `reserveCapacity(aliveCount)` to `aliveCellPositions` and `aliveCellsWithAge` in GridModel. These methods are called every mesh rebuild cycle but were creating arrays without pre-sizing, causing multiple heap reallocations as the array grew. For a 32³ grid with ~8K alive cells, this eliminates ~13 reallocation+copy cycles per call (array doubles from 1→2→4→...→8192).
+
+Added 9 tests: Torus non-empty, torus has hole, torus engine selection, torus multi-gen evolution, Copper theme existence, theme count (19), Copper metallic color progression, position count matching aliveCount for both methods.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes. Consider pan gesture for grid translation.
+
+---
+
 ## Day 12 — Session 53 (2026-03-28 10:14 PDT)
 
 **Goal**: Safety hardening and UX polish — eliminate force unwraps, fix exit race condition, smooth generation rate display.
