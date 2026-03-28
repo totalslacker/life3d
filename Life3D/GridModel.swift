@@ -196,14 +196,21 @@ struct GridModel: Sendable {
         dyingCells = dying
         bornCells = born
 
-        // Update fading cells: decrement counters, remove expired, add newly dying
-        fadingCells = fadingCells.compactMap { entry in
-            let remaining = entry.framesLeft - 1
-            // If a fading cell was reborn, stop fading it
-            guard cells[entry.index] == 0, remaining > 0 else { return nil }
-            return (index: entry.index, framesLeft: remaining)
+        // Update fading cells in-place: decrement counters, remove expired/reborn, add newly dying.
+        // Avoids compactMap allocation by using swap-remove (O(1) per removal).
+        var i = 0
+        while i < fadingCells.count {
+            fadingCells[i].framesLeft -= 1
+            if fadingCells[i].framesLeft <= 0 || cells[fadingCells[i].index] != 0 {
+                // Swap with last element and remove (O(1) removal)
+                fadingCells[i] = fadingCells[fadingCells.count - 1]
+                fadingCells.removeLast()
+            } else {
+                i += 1
+            }
         }
         // Add newly dying cells at full fade duration
+        fadingCells.reserveCapacity(fadingCells.count + dying.count)
         for idx in dying {
             fadingCells.append((index: idx, framesLeft: Self.fadeDuration))
         }
@@ -478,6 +485,41 @@ struct GridModel: Sendable {
                     let zOff = (y % 2 == 0) ? 0 : 1
                     if (x + xOff) % 3 == 0 && y % 3 == 0 && (z + zOff) % 3 == 0 {
                         setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+    }
+
+    /// A double helix spiral around the Y axis — two interleaved helical strands
+    /// with enough thickness to sustain evolution. Creates DNA-like structures that
+    /// unwind and evolve into complex branching forms.
+    mutating func loadHelix() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let turns: Float = 2.5  // number of full rotations
+        let radius: Float = Float(min(size / 4, 5))
+        let thickness: Float = 1.4  // strand thickness for neighbor density
+
+        for y in 0..<size {
+            let t = Float(y) / Float(size - 1)  // 0 to 1 along height
+            let angle = t * turns * 2.0 * .pi
+
+            // Two strands offset by π (180°)
+            for strand in 0..<2 {
+                let strandAngle = angle + Float(strand) * .pi
+                let cx = mid + radius * cos(strandAngle)
+                let cz = mid + radius * sin(strandAngle)
+
+                // Fill a small sphere around the strand center for thickness
+                for x in 0..<size {
+                    for z in 0..<size {
+                        let dx = Float(x) - cx + 0.5
+                        let dz = Float(z) - cz + 0.5
+                        let dist = (dx * dx + dz * dz).squareRoot()
+                        if dist <= thickness {
+                            setCell(x: x, y: y, z: z, alive: true)
+                        }
                     }
                 }
             }

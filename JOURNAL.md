@@ -4,6 +4,26 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 12 — Session 48 (2026-03-28 09:48 PDT)
+
+**Goal**: Jade color theme, helix pattern, fading cell allocation optimization.
+
+Three improvements across visual variety, new pattern, and performance:
+
+1. **Jade color theme**: Added a fifteenth theme with a cool jade/emerald aesthetic — bright jade-teal newborn cells (emissive intensity 2.1) transitioning through medium jade green to deep dark emerald for mature cells. The color progression evokes polished jade stone: bright surface catch → rich interior green → deep mineral core. Distinct from Forest (warm lime/forest green family) in that Jade stays in the cool blue-green/teal family throughout, giving it a more mineral, precious-stone quality.
+
+2. **Helix pattern**: Added a twelfth pattern that generates a double helix spiral around the Y axis — two interleaved helical strands (offset by 180°) with 2.5 turns and enough thickness (1.4 cell radius) to sustain evolution. Creates DNA-like structures that unwind, branch, and evolve into complex forms. The spiral geometry is fundamentally different from all existing patterns — neither random, geometric, nor symmetric, but topologically interesting with its continuous winding path.
+
+3. **Performance: in-place fading cell update**: Replaced `fadingCells.compactMap` (which allocates a new array every generation) with an in-place swap-remove loop. Elements are decremented in-place, and expired/reborn entries are swapped with the last element and removed in O(1) per removal. Added `reserveCapacity` before appending new dying cells. Eliminates one array allocation per generation during active simulation.
+
+Added 8 tests: Jade theme existence and count (15 themes), Jade cool green color progression, Helix non-empty output, Helix two-strand verification, Helix engine pattern selection, fading cell decrement, fading cell reborn removal.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 12 — Session 47 (2026-03-28 09:10 PDT)
 
 **Goal**: Sunset color theme, stagger lattice pattern, trend tracking performance fix.

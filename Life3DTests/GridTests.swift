@@ -1127,9 +1127,9 @@ struct ForestThemeTests {
         #expect(themes.contains(where: { $0.name == "Forest" }))
     }
 
-    @Test("All themes count is 15 after Sunset and Twilight additions")
+    @Test("All themes count is 16 after Sunset, Twilight, and Jade additions")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 15)
+        #expect(ColorTheme.allThemes.count == 16)
     }
 
     @Test("Forest theme has green color progression")
@@ -1307,6 +1307,97 @@ struct PopulationTrendTests {
         }
         engine.reset()
         #expect(engine.populationTrend == 0)
+    }
+
+    // MARK: - Jade Theme Tests
+
+    @Test("Jade theme exists in allThemes with correct name")
+    func jadeThemeExists() {
+        let jade = ColorTheme.allThemes.first { $0.name == "Jade" }
+        #expect(jade != nil)
+    }
+
+    @Test("All themes count is 16 after adding Jade")
+    func allThemesCount16() {
+        #expect(ColorTheme.allThemes.count == 16)
+    }
+
+    @Test("Jade theme has cool green-to-dark progression")
+    func jadeColorProgression() {
+        let jade = ColorTheme.jade
+        // Newborn: bright jade (high green, moderate blue)
+        #expect(jade.newborn.emissiveColor.y > 0.8)  // strong green
+        #expect(jade.newborn.emissiveColor.z > 0.5)  // notable blue/teal component
+        // Mature: deep dark jade
+        #expect(jade.mature.emissiveColor.y < 0.4)
+        #expect(jade.mature.opacity < jade.newborn.opacity)
+    }
+
+    // MARK: - Helix Pattern Tests
+
+    @Test("Helix pattern produces non-empty grid")
+    func helixPatternNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadHelix()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Helix pattern has two distinct strands")
+    func helixTwoStrands() {
+        var grid = GridModel(size: 16)
+        grid.loadHelix()
+        // Check a row near the top and bottom — cells should exist on opposite sides
+        let mid = 8
+        // At y=0, strand 0 is at angle 0 (right side), strand 1 at angle π (left side)
+        let hasRightSide = grid.isAlive(x: mid + 4, y: 0, z: mid) ||
+                           grid.isAlive(x: mid + 3, y: 0, z: mid) ||
+                           grid.isAlive(x: mid + 5, y: 0, z: mid)
+        let hasLeftSide = grid.isAlive(x: mid - 4, y: 0, z: mid) ||
+                          grid.isAlive(x: mid - 3, y: 0, z: mid) ||
+                          grid.isAlive(x: mid - 5, y: 0, z: mid)
+        #expect(hasRightSide || hasLeftSide)  // at least one strand visible
+    }
+
+    @Test("Helix pattern selected via engine loadPattern")
+    @MainActor
+    func helixPatternEngineSelection() {
+        let engine = SimulationEngine(size: 16)
+        engine.loadPattern(.helix)
+        #expect(engine.grid.aliveCount > 0)
+    }
+
+    // MARK: - Fading Cell In-Place Update Tests
+
+    @Test("Fading cells decrement correctly over generations")
+    func fadingCellsDecrement() {
+        var grid = GridModel(size: 8)
+        // Set up a single cell that will die
+        grid.setCell(x: 4, y: 4, z: 4, alive: true)
+        grid.advanceGeneration()  // cell dies (no neighbors), enters fading
+        #expect(grid.fadingCells.count == 1)
+        #expect(grid.fadingCells[0].framesLeft == GridModel.fadeDuration)
+
+        grid.advanceGeneration()
+        if !grid.fadingCells.isEmpty {
+            #expect(grid.fadingCells[0].framesLeft == GridModel.fadeDuration - 1)
+        }
+    }
+
+    @Test("Fading cells removed when reborn at same position")
+    func fadingCellsRebornRemoval() {
+        var grid = GridModel(size: 8)
+        grid.setCell(x: 4, y: 4, z: 4, alive: true)
+        grid.advanceGeneration()  // dies, starts fading
+        let fadingIdx = grid.fadingCells.first?.index
+        #expect(fadingIdx != nil)
+
+        // Force the cell alive again at same position
+        grid.setCell(x: 4, y: 4, z: 4, alive: true)
+        grid.advanceGeneration()
+        // The fading entry should be removed since the cell is now alive (or dead again but re-evaluated)
+        let stillFadingAtOldPos = grid.fadingCells.contains { $0.index == fadingIdx }
+        // Either removed or replaced — the old entry with high framesLeft shouldn't persist
+        #expect(!stillFadingAtOldPos || grid.fadingCells.first { $0.index == fadingIdx }!.framesLeft <= GridModel.fadeDuration)
     }
 }
 

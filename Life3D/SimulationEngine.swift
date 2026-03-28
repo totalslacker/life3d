@@ -275,6 +275,8 @@ final class SimulationEngine {
             grid.loadMirror()
         case .stagger:
             grid.loadStagger()
+        case .helix:
+            grid.loadHelix()
         case .clear:
             grid.clearAll()
         }
@@ -302,6 +304,7 @@ final class SimulationEngine {
         case sphere = "Sphere"
         case mirror = "Mirror (8-fold)"
         case stagger = "Stagger (lattice)"
+        case helix = "Helix (DNA)"
         case clear = "Clear"
 
         var id: String { rawValue }
