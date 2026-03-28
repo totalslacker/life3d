@@ -1008,6 +1008,41 @@ struct GridModel: Sendable {
                         setCell(x: mid + o1, y: mid - d, z: mid + o2, alive: true)
                         setCell(x: mid + o1, y: mid + o2, z: mid + d, alive: true)
                         setCell(x: mid + o1, y: mid + o2, z: mid - d, alive: true)
+    /// Four dense clusters at the vertices of a regular tetrahedron inscribed in the grid.
+    /// Each vertex is a small solid sphere of cells. The four clusters evolve independently
+    /// at first, then interact as they expand and their wavefronts collide — creating
+    /// dramatic multi-center dynamics with interference patterns at the meeting points.
+    mutating func loadTetrahedron() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let radius = Float(min(size / 3, 5))
+        let clusterR: Float = Float(min(size / 6, 3))
+
+        // Regular tetrahedron vertices inscribed in a sphere of given radius.
+        // Using coordinates that place the tetrahedron centered at origin:
+        //   (1,1,1), (1,-1,-1), (-1,1,-1), (-1,-1,1) normalized to radius
+        let scale = radius / Float(3.0).squareRoot()
+        let vertices: [SIMD3<Float>] = [
+            SIMD3( scale,  scale,  scale),
+            SIMD3( scale, -scale, -scale),
+            SIMD3(-scale,  scale, -scale),
+            SIMD3(-scale, -scale,  scale),
+        ]
+
+        for vertex in vertices {
+            let cx = mid + vertex.x
+            let cy = mid + vertex.y
+            let cz = mid + vertex.z
+            for x in 0..<size {
+                for y in 0..<size {
+                    for z in 0..<size {
+                        let dx = Float(x) - cx + 0.5
+                        let dy = Float(y) - cy + 0.5
+                        let dz = Float(z) - cz + 0.5
+                        let dist = (dx * dx + dy * dy + dz * dz).squareRoot()
+                        if dist <= clusterR {
+                            setCell(x: x, y: y, z: z, alive: true)
+                        }
                     }
                 }
             }

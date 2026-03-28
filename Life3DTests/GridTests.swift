@@ -1111,7 +1111,7 @@ struct ForestThemeTests {
 
     @Test("All themes count is 16 after Sunset, Twilight, and Jade additions")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 23)
+        #expect(ColorTheme.allThemes.count == 24)
     }
 
     @Test("Forest theme has green color progression")
@@ -1306,7 +1306,7 @@ struct PopulationTrendTests {
 
     @Test("All themes count is 22 after adding Jade")
     func allThemesCount16() {
-        #expect(ColorTheme.allThemes.count == 23)
+        #expect(ColorTheme.allThemes.count == 24)
     }
 
     @Test("Jade theme has cool green-to-dark progression")
@@ -1397,7 +1397,7 @@ struct CrimsonThemeTests {
 
     @Test("Theme count is 22 with Crimson")
     func themeCount17() {
-        #expect(ColorTheme.allThemes.count == 23)
+        #expect(ColorTheme.allThemes.count == 24)
     }
 
     @Test("Crimson stays in pure red family — newborn through mature")
@@ -1827,9 +1827,9 @@ struct CopperThemeTests {
         #expect(found, "Copper theme should be in allThemes")
     }
 
-    @Test("allThemes contains 22 themes")
+    @Test("allThemes contains 24 themes")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 23, "Should have 22 themes total")
+        #expect(ColorTheme.allThemes.count == 24, "Should have 24 themes total")
     }
 
     @Test("Copper has warm metallic color progression")
@@ -2050,7 +2050,7 @@ struct GoldThemeTests {
 
     @Test("Total theme count is 22")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 23)
+        #expect(ColorTheme.allThemes.count == 24)
     }
 
     @Test("Gold has warm metallic color progression")
@@ -2996,7 +2996,7 @@ struct VolcanicThemeTests {
 
     @Test("Theme count is 22 with Volcanic")
     func themeCount22() {
-        #expect(ColorTheme.allThemes.count == 23)
+        #expect(ColorTheme.allThemes.count == 24)
     }
 
     @Test("Volcanic theme has lava-to-obsidian color progression")
@@ -3436,8 +3436,8 @@ struct PlasmaThemeTests {
         #expect(ColorTheme.allThemes.contains { $0.name == "Plasma" })
     }
 
-    @Test("Theme count is 23 with Plasma")
-    func themeCount23() {
+    @Test("Theme count is 24 with Plasma and Arctic")
+    func themeCount24() {
         #expect(ColorTheme.allThemes.count == 24)
     }
 
@@ -3674,6 +3674,168 @@ struct FrostThemeTests {
     @Test("Frost theme exists in allThemes")
     func frostExists() {
         #expect(ColorTheme.allThemes.contains(where: { $0.name == "Frost" }))
+
+// MARK: - Wrapping Topology Tests
+
+@Suite("Wrapping Topology Tests")
+struct WrappingTopologyTests {
+    @Test("Corner cell wraps to opposite corner neighbors")
+    func cornerWrapping() {
+        var model = GridModel(size: 8)
+        model.wrapping = true
+        // Place a cell at (0,0,0) — its neighbors should wrap to (7,7,7) etc.
+        model.setCell(x: 0, y: 0, z: 0, alive: true)
+        // In wrapping mode, neighbor at (-1,-1,-1) wraps to (7,7,7)
+        let count = model.neighborCount(x: 7, y: 7, z: 7)
+        #expect(count == 1) // only (0,0,0) is alive, and it's a neighbor of (7,7,7) via wrapping
+    }
+
+    @Test("Edge cell wraps along single axis")
+    func edgeWrapping() {
+        var model = GridModel(size: 8)
+        model.wrapping = true
+        model.setCell(x: 0, y: 4, z: 4, alive: true)
+        // (7,4,4) should see (0,4,4) as neighbor via x-axis wrapping
+        let count = model.neighborCount(x: 7, y: 4, z: 4)
+        #expect(count == 1)
+    }
+
+    @Test("Interior cells unaffected by wrapping mode")
+    func interiorUnaffected() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 4, y: 4, z: 4, alive: true)
+        let countFinite = model.neighborCount(x: 3, y: 4, z: 4)
+        model.wrapping = true
+        let countWrapping = model.neighborCount(x: 3, y: 4, z: 4)
+        #expect(countFinite == countWrapping)
+    }
+
+    @Test("Wrapping enables birth at grid boundary")
+    func wrappingBoundaryBirth() {
+        // Place cells that would cause a birth at (0,y,z) only with wrapping
+        var model = GridModel(size: 8, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
+        model.wrapping = true
+        // Create a cluster that spans the boundary
+        for dy in -1...1 {
+            for dz in -1...1 {
+                if dy == 0 && dz == 0 { continue }
+                // Place cells at x=7 (will wrap to be neighbors of x=0)
+                model.setCell(x: 7, y: 4 + dy, z: 4 + dz, alive: true)
+            }
+        }
+        // Count neighbors of (0,4,4) — should see all 8 cells at x=7 via wrapping
+        let neighbors = model.neighborCount(x: 0, y: 4, z: 4)
+        #expect(neighbors == 8)
+    }
+
+    @Test("Non-wrapping boundary has no cross-edge neighbors")
+    func nonWrappingNoCross() {
+        var model = GridModel(size: 8)
+        model.wrapping = false
+        model.setCell(x: 7, y: 4, z: 4, alive: true)
+        // (0,4,4) should NOT see (7,4,4) without wrapping
+        let count = model.neighborCount(x: 0, y: 4, z: 4)
+        #expect(count == 0)
+    }
+
+    @Test("Wrapping advanceGeneration produces consistent alive count")
+    func wrappingAdvanceConsistency() {
+        var model = GridModel(size: 8)
+        model.wrapping = true
+        model.randomSeed(density: 0.25)
+        for _ in 0..<5 {
+            model.advanceGeneration()
+            let actual = model.cells.filter { $0 > 0 }.count
+            #expect(model.aliveCount == actual)
+        }
+    }
+
+    @Test("Wrapping preserves alive index list integrity")
+    func wrappingIndexConsistency() {
+        var model = GridModel(size: 8)
+        model.wrapping = true
+        model.randomSeed(density: 0.20)
+        for _ in 0..<3 {
+            model.advanceGeneration()
+        }
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == model.aliveCount)
+    }
+}
+
+// MARK: - Tetrahedron Pattern Tests
+
+@Suite("Tetrahedron Pattern Tests")
+struct TetrahedronPatternTests {
+    @Test("Tetrahedron pattern produces alive cells")
+    func tetrahedronNonEmpty() {
+        var model = GridModel(size: 16)
+        model.loadTetrahedron()
+        #expect(model.aliveCount > 0)
+    }
+
+    @Test("Tetrahedron pattern has four distinct clusters")
+    func tetrahedronFourClusters() {
+        var model = GridModel(size: 16)
+        model.loadTetrahedron()
+        let mid = 16 / 2
+        // Check each octant has some cells (tetrahedron vertices span all octants)
+        var octantCounts = [Int](repeating: 0, count: 8)
+        for idx in 0..<model.cellCount {
+            guard model.cells[idx] > 0 else { continue }
+            let x = idx / (16 * 16)
+            let y = (idx / 16) % 16
+            let z = idx % 16
+            let octant = (x >= mid ? 4 : 0) + (y >= mid ? 2 : 0) + (z >= mid ? 1 : 0)
+            octantCounts[octant] += 1
+        }
+        // At least 4 octants should have cells (tetrahedron touches 4 of 8 octants)
+        let occupiedOctants = octantCounts.filter { $0 > 0 }.count
+        #expect(occupiedOctants >= 4)
+    }
+
+    @Test("Tetrahedron selected via engine pattern enum")
+    func tetrahedronEngineSelection() {
+        let pattern = SimulationEngine.Pattern.tetrahedron
+        #expect(pattern.rawValue == "Tetrahedron")
+    }
+
+    @Test("Tetrahedron alive count within bounds")
+    func tetrahedronAliveCountBounds() {
+        var model = GridModel(size: 16)
+        model.loadTetrahedron()
+        // 4 clusters, each a sphere of radius ~2-3, so reasonable bounds
+        #expect(model.aliveCount > 20)
+        #expect(model.aliveCount < 1000)
+    }
+
+    @Test("Tetrahedron index consistency")
+    func tetrahedronIndexConsistency() {
+        var model = GridModel(size: 16)
+        model.loadTetrahedron()
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == model.aliveCount)
+    }
+
+    @Test("Tetrahedron evolution dynamics")
+    func tetrahedronEvolution() {
+        var model = GridModel(size: 16)
+        model.loadTetrahedron()
+        let initial = model.aliveCount
+        model.advanceGeneration()
+        // Pattern should change after one generation (not all static)
+        let afterOne = model.aliveCount
+        #expect(afterOne != initial || model.bornCells.count > 0 || model.dyingCells.count > 0)
+    }
+}
+
+// MARK: - Arctic Theme Tests
+
+@Suite("Arctic Theme Tests")
+struct ArcticThemeTests {
+    @Test("Arctic theme exists in allThemes")
+    func arcticExists() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Arctic" })
     }
 
     @Test("Theme count is 24")
@@ -3897,6 +4059,56 @@ struct SnowflakePatternTests {
                         #expect(model.isAlive(x: x, y: y, z: mz), "Z-mirror symmetry broken at (\(x),\(y),\(z))")
                     }
                 }
+
+    @Test("Arctic has cool blue progression")
+    func arcticColorProgression() {
+        let theme = ColorTheme.arctic
+        // Newborn should be near-white (high RGB)
+        #expect(theme.newborn.emissiveColor.x > 0.8)
+        #expect(theme.newborn.emissiveColor.y > 0.9)
+        // Mature should be darker blue
+        #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.x)
+    }
+
+    @Test("Arctic newborn intensity higher than mature")
+    func arcticIntensity() {
+        let theme = ColorTheme.arctic
+        #expect(theme.newborn.emissiveIntensity > theme.mature.emissiveIntensity)
+    }
+}
+
+// MARK: - O(alive) Map Reset Fix Tests
+
+@Suite("O(alive) Map Reset Fix Tests")
+struct AliveMapResetFixTests {
+    @Test("AliveIndexMap correct after O(alive) reset without bulk fallback")
+    func oAliveResetCorrectness() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+        // Run many generations to exercise the O(alive)-only reset path
+        for _ in 0..<10 {
+            model.advanceGeneration()
+        }
+        // Verify every alive cell is in the index list and map is consistent
+        var aliveFromCells = 0
+        for i in 0..<model.cellCount {
+            if model.cells[i] > 0 { aliveFromCells += 1 }
+        }
+        #expect(model.aliveCount == aliveFromCells)
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == aliveFromCells)
+    }
+
+    @Test("AliveIndexMap survives rapid generation cycling")
+    func rapidCycling() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.20)
+        // 50 generations — if the O(alive) reset misses any entries, indices will corrupt
+        for gen in 0..<50 {
+            model.advanceGeneration()
+            if gen % 10 == 0 {
+                let actual = model.cells.filter { $0 > 0 }.count
+                #expect(model.aliveCount == actual)
             }
         }
     }
@@ -3988,3 +4200,18 @@ struct AliveMapResetRegressionTests {
 } // (nested scope from prior truncated function)
 } // (nested scope from prior truncated function)
 } // (nested scope from prior truncated function)
+
+    @Test("AliveIndexMap correct after extinction and reload")
+    func extinctionReload() {
+        var model = GridModel(size: 8)
+        // Load a pattern that dies quickly
+        model.loadCheckerboard()
+        model.advanceGeneration() // checkerboard dies in 1 gen
+        #expect(model.aliveCount == 0)
+        // Reload and verify map is clean
+        model.randomSeed(density: 0.25)
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == model.aliveCount)
+        #expect(model.aliveCount > 0)
+    }
+}

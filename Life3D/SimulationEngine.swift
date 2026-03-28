@@ -360,6 +360,8 @@ final class SimulationEngine {
             grid.loadTrefoilKnot()
         case .snowflake:
             grid.loadSnowflake()
+        case .tetrahedron:
+            grid.loadTetrahedron()
         case .clear:
             grid.clearAll()
         }
@@ -406,6 +408,7 @@ final class SimulationEngine {
         case cage = "Cage"
         case trefoilKnot = "Trefoil Knot"
         case snowflake = "Snowflake"
+        case tetrahedron = "Tetrahedron"
         case clear = "Clear"
 
         var id: String { rawValue }

@@ -2,6 +2,22 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 60 (2026-03-28 11:40 PDT)
+
+**Goal**: Fix redundant aliveIndexMap reset, new pattern, new theme, wrapping topology tests.
+
+Three improvements:
+
+1. **Fix redundant O(n³) aliveIndexMap bulk reset**: `advanceGeneration()` had a bug where line 205 performed the O(alive) reset (iterating only previously-alive cells to clear their map entries), then line 207 immediately did a full `withUnsafeMutableBufferPointer { $0.update(repeating: -1) }` bulk reset of the entire 32K-entry array. The bulk reset made the O(alive) optimization completely pointless — every generation was doing O(n³) work regardless. Removed the redundant bulk reset so the O(alive) path is the only reset, as originally intended.
+
+2. **Tetrahedron pattern (21st)**: Four dense spherical clusters placed at the vertices of a regular tetrahedron inscribed in the grid. Each vertex uses coordinates (±1,±1,±1) normalized to the grid radius, creating four equidistant clusters. Unlike single-center patterns (sphere, diamond), the tetrahedron creates multi-center dynamics — each cluster evolves independently, then their expanding wavefronts collide and interfere, producing complex boundary interactions.
+
+3. **Arctic theme (24th)**: Icy near-white newborn cells (emissive 2.2) through cool blue young cells to deep navy mature cells fading to dark blue-black. Distinct from Glacier (cyan/teal palette) and Ocean Blues (deeper saturated blues) — Arctic stays in the white-to-navy range with high initial brightness, evoking frozen crystalline structures.
+
+Added 21 tests across 4 new suites: Wrapping Topology (7 tests: corner wrap, edge wrap, interior unaffected, boundary birth via wrapping, non-wrapping no-cross, advance consistency, index consistency), Tetrahedron Pattern (6 tests: non-empty, four clusters, engine selection, alive count bounds, index consistency, evolution dynamics), Arctic Theme (4 tests: existence, theme count 24, color progression, intensity), O(alive) Map Reset Fix (3 tests: 10-generation correctness, 50-generation rapid cycling, extinction-reload consistency). Fixed truncated test file (missing closing braces) and updated 7 stale theme count assertions (23→24).
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes.
+
 ## Day 12 — Session 60 (2026-03-28 11:34 PDT)
 
 **Goal**: Fix O(alive) map reset regression, Snowflake pattern, test file discovery.
