@@ -89,12 +89,14 @@ struct GridModel: Sendable {
         guard x >= 0, x < size, y >= 0, y < size, z >= 0, z < size else { return }
         let idx = index(x: x, y: y, z: z)
         let wasAlive = cells[idx] > 0
+        if alive && wasAlive { return }  // Already alive — preserve age
+        if !alive && !wasAlive { return }  // Already dead — no-op
         cells[idx] = alive ? 1 : 0
-        if alive && !wasAlive {
+        if alive {
             aliveCount += 1
             aliveIndexMap[idx] = aliveCellIndices.count
             aliveCellIndices.append(idx)
-        } else if !alive && wasAlive {
+        } else {
             aliveCount -= 1
             // O(1) swap-remove using reverse mapping
             let pos = aliveIndexMap[idx]

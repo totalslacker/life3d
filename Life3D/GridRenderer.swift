@@ -550,6 +550,7 @@ enum GridRenderer {
         let tierRanges: [(startIndex: Int, indexCount: Int)]
     }
 
+
     /// Builds a merged mesh entity for alive cells with age-based translucent materials.
     @MainActor
     static func makeGridAsync(model: GridModel, theme: ColorTheme = .neon) async throws -> Entity {

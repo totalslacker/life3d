@@ -1,4 +1,5 @@
 import Testing
+import Foundation
 @testable import Life3D
 
 @Suite("Grid Tests")
@@ -1232,6 +1233,11 @@ struct TrendCircularBufferTests {
         let engine = SimulationEngine(size: 8)
         engine.grid.randomSeed(density: 0.25)
         for _ in 0..<10 { engine.step() }
+        engine.reset()
+        // After reset, trend buffer should be cleared
+        #expect(engine.populationTrend == 0)
+    }
+}
 
 @Suite("Twilight Theme Tests")
 struct TwilightThemeTests {
@@ -1674,9 +1680,6 @@ struct GenerationRateTests {
     }
 }
 
-// MARK: - Exit Safety Tests
-
-@Suite("Exit Safety Tests")
 // MARK: - Alive Cell Index Tracking Tests
 
 @Suite("Alive Cell Index Tests")
@@ -1760,14 +1763,15 @@ struct AliveCellIndexTests {
 
 struct ExitSafetyTests {
     @Test("Auto-restart skipped when isExiting is true")
+    @MainActor
     func noRestartDuringExit() async {
-        let engine = await SimulationEngine(size: 4)
-        await engine.grid.clearAll()  // Zero alive cells
-        await MainActor.run { engine.isExiting = true }
+        let engine = SimulationEngine(size: 4)
+        engine.grid.clearAll()  // Zero alive cells
+        engine.isExiting = true
 
         // Step several times past extinction delay — should NOT reseed
-        for _ in 0..<5 { await engine.step() }
-        let alive = await engine.grid.aliveCount
+        for _ in 0..<5 { engine.step() }
+        let alive = engine.grid.aliveCount
         #expect(alive == 0, "Grid should remain empty during exit")
     }
 }
@@ -2126,7 +2130,7 @@ struct TorusGalaxyIndexTests {
     func torusAliveCellsWithAge() {
         var grid = GridModel(size: 16)
         grid.loadTorus()
-        let cells = grid.aliveCellsWithAge()
+        let cells = grid.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
         #expect(cells.count == grid.aliveCount)
     }
 
@@ -2134,7 +2138,7 @@ struct TorusGalaxyIndexTests {
     func galaxyAliveCellsWithAge() {
         var grid = GridModel(size: 16)
         grid.loadGalaxy()
-        let cells = grid.aliveCellsWithAge()
+        let cells = grid.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
         #expect(cells.count == grid.aliveCount)
     }
 }
@@ -2544,7 +2548,7 @@ struct FlatIndexConsistencyTests {
     @Test("Alive index map survives advanceGeneration rebuild")
     func aliveIndexMapSurvivesGeneration() {
         var model = GridModel(size: 8)
-        model.loadRandom(density: 0.25)
+        model.randomSeed(density: 0.25)
         let countBefore = model.aliveCount
         #expect(countBefore > 0)
         model.advanceGeneration()
@@ -3159,7 +3163,7 @@ struct RuleSetPersistenceTests {
     @MainActor
     func themePersistence() {
         let engine = SimulationEngine(size: 8)
-        let targetTheme = ColorTheme.ocean
+        let targetTheme = ColorTheme.oceanBlues
         engine.theme = targetTheme
         engine.savePreferences()
 
@@ -3691,6 +3695,93 @@ struct FrostThemeTests {
         #expect(frost.newborn.opacity > frost.young.opacity)
         #expect(frost.young.opacity > frost.mature.opacity)
         #expect(frost.mature.opacity > frost.dying.opacity)
+
+// MARK: - setCell Age Preservation Tests
+
+@Suite("setCell Age Preservation")
+struct SetCellAgePreservationTests {
+    @Test("setCell(alive:true) on already-alive cell preserves age")
+    func setCellPreservesAge() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        // Advance a few generations with survival rules that keep isolated cells alive
+        // Instead, manually simulate aging by setting cell and advancing
+        // Direct test: set alive, then use advanceGeneration with permissive survival rules
+        var aging = GridModel(size: 4, birthCounts: [], survivalCounts: [0, 1, 2, 3, 4, 5, 6, 7, 8])
+        aging.setCell(x: 2, y: 2, z: 2, alive: true)
+        #expect(aging.cellAge(x: 2, y: 2, z: 2) == 1)
+        aging.advanceGeneration()
+        #expect(aging.cellAge(x: 2, y: 2, z: 2) == 2)  // survived, age incremented
+        aging.advanceGeneration()
+        #expect(aging.cellAge(x: 2, y: 2, z: 2) == 3)  // age 3
+        let countBefore = aging.aliveCount
+        // Re-set the same cell alive — age must NOT reset to 1
+        aging.setCell(x: 2, y: 2, z: 2, alive: true)
+        #expect(aging.cellAge(x: 2, y: 2, z: 2) == 3)  // age preserved!
+        #expect(aging.aliveCount == countBefore)  // count unchanged
+    }
+
+    @Test("setCell(alive:false) on dead cell is no-op")
+    func setCellDeadOnDeadIsNoop() {
+        var model = GridModel(size: 8)
+        let countBefore = model.aliveCount
+        model.setCell(x: 0, y: 0, z: 0, alive: false)
+        #expect(model.aliveCount == countBefore)
+        #expect(model.cellAge(x: 0, y: 0, z: 0) == 0)
+    }
+
+    @Test("setCell(alive:true) on dead cell sets age to 1")
+    func setCellAliveOnDeadSetsAge1() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+        #expect(model.cellAge(x: 1, y: 1, z: 1) == 1)
+        #expect(model.aliveCount == 1)
+    }
+
+    @Test("setCell preserves aliveCellIndices consistency after re-set")
+    func setCellPreservesIndexConsistency() {
+        var model = GridModel(size: 8, birthCounts: [], survivalCounts: [0, 1, 2, 3, 4, 5, 6, 7, 8])
+        model.setCell(x: 2, y: 2, z: 2, alive: true)
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        model.advanceGeneration()
+        model.advanceGeneration()
+        let countBefore = model.aliveCount
+        // Re-set both cells — should be no-ops
+        model.setCell(x: 2, y: 2, z: 2, alive: true)
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        #expect(model.aliveCount == countBefore)
+        // Verify index list matches
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == model.aliveCount)
+    }
+}
+
+// MARK: - ColorTheme Completeness Tests
+
+@Suite("ColorTheme Completeness")
+struct ColorThemeCompletenessTests {
+    @Test("allThemes contains exactly the expected count")
+    func allThemesCount() {
+        #expect(ColorTheme.allThemes.count == 22)
+    }
+
+    @Test("All theme names are unique")
+    func allThemeNamesUnique() {
+        let names = ColorTheme.allThemes.map { $0.name }
+        let uniqueNames = Set(names)
+        #expect(names.count == uniqueNames.count)
+    }
+
+    @Test("Every theme has valid tier colors (non-zero emissive for newborn)")
+    func everyThemeHasValidNewborn() {
+        for theme in ColorTheme.allThemes {
+            let newborn = theme.newborn
+            // Newborn cells should always be bright/visible
+            let emissiveSum = newborn.emissiveColor.x + newborn.emissiveColor.y + newborn.emissiveColor.z
+            #expect(emissiveSum > 0, "Theme '\(theme.name)' has zero newborn emissive")
+            #expect(newborn.emissiveIntensity > 0, "Theme '\(theme.name)' has zero newborn intensity")
+            #expect(newborn.opacity > 0, "Theme '\(theme.name)' has zero newborn opacity")
+        }
     }
 }
 

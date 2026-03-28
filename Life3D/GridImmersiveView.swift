@@ -331,10 +331,14 @@ struct GridImmersiveView: View {
         autoRotateTask = Task {
             let rotationSpeed: Float = 0.1  // radians per second (~6°/s)
             let frameInterval: UInt64 = 33_000_000  // ~30fps
-            let delta = rotationSpeed / 30.0
+            var lastTime = ContinuousClock.now
             while !Task.isCancelled {
+                let now = ContinuousClock.now
+                let elapsed = now - lastTime
+                lastTime = now
+                let dt = Float(elapsed.components.attoseconds) / 1e18  // seconds
                 if !isDragging && !engine.drawMode {
-                    yawAngle += delta
+                    yawAngle += rotationSpeed * dt
                     dragStartYaw = yawAngle
                 }
                 try? await Task.sleep(nanoseconds: frameInterval)

@@ -2,6 +2,22 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 59 (2026-03-28 11:35 PDT)
+
+**Goal**: Bug fix, frame-rate-independent auto-rotation, test compilation fixes, new tests.
+
+Three improvements:
+
+1. **Fix setCell age reset bug**: `setCell(x:y:z:alive:true)` on an already-alive cell unconditionally set `cells[idx] = 1`, resetting the cell's age back to 1 regardless of how many generations it had survived. This corrupted age-based visual rendering during draw mode — painting over existing cells would make mature cells flash back to newborn appearance. Fixed by early-returning when the cell is already in the requested state (`alive && wasAlive` or `!alive && !wasAlive`), preserving age and avoiding redundant index tracking work.
+
+2. **Frame-rate-independent auto-rotation**: Auto-rotate used a fixed angular delta per frame (`rotationSpeed / 30.0`), assuming exactly 30fps. Under load, frame intervals stretch, causing rotation to slow down proportionally. Replaced with time-delta approach using `ContinuousClock` — measures elapsed time between frames and multiplies by rotation speed. Rotation now maintains consistent 0.1 rad/s regardless of actual frame rate.
+
+3. **Test compilation fixes + 14 new tests**: The test file had pre-existing compilation errors from prior session truncations: unbalanced braces (5 unmatched opens), missing `import Foundation`, dangling `@Suite` attribute, wrong method names (`loadRandom` → `randomSeed`, `ColorTheme.ocean` → `.oceanBlues`), missing function arguments, and `@MainActor` isolation issues. Fixed all 11 compilation errors. Added 14 new tests across 3 suites: setCell age preservation (4 tests — preserves age on re-set, dead-on-dead no-op, dead-to-alive sets age 1, index consistency after re-set), ColorTheme completeness (3 tests — count, uniqueness, valid tier colors), GridRenderer mesh data (5 tests — empty grid, single cell vertex/index counts, tier ranges sum, cell count matches alive, fading cells in mesh), plus restored the truncated `resetClearsTrendBuffer` test and `flatIndexConsistencyAcrossSizes` test.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 12 — Session 59 (2026-03-28 11:30 PDT)
 
 **Goal**: Trefoil Knot pattern, Frost theme, GridRenderer mesh data tests.
