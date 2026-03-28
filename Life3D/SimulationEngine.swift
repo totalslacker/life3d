@@ -179,7 +179,13 @@ final class SimulationEngine {
         let now = Date.now
         let elapsed = now.timeIntervalSince(rateTimestamp)
         if elapsed >= Self.rateSampleInterval {
-            generationRate = Double(rateGenerationCount) / elapsed
+            let measured = Double(rateGenerationCount) / elapsed
+            // Exponential moving average smooths jitter (5.3→4.8→5.1 becomes steady ~5.0)
+            if generationRate > 0 {
+                generationRate = generationRate * 0.7 + measured * 0.3
+            } else {
+                generationRate = measured
+            }
             rateGenerationCount = 0
             rateTimestamp = now
         }
@@ -206,7 +212,8 @@ final class SimulationEngine {
                 self.step()
 
                 // Auto-restart: if population is extinct (and all fading done), reseed
-                if self.grid.aliveCount == 0 && self.grid.fadingCells.isEmpty {
+                // Skip if exit animation is in progress to avoid spawning new grid during dissolve
+                if self.grid.aliveCount == 0 && self.grid.fadingCells.isEmpty && !self.isExiting {
                     self.extinctionCounter += 1
                     if self.extinctionCounter >= Self.extinctionDelay {
                         self.extinctionCounter = 0

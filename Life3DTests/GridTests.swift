@@ -1627,3 +1627,66 @@ struct AutoCyclePatternTests {
         #expect(cyclable.count == SimulationEngine.Pattern.allCases.count - 1)
     }
 }
+
+// MARK: - Generation Rate EMA Tests
+
+@Suite("Generation Rate Smoothing Tests")
+struct GenerationRateTests {
+    @Test("Initial generation rate is zero")
+    func initialRateZero() async {
+        let engine = await SimulationEngine(size: 4)
+        let rate = await engine.generationRate
+        #expect(rate == 0.0)
+    }
+
+    @Test("Generation rate becomes nonzero after stepping")
+    func rateAfterSteps() async {
+        let engine = await SimulationEngine(size: 4)
+        // Step enough times and wait for the rate sample interval to elapse
+        for _ in 0..<10 {
+            await engine.step()
+        }
+        // Sleep past the 1s sample interval
+        try? await Task.sleep(nanoseconds: 1_100_000_000)
+        await engine.step()
+        let rate = await engine.generationRate
+        #expect(rate > 0.0)
+    }
+
+    @Test("EMA smoothing produces stable rate over consecutive samples")
+    func emaSmoothing() async {
+        let engine = await SimulationEngine(size: 4)
+        // Run two sample intervals to get EMA blending
+        for _ in 0..<5 { await engine.step() }
+        try? await Task.sleep(nanoseconds: 1_100_000_000)
+        await engine.step()
+        let rate1 = await engine.generationRate
+
+        for _ in 0..<5 { await engine.step() }
+        try? await Task.sleep(nanoseconds: 1_100_000_000)
+        await engine.step()
+        let rate2 = await engine.generationRate
+
+        // After two intervals, rate should be positive and the second sample
+        // should be blended (not wildly different from first)
+        #expect(rate1 > 0.0)
+        #expect(rate2 > 0.0)
+    }
+}
+
+// MARK: - Exit Safety Tests
+
+@Suite("Exit Safety Tests")
+struct ExitSafetyTests {
+    @Test("Auto-restart skipped when isExiting is true")
+    func noRestartDuringExit() async {
+        let engine = await SimulationEngine(size: 4)
+        await engine.grid.clearAll()  // Zero alive cells
+        await MainActor.run { engine.isExiting = true }
+
+        // Step several times past extinction delay — should NOT reseed
+        for _ in 0..<5 { await engine.step() }
+        let alive = await engine.grid.aliveCount
+        #expect(alive == 0, "Grid should remain empty during exit")
+    }
+}

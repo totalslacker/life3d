@@ -46,7 +46,10 @@ final class SpatialAudioEngine {
         // Set listener at origin (user position)
         envNode.listenerPosition = AVAudio3DPoint(x: 0, y: 0, z: 0)
 
-        let format = AVAudioFormat(standardFormatWithSampleRate: Self.sampleRate, channels: 1)!
+        guard let format = AVAudioFormat(standardFormatWithSampleRate: Self.sampleRate, channels: 1) else {
+            print("SpatialAudioEngine: failed to create audio format")
+            return
+        }
 
         // Create player pools
         for _ in 0..<Self.poolSize {
@@ -185,7 +188,7 @@ final class SpatialAudioEngine {
 
     private static func generateTone(startFreq: Float, endFreq: Float, duration: Double,
                                       sampleRate: Double, envelope: Envelope) -> AVAudioPCMBuffer? {
-        let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
+        guard let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1) else { return nil }
         let frameCount = AVAudioFrameCount(duration * sampleRate)
         guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCount) else { return nil }
         buffer.frameLength = frameCount

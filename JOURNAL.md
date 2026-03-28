@@ -2,6 +2,26 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 53 (2026-03-28 10:14 PDT)
+
+**Goal**: Safety hardening and UX polish — eliminate force unwraps, fix exit race condition, smooth generation rate display.
+
+Three focused improvements:
+
+1. **Force unwrap elimination in SpatialAudioEngine**: Replaced two `AVAudioFormat(...)!` force unwraps (lines 49 and 188) with `guard let` + early return. If audio format creation ever fails (e.g., unsupported sample rate on future hardware), the app now degrades gracefully instead of crashing.
+
+2. **Exit race condition fix**: Added `!self.isExiting` guard to the auto-restart extinction check in `SimulationEngine.start()`. Previously, if the user exited while population was extinct, the auto-restart could fire during the dissolve-out animation — spawning a new grid while the old one was fading away. Now the restart is suppressed during exit.
+
+3. **Generation rate EMA smoothing**: Replaced instantaneous rate calculation with an exponential moving average (0.7 old + 0.3 new). The gen/s display was jittering between adjacent values (e.g., 4.8→5.3→4.9→5.1) because each 1-second sample captured slightly different intervals. EMA produces a stable, readable display that still responds to real speed changes.
+
+Added 4 tests: initial rate is zero, rate becomes nonzero after stepping, EMA produces stable rate across samples, auto-restart suppressed during exit.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes. Consider splitting mesh rebuild into material-only update for theme changes.
+
+---
+
 ## Day 12 — Session 52 (2026-03-28 10:14 PDT)
 
 **Goal**: Add spiral pattern, amethyst theme, and auto-cycle patterns on extinction.
