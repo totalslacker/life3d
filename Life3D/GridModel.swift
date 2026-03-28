@@ -845,6 +845,50 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// A trefoil knot — a three-lobed 3D knot, the simplest nontrivial mathematical knot.
+    /// Parametric curve: x = sin(t) + 2sin(2t), y = cos(t) - 2cos(2t), z = -sin(3t).
+    /// Creates an intertwined looping structure that evolves into complex branching forms
+    /// as the thin tube sections erode while crossing points sustain through neighbor density.
+    mutating func loadTrefoilKnot() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let scale = Float(size) / 8.0
+        let thickness: Float = 1.4
+        let samples = size * 20  // dense sampling for solid tube
+
+        for i in 0..<samples {
+            let t = Float(i) / Float(samples) * 2.0 * .pi
+            // Trefoil parametric equations (scaled to fit grid)
+            let px = (sin(t) + 2.0 * sin(2.0 * t)) * scale + mid
+            let py = (cos(t) - 2.0 * cos(2.0 * t)) * scale + mid
+            let pz = (-sin(3.0 * t)) * scale + mid
+
+            // Fill a small sphere around the knot curve for thickness
+            let xi = Int(px)
+            let yi = Int(py)
+            let zi = Int(pz)
+            let r = Int(ceil(thickness))
+            for dx in -r...r {
+                for dy in -r...r {
+                    for dz in -r...r {
+                        let x = xi + dx
+                        let y = yi + dy
+                        let z = zi + dz
+                        guard x >= 0, x < size, y >= 0, y < size, z >= 0, z < size else { continue }
+                        let fdx = Float(x) - px + 0.5
+                        let fdy = Float(y) - py + 0.5
+                        let fdz = Float(z) - pz + 0.5
+                        let dist = (fdx * fdx + fdy * fdy + fdz * fdz).squareRoot()
+                        if dist <= thickness {
+                            setCell(x: x, y: y, z: z, alive: true)
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     /// A 3D Menger sponge — a fractal cube with recursive square holes through each face.
     mutating func loadMengerSponge() {
         clearAll()

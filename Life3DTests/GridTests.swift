@@ -3434,7 +3434,7 @@ struct PlasmaThemeTests {
 
     @Test("Theme count is 23 with Plasma")
     func themeCount23() {
-        #expect(ColorTheme.allThemes.count == 23)
+        #expect(ColorTheme.allThemes.count == 24)
     }
 
     @Test("Plasma has white-hot to deep purple progression")
@@ -3486,6 +3486,12 @@ struct BulkAliveIndexMapTests {
         var grid = GridModel(size: 16)
         grid.randomSeed(density: 0.30)
         grid.advanceGeneration()
+        grid.clearAll()
+        grid.loadBlock()
+        #expect(grid.aliveCount == 8)
+        #expect(grid.aliveCellIndices.count == 8)
+    }
+}
 
 // MARK: - Cage Pattern Tests
 
@@ -3609,3 +3615,165 @@ struct BulkAliveIndexMapTests {
         // Verify internal consistency
         let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
         #expect(cells.count == latticeCount)
+    }
+}
+
+// MARK: - Trefoil Knot Pattern Tests
+
+@Suite("Trefoil Knot Pattern Tests")
+struct TrefoilKnotTests {
+    @Test("Trefoil knot produces non-empty grid")
+    func trefoilNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadTrefoilKnot()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Trefoil knot alive count matches index list")
+    func trefoilIndexConsistency() {
+        var grid = GridModel(size: 16)
+        grid.loadTrefoilKnot()
+        #expect(grid.aliveCount == grid.aliveCellIndices.count)
+    }
+
+    @Test("Trefoil knot fills reasonable fraction of grid")
+    func trefoilFillFraction() {
+        var grid = GridModel(size: 16)
+        grid.loadTrefoilKnot()
+        let fraction = Double(grid.aliveCount) / Double(grid.cellCount)
+        // Knot is a thin tube — should fill 2-20% of grid
+        #expect(fraction > 0.02)
+        #expect(fraction < 0.20)
+    }
+
+    @Test("Trefoil knot engine enum selects correctly")
+    func trefoilEngineSelection() {
+        let pattern = SimulationEngine.Pattern.trefoilKnot
+        #expect(pattern.rawValue == "Trefoil Knot")
+    }
+
+    @Test("Trefoil knot evolves under standard rules")
+    func trefoilEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadTrefoilKnot()
+        let initialCount = grid.aliveCount
+        grid.advanceGeneration()
+        // Should change — knot structure has varied neighbor density
+        #expect(grid.aliveCount != initialCount || grid.bornCells.count > 0 || grid.dyingCells.count > 0)
+    }
+}
+
+// MARK: - Frost Theme Tests
+
+@Suite("Frost Theme Tests")
+struct FrostThemeTests {
+    @Test("Frost theme exists in allThemes")
+    func frostExists() {
+        #expect(ColorTheme.allThemes.contains(where: { $0.name == "Frost" }))
+    }
+
+    @Test("Theme count is 24")
+    func themeCount24() {
+        #expect(ColorTheme.allThemes.count == 24)
+    }
+
+    @Test("Frost newborn is brightest tier")
+    func frostColorProgression() {
+        let frost = ColorTheme.frost
+        #expect(frost.newborn.emissiveIntensity > frost.young.emissiveIntensity)
+        #expect(frost.young.emissiveIntensity > frost.mature.emissiveIntensity)
+        #expect(frost.mature.emissiveIntensity > frost.dying.emissiveIntensity)
+    }
+
+    @Test("Frost opacity decreases with age")
+    func frostOpacityDecay() {
+        let frost = ColorTheme.frost
+        #expect(frost.newborn.opacity > frost.young.opacity)
+        #expect(frost.young.opacity > frost.mature.opacity)
+        #expect(frost.mature.opacity > frost.dying.opacity)
+    }
+}
+
+// MARK: - GridRenderer Mesh Data Tests
+
+@Suite("GridRenderer Mesh Data Tests")
+struct GridRendererMeshTests {
+    @Test("Empty grid produces zero mesh data")
+    func emptyGridMesh() {
+        let grid = GridModel(size: 8)
+        let data = GridRenderer.computeMeshDataForTest(model: grid)
+        #expect(data.cellCount == 0)
+        #expect(data.vertices.isEmpty)
+        #expect(data.indices.isEmpty)
+    }
+
+    @Test("Single cell produces 24 vertices and 36 indices")
+    func singleCellMesh() {
+        var grid = GridModel(size: 8)
+        grid.setCell(x: 4, y: 4, z: 4, alive: true)
+        let data = GridRenderer.computeMeshDataForTest(model: grid)
+        #expect(data.cellCount == 1)
+        #expect(data.vertices.count == 24)
+        #expect(data.indices.count == 36)
+    }
+
+    @Test("Mesh vertex count scales linearly with alive cells")
+    func meshVertexScaling() {
+        var grid = GridModel(size: 8)
+        grid.setCell(x: 1, y: 1, z: 1, alive: true)
+        grid.setCell(x: 3, y: 3, z: 3, alive: true)
+        grid.setCell(x: 5, y: 5, z: 5, alive: true)
+        let data = GridRenderer.computeMeshDataForTest(model: grid)
+        #expect(data.cellCount == 3)
+        #expect(data.vertices.count == 3 * 24)
+        #expect(data.indices.count == 3 * 36)
+    }
+
+    @Test("Mesh tier ranges cover all indices")
+    func meshTierRangesCoverAll() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.25)
+        // Advance a few gens to get cells at different ages
+        grid.advanceGeneration()
+        grid.advanceGeneration()
+        grid.advanceGeneration()
+        let data = GridRenderer.computeMeshDataForTest(model: grid)
+        let totalTierIndices = data.tierRanges.reduce(0) { $0 + $1.indexCount }
+        #expect(totalTierIndices == data.indices.count)
+    }
+
+    @Test("Mesh includes fading cells")
+    func meshIncludesFadingCells() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.25)
+        grid.advanceGeneration()
+        // After one gen, some cells died and are now fading
+        let hasFading = !grid.fadingCells.isEmpty
+        if hasFading {
+            let data = GridRenderer.computeMeshDataForTest(model: grid)
+            let expectedCells = grid.aliveCellIndices.count + grid.fadingCells.count
+            #expect(data.cellCount == expectedCells)
+        }
+    }
+
+    @Test("Grid extent scales with grid size")
+    func gridExtentScaling() {
+        let small = GridModel(size: 8)
+        let large = GridModel(size: 16)
+        let dataSmall = GridRenderer.computeMeshDataForTest(model: small)
+        let dataLarge = GridRenderer.computeMeshDataForTest(model: large)
+        #expect(dataLarge.gridExtent > dataSmall.gridExtent)
+    }
+
+    @Test("All mesh indices are within vertex bounds")
+    func meshIndicesInBounds() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.20)
+        grid.advanceGeneration()
+        let data = GridRenderer.computeMeshDataForTest(model: grid)
+        let maxIndex = UInt32(data.vertices.count)
+        for idx in data.indices {
+            #expect(idx < maxIndex, "Index \(idx) exceeds vertex count \(maxIndex)")
+        }
+    }
+}

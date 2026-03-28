@@ -2,6 +2,24 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 59 (2026-03-28 11:30 PDT)
+
+**Goal**: Trefoil Knot pattern, Frost theme, GridRenderer mesh data tests.
+
+Three improvements:
+
+1. **Trefoil Knot pattern (20th)**: A parametric 3D knot — the simplest nontrivial mathematical knot (x = sin(t) + 2sin(2t), y = cos(t) - 2cos(2t), z = -sin(3t)). Dense sampling (20×size points) with spherical thickness (radius 1.4) fills a solid tube along the curve. The three-lobed structure creates crossing points with high neighbor density that sustain while thin tube sections erode, producing complex branching evolution as the knot unwinds.
+
+2. **Frost theme (24th)**: Ice-blue to white aesthetic. Near-white newborn cells (emissive 2.5, opacity 0.62) through cool blue young cells to deep slate-blue mature cells. Distinct from Glacier (cyan-green tones) and Ocean Blues (saturated blues) — Frost emphasizes the white-to-blue transition with the highest newborn luminosity among cool-toned themes, creating an icy crystalline appearance.
+
+3. **GridRenderer mesh data tests (7 tests)**: First test coverage for the mesh construction pipeline. Tests validate: empty grid produces zero mesh data, single cell yields exactly 24 vertices / 36 indices (one cube), vertex/index counts scale linearly with alive cells, tier ranges sum to total index count, fading cells are included in mesh data, grid extent scales with grid size, all mesh indices stay within vertex bounds. Also fixed a truncated test file (missing closing braces in BulkAliveIndexMapTests).
+
+Added 5 more tests for Trefoil Knot (non-empty, index consistency, fill fraction, engine enum, evolution dynamics) and 4 for Frost theme (exists in allThemes, count is 24, color progression, opacity decay). Updated 1 stale theme count assertion (23→24).
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 12 — Session 59 (2026-03-28 11:26 PDT)
 
 **Goal**: Performance optimization, new pattern, new theme.

@@ -356,6 +356,8 @@ final class SimulationEngine {
             grid.loadMengerSponge()
         case .cage:
             grid.loadCage()
+        case .trefoilKnot:
+            grid.loadTrefoilKnot()
         case .clear:
             grid.clearAll()
         }
@@ -400,6 +402,7 @@ final class SimulationEngine {
         case checkerboard = "Checkerboard"
         case mengerSponge = "Menger Sponge"
         case cage = "Cage"
+        case trefoilKnot = "Trefoil Knot"
         case clear = "Clear"
 
         var id: String { rawValue }
