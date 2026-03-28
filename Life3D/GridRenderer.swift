@@ -449,7 +449,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.3, opacity: 0.08)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight]
+    static let volcanic = ColorTheme(
+        name: "Volcanic",
+        newborn: TierColors(
+            baseColor: SIMD4(1.0, 0.6, 0.0, 1.0),
+            emissiveColor: SIMD3(1.0, 0.5, 0.0),
+            emissiveIntensity: 2.5, opacity: 0.60),
+        young: TierColors(
+            baseColor: SIMD4(0.9, 0.15, 0.0, 1.0),
+            emissiveColor: SIMD3(0.8, 0.1, 0.0),
+            emissiveIntensity: 1.5, opacity: 0.40),
+        mature: TierColors(
+            baseColor: SIMD4(0.35, 0.02, 0.02, 1.0),
+            emissiveColor: SIMD3(0.25, 0.01, 0.01),
+            emissiveIntensity: 0.6, opacity: 0.20),
+        dying: TierColors(
+            baseColor: SIMD4(0.12, 0.02, 0.02, 1.0),
+            emissiveColor: SIMD3(0.08, 0.01, 0.01),
+            emissiveIntensity: 0.25, opacity: 0.06)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic]
 }
 
 enum GridRenderer {

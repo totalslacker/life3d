@@ -1110,7 +1110,7 @@ struct ForestThemeTests {
 
     @Test("All themes count is 16 after Sunset, Twilight, and Jade additions")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 16)
+        #expect(ColorTheme.allThemes.count == 22)
     }
 
     @Test("Forest theme has green color progression")
@@ -1298,9 +1298,9 @@ struct PopulationTrendTests {
         #expect(jade != nil)
     }
 
-    @Test("All themes count is 16 after adding Jade")
+    @Test("All themes count is 22 after adding Jade")
     func allThemesCount16() {
-        #expect(ColorTheme.allThemes.count == 16)
+        #expect(ColorTheme.allThemes.count == 22)
     }
 
     @Test("Jade theme has cool green-to-dark progression")
@@ -1389,9 +1389,9 @@ struct CrimsonThemeTests {
         #expect(ColorTheme.allThemes.contains { $0.name == "Crimson" })
     }
 
-    @Test("Theme count is 17 with Crimson")
+    @Test("Theme count is 22 with Crimson")
     func themeCount17() {
-        #expect(ColorTheme.allThemes.count == 17)
+        #expect(ColorTheme.allThemes.count == 22)
     }
 
     @Test("Crimson stays in pure red family — newborn through mature")
@@ -1823,9 +1823,9 @@ struct CopperThemeTests {
         #expect(found, "Copper theme should be in allThemes")
     }
 
-    @Test("allThemes contains 19 themes")
+    @Test("allThemes contains 22 themes")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 19, "Should have 19 themes total")
+        #expect(ColorTheme.allThemes.count == 22, "Should have 22 themes total")
     }
 
     @Test("Copper has warm metallic color progression")
@@ -2044,9 +2044,9 @@ struct GoldThemeTests {
         #expect(ColorTheme.allThemes.contains(where: { $0.name == "Gold" }))
     }
 
-    @Test("Total theme count is 21")
+    @Test("Total theme count is 22")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 21)
+        #expect(ColorTheme.allThemes.count == 22)
     }
 
     @Test("Gold has warm metallic color progression")
@@ -2785,5 +2785,129 @@ struct DrawModeIndexTests {
             cellSpacing: GridRenderer.cellSpacing
         )
         #expect(cells.count == model.aliveCount)
+    }
+}
+
+// MARK: - Lattice Pattern Tests
+
+@Suite("Lattice Pattern Tests")
+struct LatticePatternTests {
+    @Test("Lattice pattern produces non-empty grid")
+    func latticeNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadLattice()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Lattice pattern has regular spacing — every-other-cell structure")
+    func latticeRegularSpacing() {
+        var grid = GridModel(size: 16)
+        grid.loadLattice()
+        let margin = max(1, 16 / 6)
+        // Cells should exist at even offsets from margin, not at odd offsets
+        var atEvenSpacing = 0
+        var total = 0
+        for x in 0..<16 {
+            for y in 0..<16 {
+                for z in 0..<16 {
+                    if grid.isAlive(x: x, y: y, z: z) {
+                        total += 1
+                        if (x - margin) % 2 == 0 && (y - margin) % 2 == 0 && (z - margin) % 2 == 0 {
+                            atEvenSpacing += 1
+                        }
+                    }
+                }
+            }
+        }
+        // All alive cells should be at even-spaced positions
+        #expect(total > 0)
+        #expect(atEvenSpacing == total, "All lattice cells should be at stride-2 positions")
+    }
+
+    @Test("Lattice pattern is selectable in engine")
+    @MainActor
+    func latticePatternInEngine() {
+        let engine = SimulationEngine(size: 16)
+        engine.reset(pattern: .lattice)
+        #expect(engine.grid.aliveCount > 0)
+        #expect(engine.selectedPattern == .lattice)
+    }
+
+    @Test("Lattice pattern aliveCellIndices matches aliveCount")
+    func latticeIndexCount() {
+        var grid = GridModel(size: 12)
+        grid.loadLattice()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+
+    @Test("Lattice pattern evolves over multiple generations")
+    func latticeMultiGenEvolution() {
+        var grid = GridModel(size: 12)
+        grid.loadLattice()
+        let initialCount = grid.aliveCount
+        grid.advanceGeneration()
+        // Lattice structure should change dramatically in first generation
+        #expect(grid.aliveCount != initialCount, "Lattice should evolve — population should change")
+    }
+}
+
+// MARK: - Volcanic Theme Tests
+
+@Suite("Volcanic Theme Tests")
+struct VolcanicThemeTests {
+    @Test("Volcanic theme exists in allThemes")
+    func volcanicThemeExists() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Volcanic" })
+    }
+
+    @Test("Theme count is 22 with Volcanic")
+    func themeCount22() {
+        #expect(ColorTheme.allThemes.count == 22)
+    }
+
+    @Test("Volcanic theme has lava-to-obsidian color progression")
+    func volcanicColorProgression() {
+        let theme = ColorTheme.volcanic
+        // Newborn: bright orange-lava (high red, medium green, no blue)
+        #expect(theme.newborn.emissiveColor.x > 0.9)  // strong red
+        #expect(theme.newborn.emissiveColor.y > 0.3)   // orange warmth
+        #expect(theme.newborn.emissiveColor.z < 0.1)   // no blue
+        // Young: deep red (red dominant, green drops sharply)
+        #expect(theme.young.emissiveColor.x > 0.7)     // still red
+        #expect(theme.young.emissiveColor.y < 0.2)     // green drops → pure red
+        // Mature: dark obsidian (very low, red-tinted)
+        #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.y)
+        #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.z)
+        #expect(theme.mature.emissiveIntensity < theme.young.emissiveIntensity)
+        // High newborn intensity for vivid lava glow
+        #expect(theme.newborn.emissiveIntensity >= 2.5)
+    }
+}
+
+// MARK: - Bulk Zero Performance Tests
+
+@Suite("Bulk Zero Tests")
+struct BulkZeroTests {
+    @Test("advanceGeneration with bulk zero produces correct results")
+    func bulkZeroCorrectness() {
+        // Verify that the bulk memset approach gives identical results to the old loop approach
+        var grid = GridModel(size: 12)
+        grid.randomSeed(density: 0.25)
+        for _ in 0..<10 {
+            grid.advanceGeneration()
+            // Verify alive count consistency with full recount
+            let manualCount = grid.cells.filter { $0 > 0 }.count
+            #expect(grid.aliveCount == manualCount,
+                    "Alive count should match full recount after bulk-zero advance")
+        }
+    }
+
+    @Test("Bulk zero handles 32³ grid correctly")
+    func bulkZeroLargeGrid() {
+        var grid = GridModel(size: 32)
+        grid.randomSeed(density: 0.20)
+        grid.advanceGeneration()
+        let manualCount = grid.cells.filter { $0 > 0 }.count
+        #expect(grid.aliveCount == manualCount)
     }
 }

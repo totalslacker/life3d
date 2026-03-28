@@ -792,6 +792,24 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// A 3D crystal lattice — regularly spaced cells forming a periodic grid-within-a-grid.
+    /// Every other cell in each axis is alive, creating a checkerboard in 3D.
+    /// The structure is highly symmetric with each alive cell having exactly 0 Moore neighbors
+    /// that are also alive (at spacing 2), so evolution under standard rules causes immediate
+    /// mass birth in the interstitial gaps, producing a dramatic first-generation explosion.
+    mutating func loadLattice() {
+        clearAll()
+        let margin = max(1, size / 6)  // inset from edges for visual centering
+        for x in stride(from: margin, to: size - margin, by: 2) {
+            for y in stride(from: margin, to: size - margin, by: 2) {
+                for z in stride(from: margin, to: size - margin, by: 2) {
+                    setCell(x: x, y: y, z: z, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

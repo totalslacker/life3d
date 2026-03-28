@@ -308,6 +308,7 @@ the same things. Search here before looking things up externally.
 - At 32³ grid (32,768 ints = 262KB), the difference is measurable in the hot path of `advanceGeneration()`
 - Also applies to `clearAll()` and any bulk reset operation on pre-allocated buffers
 - `withUnsafeMutableBytes { $0.initializeMemory(as: UInt8.self, repeating: 0) }` is an alternative but `update(repeating:)` is type-safe and clearer
+- **Swift exclusivity caveat**: accessing `self` properties inside the closure creates overlapping access with the mutable buffer pointer. Fix by capturing needed values (like `cellCount`) as locals before the closure
 
 ---
 

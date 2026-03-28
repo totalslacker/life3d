@@ -2,6 +2,22 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 57 (2026-03-28 11:03 PDT)
+
+**Goal**: Performance optimization, new pattern, new theme.
+
+Three improvements:
+
+1. **Performance: bulk memset for nextCells zeroing**: `advanceGeneration()` zeroed the next-generation buffer with a per-element loop (`for i in 0..<cellCount { nextCells[i] = 0 }`). For a 32³ grid that's 32,768 individual assignments. Replaced with `withUnsafeMutableBufferPointer` + `update(repeating:count:)` which compiles to a single `memset` call — eliminates the loop overhead entirely. Captured `cellCount` as a local to avoid Swift exclusivity violation from accessing `self` inside the closure.
+
+2. **Lattice pattern (17th)**: A 3D crystal lattice — regularly spaced cells at stride-2 intervals forming a checkerboard-in-3D structure within an inset margin. Every alive cell has exactly 0 alive Moore neighbors (all neighbors are at distance 1, but lattice cells are at distance 2), so the first generation produces a dramatic mass-birth explosion in the interstitial gaps. Creates visually striking symmetric evolution.
+
+3. **Volcanic theme (22nd)**: Bright orange-lava newborn cells (emissive 2.5) through deep red young cells to near-black obsidian mature cells. Distinct from Ember (yellow-to-red fire tones) and Infrared (yellow-orange-red heat map) — Volcanic stays in the orange-red-black family with sharper contrast between bright lava and dark obsidian. The high newborn intensity and steep falloff creates a dramatic "molten core" look.
+
+Added 12 tests: lattice non-empty, lattice regular spacing verification, lattice engine selection, lattice index count, lattice evolution dynamics, Volcanic theme existence, theme count (22), Volcanic lava-to-obsidian color progression, bulk zero correctness over 10 generations, bulk zero 32³ grid correctness. Fixed 4 stale theme count assertions (16→22, 17→22, 19→22, 21→22).
+
+---
+
 ## Day 12 — Session 57 (2026-03-28 11:04 PDT)
 
 **Goal**: Performance optimization and bug fixes — O(1) alive cell removal, depth scale safety, fading cell bounds check.

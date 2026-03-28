@@ -22,7 +22,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Configurable birth/survival rule sets
 - [x] Step-by-step simulation mode (tap to advance one generation)
 - [x] Continuous simulation with adjustable speed (generations per second)
-- [x] Preset patterns: 3D gliders, oscillators, still lifes, random seed, diamond, cross, tube, sphere, mirror symmetry, stagger lattice, helix, rings, spiral, torus, galaxy, pyramid, wave (session 34, 45, 47, 48, 49, 52, 54, 55, 56, 57)
+- [x] Preset patterns: 3D gliders, oscillators, still lifes, random seed, diamond, cross, tube, sphere, mirror symmetry, stagger lattice, helix, rings, spiral, torus, galaxy, pyramid, wave, lattice (session 34, 45, 47, 48, 49, 52, 54, 55, 56, 57)
 - [x] Tests: rule correctness, pattern stability, neighbor counting edge cases
 
 ## Phase 3 — Visual Beauty (Day 8-14)
@@ -32,7 +32,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Bloom and glow post-processing via RealityKit materials
 - [x] Particle effects on cell birth (bloom into existence) — burst emitters at sampled positions (session 20)
 - [x] Particle effects on cell death (dissolve into particles) — drift-down emitters at sampled positions (session 20)
-- [x] Color themes: neon on black, warm amber, ocean blues, aurora borealis, ember, coral, forest, sunset, jade, crimson, amethyst, copper, gold, midnight (21 total)
+- [x] Color themes: neon on black, warm amber, ocean blues, aurora borealis, ember, coral, forest, sunset, jade, crimson, amethyst, copper, gold, midnight, volcanic (22 total)
 - [x] Depth of field: cells further from center rendered smaller for depth cue (session 35)
 - [x] Light emission: living cells cast soft light via sampled PointLight entities (session 22)
 - [x] Smooth animation between cell states (death fade-out via dying tier, birth scale-up via age-based sizing)
