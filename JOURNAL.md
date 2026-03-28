@@ -2,6 +2,22 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 55 (2026-03-28 10:39 PDT)
+
+**Goal**: Bug fixes and allocation optimization — torus rendering, stale test cleanup, clearAll buffer reuse.
+
+Three fixes:
+
+1. **Torus pattern rendering bug fix**: `loadTorus()` was missing the `rebuildAliveCellIndices()` call that every other pattern loader has. Since the renderer uses `aliveCellsWithAge()` which iterates `aliveCellIndices`, the torus pattern would produce an empty mesh — cells existed in the `cells` array but the index list was empty, so the render path saw zero alive cells. Added the missing call.
+
+2. **Removed stale test for deleted method**: Test `positionsMatchCount` referenced `aliveCellPositions()` which was removed in session 54. Removed the broken test and renamed the suite from "Position Method Capacity Tests" to "Position Method Tests".
+
+3. **clearAll() buffer reuse**: Changed `clearAll()` from `= []` (deallocates buffers) to `removeAll(keepingCapacity: true)` for `dyingCells`, `bornCells`, `fadingCells`, and `aliveCellIndices`. These arrays are immediately re-grown on the next pattern load, so deallocating and reallocating is pure waste. Consistent with the same optimization already used in `advanceGeneration()`.
+
+Added 4 tests: torus indices match count, torus renders via alive index path, clearAll preserves capacity for reuse, verified existing aliveCellsWithAge test still passes.
+
+---
+
 ## Day 12 — Session 55 (2026-03-28 10:38 PDT)
 
 **Goal**: Galaxy pattern, Gold theme, bulk buffer copy optimization.

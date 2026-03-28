@@ -636,6 +636,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A spiral galaxy with two arms emanating from a dense spherical core.
@@ -701,10 +702,10 @@ struct GridModel: Sendable {
 
     mutating func clearAll() {
         for i in 0..<cellCount { cells[i] = 0 }
-        dyingCells = []
-        bornCells = []
-        fadingCells = []
-        aliveCellIndices = []
+        dyingCells.removeAll(keepingCapacity: true)
+        bornCells.removeAll(keepingCapacity: true)
+        fadingCells.removeAll(keepingCapacity: true)
+        aliveCellIndices.removeAll(keepingCapacity: true)
         aliveCount = 0
     }
 }

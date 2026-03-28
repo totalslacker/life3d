@@ -1841,18 +1841,10 @@ struct CopperThemeTests {
     }
 }
 
-// MARK: - reserveCapacity Performance Tests
+// MARK: - Position Method Tests
 
-@Suite("Position Method Capacity Tests")
-struct PositionCapacityTests {
-    @Test("aliveCellPositions returns correct count matching aliveCount")
-    func positionsMatchCount() {
-        var grid = GridModel(size: 8)
-        grid.randomSeed(density: 0.3)
-        let positions = grid.aliveCellPositions(cellSize: 0.015, cellSpacing: 0.015)
-        #expect(positions.count == grid.aliveCount)
-    }
-
+@Suite("Position Method Tests")
+struct PositionMethodTests {
     @Test("aliveCellsWithAge returns correct count matching aliveCount")
     func cellsWithAgeMatchCount() {
         var grid = GridModel(size: 8)
@@ -1862,6 +1854,7 @@ struct PositionCapacityTests {
     }
 }
 
+<<<<<<< HEAD
 // MARK: - Fading Cell Scale Tests (Session 55)
 
 @Suite("Fading Cell Scale Tests")
@@ -2067,5 +2060,45 @@ struct GoldThemeTests {
         // Gold tones: red channel should dominate green, green should dominate blue
         #expect(gold.newborn.emissiveColor.x > gold.newborn.emissiveColor.y)
         #expect(gold.newborn.emissiveColor.y > gold.newborn.emissiveColor.z)
+    }
+}
+
+// MARK: - Torus Alive Index Tests
+
+@Suite("Torus Alive Index Tests")
+struct TorusAliveIndexTests {
+    @Test("Torus pattern has alive cell indices matching alive count")
+    func torusIndicesMatchCount() {
+        var grid = GridModel(size: 16)
+        grid.loadTorus()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount,
+                "aliveCellIndices should match aliveCount after loadTorus")
+    }
+
+    @Test("Torus renders correctly via aliveCellsWithAge")
+    func torusRendersViaAliveIndex() {
+        var grid = GridModel(size: 16)
+        grid.loadTorus()
+        let cells = grid.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == grid.aliveCount,
+                "aliveCellsWithAge should return all torus cells")
+        #expect(cells.count > 0, "Torus should have renderable cells")
+    }
+}
+
+// MARK: - clearAll Buffer Reuse Tests
+
+@Suite("ClearAll Buffer Reuse Tests")
+struct ClearAllBufferTests {
+    @Test("clearAll preserves buffer capacity for reuse")
+    func clearAllPreservesCapacity() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.3)
+        grid.advanceGeneration()
+        grid.clearAll()
+        // After clearing, load a new pattern — should reuse existing buffer capacity
+        grid.randomSeed(density: 0.3)
+        #expect(grid.aliveCount > 0)
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
     }
 }
