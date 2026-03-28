@@ -554,7 +554,32 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.4, opacity: 0.10)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar]
+    /// Toxic — vivid radioactive green newborn cells through acid yellow-green to dark
+    /// sludge green, evoking nuclear waste and bioluminescent decay. High initial intensity
+    /// (2.4) gives a harsh, unnatural glow. Distinct from Forest (earthy green tones) and
+    /// Bioluminescence (teal/aqua) — Toxic stays in the pure neon green-to-black range
+    /// with a synthetic, hazardous feel.
+    static let toxic = ColorTheme(
+        name: "Toxic",
+        newborn: TierColors(
+            baseColor: SIMD4(0.4, 1.0, 0.1, 1.0),
+            emissiveColor: SIMD3(0.3, 1.0, 0.05),
+            emissiveIntensity: 2.4, opacity: 0.60),
+        young: TierColors(
+            baseColor: SIMD4(0.6, 0.85, 0.0, 1.0),
+            emissiveColor: SIMD3(0.5, 0.75, 0.0),
+            emissiveIntensity: 1.4, opacity: 0.38),
+        mature: TierColors(
+            baseColor: SIMD4(0.15, 0.4, 0.02, 1.0),
+            emissiveColor: SIMD3(0.1, 0.3, 0.01),
+            emissiveIntensity: 0.7, opacity: 0.22),
+        dying: TierColors(
+            baseColor: SIMD4(0.05, 0.15, 0.02, 1.0),
+            emissiveColor: SIMD3(0.03, 0.1, 0.01),
+            emissiveIntensity: 0.3, opacity: 0.08)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic]
 }
 
 enum GridRenderer {

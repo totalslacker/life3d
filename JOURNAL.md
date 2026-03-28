@@ -2,6 +2,25 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 62 (2026-03-28 14:05 PDT)
+
+**Goal**: Dodecahedron pattern, Toxic theme, tests.
+
+Three improvements:
+
+1. **Dodecahedron pattern (26th)**: A wireframe regular dodecahedron — the most complex Platonic solid, with 12 pentagonal faces, 20 vertices, and 30 edges. Vertices are computed from the golden ratio (φ) coordinates, then edges are identified by angular distance on the unit sphere. Each edge is rendered as a thick tube (radius 1.3) sampled densely along its length. Under evolution, thin edge sections erode first while vertex junctions (where 3 edges meet, creating higher local neighbor density) persist longer, creating a complex skeletal fragmentation. Has perfect inversion symmetry. Completes four of the five Platonic solids in the pattern library (cube/Block, Tetrahedron, Octahedron, Dodecahedron).
+
+2. **Toxic theme (27th)**: Vivid radioactive neon green newborn cells (emissive 2.4) through acid yellow-green young cells to dark sludge green mature cells fading to near-black. Distinct from Forest (earthy natural greens), Bioluminescence (teal/aqua tones), and Aurora (green-to-purple) — Toxic stays in the pure neon green-to-black range with a synthetic, hazardous aesthetic. Green channel is dominant across all tiers.
+
+3. **Added `import simd` to GridModel**: Required for the dodecahedron's `simd_normalize`, `simd_length`, and `simd_dot` calls used in edge detection geometry. Previously GridModel used only Foundation and manual arithmetic.
+
+Added 11 tests across 2 new suites: Dodecahedron Pattern (6 tests: non-empty, edge count bounds, inversion symmetry, engine enum, index consistency, evolution dynamics), Toxic Theme (5 tests: existence, theme count 27, color progression, opacity decay, green dominance). Updated 11 stale theme count assertions (26→27) and 2 stale pattern count assertions (26→27 total, 25→26 cyclable).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Icosahedron pattern (5th Platonic solid). Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 61 (2026-03-28 11:51 PDT)
 
 **Goal**: Fix broken build (loadSnowflake truncation), Octahedron pattern, Solar theme, tests.

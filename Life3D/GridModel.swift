@@ -1,4 +1,5 @@
 import Foundation
+import simd
 
 struct GridModel: Sendable {
     let size: Int
@@ -1070,6 +1071,93 @@ struct GridModel: Sendable {
                 for z in 0..<size {
                     let d = abs(x - mid) + abs(y - mid) + abs(z - mid)
                     if d >= radius - thickness && d <= radius {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    /// A regular dodecahedron — the dual of the icosahedron, with 12 pentagonal faces,
+    /// 20 vertices, and 30 edges. Vertices are placed at the 20 positions of a regular
+    /// dodecahedron inscribed in a sphere, connected by thick edges. Under standard rules,
+    /// the thin edge sections erode first while vertex junctions (3 edges meeting = higher
+    /// local density) persist, creating a skeletal fragmentation that eventually breaks into
+    /// freely evolving clusters.
+    mutating func loadDodecahedron() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let radius = Float(min(size / 3, 6))
+        let edgeThickness: Float = 1.3
+
+        // Golden ratio for dodecahedron vertex coordinates
+        let phi: Float = (1.0 + Float(5.0).squareRoot()) / 2.0
+        let invPhi: Float = 1.0 / phi
+
+        // 20 vertices of a regular dodecahedron (normalized to unit sphere, then scaled)
+        // Three groups: 8 cube vertices, 4 on each axis pair
+        let raw: [SIMD3<Float>] = [
+            // 8 cube vertices (±1, ±1, ±1)
+            SIMD3( 1,  1,  1), SIMD3( 1,  1, -1),
+            SIMD3( 1, -1,  1), SIMD3( 1, -1, -1),
+            SIMD3(-1,  1,  1), SIMD3(-1,  1, -1),
+            SIMD3(-1, -1,  1), SIMD3(-1, -1, -1),
+            // 4 on YZ plane (0, ±1/φ, ±φ)
+            SIMD3(0,  invPhi,  phi), SIMD3(0,  invPhi, -phi),
+            SIMD3(0, -invPhi,  phi), SIMD3(0, -invPhi, -phi),
+            // 4 on XZ plane (±1/φ, 0, ±φ) — wait, correct is (±φ, 0, ±1/φ)
+            SIMD3( phi, 0,  invPhi), SIMD3( phi, 0, -invPhi),
+            SIMD3(-phi, 0,  invPhi), SIMD3(-phi, 0, -invPhi),
+            // 4 on XY plane (±1/φ, ±φ, 0)
+            SIMD3( invPhi,  phi, 0), SIMD3( invPhi, -phi, 0),
+            SIMD3(-invPhi,  phi, 0), SIMD3(-invPhi, -phi, 0),
+        ]
+
+        // Normalize each vertex to unit sphere then scale to radius
+        let verts = raw.map { v -> SIMD3<Float> in
+            let len = simd_length(v)
+            return v / len * radius
+        }
+
+        // Pre-compute edge pairs: two vertices share an edge if their angular distance
+        // on the unit sphere matches the dodecahedron edge length (2/φ ≈ 1.236)
+        let edgeLen: Float = 2.0 / phi
+        let edgeThreshold: Float = edgeLen * 1.05
+        var edges: [(Int, Int)] = []
+        for i in 0..<raw.count {
+            let ni = simd_normalize(raw[i])
+            for j in (i+1)..<raw.count {
+                let nj = simd_normalize(raw[j])
+                let d = simd_length(ni - nj)
+                if d < edgeThreshold {
+                    edges.append((i, j))
+                }
+            }
+        }
+
+        // For each grid cell, check if it's near any edge
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let p = SIMD3<Float>(Float(x) - mid + 0.5,
+                                         Float(y) - mid + 0.5,
+                                         Float(z) - mid + 0.5)
+                    var onEdge = false
+                    for (i, j) in edges where !onEdge {
+                        let a = verts[i]
+                        let b = verts[j]
+                        let ab = b - a
+                        let ap = p - a
+                        let abDot = simd_dot(ab, ab)
+                        let t = max(Float(0), min(Float(1), simd_dot(ap, ab) / abDot))
+                        let closest = a + t * ab
+                        let dist = simd_length(p - closest)
+                        if dist <= edgeThickness {
+                            onEdge = true
+                        }
+                    }
+                    if onEdge {
                         setCell(x: x, y: y, z: z, alive: true)
                     }
                 }
