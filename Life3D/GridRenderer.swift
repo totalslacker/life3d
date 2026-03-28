@@ -409,7 +409,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.3, opacity: 0.08)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper]
+    static let gold = ColorTheme(
+        name: "Gold",
+        newborn: TierColors(
+            baseColor: SIMD4(1.0, 0.88, 0.3, 1.0),
+            emissiveColor: SIMD3(1.0, 0.84, 0.2),
+            emissiveIntensity: 2.3, opacity: 0.58),
+        young: TierColors(
+            baseColor: SIMD4(0.85, 0.65, 0.12, 1.0),
+            emissiveColor: SIMD3(0.78, 0.58, 0.08),
+            emissiveIntensity: 1.4, opacity: 0.38),
+        mature: TierColors(
+            baseColor: SIMD4(0.55, 0.38, 0.08, 1.0),
+            emissiveColor: SIMD3(0.45, 0.3, 0.05),
+            emissiveIntensity: 0.7, opacity: 0.22),
+        dying: TierColors(
+            baseColor: SIMD4(0.28, 0.18, 0.05, 1.0),
+            emissiveColor: SIMD3(0.18, 0.1, 0.03),
+            emissiveIntensity: 0.3, opacity: 0.08)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold]
 }
 
 enum GridRenderer {
@@ -727,16 +747,14 @@ enum GridRenderer {
         let mesh = try LowLevelMesh(descriptor: descriptor)
 
         mesh.withUnsafeMutableBytes(bufferIndex: 0) { buffer in
-            let dest = buffer.bindMemory(to: GridVertex.self)
-            for i in 0..<data.vertices.count {
-                dest[i] = data.vertices[i]
+            data.vertices.withUnsafeBufferPointer { src in
+                buffer.copyMemory(from: UnsafeRawBufferPointer(src))
             }
         }
 
         mesh.withUnsafeMutableIndices { buffer in
-            let dest = buffer.bindMemory(to: UInt32.self)
-            for i in 0..<data.indices.count {
-                dest[i] = data.indices[i]
+            data.indices.withUnsafeBufferPointer { src in
+                buffer.copyMemory(from: UnsafeRawBufferPointer(src))
             }
         }
 

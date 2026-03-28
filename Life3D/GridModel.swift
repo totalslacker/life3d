@@ -638,6 +638,67 @@ struct GridModel: Sendable {
         }
     }
 
+    /// A spiral galaxy with two arms emanating from a dense spherical core.
+    /// The arms trace logarithmic spirals in the XZ plane with vertical spread,
+    /// creating a recognizable galaxy shape that evolves into chaotic branching forms.
+    mutating func loadGalaxy() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let coreR: Float = Float(min(size / 6, 3))  // dense central core
+        let armLength: Float = Float(min(size / 3, 6))
+        let thickness: Float = 1.2
+        let armPoints = size * 15  // dense sampling for solid arms
+        let turns: Float = 1.5
+
+        // Dense spherical core
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let dx = Float(x) - mid + 0.5
+                    let dy = Float(y) - mid + 0.5
+                    let dz = Float(z) - mid + 0.5
+                    let dist = (dx * dx + dy * dy + dz * dz).squareRoot()
+                    if dist <= coreR {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+
+        // Two spiral arms offset by π
+        for arm in 0..<2 {
+            let armOffset = Float(arm) * .pi
+            for i in 0..<armPoints {
+                let t = Float(i) / Float(armPoints)
+                let angle = armOffset + t * turns * 2.0 * .pi
+                let radius = coreR + armLength * t
+                let cx = mid + radius * cos(angle)
+                let cz = mid + radius * sin(angle)
+                // Vertical spread increases along arm (thin at core, wider at tips)
+                let ySpread = thickness * (0.5 + t * 0.8)
+
+                for x in 0..<size {
+                    for z in 0..<size {
+                        let dx = Float(x) - cx + 0.5
+                        let dz = Float(z) - cz + 0.5
+                        let distXZ = (dx * dx + dz * dz).squareRoot()
+                        if distXZ <= thickness {
+                            // Fill a vertical slice centered at mid-Y
+                            let yCenter = Int(mid)
+                            let yRange = Int(ySpread)
+                            for dy in -yRange...yRange {
+                                let yi = yCenter + dy
+                                if yi >= 0 && yi < size {
+                                    setCell(x: x, y: yi, z: z, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     mutating func clearAll() {
         for i in 0..<cellCount { cells[i] = 0 }
         dyingCells = []

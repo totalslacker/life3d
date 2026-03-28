@@ -1993,3 +1993,79 @@ struct AudioPositionSamplingTests {
         }
     }
 }
+
+// MARK: - Galaxy Pattern Tests
+
+@Suite("Galaxy Pattern Tests")
+struct GalaxyPatternTests {
+    @Test("Galaxy pattern produces non-empty grid")
+    func galaxyNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadGalaxy()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Galaxy pattern has a dense core at center")
+    func galaxyCore() {
+        var grid = GridModel(size: 16)
+        grid.loadGalaxy()
+        // Center cells should be alive (core)
+        let mid = 8
+        var coreCount = 0
+        for dx in -1...1 {
+            for dy in -1...1 {
+                for dz in -1...1 {
+                    if grid.isAlive(x: mid + dx, y: mid + dy, z: mid + dz) {
+                        coreCount += 1
+                    }
+                }
+            }
+        }
+        #expect(coreCount > 15, "Core should be densely populated")
+    }
+
+    @Test("Galaxy pattern is selectable in engine")
+    func galaxyEngineSelection() {
+        let pattern = SimulationEngine.Pattern.galaxy
+        #expect(pattern.rawValue == "Galaxy")
+    }
+
+    @Test("Galaxy pattern survives multiple generations")
+    func galaxyEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadGalaxy()
+        let initial = grid.aliveCount
+        for _ in 0..<5 {
+            grid.advanceGeneration()
+        }
+        #expect(grid.aliveCount > 0, "Galaxy should still have living cells after 5 generations")
+        #expect(grid.aliveCount != initial, "Galaxy should evolve (population should change)")
+    }
+}
+
+// MARK: - Gold Theme Tests
+
+@Suite("Gold Theme Tests")
+struct GoldThemeTests {
+    @Test("Gold theme exists in allThemes")
+    func goldInAllThemes() {
+        #expect(ColorTheme.allThemes.contains(where: { $0.name == "Gold" }))
+    }
+
+    @Test("Total theme count is 20")
+    func themeCount() {
+        #expect(ColorTheme.allThemes.count == 20)
+    }
+
+    @Test("Gold has warm metallic color progression")
+    func goldColorProgression() {
+        let gold = ColorTheme.gold
+        // Newborn should be brightest (highest emissive intensity)
+        #expect(gold.newborn.emissiveIntensity > gold.young.emissiveIntensity)
+        #expect(gold.young.emissiveIntensity > gold.mature.emissiveIntensity)
+        #expect(gold.mature.emissiveIntensity > gold.dying.emissiveIntensity)
+        // Gold tones: red channel should dominate green, green should dominate blue
+        #expect(gold.newborn.emissiveColor.x > gold.newborn.emissiveColor.y)
+        #expect(gold.newborn.emissiveColor.y > gold.newborn.emissiveColor.z)
+    }
+}
