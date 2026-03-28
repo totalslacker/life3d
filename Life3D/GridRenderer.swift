@@ -530,7 +530,31 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.3, opacity: 0.08)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic]
+    /// Solar — brilliant white-gold newborn cells through molten orange to deep crimson,
+    /// evoking the surface of a star. Highest emissive intensity among warm themes (2.5)
+    /// for a searing brightness. Distinct from Warm Amber (amber/brown) and Ember (orange/charcoal)
+    /// — Solar stays in the white-gold-to-crimson range with extreme luminosity.
+    static let solar = ColorTheme(
+        name: "Solar",
+        newborn: TierColors(
+            baseColor: SIMD4(1.0, 0.98, 0.85, 1.0),
+            emissiveColor: SIMD3(1.0, 0.95, 0.7),
+            emissiveIntensity: 2.5, opacity: 0.62),
+        young: TierColors(
+            baseColor: SIMD4(1.0, 0.7, 0.15, 1.0),
+            emissiveColor: SIMD3(1.0, 0.6, 0.1),
+            emissiveIntensity: 1.5, opacity: 0.42),
+        mature: TierColors(
+            baseColor: SIMD4(0.85, 0.25, 0.05, 1.0),
+            emissiveColor: SIMD3(0.7, 0.15, 0.02),
+            emissiveIntensity: 0.9, opacity: 0.28),
+        dying: TierColors(
+            baseColor: SIMD4(0.4, 0.08, 0.02, 1.0),
+            emissiveColor: SIMD3(0.25, 0.04, 0.01),
+            emissiveIntensity: 0.4, opacity: 0.10)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar]
 }
 
 enum GridRenderer {

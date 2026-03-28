@@ -2,6 +2,25 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 61 (2026-03-28 11:51 PDT)
+
+**Goal**: Fix broken build (loadSnowflake truncation), Octahedron pattern, Solar theme, tests.
+
+Three improvements:
+
+1. **Fix broken build — loadSnowflake() missing closing braces**: GridModel.swift had a critical truncation at line 1010 where the cross-bar nested loops in `loadSnowflake()` were missing 5 closing braces (`}` for: o2 loop, o1 loop, if block, d loop, function body). This caused `loadTetrahedron()` and `clearAll()` to be parsed as nested functions inside the snowflake's for-loop, breaking the entire build. The bug was introduced in a prior session that added the cross-bar code without completing the brace structure.
+
+2. **Octahedron pattern (25th)**: A wireframe regular octahedron — the dual of the cube with 6 vertices at ±axis positions connected by 12 edges. Each edge is rendered as a thick tube (radius 1.3) sampled densely along its length. Under evolution, the thin edge sections erode first while vertices (high local neighbor density) persist longer, creating a skeletal fragmentation that breaks into evolving clusters. Complements the existing Tetrahedron pattern geometrically (Platonic solid progression).
+
+3. **Solar theme (26th)**: Brilliant white-gold newborn cells (emissive 2.5, the highest among warm themes) through molten orange young cells to deep crimson mature cells fading to dark maroon. Distinct from Warm Amber (amber/brown tones), Ember (orange/charcoal), and Infrared (yellow/red heat map) — Solar stays in the white-gold-to-crimson range with searing luminosity, evoking the surface of a star.
+
+Added 14 tests across 3 new suites: Octahedron Pattern (5 tests: non-empty, 6-fold vertex symmetry, engine enum, index consistency, evolution dynamics), Solar Theme (5 tests: existence, theme count 26, color progression, opacity decay, high luminosity), Pattern Count (2 tests: 26 total, 25 cyclable). Updated 9 stale theme count assertions (24→26) and 2 stale pattern count assertions.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 61 (2026-03-28 11:44 PDT)
 
 **Goal**: Fix test file corruption, auto-rotation task lifecycle, Octahedron pattern.

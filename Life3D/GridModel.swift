@@ -1005,6 +1005,13 @@ struct GridModel: Sendable {
                         setCell(x: mid + o1, y: mid - d, z: mid + o2, alive: true)
                         setCell(x: mid + o1, y: mid + o2, z: mid + d, alive: true)
                         setCell(x: mid + o1, y: mid + o2, z: mid - d, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     /// Four dense clusters at the vertices of a regular tetrahedron inscribed in the grid.
     /// Each vertex is a small solid sphere of cells. The four clusters evolve independently
     /// at first, then interact as they expand and their wavefronts collide — creating
