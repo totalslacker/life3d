@@ -4,6 +4,18 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 12 — Session 49 (2026-03-28 09:58 PDT)
+
+**Goal**: Fix launch dialog size — UI elements cut off at bottom.
+
+Increased the default window height from 420 to 560 in Life3DApp.swift. The LaunchView contains a title section, divider, configuration grid (pattern, theme, grid size, rules, speed), another divider, and a start button — all with 24pt padding. At 420px height, the bottom controls (speed slider, start button) were cut off. The window uses `.windowResizability(.contentSize)` which allows content-driven sizing, but `.defaultSize` was constraining the initial render too small.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 12 — Session 48 (2026-03-28 09:48 PDT)
 
 **Goal**: Jade color theme, helix pattern, fading cell allocation optimization.
