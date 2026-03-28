@@ -86,7 +86,7 @@ final class SimulationEngine {
         let first = _trendBuffer[firstIdx]
         let last = _trendBuffer[lastIdx]
         let delta = last - first
-        let threshold = max(1, first / 20)
+        let threshold = max(1, (first + 19) / 20)
         if delta > threshold { populationTrend = 1 }
         else if delta < -threshold { populationTrend = -1 }
         else { populationTrend = 0 }

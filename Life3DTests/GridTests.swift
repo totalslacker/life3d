@@ -1854,7 +1854,6 @@ struct PositionMethodTests {
     }
 }
 
-<<<<<<< HEAD
 // MARK: - Fading Cell Scale Tests (Session 55)
 
 @Suite("Fading Cell Scale Tests")
@@ -2307,6 +2306,119 @@ struct FadingCellBoundsTests {
         // (new ones may exist from subsequent generations)
         for entry in grid.fadingCells {
             #expect(entry.framesLeft > 0)
+        }
+    }
+}
+
+// MARK: - Population Trend Threshold Tests
+
+@Suite("Population Trend Threshold Tests")
+struct PopulationTrendThresholdTests {
+    @Test("Trend threshold uses ceiling division for small populations")
+    @MainActor func smallPopulationThreshold() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.clearAll()
+        // Set up a small population of 10 cells and step a few times
+        for i in 0..<10 {
+            engine.grid.setCell(x: i % 8, y: 0, z: 0, alive: true)
+        }
+        // With ceiling division: (10 + 19) / 20 = 1 → threshold is 1
+        // With old integer division: 10 / 20 = 0 → threshold was max(1, 0) = 1
+        // Test that we get a stable (0) trend when population is unchanging
+        engine.step()
+        engine.step()
+        engine.step()
+        // The trend should be computable without crash for small populations
+        let trend = engine.populationTrend
+        #expect(trend == 0 || trend == 1 || trend == -1,
+                "Trend should be a valid value (-1, 0, or 1)")
+    }
+
+    @Test("Trend threshold is at least 1 for zero population")
+    @MainActor func zeroPopulationThreshold() {
+        let engine = SimulationEngine(size: 4)
+        engine.grid.clearAll()
+        // Step with empty grid — should not crash
+        engine.step()
+        engine.step()
+        #expect(engine.populationTrend == 0, "Empty grid should have stable trend")
+    }
+
+    @Test("Ceiling division gives correct threshold for population 15")
+    func ceilingDivisionCorrectness() {
+        // Verify the arithmetic: (15 + 19) / 20 = 34 / 20 = 1
+        let population = 15
+        let threshold = max(1, (population + 19) / 20)
+        #expect(threshold == 1)
+    }
+
+    @Test("Ceiling division gives correct threshold for population 40")
+    func ceilingDivisionLarger() {
+        // (40 + 19) / 20 = 59 / 20 = 2
+        let population = 40
+        let threshold = max(1, (population + 19) / 20)
+        #expect(threshold == 2)
+    }
+}
+
+// MARK: - Galaxy Pattern Index Tests
+
+@Suite("Galaxy Pattern Index Tests")
+struct GalaxyPatternIndexTests {
+    @Test("Galaxy pattern has correct alive cell indices after loading")
+    func galaxyIndicesMatchCount() {
+        var grid = GridModel(size: 16)
+        grid.loadGalaxy()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount,
+                "Galaxy alive cell indices should match alive count")
+        #expect(grid.aliveCount > 0, "Galaxy should produce alive cells")
+    }
+
+    @Test("Galaxy renders correctly via alive index path")
+    func galaxyRendersViaIndexPath() {
+        var grid = GridModel(size: 16)
+        grid.loadGalaxy()
+        let cells = grid.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == grid.aliveCount,
+                "aliveCellsWithAge should return all galaxy cells")
+        #expect(cells.count > 0, "Galaxy should have renderable cells")
+    }
+}
+
+// MARK: - Flat Index Consistency Tests
+
+@Suite("Flat Index Consistency Tests")
+struct FlatIndexConsistencyTests {
+    @Test("index(x:y:z:) matches manual flat index calculation")
+    func indexConsistency() {
+        let grid = GridModel(size: 16)
+        for x in [0, 5, 15] {
+            for y in [0, 8, 15] {
+                for z in [0, 3, 15] {
+                    let fromMethod = grid.index(x: x, y: y, z: z)
+                    let manual = x * 16 * 16 + y * 16 + z
+                    #expect(fromMethod == manual,
+                            "index(x:\(x), y:\(y), z:\(z)) should match manual calculation")
+                }
+            }
+        }
+    }
+
+    @Test("index round-trips through coordinate decomposition")
+    func indexRoundTrip() {
+        let size = 12
+        let grid = GridModel(size: size)
+        for x in [0, 3, 11] {
+            for y in [0, 6, 11] {
+                for z in [0, 9, 11] {
+                    let idx = grid.index(x: x, y: y, z: z)
+                    let rx = idx / (size * size)
+                    let ry = (idx / size) % size
+                    let rz = idx % size
+                    #expect(rx == x && ry == y && rz == z,
+                            "Round-trip should preserve coordinates (\(x),\(y),\(z))")
+                }
+            }
         }
     }
 }

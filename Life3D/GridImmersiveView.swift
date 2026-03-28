@@ -240,7 +240,7 @@ struct GridImmersiveView: View {
                     let localPoint = inverseTransform * SIMD4<Float>(scenePos.x, scenePos.y, scenePos.z, 1.0)
                     let pos = SIMD3<Float>(localPoint.x, localPoint.y, localPoint.z)
                     let coords = engine.grid.nearestGridCoords(for: pos, cellSize: GridRenderer.cellSize, cellSpacing: GridRenderer.cellSpacing)
-                    let cellKey = coords.x * engine.grid.size * engine.grid.size + coords.y * engine.grid.size + coords.z
+                    let cellKey = engine.grid.index(x: coords.x, y: coords.y, z: coords.z)
                     if !paintedCells.contains(cellKey) {
                         paintedCells.insert(cellKey)
                         let isAlive = engine.grid.isAlive(x: coords.x, y: coords.y, z: coords.z)

@@ -2,6 +2,22 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 56 (2026-03-28 10:54 PDT)
+
+**Goal**: Bug fixes and code quality — trend threshold, duplicate index calculation, galaxy pattern consistency.
+
+Three fixes:
+
+1. **Fix population trend threshold integer division**: `_rebuildPopulationTrend()` used `first / 20` which truncates to 0 for populations under 20, making `max(1, 0)` always 1. Changed to ceiling division `(first + 19) / 20` so a population of 40 gives threshold 2 (not 2 via floor, which happened to be correct, but population 21 now correctly gives 2 instead of 1). The trend indicator is now proportionally sensitive across all population sizes.
+
+2. **DRY fix for paint-mode flat index calculation**: `GridImmersiveView` manually computed `coords.x * size * size + coords.y * size + coords.z` for the `paintedCells` deduplication key. This duplicated `GridModel.index(x:y:z:)`. Replaced with `engine.grid.index(x: coords.x, y: coords.y, z: coords.z)` — single source of truth, no drift risk if the indexing formula ever changes.
+
+3. **Galaxy pattern missing `rebuildAliveCellIndices()`**: Same class of bug as the torus fix in session 55. `loadGalaxy()` was the only pattern loader without a defensive `rebuildAliveCellIndices()` call at the end. While `setCell()` maintains the list incrementally, every other loader calls rebuild as a safety net — galaxy was inconsistent.
+
+Added 8 tests: small population trend threshold, zero population trend stability, ceiling division arithmetic (15→1, 40→2), galaxy index consistency, galaxy render path, flat index consistency with manual calculation, index round-trip through coordinate decomposition.
+
+---
+
 ## Day 12 — Session 56 (2026-03-28 10:46 PDT)
 
 **Goal**: Bug fixes — swap-remove optimization, fading cell bounds safety, samplePositions even distribution.
