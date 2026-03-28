@@ -24,6 +24,23 @@ Build verified clean on visionOS Simulator.
 
 ---
 
+## Day 12 — Session 49 (2026-03-28 09:57 PDT)
+
+**Goal**: Fix simulation control panel elements disappearing after appearing (li-0g4).
+
+The control bar had an auto-hide mechanism that set `controlBarVisible = false` after 4 seconds of inactivity, fading the bar to opacity 0. On visionOS, gaze-based `onHover` cannot target invisible views (opacity 0), so once the bar faded out, users could never bring it back — leaving an empty panel where controls used to be.
+
+**Fix**: Removed the broken auto-hide mechanism entirely. The control bar now remains visible throughout the simulation, satisfying all acceptance criteria:
+- Control panel elements remain visible throughout the simulation
+- Play/pause, step, pattern, speed controls always accessible
+- Controls persist across ImmersiveSpace open/close
+
+Removed `controlBarVisible` property from `SimulationEngine`, removed `autoHideTask`/`scheduleAutoHide`/`showControlBar` from `ContentView`, and removed the associated test suite (tests for deleted functionality).
+
+**Next Steps**: Consider adding a more visionOS-friendly auto-hide in the future that uses a visible "grip" or "tab" handle for re-showing the bar, rather than relying on hover over invisible views.
+
+---
+
 ## Day 12 — Session 48 (2026-03-28 09:48 PDT)
 
 **Goal**: Jade color theme, helix pattern, fading cell allocation optimization.

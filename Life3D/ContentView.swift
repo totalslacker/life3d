@@ -6,8 +6,6 @@ struct ContentView: View {
     @Environment(\.dismissImmersiveSpace) private var dismissImmersiveSpace
     @State private var showingSimulation = false
     @State private var launchOpacity: Double = 1.0
-    @State private var autoHideTask: Task<Void, Never>?
-    private static let autoHideDelay: UInt64 = 4_000_000_000 // 4 seconds
 
     var body: some View {
         Group {
@@ -17,13 +15,6 @@ struct ContentView: View {
                     engine.isExiting = true
                 })
                 .environment(engine)
-                .opacity(engine.controlBarVisible ? 1.0 : 0.0)
-                .animation(.easeInOut(duration: 0.35), value: engine.controlBarVisible)
-                .onHover { hovering in
-                    if hovering {
-                        showControlBar()
-                    }
-                }
             } else {
                 LaunchView(onStart: {
                     Task {
@@ -45,14 +36,11 @@ struct ContentView: View {
                 Task {
                     await openImmersiveSpace(id: "life3d-grid")
                     engine.start()
-                    scheduleAutoHide()
                 }
             }
         }
         .onChange(of: engine.exitAnimationComplete) {
             if engine.exitAnimationComplete {
-                autoHideTask?.cancel()
-                engine.controlBarVisible = true
                 Task {
                     await dismissImmersiveSpace()
                     // Fade in launch view for smooth return transition
@@ -68,21 +56,6 @@ struct ContentView: View {
         }
     }
 
-    /// Shows the control bar and resets the auto-hide timer.
-    private func showControlBar() {
-        engine.controlBarVisible = true
-        scheduleAutoHide()
-    }
-
-    /// Schedules the control bar to fade out after a delay.
-    private func scheduleAutoHide() {
-        autoHideTask?.cancel()
-        autoHideTask = Task {
-            try? await Task.sleep(nanoseconds: Self.autoHideDelay)
-            guard !Task.isCancelled else { return }
-            engine.controlBarVisible = false
-        }
-    }
 }
 
 /// The compact control bar shown during active simulation.
@@ -251,11 +224,9 @@ struct SimulationControlBar: View {
         }
         .onChange(of: engine.theme) {
             engine.savePreferences()
-            engine.controlBarVisible = true  // keep visible during interaction
         }
         .onChange(of: engine.speed) {
             engine.savePreferences()
-            engine.controlBarVisible = true
         }
         .onChange(of: engine.audioMuted) { engine.savePreferences() }
     }

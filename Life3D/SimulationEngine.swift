@@ -22,9 +22,6 @@ final class SimulationEngine {
     // Help overlay trigger
     var showHelp: Bool = false
 
-    // Control bar auto-hide: bar fades out after inactivity, reappears on interaction
-    var controlBarVisible: Bool = true
-
     // Population trend tracking (circular buffer for O(1) append)
     private var _trendBuffer: [Int]
     private var _trendWriteIndex: Int = 0
