@@ -1382,6 +1382,101 @@ struct PopulationTrendTests {
     }
 }
 
+@Suite("Crimson Theme Tests")
+struct CrimsonThemeTests {
+    @Test("Crimson theme exists in allThemes")
+    func crimsonExists() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Crimson" })
+    }
+
+    @Test("Theme count is 17 with Crimson")
+    func themeCount17() {
+        #expect(ColorTheme.allThemes.count == 17)
+    }
+
+    @Test("Crimson stays in pure red family — newborn through mature")
+    func crimsonRedProgression() {
+        let theme = ColorTheme.crimson
+        // Newborn: bright scarlet (high red, low green/blue)
+        #expect(theme.newborn.emissiveColor.x > 0.8)
+        #expect(theme.newborn.emissiveColor.y < 0.2)
+        #expect(theme.newborn.emissiveColor.z < 0.2)
+        // Mature: deep wine (low red, very low green/blue)
+        #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.y)
+        #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.z)
+    }
+}
+
+@Suite("Rings Pattern Tests")
+struct RingsPatternTests {
+    @Test("Rings pattern produces non-empty grid")
+    func ringsNonEmpty() {
+        var model = GridModel(size: 16)
+        model.loadRings()
+        #expect(model.aliveCount > 0)
+    }
+
+    @Test("Rings pattern creates two shells at different radii")
+    func ringsTwoShells() {
+        var model = GridModel(size: 16)
+        model.loadRings()
+        let mid = Float(16) / 2.0
+        // Sample cells at inner and outer shell distances
+        var innerCount = 0
+        var outerCount = 0
+        let outerR = Float(5)
+        let innerR = outerR * 0.5
+        for x in 0..<16 {
+            for y in 0..<16 {
+                for z in 0..<16 {
+                    if model.isAlive(x: x, y: y, z: z) {
+                        let dx = Float(x) - mid + 0.5
+                        let dy = Float(y) - mid + 0.5
+                        let dz = Float(z) - mid + 0.5
+                        let dist = (dx * dx + dy * dy + dz * dz).squareRoot()
+                        if abs(dist - innerR) < 1.5 { innerCount += 1 }
+                        if abs(dist - outerR) < 1.5 { outerCount += 1 }
+                    }
+                }
+            }
+        }
+        #expect(innerCount > 0, "Inner shell should have cells")
+        #expect(outerCount > 0, "Outer shell should have cells")
+    }
+
+    @Test("Rings pattern is selectable in SimulationEngine")
+    func ringsEngineSelection() {
+        let pattern = SimulationEngine.Pattern.rings
+        #expect(pattern.rawValue == "Rings (shells)")
+    }
+}
+
+@Suite("Bucket Partitioning Tests")
+struct BucketPartitioningTests {
+    @Test("Mesh data tier ranges are contiguous and cover all cells")
+    func tierRangesCoverAll() {
+        var model = GridModel(size: 6)
+        model.randomSeed(density: 0.3)
+        // Advance a few times to get cells in different age tiers
+        model.advanceGeneration()
+        model.advanceGeneration()
+        model.advanceGeneration()
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        let totalIndices = data.tierRanges.reduce(0) { $0 + $1.indexCount }
+        #expect(totalIndices == data.cellCount * 36)
+    }
+
+    @Test("Bucket partitioning produces same cell count as total alive+fading")
+    func bucketCountMatchesAlive() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+        model.advanceGeneration()
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        let expectedCount = model.aliveCount + model.fadingCells.count
+        #expect(data.cellCount == expectedCount)
+    }
+}
+
 @Suite("Depth Scaling Tests")
 struct DepthScalingTests {
     @Test("Mesh data computes without crash for small grid")

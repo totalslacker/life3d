@@ -349,7 +349,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.3, opacity: 0.08)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade]
+    static let crimson = ColorTheme(
+        name: "Crimson",
+        newborn: TierColors(
+            baseColor: SIMD4(1.0, 0.15, 0.15, 1.0),
+            emissiveColor: SIMD3(1.0, 0.1, 0.1),
+            emissiveIntensity: 2.2, opacity: 0.58),
+        young: TierColors(
+            baseColor: SIMD4(0.75, 0.05, 0.1, 1.0),
+            emissiveColor: SIMD3(0.65, 0.03, 0.08),
+            emissiveIntensity: 1.3, opacity: 0.38),
+        mature: TierColors(
+            baseColor: SIMD4(0.35, 0.02, 0.08, 1.0),
+            emissiveColor: SIMD3(0.25, 0.01, 0.05),
+            emissiveIntensity: 0.7, opacity: 0.22),
+        dying: TierColors(
+            baseColor: SIMD4(0.15, 0.01, 0.04, 1.0),
+            emissiveColor: SIMD3(0.08, 0.005, 0.02),
+            emissiveIntensity: 0.3, opacity: 0.08)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson]
 }
 
 enum GridRenderer {
@@ -475,8 +495,12 @@ enum GridRenderer {
                           tierRanges: AgeTier.allCases.map { _ in (0, 0) })
         }
 
-        // Sort cells by age tier so we can create contiguous mesh parts
-        let sorted = cellsWithAge.sorted { AgeTier.tier(for: $0.age).rawValue < AgeTier.tier(for: $1.age).rawValue }
+        // Bucket cells by age tier in O(n) instead of O(n log n) sort — only 4 buckets needed
+        var buckets: [[(position: SIMD3<Float>, age: Int)]] = Array(repeating: [], count: AgeTier.allCases.count)
+        for cell in cellsWithAge {
+            buckets[AgeTier.tier(for: cell.age).rawValue].append(cell)
+        }
+        let sorted = buckets.flatMap { $0 }
 
         // Pre-compute depth scale: cells at the grid edge are slightly smaller (80% of full size)
         // This creates a pseudo depth-of-field effect — peripheral cells recede visually

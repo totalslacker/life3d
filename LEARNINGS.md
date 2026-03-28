@@ -244,3 +244,14 @@ the same things. Search here before looking things up externally.
 - The visual difference is a slightly more aggressive quadratic falloff at grid edges, which actually looks marginally more natural
 - For 32³ grids with ~8K alive cells, this eliminates ~8K sqrt calls per mesh rebuild cycle
 - Same pattern applies to any per-element distance-based effect: sorting by distance, LOD selection, etc.
+
+---
+
+## Bucket Partitioning vs Sorting for Small Category Counts
+
+- When partitioning elements into a small fixed number of categories (e.g., 4 age tiers), O(n) bucket sort beats O(n log n) comparison sort
+- Pattern: create K empty arrays, iterate once assigning each element to its bucket, then `flatMap` to recombine
+- For n=8K elements and K=4 categories, this saves ~100K comparisons (n × log₂n ≈ 8K × 13)
+- `flatMap` on small K arrays is effectively free compared to the sort's comparison overhead
+- Swift's `sorted()` uses introsort which has good constant factors, but for K ≤ ~8 the bucket approach is simpler and faster
+- General rule: if the sort key maps to a small enum/integer range, prefer bucketing

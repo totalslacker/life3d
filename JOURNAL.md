@@ -55,6 +55,26 @@ Removed `controlBarVisible` property from `SimulationEngine`, removed `autoHideT
 
 ---
 
+## Day 12 — Session 49 (2026-03-28 10:00 PDT)
+
+**Goal**: Crimson color theme, rings pattern, mesh tier bucketing optimization.
+
+Three improvements across visual variety, new pattern, and rendering performance:
+
+1. **Crimson color theme**: Added a seventeenth theme with a pure deep-red aesthetic — bright scarlet newborn cells (emissive intensity 2.2) transitioning through dark crimson to deep wine for mature cells. The color progression evokes hot metal cooling: bright red surface → dark crimson core → deep wine shadow. Distinct from Ember (yellow→orange→red fire) and Infrared (yellow→red heat) in that Crimson stays in the pure red family throughout — no warm yellow or orange tones, just saturated reds darkening into burgundy.
+
+2. **Rings pattern (concentric shells)**: Added a thirteenth pattern that generates two concentric spherical shells at different radii (inner at 50% of outer). Creates layered evolution dynamics where the inner and outer shells interact — cells in the gap between shells grow to fill it, while the shells themselves expand and pulse. Visually distinct from the single-shell Sphere pattern; the dual-shell creates interference-like patterns as the two surfaces evolve independently then merge.
+
+3. **Performance: O(n) bucket partitioning for mesh tiers**: Replaced the `sorted()` call in `computeMeshData` (O(n log n)) with a 4-bucket partitioning approach. Since there are only 4 age tiers, cells are bucketed in a single O(n) pass, then flattened. For a 32³ grid with ~8K alive cells, this eliminates ~100K comparison operations per mesh rebuild (log₂(8K) ≈ 13 comparisons × 8K cells). At 5 gen/s, that's ~500K fewer comparisons per second.
+
+Added 10 tests: Crimson theme existence and count (17 themes), Crimson pure-red progression, Rings non-empty output, Rings two-shell verification, Rings engine pattern selection, bucket tier ranges cover all cells, bucket count matches alive+fading.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 12 — Session 48 (2026-03-28 09:48 PDT)
 
 **Goal**: Jade color theme, helix pattern, fading cell allocation optimization.

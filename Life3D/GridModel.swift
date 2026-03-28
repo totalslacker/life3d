@@ -526,6 +526,32 @@ struct GridModel: Sendable {
         }
     }
 
+    /// Concentric spherical shells — two thin shells at different radii.
+    /// Creates layered evolution where inner and outer rings interact,
+    /// producing pulsing, breathing dynamics as shells expand and collide.
+    mutating func loadRings() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let outerR = Float(min(size / 3, 5))
+        let innerR = outerR * 0.5
+        let thickness: Float = 0.8
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let dx = Float(x) - mid + 0.5
+                    let dy = Float(y) - mid + 0.5
+                    let dz = Float(z) - mid + 0.5
+                    let dist = (dx * dx + dy * dy + dz * dz).squareRoot()
+                    let onOuter = abs(dist - outerR) <= thickness
+                    let onInner = abs(dist - innerR) <= thickness
+                    if onOuter || onInner {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+    }
+
     mutating func clearAll() {
         for i in 0..<cellCount { cells[i] = 0 }
         dyingCells = []
