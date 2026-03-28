@@ -208,6 +208,11 @@ struct GridImmersiveView: View {
             }
         }
         .animation(.easeInOut(duration: 0.4), value: engine.showExtinctionNotice)
+        .onDisappear {
+            autoRotateTask?.cancel()
+            momentumTask?.cancel()
+            audioEngine.stop()
+        }
     }
 
     // MARK: - Gestures

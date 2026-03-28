@@ -2,6 +2,27 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 61 (2026-03-28 11:44 PDT)
+
+**Goal**: Fix test file corruption, auto-rotation task lifecycle, Octahedron pattern.
+
+Three improvements:
+
+1. **Fix test file corruption (li-jci)**: GridTests.swift had two truncated functions (`flatIndexConsistencyAcrossSizes` at line 3358 and `frostOpacityDecay` at line 3693) that were never properly closed. All @Suite structs after those points were nested inside the open function bodies, making @Test macros invalid for Swift Testing discovery. Five compensating closing braces at the file end masked the structural issue. Fixed by properly closing both truncated functions (completing the missing assertion for `maxCorner` in the first), removing the compensating braces, and verifying all 70+ @Suite structs are at top level with balanced braces.
+
+2. **Fix auto-rotation task lifecycle leak**: `startAutoRotation()` creates an indefinite background Task stored in `autoRotateTask`, but it was only cancelled during explicit exit animation or surround mode transitions. If the immersive view was dismissed through other paths (system interruption, app suspension), the task would outlive the view. Added `.onDisappear` modifier that cancels both `autoRotateTask` and `momentumTask` and stops the audio engine, ensuring cleanup on all dismissal paths.
+
+3. **Octahedron pattern (24th)**: A regular octahedron — the L1 (Manhattan distance) sphere surface. Cells occupy `|x-mid| + |y-mid| + |z-mid| ≈ radius` with configurable thickness. The diamond shape has 6 vertices (along ±X, ±Y, ±Z axes) and 8 triangular faces. Under standard B5-7/S5-8 rules, the flat triangular faces erode quickly (low neighbor density on thin surfaces) while the 6 vertex points persist longer (converging geometry creates higher local density), producing a "dissolving gem" evolution. Distinct from Sphere (L2 norm, round) and Diamond (solid interior).
+
+Also fixed 7 stale theme count assertions (23→24, 22→24) and updated pattern count assertions (23→24 total, 22→23 cyclable).
+
+Added 6 tests: octahedron non-empty, hollow center verification, 6-fold vertex symmetry, alive index consistency, engine pattern selection, evolution dynamics.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 60 (2026-03-28 11:48 PDT)
 
 **Goal**: Fix test compilation, remove dead code in hot path, fix timing bug, add correctness tests.

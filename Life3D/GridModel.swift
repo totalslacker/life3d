@@ -1047,6 +1047,30 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// A regular octahedron — the dual of a cube, with 8 triangular faces.
+    /// Cells occupy the surface (|x-mid| + |y-mid| + |z-mid| == radius) of the
+    /// L1 (Manhattan distance) sphere. The resulting diamond shape has 6 vertices
+    /// and 12 edges. Under standard rules, flat triangular faces erode quickly while
+    /// the 6 vertex points (higher local density) persist, producing a distinctive
+    /// "dissolving gem" evolution that reveals the underlying symmetry axes.
+    mutating func loadOctahedron() {
+        clearAll()
+        let mid = size / 2
+        let radius = max(2, size / 3)
+        let thickness = max(1, radius / 4)
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let d = abs(x - mid) + abs(y - mid) + abs(z - mid)
+                    if d >= radius - thickness && d <= radius {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

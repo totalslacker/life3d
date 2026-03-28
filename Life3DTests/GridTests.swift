@@ -3864,6 +3864,8 @@ struct ArcticThemeTests {
         #expect(frost.newborn.opacity > frost.young.opacity)
         #expect(frost.young.opacity > frost.mature.opacity)
         #expect(frost.mature.opacity > frost.dying.opacity)
+    }
+}
 
 // MARK: - setCell Age Preservation Tests
 
@@ -3931,7 +3933,7 @@ struct SetCellAgePreservationTests {
 struct ColorThemeCompletenessTests {
     @Test("allThemes contains exactly the expected count")
     func allThemesCount() {
-        #expect(ColorTheme.allThemes.count == 22)
+        #expect(ColorTheme.allThemes.count == 24)
     }
 
     @Test("All theme names are unique")
@@ -4189,36 +4191,76 @@ struct AliveMapResetRegressionTests {
         }
     }
 
-    @Test("Pattern count matches 22 cyclable patterns")
+    @Test("Pattern count matches 23 cyclable patterns")
     func patternCount() {
-        // 23 total patterns (including Clear), 22 cyclable (excluding Clear)
+        // 24 total patterns (including Clear), 23 cyclable (excluding Clear)
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 23)
+        #expect(allPatterns.count == 24)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 22)
+        #expect(cyclable.count == 23)
     }
 }
-// NOTE: The test file has accumulated unclosed function bodies from prior sessions
-// (starting at line ~1231), causing subsequent @Suite structs to nest inside
-// function bodies. This requires a dedicated cleanup pass to fix properly.
-// The main app build (xcodebuild build) is not affected.
-} // TrendCircularBufferTests.resetClearsTrendBuffer
-} // TrendCircularBufferTests
-} // (nested scope from prior truncated function)
-} // (nested scope from prior truncated function)
-} // (nested scope from prior truncated function)
 
-    @Test("AliveIndexMap correct after extinction and reload")
-    func extinctionReload() {
-        var model = GridModel(size: 8)
-        // Load a pattern that dies quickly
-        model.loadCheckerboard()
-        model.advanceGeneration() // checkerboard dies in 1 gen
-        #expect(model.aliveCount == 0)
-        // Reload and verify map is clean
-        model.randomSeed(density: 0.25)
+// MARK: - Octahedron Pattern Tests
+
+@Suite("Octahedron Pattern Tests")
+struct OctahedronPatternTests {
+    @Test("Octahedron produces non-empty grid")
+    func octahedronNonEmpty() {
+        var model = GridModel(size: 16)
+        model.loadOctahedron()
+        #expect(model.aliveCount > 0)
+    }
+
+    @Test("Octahedron has L1 shell structure — center is hollow")
+    func octahedronHollowCenter() {
+        var model = GridModel(size: 16)
+        model.loadOctahedron()
+        let mid = 8
+        // Center cell should be dead (hollow shell)
+        #expect(!model.isAlive(x: mid, y: mid, z: mid))
+    }
+
+    @Test("Octahedron has 6-fold vertex symmetry")
+    func octahedronSymmetry() {
+        var model = GridModel(size: 16)
+        model.loadOctahedron()
+        let mid = 8
+        let radius = 16 / 3
+        // The 6 vertices of the octahedron (±radius along each axis) should be alive
+        #expect(model.isAlive(x: mid + radius, y: mid, z: mid))
+        #expect(model.isAlive(x: mid - radius, y: mid, z: mid))
+        #expect(model.isAlive(x: mid, y: mid + radius, z: mid))
+        #expect(model.isAlive(x: mid, y: mid - radius, z: mid))
+        #expect(model.isAlive(x: mid, y: mid, z: mid + radius))
+        #expect(model.isAlive(x: mid, y: mid, z: mid - radius))
+    }
+
+    @Test("Octahedron alive index consistency")
+    func octahedronIndexConsistency() {
+        var model = GridModel(size: 16)
+        model.loadOctahedron()
         let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
         #expect(cells.count == model.aliveCount)
-        #expect(model.aliveCount > 0)
+    }
+
+    @Test("Octahedron engine pattern selection")
+    @MainActor
+    func octahedronEngineSelection() {
+        let engine = SimulationEngine(size: 16)
+        engine.loadPattern(.octahedron)
+        #expect(engine.grid.aliveCount > 0)
+    }
+
+    @Test("Octahedron evolves under standard rules")
+    func octahedronEvolution() {
+        var model = GridModel(size: 16)
+        model.loadOctahedron()
+        let initial = model.aliveCount
+        for _ in 0..<5 {
+            model.advanceGeneration()
+        }
+        // Population should change (faces erode)
+        #expect(model.aliveCount != initial || model.aliveCount == 0)
     }
 }

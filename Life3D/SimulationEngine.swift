@@ -364,6 +364,8 @@ final class SimulationEngine {
             grid.loadSnowflake()
         case .tetrahedron:
             grid.loadTetrahedron()
+        case .octahedron:
+            grid.loadOctahedron()
         case .clear:
             grid.clearAll()
         }
@@ -411,6 +413,7 @@ final class SimulationEngine {
         case trefoilKnot = "Trefoil Knot"
         case snowflake = "Snowflake"
         case tetrahedron = "Tetrahedron"
+        case octahedron = "Octahedron"
         case clear = "Clear"
 
         var id: String { rawValue }
