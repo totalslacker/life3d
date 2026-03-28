@@ -434,12 +434,11 @@ struct GridImmersiveView: View {
         }
     }
 
-    /// Evenly samples positions from an array.
+    /// Evenly samples positions from an array using multiply-then-divide for uniform distribution.
     private func samplePositions(_ positions: [SIMD3<Float>], count: Int) -> [SIMD3<Float>] {
-        guard !positions.isEmpty else { return [] }
-        if positions.count <= count { return positions }
-        let step = positions.count / count
-        return (0..<count).map { positions[$0 * step] }
+        guard !positions.isEmpty, count > 0 else { return [] }
+        if positions.count <= count { return Array(positions.prefix(count)) }
+        return (0..<count).map { i in positions[i * positions.count / count] }
     }
 
     // MARK: - Point Lights

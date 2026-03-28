@@ -87,8 +87,11 @@ struct GridModel: Sendable {
             aliveCellIndices.append(idx)
         } else if !alive && wasAlive {
             aliveCount -= 1
-            // Pattern loaders rebuild at the end, so linear removal is OK for interactive use
-            aliveCellIndices.removeAll { $0 == idx }
+            // Swap-remove: find first match, swap with last, pop — O(n) search but O(1) removal
+            if let pos = aliveCellIndices.firstIndex(of: idx) {
+                aliveCellIndices.swapAt(pos, aliveCellIndices.count - 1)
+                aliveCellIndices.removeLast()
+            }
         }
     }
 
@@ -98,7 +101,10 @@ struct GridModel: Sendable {
         if cells[idx] > 0 {
             cells[idx] = 0
             aliveCount -= 1
-            aliveCellIndices.removeAll { $0 == idx }
+            if let pos = aliveCellIndices.firstIndex(of: idx) {
+                aliveCellIndices.swapAt(pos, aliveCellIndices.count - 1)
+                aliveCellIndices.removeLast()
+            }
         } else {
             cells[idx] = 1
             aliveCount += 1
@@ -216,7 +222,8 @@ struct GridModel: Sendable {
         var i = 0
         while i < fadingCells.count {
             fadingCells[i].framesLeft -= 1
-            if fadingCells[i].framesLeft <= 0 || cells[fadingCells[i].index] != 0 {
+            let fadeIdx = fadingCells[i].index
+            if fadingCells[i].framesLeft <= 0 || fadeIdx >= cells.count || cells[fadeIdx] != 0 {
                 // Swap with last element and remove (O(1) removal)
                 fadingCells[i] = fadingCells[fadingCells.count - 1]
                 fadingCells.removeLast()

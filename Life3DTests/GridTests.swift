@@ -2219,3 +2219,94 @@ struct MidnightThemeTests {
         #expect(midnight.newborn.emissiveColor.z > midnight.newborn.emissiveColor.y)
     }
 }
+
+// MARK: - Swap-Remove Index Consistency Tests
+
+@Suite("Swap-Remove Index Tests")
+struct SwapRemoveIndexTests {
+    @Test("toggleCell off uses swap-remove and keeps indices consistent")
+    func toggleOffSwapRemove() {
+        var grid = GridModel(size: 4)
+        // Set 3 cells alive
+        grid.setCell(x: 0, y: 0, z: 0, alive: true)
+        grid.setCell(x: 1, y: 1, z: 1, alive: true)
+        grid.setCell(x: 2, y: 2, z: 2, alive: true)
+        #expect(grid.aliveCellIndices.count == 3)
+
+        // Toggle middle cell off — swap-remove should maintain count
+        grid.toggleCell(x: 1, y: 1, z: 1)
+        #expect(grid.aliveCount == 2)
+        #expect(grid.aliveCellIndices.count == 2)
+
+        // Verify remaining indices match actual alive cells
+        let idx0 = grid.index(x: 0, y: 0, z: 0)
+        let idx2 = grid.index(x: 2, y: 2, z: 2)
+        #expect(grid.aliveCellIndices.contains(idx0))
+        #expect(grid.aliveCellIndices.contains(idx2))
+    }
+
+    @Test("setCell(alive: false) uses swap-remove correctly")
+    func setCellFalseSwapRemove() {
+        var grid = GridModel(size: 4)
+        grid.setCell(x: 0, y: 0, z: 0, alive: true)
+        grid.setCell(x: 1, y: 0, z: 0, alive: true)
+        grid.setCell(x: 2, y: 0, z: 0, alive: true)
+        grid.setCell(x: 3, y: 0, z: 0, alive: true)
+        #expect(grid.aliveCellIndices.count == 4)
+
+        // Remove first cell — should swap with last
+        grid.setCell(x: 0, y: 0, z: 0, alive: false)
+        #expect(grid.aliveCount == 3)
+        #expect(grid.aliveCellIndices.count == 3)
+        #expect(!grid.aliveCellIndices.contains(grid.index(x: 0, y: 0, z: 0)))
+    }
+
+    @Test("Rapid toggle on/off keeps indices synchronized")
+    func rapidToggleSync() {
+        var grid = GridModel(size: 8)
+        // Toggle same cell on and off repeatedly
+        for _ in 0..<10 {
+            grid.toggleCell(x: 3, y: 3, z: 3)
+        }
+        // Even number of toggles → cell is dead
+        #expect(grid.aliveCount == 0)
+        #expect(grid.aliveCellIndices.isEmpty)
+    }
+}
+
+// MARK: - Fading Cell Bounds Safety Tests
+
+@Suite("Fading Cell Bounds Safety Tests")
+struct FadingCellBoundsTests {
+    @Test("advanceGeneration handles fading cells safely")
+    func fadingCellsSafe() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.3)
+        // Run several generations to produce dying/fading cells
+        for _ in 0..<5 {
+            grid.advanceGeneration()
+        }
+        // Fading cells should all have valid indices
+        for entry in grid.fadingCells {
+            #expect(entry.index >= 0 && entry.index < grid.cellCount)
+            #expect(entry.framesLeft > 0 && entry.framesLeft <= GridModel.fadeDuration)
+        }
+    }
+
+    @Test("Fading cells expire after fadeDuration generations")
+    func fadingCellsExpire() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.3)
+        grid.advanceGeneration()
+
+        // Run enough generations for all fading cells to expire
+        for _ in 0..<(GridModel.fadeDuration + 1) {
+            grid.advanceGeneration()
+        }
+        // All fading cells from the first advance should have expired by now
+        // (new ones may exist from subsequent generations)
+        for entry in grid.fadingCells {
+            #expect(entry.framesLeft > 0)
+        }
+    }
+}

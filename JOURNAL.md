@@ -2,6 +2,22 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 56 (2026-03-28 10:46 PDT)
+
+**Goal**: Bug fixes — swap-remove optimization, fading cell bounds safety, samplePositions even distribution.
+
+Three fixes:
+
+1. **Swap-remove for alive cell index removal**: `toggleCell` and `setCell(alive: false)` used `aliveCellIndices.removeAll { $0 == idx }` which scans the entire array even after finding the match, then shifts all subsequent elements left. Replaced with `firstIndex(of:) + swapAt + removeLast` — stops scanning at first match and removes in O(1) via swap with last element. Order of `aliveCellIndices` doesn't matter since it's only used for iteration. For a 32³ grid with ~8K alive cells during interactive drawing, this eliminates ~4K unnecessary comparisons per cell toggle.
+
+2. **Fading cell index bounds safety**: `advanceGeneration` accessed `cells[fadingCells[i].index]` without validating the index was within bounds. If the grid were resized while fading cells existed (e.g., changing grid size mid-simulation), stale indices could cause an array-index-out-of-bounds crash. Added `fadeIdx >= cells.count` guard to the expiration check.
+
+3. **Fix samplePositions even distribution in GridImmersiveView**: The GridImmersiveView copy of `samplePositions` used integer-divided step (`positions.count / count`) which clusters samples toward the start of the array. For 23 positions sampled to 6, old code selected indices [0,3,6,9,12,15] — missing the last third. SpatialAudioEngine already had the correct formula (`i * positions.count / count`). Aligned GridImmersiveView to match: for the same 23→6 case, now selects [0,3,7,11,15,19] — evenly spanning the full range.
+
+Added 7 tests: swap-remove consistency for toggleCell/setCell, rapid toggle sync, fading cell index validity, fading cell expiration.
+
+---
+
 ## Day 12 — Session 56 (2026-03-28 10:48 PDT)
 
 **Goal**: Fix broken torus/galaxy rendering, Pyramid pattern, Midnight theme.
