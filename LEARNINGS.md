@@ -5,6 +5,16 @@ the same things. Search here before looking things up externally.
 
 ---
 
+## Swift Circular Buffer: Avoiding Per-Tick Allocations
+
+- `Array(slice) + Array(slice)` for unwrapping a circular buffer allocates 2 temporary arrays and a final concatenated array — 3 heap allocs per call
+- For O(0) allocation, pre-size the output array once and use `withUnsafeMutableBufferPointer` + `update(from:count:)` to copy in-place
+- `update(from:count:)` compiles to `memmove` — single operation vs N element copies
+- `removeAll(keepingCapacity: true)` preserves backing allocation for the empty case
+- At 5-30 gen/s, eliminating per-generation allocations reduces GC pressure measurably on visionOS where frame budgets are tight (16.6ms at 60fps)
+
+---
+
 ## ParticleEmitterComponent in visionOS RealityKit
 
 - `ParticleEmitterComponent` has no top-level `birthRate` property — particle properties live on `mainEmitter`

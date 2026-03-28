@@ -3003,3 +3003,228 @@ struct WrappingTopologyTests {
         #expect(cells.count == model.aliveCount)
     }
 }
+
+// MARK: - Rule Set Persistence Tests
+
+@Suite("Rule Set Persistence Tests")
+struct RuleSetPersistenceTests {
+    @Test("All rule sets round-trip through savePreferences/init")
+    @MainActor
+    func ruleSetRoundTrip() {
+        for ruleSet in SimulationEngine.RuleSet.allCases {
+            let engine = SimulationEngine(size: 8)
+            engine.applyRuleSet(ruleSet)
+            engine.savePreferences()
+
+            // Simulate app restart: new engine reads from UserDefaults
+            let restored = SimulationEngine(size: 8)
+            #expect(restored.grid.birthCounts == ruleSet.birthCounts,
+                    "Birth counts mismatch for \(ruleSet.rawValue)")
+            #expect(restored.grid.survivalCounts == ruleSet.survivalCounts,
+                    "Survival counts mismatch for \(ruleSet.rawValue)")
+        }
+    }
+
+    @Test("Theme persists across engine recreation")
+    @MainActor
+    func themePersistence() {
+        let engine = SimulationEngine(size: 8)
+        let targetTheme = ColorTheme.ocean
+        engine.theme = targetTheme
+        engine.savePreferences()
+
+        let restored = SimulationEngine(size: 8)
+        #expect(restored.theme.name == targetTheme.name)
+    }
+
+    @Test("Grid size persists across engine recreation")
+    @MainActor
+    func gridSizePersistence() {
+        let engine = SimulationEngine(size: 8)
+        engine.changeGridSize(24)
+
+        let restored = SimulationEngine(size: 8)
+        #expect(restored.grid.size == 24)
+    }
+
+    @Test("Speed persists across engine recreation")
+    @MainActor
+    func speedPersistence() {
+        let engine = SimulationEngine(size: 8)
+        engine.speed = 15.0
+        engine.savePreferences()
+
+        let restored = SimulationEngine(size: 8)
+        #expect(restored.speed == 15.0)
+    }
+
+    @Test("Audio muted state persists")
+    @MainActor
+    func audioMutedPersistence() {
+        let engine = SimulationEngine(size: 8)
+        engine.audioMuted = false
+        engine.savePreferences()
+
+        let restored = SimulationEngine(size: 8)
+        #expect(restored.audioMuted == false)
+    }
+}
+
+// MARK: - Grid Epoch Tests
+
+@Suite("Grid Epoch Tests")
+struct GridEpochTests {
+    @Test("Grid epoch increments on size change")
+    @MainActor
+    func epochIncrementsOnSizeChange() {
+        let engine = SimulationEngine(size: 8)
+        let initialEpoch = engine.gridEpoch
+        engine.changeGridSize(16)
+        #expect(engine.gridEpoch == initialEpoch + 1)
+    }
+
+    @Test("Grid epoch increments each size change")
+    @MainActor
+    func epochIncrementsMultiple() {
+        let engine = SimulationEngine(size: 8)
+        engine.changeGridSize(12)
+        engine.changeGridSize(16)
+        engine.changeGridSize(24)
+        #expect(engine.gridEpoch == 3)
+    }
+
+    @Test("Reset does not increment grid epoch")
+    @MainActor
+    func resetDoesNotIncrementEpoch() {
+        let engine = SimulationEngine(size: 8)
+        let initialEpoch = engine.gridEpoch
+        engine.reset(pattern: .random)
+        #expect(engine.gridEpoch == initialEpoch)
+    }
+}
+
+// MARK: - Population History Buffer Tests
+
+@Suite("Population History Buffer Tests")
+struct PopulationHistoryBufferTests {
+    @Test("Population history grows with each generation")
+    @MainActor
+    func historyGrows() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        #expect(engine.populationHistory.isEmpty)
+        engine.step()
+        #expect(engine.populationHistory.count == 1)
+        engine.step()
+        #expect(engine.populationHistory.count == 2)
+    }
+
+    @Test("Population history caps at 60 entries")
+    @MainActor
+    func historyCapsAtMax() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        for _ in 0..<80 {
+            engine.step()
+        }
+        #expect(engine.populationHistory.count == 60)
+    }
+
+    @Test("Population history values match alive count at each step")
+    @MainActor
+    func historyMatchesAliveCount() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.loadBlock()
+        var expectedCounts: [Int] = []
+        for _ in 0..<5 {
+            engine.step()
+            expectedCounts.append(engine.grid.aliveCount)
+        }
+        #expect(engine.populationHistory == expectedCounts)
+    }
+
+    @Test("Population history is cleared on reset")
+    @MainActor
+    func historyClearedOnReset() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        for _ in 0..<10 {
+            engine.step()
+        }
+        #expect(!engine.populationHistory.isEmpty)
+        engine.reset()
+        #expect(engine.populationHistory.isEmpty)
+    }
+
+    @Test("Population history wraps correctly in circular buffer")
+    @MainActor
+    func historyWrapsCorrectly() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.loadBlock()
+        // Fill beyond capacity to force wrapping
+        for _ in 0..<70 {
+            engine.step()
+        }
+        // History should be the last 60 values, ordered oldest to newest
+        #expect(engine.populationHistory.count == 60)
+        // Last entry should match current alive count
+        #expect(engine.populationHistory.last == engine.grid.aliveCount)
+    }
+}
+
+// MARK: - Draw Mode Paint Edge Cases
+
+@Suite("Draw Mode Paint Edge Cases")
+struct DrawModePaintTests {
+    @Test("Painting same cell twice in one drag is idempotent")
+    func paintSameCellTwice() {
+        var model = GridModel(size: 8)
+        // Simulate paint mode: set cell once
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        let countAfterFirst = model.aliveCount
+        // "Paint" same cell again — should be no-op
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        #expect(model.aliveCount == countAfterFirst)
+    }
+
+    @Test("Erasing same cell twice in one drag is idempotent")
+    func eraseSameCellTwice() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        model.setCell(x: 3, y: 3, z: 3, alive: false)
+        let countAfterFirst = model.aliveCount
+        model.setCell(x: 3, y: 3, z: 3, alive: false)
+        #expect(model.aliveCount == countAfterFirst)
+    }
+
+    @Test("Painting out-of-bounds cell is safe")
+    func paintOutOfBounds() {
+        var model = GridModel(size: 8)
+        // These should not crash
+        model.setCell(x: -1, y: 0, z: 0, alive: true)
+        model.setCell(x: 8, y: 0, z: 0, alive: true)
+        model.setCell(x: 0, y: -1, z: 0, alive: true)
+        model.setCell(x: 0, y: 0, z: 8, alive: true)
+        #expect(model.aliveCount == 0)
+    }
+
+    @Test("Rapid paint-erase cycle maintains consistent alive count")
+    func rapidPaintEraseCycle() {
+        var model = GridModel(size: 8)
+        for i in 0..<20 {
+            let alive = i % 2 == 0
+            model.setCell(x: 4, y: 4, z: 4, alive: alive)
+        }
+        // 20 cycles: last call is alive=false (i=19, 19%2=1 → false)
+        #expect(model.aliveCount == 0)
+        #expect(!model.isAlive(x: 4, y: 4, z: 4))
+    }
+
+    @Test("Flat index consistency across grid sizes")
+    func flatIndexConsistencyAcrossSizes() {
+        for size in [8, 12, 16, 24] {
+            let model = GridModel(size: size)
+            // Corner cells should map to predictable flat indices
+            let origin = model.index(x: 0, y: 0, z: 0)
+            let maxCorner = model.index(x: size - 1, y: size - 1, z: size - 1)
+            #expect(origin == 0)

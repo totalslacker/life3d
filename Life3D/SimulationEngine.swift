@@ -39,17 +39,43 @@ final class SimulationEngine {
     private var _historyCount: Int = 0
     private static let historyLength = 60  // ~12 seconds at 5 gen/s
 
-    /// Cached population history array, rebuilt only when a generation advances.
+    /// Cached population history array, rebuilt in-place when a generation advances.
+    /// Pre-allocated to historyLength to avoid per-generation heap allocations.
     private(set) var populationHistory: [Int] = []
 
-    /// Rebuilds the populationHistory array from the circular buffer.
+    /// Rebuilds the populationHistory array from the circular buffer in-place.
+    /// Uses a single pre-sized array and copies via slices instead of allocating
+    /// two temporary arrays and concatenating them each generation.
     private func _rebuildPopulationHistory() {
-        guard _historyCount > 0 else { populationHistory = []; return }
-        if _historyCount < Self.historyLength {
-            populationHistory = Array(_historyBuffer[0..<_historyCount])
+        guard _historyCount > 0 else {
+            if !populationHistory.isEmpty { populationHistory.removeAll(keepingCapacity: true) }
+            return
+        }
+        let count = _historyCount
+        // Ensure backing array is the right size without reallocating each call
+        if populationHistory.count != count {
+            if populationHistory.capacity < count {
+                populationHistory.reserveCapacity(Self.historyLength)
+            }
+            populationHistory = [Int](repeating: 0, count: count)
+        }
+        if count < Self.historyLength {
+            // Buffer not yet full — straight copy
+            populationHistory.withUnsafeMutableBufferPointer { dst in
+                _historyBuffer.withUnsafeBufferPointer { src in
+                    dst.baseAddress!.update(from: src.baseAddress!, count: count)
+                }
+            }
         } else {
+            // Buffer full — unwrap circular: [writeIndex..<length] + [0..<writeIndex]
             let start = _historyWriteIndex
-            populationHistory = Array(_historyBuffer[start..<Self.historyLength]) + Array(_historyBuffer[0..<start])
+            let tailCount = Self.historyLength - start
+            populationHistory.withUnsafeMutableBufferPointer { dst in
+                _historyBuffer.withUnsafeBufferPointer { src in
+                    dst.baseAddress!.update(from: src.baseAddress! + start, count: tailCount)
+                    dst.baseAddress!.advanced(by: tailCount).update(from: src.baseAddress!, count: start)
+                }
+            }
         }
     }
 
@@ -329,6 +355,10 @@ final class SimulationEngine {
         }
     }
 
+    /// Incremented each time the grid is replaced (e.g. size change).
+    /// Observers can watch this to invalidate stale per-grid state like paintedCells.
+    private(set) var gridEpoch: Int = 0
+
     func changeGridSize(_ newSize: Int) {
         pause()
         generation = 0
@@ -338,6 +368,7 @@ final class SimulationEngine {
         grid = GridModel(size: newSize, birthCounts: currentBirth, survivalCounts: currentSurvival)
         grid.wrapping = wrapping
         grid.randomSeed()
+        gridEpoch += 1
         savePreferences()
     }
 

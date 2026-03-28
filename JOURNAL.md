@@ -2,6 +2,24 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 58 (2026-03-28 11:12 PDT)
+
+**Goal**: Performance optimization, draw mode safety, test coverage expansion.
+
+Three improvements:
+
+1. **Zero-allocation population history rebuild**: `_rebuildPopulationHistory()` was allocating 1-2 temporary arrays every generation via `Array(slice) + Array(slice)`. Replaced with in-place `UnsafeMutableBufferPointer` copy that reuses a pre-sized backing array. For the full 60-entry circular buffer at 5 gen/s, this eliminates ~10 heap allocations/second (two array allocs per call). The buffer pointer copy uses `update(from:count:)` which compiles to `memmove` — a single operation instead of element-by-element Swift array init.
+
+2. **Grid size change resets draw mode state**: Added `gridEpoch` counter to `SimulationEngine` that increments on `changeGridSize()`. `GridImmersiveView` observes `gridEpoch` and clears `paintedCells` — a `Set<Int>` of flat cell indices. Without this, stale indices from the old grid could survive into the new grid, causing `paintedCells.contains()` to match wrong cells during the next draw drag (indices valid for a 32³ grid are out of bounds for a 12³ grid).
+
+3. **Test coverage expansion**: Added 17 tests across 4 new test suites:
+   - Rule Set Persistence (5 tests): All 4 rule sets round-trip through `savePreferences()`/`init()`, plus theme, grid size, speed, and audio muted persistence.
+   - Grid Epoch (3 tests): Epoch increments on size change, increments cumulatively, reset does not increment.
+   - Population History Buffer (5 tests): History grows, caps at 60, values match alive count, clears on reset, wraps correctly in circular buffer.
+   - Draw Mode Paint Edge Cases (5 tests): Idempotent paint/erase, out-of-bounds safety, rapid paint-erase cycle, flat index consistency across grid sizes.
+
+---
+
 ## Day 12 — Session 58 (2026-03-28 11:10 PDT)
 
 **Goal**: Wrapping topology (toroidal grid) for fundamentally different simulation dynamics.

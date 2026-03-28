@@ -151,6 +151,10 @@ struct GridImmersiveView: View {
         .onChange(of: engine.grid.size) {
             rebuildWireframe()
         }
+        .onChange(of: engine.gridEpoch) {
+            // Grid was replaced (e.g. size change) — clear stale draw mode indices
+            paintedCells.removeAll()
+        }
         .onChange(of: engine.surroundMode) {
             applySurroundMode()
         }
