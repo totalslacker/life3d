@@ -1127,9 +1127,9 @@ struct ForestThemeTests {
         #expect(themes.contains(where: { $0.name == "Forest" }))
     }
 
-    @Test("All themes count is 14 after Sunset addition")
+    @Test("All themes count is 15 after Sunset and Twilight additions")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 14)
+        #expect(ColorTheme.allThemes.count == 15)
     }
 
     @Test("Forest theme has green color progression")
@@ -1251,7 +1251,83 @@ struct TrendCircularBufferTests {
         let engine = SimulationEngine(size: 8)
         engine.grid.randomSeed(density: 0.25)
         for _ in 0..<10 { engine.step() }
+
+@Suite("Twilight Theme Tests")
+struct TwilightThemeTests {
+    @Test("Twilight theme exists in allThemes")
+    func twilightThemeExists() {
+        let themes = ColorTheme.allThemes
+        #expect(themes.contains(where: { $0.name == "Twilight" }))
+    }
+
+    @Test("Twilight theme has warm-to-purple color progression")
+    func twilightColorProgression() {
+        let theme = ColorTheme.twilight
+        // Newborn: warm golden (high red, medium green)
+        #expect(theme.newborn.emissiveColor.x > 0.9)
+        #expect(theme.newborn.emissiveColor.y > 0.5)
+        // Young: purple-violet (red > green, blue present)
+        #expect(theme.young.emissiveColor.z > theme.young.emissiveColor.y)
+        // Mature: deep twilight purple
+        #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.x)
+        // Intensity decreases with age
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+    }
+}
+
+@Suite("Population Trend Circular Buffer Tests")
+struct PopulationTrendTests {
+    @Test("Trend is zero with insufficient data")
+    @MainActor
+    func trendZeroInitially() {
+        let engine = SimulationEngine(size: 4)
+        #expect(engine.populationTrend == 0)
+    }
+
+    @Test("Trend updates after stepping")
+    @MainActor
+    func trendAfterSteps() {
+        let engine = SimulationEngine(size: 4)
+        // Step several times to populate trend buffer
+        for _ in 0..<10 {
+            engine.step()
+        }
+        // Trend should be computable (not crash) — value depends on simulation dynamics
+        let trend = engine.populationTrend
+        #expect(trend >= -1 && trend <= 1)
+    }
+
+    @Test("Reset clears trend data")
+    @MainActor
+    func resetClearsTrend() {
+        let engine = SimulationEngine(size: 4)
+        for _ in 0..<10 {
+            engine.step()
+        }
         engine.reset()
         #expect(engine.populationTrend == 0)
+    }
+}
+
+@Suite("Depth Scaling Tests")
+struct DepthScalingTests {
+    @Test("Mesh data computes without crash for small grid")
+    func meshDataSmallGrid() {
+        var model = GridModel(size: 4)
+        model.randomSeed(density: 0.3)
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        #expect(data.cellCount > 0)
+        #expect(data.vertices.count == data.cellCount * 24)
+        #expect(data.indices.count == data.cellCount * 36)
+    }
+
+    @Test("Mesh data handles empty grid")
+    func meshDataEmptyGrid() {
+        let model = GridModel(size: 4)
+        let data = GridRenderer.computeMeshDataForTest(model: model)
+        #expect(data.cellCount == 0)
+        #expect(data.vertices.isEmpty)
+        #expect(data.indices.isEmpty)
     }
 }

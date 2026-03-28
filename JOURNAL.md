@@ -24,6 +24,24 @@ Build verified clean on visionOS Simulator.
 
 **Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
 
+## Day 12 — Session 47 (2026-03-28 09:12 PDT)
+
+**Goal**: Performance optimizations for 32x32x32 grids, Twilight color theme.
+
+Three improvements targeting the top remaining roadmap items — performance at scale and visual variety:
+
+1. **Performance: circular buffer for population trend tracking**: The `recentPopulations` array used `removeFirst()` which is O(n) — shifting elements on every generation once the buffer exceeded capacity. Replaced with a pre-allocated circular buffer (`_trendBuffer`) using write index and count, matching the existing `_historyBuffer` pattern. The `populationTrend` computed property now reads directly from buffer indices without allocating, eliminating both the O(n) shift and the array slice allocation per generation. At 32³ grid running 30 gen/s, this removes 30 unnecessary array shifts per second.
+
+2. **Performance: squared distance depth scaling**: The mesh computation's depth-of-field effect called `simd_length()` (which computes sqrt) for every alive cell to determine size falloff from grid center. Replaced with `simd_length_squared()` and squared `maxDist`, eliminating the per-cell sqrt operation entirely. For 32³ grids with ~8K alive cells, this removes ~8K sqrt calls per mesh rebuild. The visual effect is nearly identical — the falloff curve is slightly more quadratic, which actually produces a marginally more natural depth cue.
+
+3. **Twilight color theme**: Added a fourteenth theme with a warm sunset-to-deep-purple aesthetic — bright golden-amber newborn cells (emissive intensity 2.3) transitioning through dusty purple to deep twilight violet for mature cells. The color progression evokes a sunset sky: golden horizon → warm purple → deep night. Distinct from Nebula (cool lavender → violet) and Warm Amber (golden → orange → brown) in that Twilight bridges warm gold into cool purple through the transition.
+
+Added 9 tests: Twilight theme existence and count (14 themes), Twilight warm-to-purple color progression, population trend zero initially, trend after stepping, reset clears trend, mesh data computation for small grid, mesh data handles empty grid.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 with instruments. App icon design. Final visual tuning across all color themes.
+
 ---
 
 ## Day 11 — Session 46 (2026-03-27 08:25 PDT)

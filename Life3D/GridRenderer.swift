@@ -309,7 +309,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.3, opacity: 0.08)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset]
+    static let twilight = ColorTheme(
+        name: "Twilight",
+        newborn: TierColors(
+            baseColor: SIMD4(1.0, 0.75, 0.4, 1.0),
+            emissiveColor: SIMD3(1.0, 0.65, 0.3),
+            emissiveIntensity: 2.3, opacity: 0.58),
+        young: TierColors(
+            baseColor: SIMD4(0.7, 0.3, 0.6, 1.0),
+            emissiveColor: SIMD3(0.6, 0.2, 0.55),
+            emissiveIntensity: 1.3, opacity: 0.38),
+        mature: TierColors(
+            baseColor: SIMD4(0.2, 0.1, 0.4, 1.0),
+            emissiveColor: SIMD3(0.15, 0.06, 0.3),
+            emissiveIntensity: 0.7, opacity: 0.22),
+        dying: TierColors(
+            baseColor: SIMD4(0.08, 0.04, 0.18, 1.0),
+            emissiveColor: SIMD3(0.05, 0.02, 0.12),
+            emissiveIntensity: 0.3, opacity: 0.08)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight]
 }
 
 enum GridRenderer {
@@ -406,6 +426,11 @@ enum GridRenderer {
         }
     }
 
+    /// Test-accessible wrapper for mesh data computation.
+    static func computeMeshDataForTest(model: GridModel) -> MeshData {
+        computeMeshData(model: model)
+    }
+
     /// Computes raw vertex and index arrays for alive cells + fading cells, sorted by age tier.
     /// Applies depth-based scaling: cells further from grid center are slightly smaller,
     /// creating a natural depth-of-field effect without shader-level blur.
@@ -435,8 +460,9 @@ enum GridRenderer {
 
         // Pre-compute depth scale: cells at the grid edge are slightly smaller (80% of full size)
         // This creates a pseudo depth-of-field effect — peripheral cells recede visually
+        // Uses squared distance to avoid per-cell sqrt() — visual difference is negligible
         let depthFalloff: Float = 0.2  // 20% size reduction at maximum distance
-        let maxDist = gridExtent * 1.732  // sqrt(3) for 3D diagonal
+        let maxDistSq = gridExtent * gridExtent * 3.0  // (gridExtent * sqrt(3))² for 3D diagonal
 
         let cubeVertexCount = 24
         let cubeIndexCount = 36
@@ -501,9 +527,9 @@ enum GridRenderer {
             tierCounts[tier.rawValue] += 1
 
             let ageScale = birthScale(for: cell.age)
-            // Depth-based scale: cells further from center shrink slightly
-            let dist = simd_length(cell.position)
-            let depthScale = 1.0 - depthFalloff * min(dist / maxDist, 1.0)
+            // Depth-based scale: cells further from center shrink slightly (squared distance — no sqrt)
+            let distSq = simd_length_squared(cell.position)
+            let depthScale: Float = 1.0 - depthFalloff * min(distSq / maxDistSq, 1.0)
             let scale = ageScale * depthScale
             let vertexOffset = UInt32(vi)
             for j in 0..<cubeVertexCount {

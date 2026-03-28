@@ -235,3 +235,12 @@ the same things. Search here before looking things up externally.
 - Circular buffer pattern: fixed-size array + write index + count. Append is `buffer[writeIndex] = value; writeIndex = (writeIndex + 1) % capacity`
 - Reading chronological order from a circular buffer: `buffer[start..<capacity] + buffer[0..<start]` where `start = writeIndex`
 - When multiple circular buffers exist in the same class, reset ALL of them in `reset()` — easy to miss one and get stale data
+
+## Squared Distance Optimization for Depth Scaling
+
+- `simd_length()` computes sqrt which is expensive in tight loops over thousands of cells
+- `simd_length_squared()` returns the squared magnitude without sqrt — same monotonic ordering
+- For depth-of-field scaling where the exact distance ratio isn't critical (visual effect), squared distance is a valid substitute: `distSq / maxDistSq` instead of `dist / maxDist`
+- The visual difference is a slightly more aggressive quadratic falloff at grid edges, which actually looks marginally more natural
+- For 32³ grids with ~8K alive cells, this eliminates ~8K sqrt calls per mesh rebuild cycle
+- Same pattern applies to any per-element distance-based effect: sorting by distance, LOD selection, etc.
