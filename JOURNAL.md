@@ -2,6 +2,28 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 60 (2026-03-28 11:48 PDT)
+
+**Goal**: Fix test compilation, remove dead code in hot path, fix timing bug, add correctness tests.
+
+Five improvements:
+
+1. **Fix test file compilation (9 unclosed braces)**: Three functions (`resetClearsTrendBuffer`, `flatIndexConsistencyAcrossSizes`, `clearAllThenPatternLoad`) had incomplete bodies — their enclosing structs cascaded into everything after them. Added proper closing bodies and braces. Also renamed duplicate `BulkAliveIndexMapTests` struct to `BulkAliveIndexMapFillTests`. The test target was entirely unbuildable.
+
+2. **Fix stale theme count assertions**: 6 tests asserted `allThemes.count == 22` but actual count is 23 (plasma was added in session 58). Updated all to `== 23`.
+
+3. **Remove redundant aliveIndexMap reset in advanceGeneration**: The O(alive) selective loop `for idx in aliveCellIndices { aliveIndexMap[idx] = -1 }` was immediately followed by an O(n³) bulk `update(repeating: -1)` that overwrote all the same entries. Removed the selective loop — pure dead code in the hot path.
+
+4. **Fix lastStepTimeMs timing bug**: `ContinuousClock.Duration.components` returns `(seconds, attoseconds)` where attoseconds is the sub-second remainder. The old code only read `attoseconds`, silently dropping any whole seconds. For steps taking ≥1s (e.g., large grid first step), the reported time would wrap to near-zero. Now includes both components.
+
+5. **Add 10 new tests**: Wrapping advanceGeneration vs reference neighborCount correctness, wrapping multi-generation index consistency, wrapping vs finite boundary divergence, step timing positive, generation increment tracking, AgeTier boundary values (newborn/young/mature/dying).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. Move advanceGeneration off MainActor. App icon design.
+
+---
+
 ## Day 12 — Session 60 (2026-03-28 11:40 PDT)
 
 **Goal**: Fix redundant aliveIndexMap reset, new pattern, new theme, wrapping topology tests.

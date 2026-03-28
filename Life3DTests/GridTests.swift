@@ -1761,6 +1761,9 @@ struct AliveCellIndexTests {
     }
 }
 
+// MARK: - Exit Safety Tests
+
+@Suite("Exit Safety Tests")
 struct ExitSafetyTests {
     @Test("Auto-restart skipped when isExiting is true")
     @MainActor
@@ -3362,6 +3365,10 @@ struct DrawModePaintTests {
             let origin = model.index(x: 0, y: 0, z: 0)
             let maxCorner = model.index(x: size - 1, y: size - 1, z: size - 1)
             #expect(origin == 0)
+            #expect(maxCorner == size * size * size - 1)
+        }
+    }
+}
 
 // MARK: - Menger Sponge Pattern Tests
 
@@ -3559,10 +3566,10 @@ struct CagePatternTests {
     }
 }
 
-// MARK: - Bulk AliveIndexMap Tests
+// MARK: - Bulk AliveIndexMap Fill Tests
 
-@Suite("Bulk AliveIndexMap Tests")
-struct BulkAliveIndexMapTests {
+@Suite("Bulk AliveIndexMap Fill Tests")
+struct BulkAliveIndexMapFillTests {
     @Test("AliveIndexMap consistency after clearAll with bulk fill")
     func clearAllBulkMapConsistency() {
         var model = GridModel(size: 8)

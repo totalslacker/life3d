@@ -204,7 +204,9 @@ final class SimulationEngine {
         let stepStart = ContinuousClock.now
         grid.advanceGeneration()
         let stepEnd = ContinuousClock.now
-        lastStepTimeMs = Double((stepEnd - stepStart).components.attoseconds) / 1_000_000_000_000_000.0
+        let duration = stepEnd - stepStart
+        lastStepTimeMs = Double(duration.components.seconds) * 1000.0
+                       + Double(duration.components.attoseconds) / 1_000_000_000_000_000.0
         generation += 1
         // Track generation rate
         rateGenerationCount += 1

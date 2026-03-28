@@ -202,9 +202,6 @@ struct GridModel: Sendable {
         // Reuse pre-allocated born/dying/alive buffers — removeAll(keepingCapacity:) avoids heap allocation
         dyingCells.removeAll(keepingCapacity: true)
         bornCells.removeAll(keepingCapacity: true)
-        // Reset reverse mapping only for previously-alive cells: O(alive) instead of O(n³).
-        // For a 32³ grid with ~5K alive cells, this resets ~5K entries vs 32K.
-        for idx in aliveCellIndices { aliveIndexMap[idx] = -1 }
         aliveCellIndices.removeAll(keepingCapacity: true)
 
         for x in 0..<size {
