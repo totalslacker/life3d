@@ -698,6 +698,32 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
+    }
+
+    /// A stepped 3D pyramid with four triangular faces rising to a single apex.
+    /// Each layer is a centered square that shrinks by one cell per side,
+    /// creating a ziggurat-like structure with exposed surfaces that evolve
+    /// differently from the dense interior — edges erode first while the core sustains.
+    mutating func loadPyramid() {
+        clearAll()
+        let mid = size / 2
+        let height = min(size / 2, 8)  // pyramid height in cells
+        for layer in 0..<height {
+            let halfWidth = height - layer  // each layer shrinks by 1
+            let y = mid - height / 2 + layer
+            guard y >= 0 && y < size else { continue }
+            for dx in -halfWidth...halfWidth {
+                for dz in -halfWidth...halfWidth {
+                    let x = mid + dx
+                    let z = mid + dz
+                    if x >= 0 && x < size && z >= 0 && z < size {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
     }
 
     mutating func clearAll() {

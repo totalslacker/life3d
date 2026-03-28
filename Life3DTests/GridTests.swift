@@ -2045,9 +2045,9 @@ struct GoldThemeTests {
         #expect(ColorTheme.allThemes.contains(where: { $0.name == "Gold" }))
     }
 
-    @Test("Total theme count is 20")
+    @Test("Total theme count is 21")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 20)
+        #expect(ColorTheme.allThemes.count == 21)
     }
 
     @Test("Gold has warm metallic color progression")
@@ -2100,5 +2100,122 @@ struct ClearAllBufferTests {
         grid.randomSeed(density: 0.3)
         #expect(grid.aliveCount > 0)
         #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+}
+
+// MARK: - Torus/Galaxy Index Fix Tests
+
+@Suite("Torus Galaxy Index Rebuild Tests")
+struct TorusGalaxyIndexTests {
+    @Test("Torus pattern has matching alive index count")
+    func torusIndexCount() {
+        var grid = GridModel(size: 16)
+        grid.loadTorus()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Galaxy pattern has matching alive index count")
+    func galaxyIndexCount() {
+        var grid = GridModel(size: 16)
+        grid.loadGalaxy()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Torus aliveCellsWithAge returns correct count after load")
+    func torusAliveCellsWithAge() {
+        var grid = GridModel(size: 16)
+        grid.loadTorus()
+        let cells = grid.aliveCellsWithAge()
+        #expect(cells.count == grid.aliveCount)
+    }
+
+    @Test("Galaxy aliveCellsWithAge returns correct count after load")
+    func galaxyAliveCellsWithAge() {
+        var grid = GridModel(size: 16)
+        grid.loadGalaxy()
+        let cells = grid.aliveCellsWithAge()
+        #expect(cells.count == grid.aliveCount)
+    }
+}
+
+// MARK: - Pyramid Pattern Tests
+
+@Suite("Pyramid Pattern Tests")
+struct PyramidPatternTests {
+    @Test("Pyramid produces non-empty grid")
+    func pyramidNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadPyramid()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Pyramid has layered structure — bottom wider than top")
+    func pyramidLayeredStructure() {
+        var grid = GridModel(size: 16)
+        grid.loadPyramid()
+        let mid = 16 / 2
+        let height = min(16 / 2, 8)
+        // Count cells in bottom layer vs top layer
+        var bottomCount = 0
+        var topCount = 0
+        let bottomY = mid - height / 2
+        let topY = mid - height / 2 + height - 1
+        for x in 0..<16 {
+            for z in 0..<16 {
+                if grid.isAlive(x: x, y: bottomY, z: z) { bottomCount += 1 }
+                if grid.isAlive(x: x, y: topY, z: z) { topCount += 1 }
+            }
+        }
+        #expect(bottomCount > topCount, "Bottom layer should be wider than top")
+    }
+
+    @Test("Pyramid is selected by engine")
+    func pyramidEngineSelection() {
+        var grid = GridModel(size: 16)
+        grid.loadPyramid()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Pyramid evolves over multiple generations")
+    func pyramidEvolution() {
+        var grid = GridModel(size: 16, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
+        grid.loadPyramid()
+        let initial = grid.aliveCount
+        for _ in 0..<5 {
+            grid.advanceGeneration()
+        }
+        #expect(grid.aliveCount > 0, "Pyramid should still have living cells after 5 generations")
+        #expect(grid.aliveCount != initial, "Pyramid should evolve (population should change)")
+    }
+
+    @Test("Pyramid has matching alive index count")
+    func pyramidIndexCount() {
+        var grid = GridModel(size: 16)
+        grid.loadPyramid()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+}
+
+// MARK: - Midnight Theme Tests
+
+@Suite("Midnight Theme Tests")
+struct MidnightThemeTests {
+    @Test("Midnight theme exists in allThemes")
+    func midnightInAllThemes() {
+        #expect(ColorTheme.allThemes.contains(where: { $0.name == "Midnight" }))
+    }
+
+    @Test("Midnight has deep blue color progression")
+    func midnightColorProgression() {
+        let midnight = ColorTheme.midnight
+        // Newborn should be brightest
+        #expect(midnight.newborn.emissiveIntensity > midnight.young.emissiveIntensity)
+        #expect(midnight.young.emissiveIntensity > midnight.mature.emissiveIntensity)
+        #expect(midnight.mature.emissiveIntensity > midnight.dying.emissiveIntensity)
+        // Blue channel should dominate for midnight theme
+        #expect(midnight.newborn.emissiveColor.z > midnight.newborn.emissiveColor.x)
+        #expect(midnight.newborn.emissiveColor.z > midnight.newborn.emissiveColor.y)
     }
 }

@@ -2,6 +2,26 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 56 (2026-03-28 10:48 PDT)
+
+**Goal**: Fix broken torus/galaxy rendering, Pyramid pattern, Midnight theme.
+
+Three improvements:
+
+1. **Fix loadTorus() and loadGalaxy() missing rebuildAliveCellIndices()**: Both pattern loaders were missing the `rebuildAliveCellIndices()` call at the end. Since session 54 added the O(alive) render-path optimization via `aliveCellIndices`, the mesh builder iterates only indexed alive cells. Without the rebuild call, the index was empty after loading these patterns, causing zero cells to render — the grid appeared completely blank. Every other pattern loader had the call; these two were missed when the feature was added.
+
+2. **Pyramid pattern**: 16th pattern — a stepped 3D pyramid (ziggurat) with square layers that shrink by one cell per side as they rise. The bottom layer has the most cells and the apex is a single point. Each layer is a filled square centered in the grid. The structure has high surface area relative to volume, so edges and corners erode first under evolution while the dense interior sustains longer, creating an asymmetric collapse from the outside in.
+
+3. **Midnight theme**: 21st theme with deep blue/indigo tones — bright periwinkle newborn cells (emissive 2.2) transitioning through navy to deep indigo for mature cells. The blue channel dominates throughout, distinguishing it from Ocean Blues (cyan/teal tones) and Nebula (purple/magenta). Midnight stays in the cool blue-indigo family — like city lights reflected in a night sky.
+
+Added 12 tests: torus/galaxy index count matching, torus/galaxy aliveCellsWithAge correctness, pyramid non-empty, pyramid layered structure, pyramid engine selection, pyramid evolution, pyramid index count, Midnight theme existence, theme count (21), Midnight blue-dominant color progression.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 12 — Session 55 (2026-03-28 10:39 PDT)
 
 **Goal**: Bug fixes and allocation optimization — torus rendering, stale test cleanup, clearAll buffer reuse.
