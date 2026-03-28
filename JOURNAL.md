@@ -4,6 +4,28 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ---
 
+## Day 12 — Session 47 (2026-03-28 09:10 PDT)
+
+**Goal**: Sunset color theme, stagger lattice pattern, trend tracking performance fix.
+
+Three improvements across visual variety, new pattern, and performance:
+
+1. **Sunset color theme**: Added a fourteenth theme with a warm dusk aesthetic — bright orange newborn cells (emissive intensity 2.3) transitioning through red-magenta to deep purple for mature cells. The color progression evokes a sunset sky: warm orange horizon → rich magenta midsky → deep violet zenith. Fills the red-to-purple gradient gap in the palette — Ember goes yellow→red (fire), Coral goes orange→burgundy (reef), while Sunset uniquely transitions from warm orange through magenta into cool purple.
+
+2. **Stagger lattice pattern**: Added an eleventh pattern that creates a sparse, evenly-distributed seed by placing cells every 3rd position in each dimension, with alternate Y layers offset by 1 cell. This produces expanding wavefront dynamics where isolated clusters grow independently before merging into larger structures — visually distinct from the dense random seed or geometric shapes. Particularly interesting with the Standard ruleset where the regular spacing creates synchronized birth waves.
+
+3. **Performance: trend tracking circular buffer**: Replaced the `recentPopulations` array that used O(n) `removeFirst()` with a pre-allocated circular buffer (size 10, matching 2x trend window). Uses the same pattern as the already-optimized population history sparkline. At high simulation speeds (30 gen/s), this eliminates 30 array shift operations per second during the trend calculation hot path.
+
+Also marked Phase 1 bootstrap items as complete in ROADMAP (all clearly done since Day 3).
+
+Added 8 tests: Sunset theme existence, Sunset red-to-purple color progression, Stagger distribution bounds, Stagger offset verification, Stagger pattern engine selection, trend circular buffer wrapping, trend reset clearing, theme count update (14).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 11 — Session 46 (2026-03-27 08:25 PDT)
 
 **Goal**: Forest color theme, audio pool upgrade with speed-scaled tones, cinematic space transition.

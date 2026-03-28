@@ -1044,10 +1044,9 @@ struct DrawModeTests {
 
 @Suite("Coral Theme Tests")
 struct CoralThemeTests {
-    @Test("Coral theme exists and brings total to 12")
+    @Test("Coral theme exists")
     func coralThemeExists() {
         #expect(ColorTheme.allThemes.contains(where: { $0.name == "Coral" }))
-        #expect(ColorTheme.allThemes.count == 12)
     }
 
     @Test("Coral theme has warm orange-red color progression")
@@ -1128,9 +1127,9 @@ struct ForestThemeTests {
         #expect(themes.contains(where: { $0.name == "Forest" }))
     }
 
-    @Test("All themes count is 13 after Forest addition")
+    @Test("All themes count is 14 after Sunset addition")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 13)
+        #expect(ColorTheme.allThemes.count == 14)
     }
 
     @Test("Forest theme has green color progression")
@@ -1170,5 +1169,89 @@ struct AudioEngineTests {
         audio.updateSpeed(15.0)  // >25% change, triggers regen
         audio.updateSpeed(30.0)  // extreme speed, tone still audible (≥40ms)
         audio.stop()
+    }
+}
+
+@Suite("Sunset Theme Tests")
+struct SunsetThemeTests {
+    @Test("Sunset theme exists in allThemes")
+    func sunsetThemeExists() {
+        #expect(ColorTheme.allThemes.contains(where: { $0.name == "Sunset" }))
+    }
+
+    @Test("Sunset theme has warm red-to-purple color progression")
+    func sunsetThemeColors() {
+        let sunset = ColorTheme.sunset
+        // Newborn: warm orange (high red, medium green, low blue)
+        #expect(sunset.newborn.emissiveColor.x > 0.8)  // strong red
+        #expect(sunset.newborn.emissiveColor.y > 0.2)   // some green (warmth)
+        #expect(sunset.newborn.emissiveColor.z < 0.3)   // low blue
+        // Young: red-magenta (red stays, green drops, blue rises)
+        #expect(sunset.young.emissiveColor.x > 0.5)     // still red
+        #expect(sunset.young.emissiveColor.z > sunset.young.emissiveColor.y)  // blue > green (purple shift)
+        // Mature: deep purple (blue overtakes red)
+        #expect(sunset.mature.emissiveColor.z > sunset.mature.emissiveColor.x)  // purple
+        #expect(sunset.mature.emissiveIntensity < sunset.young.emissiveIntensity)
+    }
+}
+
+@Suite("Stagger Pattern Tests")
+struct StaggerPatternTests {
+    @Test("Stagger pattern produces evenly distributed cells")
+    func staggerDistribution() {
+        var grid = GridModel(size: 12)
+        grid.loadStagger()
+        // Stagger places ~1/9 of cells (every 3rd in each dimension, two stagger layers)
+        // For 12³ = 1728, expect roughly 192 alive cells (± some due to stagger offsets)
+        #expect(grid.aliveCount > 50)
+        #expect(grid.aliveCount < 400)
+    }
+
+    @Test("Stagger pattern has stagger offset on alternate Y layers")
+    func staggerOffset() {
+        var grid = GridModel(size: 12)
+        grid.loadStagger()
+        // Layer y=0 should have cells at x=0,3,6,9 and z=0,3,6,9
+        #expect(grid.isAlive(x: 0, y: 0, z: 0))
+        #expect(grid.isAlive(x: 3, y: 0, z: 3))
+        // Layer y=3 (alternate) should have cells at x=1,4,7,10 and z=1,4,7,10
+        #expect(grid.isAlive(x: 1, y: 3, z: 1))
+        #expect(grid.isAlive(x: 4, y: 3, z: 4))
+    }
+
+    @Test("Stagger pattern is selectable in engine")
+    @MainActor
+    func staggerPatternInEngine() {
+        let engine = SimulationEngine(size: 12)
+        engine.reset(pattern: .stagger)
+        #expect(engine.grid.aliveCount > 0)
+        #expect(engine.selectedPattern == .stagger)
+    }
+}
+
+@Suite("Trend Circular Buffer Tests")
+struct TrendCircularBufferTests {
+    @Test("Population trend uses circular buffer correctly")
+    @MainActor
+    func trendCircularBuffer() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        // Run many steps (more than buffer size of 10)
+        for _ in 0..<20 {
+            engine.step()
+        }
+        // Trend should still work correctly after wrapping
+        let validSymbols = ["arrow.up.right", "arrow.down.right", "arrow.right"]
+        #expect(validSymbols.contains(engine.trendSymbol))
+    }
+
+    @Test("Reset clears trend circular buffer")
+    @MainActor
+    func resetClearsTrendBuffer() {
+        let engine = SimulationEngine(size: 8)
+        engine.grid.randomSeed(density: 0.25)
+        for _ in 0..<10 { engine.step() }
+        engine.reset()
+        #expect(engine.populationTrend == 0)
     }
 }

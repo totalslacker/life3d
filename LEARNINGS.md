@@ -225,3 +225,13 @@ the same things. Search here before looking things up externally.
 - Scale tone duration inversely with speed: `max(40ms, 150ms * (5 / speed))` keeps tones distinct per generation
 - Regenerate `AVAudioPCMBuffer` only when speed changes by >20% — avoids per-frame buffer allocation while staying responsive
 - Floor of 40ms ensures tones remain perceptible even at 30 gen/s (the UI maximum)
+
+---
+
+## Circular Buffers for Per-Generation Tracking
+
+- Any per-generation data accumulation (population trend, history, etc.) should use pre-allocated circular buffers
+- `Array.removeFirst()` is O(n) — shifts all elements left. At 30 gen/s with a 10-element buffer, that's 300 element moves/second
+- Circular buffer pattern: fixed-size array + write index + count. Append is `buffer[writeIndex] = value; writeIndex = (writeIndex + 1) % capacity`
+- Reading chronological order from a circular buffer: `buffer[start..<capacity] + buffer[0..<start]` where `start = writeIndex`
+- When multiple circular buffers exist in the same class, reset ALL of them in `reset()` — easy to miss one and get stale data

@@ -465,6 +465,25 @@ struct GridModel: Sendable {
         }
     }
 
+    /// A staggered lattice: every 3rd cell in each dimension, offset on alternate layers.
+    /// Creates a sparse, evenly-distributed seed that produces expanding wavefront dynamics
+    /// as isolated clusters grow and merge into larger structures.
+    mutating func loadStagger() {
+        clearAll()
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    // Offset alternate layers by 1 cell for stagger effect
+                    let xOff = (y % 2 == 0) ? 0 : 1
+                    let zOff = (y % 2 == 0) ? 0 : 1
+                    if (x + xOff) % 3 == 0 && y % 3 == 0 && (z + zOff) % 3 == 0 {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+    }
+
     mutating func clearAll() {
         for i in 0..<cellCount { cells[i] = 0 }
         dyingCells = []

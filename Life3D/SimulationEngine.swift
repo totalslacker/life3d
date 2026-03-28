@@ -25,9 +25,12 @@ final class SimulationEngine {
     // Control bar auto-hide: bar fades out after inactivity, reappears on interaction
     var controlBarVisible: Bool = true
 
-    // Population trend tracking
-    private var recentPopulations: [Int] = []
+    // Population trend tracking (circular buffer for O(1) append)
+    private var _trendBuffer: [Int]
+    private var _trendWriteIndex: Int = 0
+    private var _trendCount: Int = 0
     private static let trendWindow = 5  // number of generations to average over
+    private static let trendBufferSize = 10  // 2x window for recent history
 
     /// Population history for sparkline display (last N generations).
     /// Uses a circular buffer for O(1) append instead of O(n) removeFirst.
@@ -58,10 +61,23 @@ final class SimulationEngine {
     private var rateGenerationCount: Int = 0
     private static let rateSampleInterval: Double = 1.0  // recalculate every 1s
 
+    /// Returns the last N entries from the trend circular buffer in chronological order.
+    private var recentTrendEntries: [Int] {
+        guard _trendCount > 0 else { return [] }
+        let count = min(_trendCount, Self.trendWindow)
+        var result: [Int] = []
+        result.reserveCapacity(count)
+        for i in 0..<count {
+            let idx = (_trendWriteIndex - count + i + Self.trendBufferSize) % Self.trendBufferSize
+            result.append(_trendBuffer[idx])
+        }
+        return result
+    }
+
     /// Population trend: positive = growing, negative = shrinking, zero = stable.
     var populationTrend: Int {
-        guard recentPopulations.count >= 2 else { return 0 }
-        let recent = recentPopulations.suffix(Self.trendWindow)
+        let recent = recentTrendEntries
+        guard recent.count >= 2 else { return 0 }
         let first = recent.first ?? 0
         let last = recent.last ?? 0
         let delta = last - first
@@ -93,8 +109,9 @@ final class SimulationEngine {
     }
 
     init(size: Int = 16) {
-        // Initialize circular buffer for population history
+        // Initialize circular buffers
         self._historyBuffer = [Int](repeating: 0, count: Self.historyLength)
+        self._trendBuffer = [Int](repeating: 0, count: Self.trendBufferSize)
 
         // Load saved preferences or use defaults
         let defaults = UserDefaults.standard
@@ -158,11 +175,10 @@ final class SimulationEngine {
             rateGenerationCount = 0
             rateTimestamp = now
         }
-        // Track population for trend indicator
-        recentPopulations.append(grid.aliveCount)
-        if recentPopulations.count > Self.trendWindow * 2 {
-            recentPopulations.removeFirst(recentPopulations.count - Self.trendWindow * 2)
-        }
+        // Track population for trend indicator (circular buffer — O(1))
+        _trendBuffer[_trendWriteIndex] = grid.aliveCount
+        _trendWriteIndex = (_trendWriteIndex + 1) % Self.trendBufferSize
+        if _trendCount < Self.trendBufferSize { _trendCount += 1 }
         // Track population history for sparkline (circular buffer — O(1))
         _historyBuffer[_historyWriteIndex] = grid.aliveCount
         _historyWriteIndex = (_historyWriteIndex + 1) % Self.historyLength
@@ -190,7 +206,8 @@ final class SimulationEngine {
                         self.generation = 0
                         self._historyWriteIndex = 0
                         self._historyCount = 0
-                        self.recentPopulations.removeAll()
+                        self._trendWriteIndex = 0
+                        self._trendCount = 0
                         self.loadPattern(self.selectedPattern)
                         // Auto-dismiss extinction notice after 2 seconds
                         Task { @MainActor [weak self] in
@@ -217,7 +234,8 @@ final class SimulationEngine {
     func reset(pattern: Pattern = .random) {
         pause()
         generation = 0
-        recentPopulations.removeAll()
+        _trendWriteIndex = 0
+        _trendCount = 0
         _historyWriteIndex = 0
         _historyCount = 0
         peakPopulation = 0
@@ -255,6 +273,8 @@ final class SimulationEngine {
             grid.loadSphere()
         case .mirror:
             grid.loadMirror()
+        case .stagger:
+            grid.loadStagger()
         case .clear:
             grid.clearAll()
         }
@@ -281,6 +301,7 @@ final class SimulationEngine {
         case tube = "Tube"
         case sphere = "Sphere"
         case mirror = "Mirror (8-fold)"
+        case stagger = "Stagger (lattice)"
         case clear = "Clear"
 
         var id: String { rawValue }
