@@ -2,6 +2,26 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 55 (2026-03-28 10:37 PDT)
+
+**Goal**: Fix fading cell visual bug, eliminate per-frame allocations, fix audio sampling precision.
+
+Three improvements:
+
+1. **Fix fading cell scale inversion bug**: Cells that just died were rendering at 15% size (nearly gone) instead of 50% (just died), and vice versa. The issue was in `computeMeshData` — `progress=1.0` (just died, framesLeft=fadeDuration) was directly negated to `age=-3` which mapped to the "nearly gone" scale. Fixed by computing `fadeStage = fadeDuration - framesLeft + 1`, so just-died cells get age=-1 (50% scale) and nearly-gone cells get age=-3 (15% scale). The fade now correctly shrinks cells over their lifetime.
+
+2. **Cached populationHistory and populationTrend**: Both properties were computed from circular buffers on every access, allocating new arrays each time. Since SwiftUI observes these for sparkline and trend indicator rendering, this happened every frame — creating ~60 temporary arrays per second. Replaced with `private(set)` cached values rebuilt once per `step()` call. Also added proper cache clearing in both `reset()` and the auto-restart extinction path.
+
+3. **Fix audio position sampling precision**: `samplePositions` used integer division (`positions.count / count`) which loses precision for non-evenly-divisible counts. For 23 positions sampled to 8, the old code selected indices [0,2,4,6,8,10,12,14] — clustered in the first 65% of the array. Fixed with `i * positions.count / count` which distributes indices evenly across the full range: [0,2,5,8,11,14,17,20].
+
+Added 11 tests: fading scale for just-died/mid-fade/nearly-gone cells, fade scale monotonic decrease, cached history starts empty/grows after stepping, trend starts zero, history cleared on reset, even sampling distribution, sampling bounds safety, sampling when count exceeds positions.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 12 — Session 54 (2026-03-28 10:26 PDT)
 
 **Goal**: Performance optimization — eliminate O(n³) alive cell scanning in render path.

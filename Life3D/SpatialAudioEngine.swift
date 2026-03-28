@@ -175,8 +175,8 @@ final class SpatialAudioEngine {
     private func samplePositions(_ positions: [SIMD3<Float>], count: Int) -> [SIMD3<Float>] {
         guard !positions.isEmpty, count > 0 else { return [] }
         if positions.count <= count { return Array(positions.prefix(count)) }
-        let step = positions.count / count
-        return (0..<count).map { positions[$0 * step] }
+        // Use multiply-then-divide to distribute samples evenly without floating-point
+        return (0..<count).map { i in positions[i * positions.count / count] }
     }
 
     // MARK: - Tone Generation

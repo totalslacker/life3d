@@ -36,14 +36,18 @@ final class SimulationEngine {
     private var _historyCount: Int = 0
     private static let historyLength = 60  // ~12 seconds at 5 gen/s
 
-    /// Returns population history in chronological order (oldest first).
-    var populationHistory: [Int] {
-        guard _historyCount > 0 else { return [] }
+    /// Cached population history array, rebuilt only when a generation advances.
+    private(set) var populationHistory: [Int] = []
+
+    /// Rebuilds the populationHistory array from the circular buffer.
+    private func _rebuildPopulationHistory() {
+        guard _historyCount > 0 else { populationHistory = []; return }
         if _historyCount < Self.historyLength {
-            return Array(_historyBuffer[0..<_historyCount])
+            populationHistory = Array(_historyBuffer[0..<_historyCount])
+        } else {
+            let start = _historyWriteIndex
+            populationHistory = Array(_historyBuffer[start..<Self.historyLength]) + Array(_historyBuffer[0..<start])
         }
-        let start = _historyWriteIndex
-        return Array(_historyBuffer[start..<Self.historyLength]) + Array(_historyBuffer[0..<start])
     }
 
     /// Peak population reached since last reset.
@@ -61,32 +65,8 @@ final class SimulationEngine {
     /// Last generation computation time in milliseconds (for performance monitoring).
     var lastStepTimeMs: Double = 0.0
 
-    /// Returns the last N entries from the trend circular buffer in chronological order.
-    private var recentTrendEntries: [Int] {
-        guard _trendCount > 0 else { return [] }
-        let count = min(_trendCount, Self.trendWindow)
-        var result: [Int] = []
-        result.reserveCapacity(count)
-        for i in 0..<count {
-            let idx = (_trendWriteIndex - count + i + Self.trendBufferSize) % Self.trendBufferSize
-            result.append(_trendBuffer[idx])
-        }
-        return result
-    }
-
-    /// Population trend: positive = growing, negative = shrinking, zero = stable.
-    var populationTrend: Int {
-        let recent = recentTrendEntries
-        guard recent.count >= 2 else { return 0 }
-        let first = recent.first ?? 0
-        let last = recent.last ?? 0
-        let delta = last - first
-        // Use a threshold to avoid jitter on small fluctuations
-        let threshold = max(1, first / 20)  // 5% of population
-        if delta > threshold { return 1 }
-        if delta < -threshold { return -1 }
-        return 0
-    }
+    /// Cached population trend, rebuilt only when a generation advances.
+    private(set) var populationTrend: Int = 0
 
     /// Symbol name for the current population trend.
     var trendSymbol: String {
@@ -95,6 +75,21 @@ final class SimulationEngine {
         case -1: return "arrow.down.right"
         default: return "arrow.right"
         }
+    }
+
+    /// Recomputes populationTrend from the trend circular buffer.
+    private func _rebuildPopulationTrend() {
+        guard _trendCount >= 2 else { populationTrend = 0; return }
+        let count = min(_trendCount, Self.trendWindow)
+        let firstIdx = (_trendWriteIndex - count + Self.trendBufferSize) % Self.trendBufferSize
+        let lastIdx = (_trendWriteIndex - 1 + Self.trendBufferSize) % Self.trendBufferSize
+        let first = _trendBuffer[firstIdx]
+        let last = _trendBuffer[lastIdx]
+        let delta = last - first
+        let threshold = max(1, first / 20)
+        if delta > threshold { populationTrend = 1 }
+        else if delta < -threshold { populationTrend = -1 }
+        else { populationTrend = 0 }
     }
 
     private var timerTask: Task<Void, Never>?
@@ -201,6 +196,9 @@ final class SimulationEngine {
         if grid.aliveCount > peakPopulation {
             peakPopulation = grid.aliveCount
         }
+        // Rebuild cached display values (avoids per-frame array allocations in UI)
+        _rebuildPopulationHistory()
+        _rebuildPopulationTrend()
     }
 
     func start() {
@@ -223,6 +221,8 @@ final class SimulationEngine {
                         self._historyCount = 0
                         self._trendWriteIndex = 0
                         self._trendCount = 0
+                        self.populationHistory = []
+                        self.populationTrend = 0
                         // Cycle through patterns on auto-restart for variety
                         let nextPattern = Self.cyclablePatterns[self.cycleIndex % Self.cyclablePatterns.count]
                         self.cycleIndex += 1
@@ -257,6 +257,8 @@ final class SimulationEngine {
         _trendCount = 0
         _historyWriteIndex = 0
         _historyCount = 0
+        populationHistory = []
+        populationTrend = 0
         peakPopulation = 0
         showExtinctionNotice = false
         generationRate = 0.0

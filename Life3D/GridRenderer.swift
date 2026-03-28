@@ -517,12 +517,14 @@ enum GridRenderer {
     private static func computeMeshData(model: GridModel) -> MeshData {
         var cellsWithAge = model.aliveCellsWithAge(cellSize: cellSize, cellSpacing: cellSpacing)
         // Add fading cells with negative age sentinel (mapped to .dying tier).
-        // Encode framesLeft as negative value: -1 = just died, -2 = mid-fade, -3 = nearly gone.
-        // birthScale uses this to progressively shrink fading cells.
+        // Encode fade stage as negative value: -1 = just died, -2 = mid-fade, -3 = nearly gone.
+        // progress is 1.0 when just died (framesLeft=fadeDuration) → age should be -1 (largest).
+        // progress approaches 0.0 as cell vanishes (framesLeft=1) → age should be -fadeDuration (smallest).
         let fadingCells = model.fadingCellsWithProgress(cellSize: cellSize, cellSpacing: cellSpacing)
         for fading in fadingCells {
-            let framesLeft = Int(round(fading.progress * Float(GridModel.fadeDuration)))
-            cellsWithAge.append((position: fading.position, age: -max(framesLeft, 1)))
+            let framesLeft = max(Int(round(fading.progress * Float(GridModel.fadeDuration))), 1)
+            let fadeStage = GridModel.fadeDuration - framesLeft + 1  // 1 when just died, fadeDuration when nearly gone
+            cellsWithAge.append((position: fading.position, age: -fadeStage))
         }
         let aliveCells = cellsWithAge.count
 

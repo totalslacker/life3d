@@ -287,3 +287,13 @@ the same things. Search here before looking things up externally.
 - Convert to milliseconds: `attoseconds / 1_000_000_000_000_000.0`
 - Preferred over `Date()` for timing because it's monotonic (not affected by wall clock changes)
 - Lightweight: no allocation, just reads the system monotonic clock
+
+---
+
+## @Observable Computed Properties and SwiftUI Frame Allocation
+
+- `@Observable` computed properties (no backing `var`) are re-evaluated on every SwiftUI view access — potentially every frame at 60fps
+- Circular buffer properties that reconstruct arrays (`Array(slice) + Array(slice)`) allocate on every access
+- Pattern: replace computed properties with `private(set) var` + explicit rebuild function called at the mutation site (e.g., once per `step()`)
+- For display-only data (sparklines, trend indicators), rebuilding once per generation is sufficient — no visual difference vs per-frame
+- Must also clear the cached value at every reset/restart path to avoid stale data

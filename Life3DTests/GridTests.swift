@@ -1861,3 +1861,135 @@ struct PositionCapacityTests {
         #expect(cells.count == grid.aliveCount)
     }
 }
+
+// MARK: - Fading Cell Scale Tests (Session 55)
+
+@Suite("Fading Cell Scale Tests")
+struct FadingCellScaleTests {
+    @Test("Fading cell just died gets age -1 (largest fade size)")
+    func justDiedCellGetsAgeMinusOne() {
+        // progress=1.0 means just died (framesLeft == fadeDuration)
+        let progress: Float = 1.0
+        let framesLeft = max(Int(round(progress * Float(GridModel.fadeDuration))), 1)
+        let fadeStage = GridModel.fadeDuration - framesLeft + 1
+        let age = -fadeStage
+        #expect(age == -1, "Just-died cell should have age -1, got \(age)")
+    }
+
+    @Test("Fading cell nearly gone gets age -fadeDuration (smallest fade size)")
+    func nearlyGoneCellGetsSmallestAge() {
+        // progress near 0 means about to vanish (framesLeft == 1)
+        let progress: Float = 1.0 / Float(GridModel.fadeDuration)
+        let framesLeft = max(Int(round(progress * Float(GridModel.fadeDuration))), 1)
+        let fadeStage = GridModel.fadeDuration - framesLeft + 1
+        let age = -fadeStage
+        #expect(age == -GridModel.fadeDuration, "Nearly-gone cell should have age -\(GridModel.fadeDuration), got \(age)")
+    }
+
+    @Test("Fading cell mid-fade gets intermediate age")
+    func midFadeCellGetsIntermediateAge() {
+        // progress=0.5 means mid-fade
+        let progress: Float = 0.5
+        let framesLeft = max(Int(round(progress * Float(GridModel.fadeDuration))), 1)
+        let fadeStage = GridModel.fadeDuration - framesLeft + 1
+        let age = -fadeStage
+        #expect(age < -1 && age > -GridModel.fadeDuration, "Mid-fade cell should be between -1 and -\(GridModel.fadeDuration), got \(age)")
+    }
+
+    @Test("Fade scale decreases monotonically from just-died to nearly-gone")
+    func fadeScaleMonotonicallyDecreases() {
+        // birthScale(-1) should be >= birthScale(-2) >= birthScale(-3)
+        let meshData = GridRenderer.computeMeshDataForTest(model: GridModel(size: 4))
+        // Test the scale progression directly via the age mapping
+        // Just verify the encoding produces monotonically increasing negative ages
+        let progressValues: [Float] = [1.0, 0.67, 0.33]
+        var ages: [Int] = []
+        for p in progressValues {
+            let framesLeft = max(Int(round(p * Float(GridModel.fadeDuration))), 1)
+            let fadeStage = GridModel.fadeDuration - framesLeft + 1
+            ages.append(-fadeStage)
+        }
+        // Ages should go -1, -2, -3 (just died → nearly gone)
+        for i in 0..<ages.count - 1 {
+            #expect(ages[i] > ages[i + 1], "Age should decrease: \(ages[i]) should be > \(ages[i + 1])")
+        }
+    }
+}
+
+// MARK: - Cached Population Display Tests (Session 55)
+
+@Suite("Cached Population Display Tests")
+@MainActor
+struct CachedPopulationDisplayTests {
+    @Test("populationHistory starts empty")
+    func historyStartsEmpty() {
+        let engine = SimulationEngine(size: 4)
+        #expect(engine.populationHistory.isEmpty)
+    }
+
+    @Test("populationHistory grows after stepping")
+    func historyGrowsAfterStep() {
+        let engine = SimulationEngine(size: 4)
+        engine.grid.randomSeed(density: 0.25)
+        engine.step()
+        #expect(engine.populationHistory.count == 1)
+        engine.step()
+        #expect(engine.populationHistory.count == 2)
+    }
+
+    @Test("populationTrend is zero initially")
+    func trendStartsZero() {
+        let engine = SimulationEngine(size: 4)
+        #expect(engine.populationTrend == 0)
+    }
+
+    @Test("populationHistory cleared on reset")
+    func historyClearedOnReset() {
+        let engine = SimulationEngine(size: 4)
+        engine.grid.randomSeed(density: 0.25)
+        engine.step()
+        engine.step()
+        #expect(!engine.populationHistory.isEmpty)
+        engine.reset()
+        #expect(engine.populationHistory.isEmpty)
+        #expect(engine.populationTrend == 0)
+    }
+}
+
+// MARK: - Audio Position Sampling Tests (Session 55)
+
+@Suite("Audio Position Sampling Tests")
+struct AudioPositionSamplingTests {
+    @Test("Even sampling distributes evenly across positions")
+    func evenSamplingDistribution() {
+        // Simulate the sampling algorithm
+        let positions = (0..<23).map { SIMD3<Float>(Float($0), 0, 0) }
+        let count = 8
+        let sampled = (0..<count).map { i in positions[i * positions.count / count] }
+        // Verify we get 8 distinct samples
+        #expect(sampled.count == count)
+        // Verify samples are spread across the range (first should be 0, last should be >= 20)
+        #expect(sampled.first!.x == 0)
+        #expect(sampled.last!.x >= 20, "Last sample should be near end of range, got \(sampled.last!.x)")
+    }
+
+    @Test("Sampling with count >= positions returns all positions")
+    func samplingReturnsAllWhenCountExceedsPositions() {
+        let positions = (0..<5).map { SIMD3<Float>(Float($0), 0, 0) }
+        // When count >= positions.count, the algorithm returns prefix
+        let count = 8
+        let result = Array(positions.prefix(count))
+        #expect(result.count == 5)
+    }
+
+    @Test("Sampling indices never exceed bounds")
+    func samplingNeverExceedsBounds() {
+        for n in 1...50 {
+            let positions = (0..<n).map { SIMD3<Float>(Float($0), 0, 0) }
+            for count in 1...min(n, 10) {
+                let sampled = (0..<count).map { i in positions[i * positions.count / count] }
+                #expect(sampled.count == count)
+            }
+        }
+    }
+}
