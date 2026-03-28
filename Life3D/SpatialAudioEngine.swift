@@ -6,7 +6,7 @@ import Observation
 @Observable
 @MainActor
 final class SpatialAudioEngine {
-    var isMuted: Bool = false
+    var isMuted: Bool = true
     var volume: Float = 0.5 // 0.0 - 1.0
 
     private var audioEngine: AVAudioEngine?

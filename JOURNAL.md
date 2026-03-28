@@ -2,6 +2,14 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 49 (2026-03-28 10:00 PDT)
+
+**Goal**: Turn sound off by default (li-f2q) — current audio is terrible.
+
+Changed `audioMuted` default from `false` to `true` in both `SimulationEngine` and `SpatialAudioEngine`. The `loadPreferences` logic already checks `defaults.object(forKey:) != nil` before overriding, so existing users who explicitly set a preference keep their choice. New installs start silent. The toggle in ContentView still works to enable/disable audio.
+
+**Next Steps**: If audio quality is improved in the future, could reconsider defaulting it on.
+
 ---
 
 ## Day 12 — Session 49 (2026-03-28 09:58 PDT)

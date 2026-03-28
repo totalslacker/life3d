@@ -12,7 +12,7 @@ final class SimulationEngine {
     var drawMode: Bool = false
     var eraserMode: Bool = false    // false = paint cells on, true = erase cells
     var surroundMode: Bool = false  // false = tabletop, true = room-scale
-    var audioMuted: Bool = false
+    var audioMuted: Bool = true
     var selectedPattern: Pattern = .random
 
     // Exit animation coordination
