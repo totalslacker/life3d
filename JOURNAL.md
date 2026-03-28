@@ -2,6 +2,24 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 54 (2026-03-28 10:26 PDT)
+
+**Goal**: Performance optimization — eliminate O(n³) alive cell scanning in render path.
+
+Two improvements:
+
+1. **Incremental alive cell index tracking**: Added `aliveCellIndices` array to GridModel that maintains flat indices of all alive cells. During `advanceGeneration()`, the index list is built alongside the existing survival/birth logic at zero extra cost (one `append` per alive cell). For rendering, `aliveCellsWithAge()` now iterates only the alive cells instead of scanning the entire grid. For a 32³ grid with ~5K alive cells out of 32,768 total, this skips checking ~27K dead cells per mesh rebuild — a ~6.5x reduction in iterations for the render-critical path. Pattern loaders rebuild the index list via a flat scan at the end. Interactive `toggleCell`/`setCell` maintain it incrementally.
+
+2. **Removed unused `aliveCellPositions()` function**: Dead code since the age-based renderer replaced it. Eliminated 12 lines.
+
+Added 7 tests: index count matches aliveCount after seed, index list updated after advance, consistency over 20 generations, empty after clear, toggle updates, pattern loaders correct, aliveCellsWithAge returns correct data.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes. Consider incremental mesh updates for changed cells only.
+
+---
+
 ## Day 12 — Session 54 (2026-03-28 10:22 PDT)
 
 **Goal**: Torus pattern, Copper theme, rendering allocation optimization.

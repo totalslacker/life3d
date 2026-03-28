@@ -268,6 +268,18 @@ the same things. Search here before looking things up externally.
 
 ---
 
+## Incremental Index Tracking for Sparse Grid Iteration
+
+- In 3D cellular automata, alive cells are typically 5-25% of total grid cells — scanning the full grid to find them is wasteful
+- Maintaining a flat index list (`aliveCellIndices`) alongside the cells array converts render-path iteration from O(n³) to O(alive)
+- During `advanceGeneration()`, the index list can be built in the same loop that computes survival/birth — one `append` per alive cell adds negligible overhead
+- For pattern loaders that call `setCell` many times, append incrementally during loading and optionally rebuild at the end for safety
+- Interactive `toggleCell` maintains the list with `append`/`removeAll { $0 == idx }` — O(alive) removal is acceptable for single-cell edits
+- The decomposition from flat index back to (x,y,z) is: `x = idx / (size*size), y = (idx / size) % size, z = idx % size`
+- For 32³ grid with ~5K alive: 5K iterations vs 32K = ~6.5x fewer iterations in the render-critical mesh build path
+
+---
+
 ## ContinuousClock for Performance Measurement
 
 - `ContinuousClock.now` provides monotonic time suitable for measuring code execution

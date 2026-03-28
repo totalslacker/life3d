@@ -15,6 +15,9 @@ struct GridModel: Sendable {
     /// Cells fading out over multiple generations: (flatIndex, remainingFrames)
     /// Starts at fadeDuration and decrements each generation until 0.
     private(set) var fadingCells: [(index: Int, framesLeft: Int)] = []
+    /// Flat indices of all currently alive cells, maintained incrementally.
+    /// Used by `aliveCellsWithAge` to avoid scanning the entire grid (O(alive) vs O(n³)).
+    private(set) var aliveCellIndices: [Int] = []
     /// Number of generations a dying cell takes to fully fade out.
     static let fadeDuration: Int = 3
 
@@ -79,8 +82,14 @@ struct GridModel: Sendable {
         let idx = index(x: x, y: y, z: z)
         let wasAlive = cells[idx] > 0
         cells[idx] = alive ? 1 : 0
-        if alive && !wasAlive { aliveCount += 1 }
-        else if !alive && wasAlive { aliveCount -= 1 }
+        if alive && !wasAlive {
+            aliveCount += 1
+            aliveCellIndices.append(idx)
+        } else if !alive && wasAlive {
+            aliveCount -= 1
+            // Pattern loaders rebuild at the end, so linear removal is OK for interactive use
+            aliveCellIndices.removeAll { $0 == idx }
+        }
     }
 
     mutating func toggleCell(x: Int, y: Int, z: Int) {
@@ -89,9 +98,11 @@ struct GridModel: Sendable {
         if cells[idx] > 0 {
             cells[idx] = 0
             aliveCount -= 1
+            aliveCellIndices.removeAll { $0 == idx }
         } else {
             cells[idx] = 1
             aliveCount += 1
+            aliveCellIndices.append(idx)
         }
     }
 
@@ -149,9 +160,10 @@ struct GridModel: Sendable {
         let offsets = cachedNeighborOffsets
         // Zero the next buffer (reuse pre-allocated array instead of allocating each generation)
         for i in 0..<cellCount { nextCells[i] = 0 }
-        // Reuse pre-allocated born/dying buffers — removeAll(keepingCapacity:) avoids heap allocation
+        // Reuse pre-allocated born/dying/alive buffers — removeAll(keepingCapacity:) avoids heap allocation
         dyingCells.removeAll(keepingCapacity: true)
         bornCells.removeAll(keepingCapacity: true)
+        aliveCellIndices.removeAll(keepingCapacity: true)
 
         for x in 0..<size {
             for y in 0..<size {
@@ -182,6 +194,7 @@ struct GridModel: Sendable {
                     if cells[idx] > 0 {
                         if survivalLookup[neighbors] {
                             nextCells[idx] = cells[idx] + 1
+                            aliveCellIndices.append(idx)
                         } else {
                             nextCells[idx] = 0
                             dyingCells.append(idx)
@@ -190,6 +203,7 @@ struct GridModel: Sendable {
                         if birthLookup[neighbors] {
                             nextCells[idx] = 1
                             bornCells.append(idx)
+                            aliveCellIndices.append(idx)
                         }
                     }
                 }
@@ -222,37 +236,16 @@ struct GridModel: Sendable {
 
     // MARK: - Alive Cell Positions
 
-    /// Returns positions of alive cells.
-    func aliveCellPositions(cellSize: Float, cellSpacing: Float) -> [SIMD3<Float>] {
-        var positions: [SIMD3<Float>] = []
-        positions.reserveCapacity(aliveCount)
-        for x in 0..<size {
-            for y in 0..<size {
-                for z in 0..<size {
-                    if cells[index(x: x, y: y, z: z)] > 0 {
-                        positions.append(cellPosition(x: x, y: y, z: z, cellSize: cellSize, cellSpacing: cellSpacing))
-                    }
-                }
-            }
-        }
-        return positions
-    }
-
-    /// Returns (position, age) for each alive cell, grouped for rendering.
+    /// Returns (position, age) for each alive cell, using pre-built index list.
+    /// O(alive) instead of O(n³) — skips scanning dead cells entirely.
     func aliveCellsWithAge(cellSize: Float, cellSpacing: Float) -> [(position: SIMD3<Float>, age: Int)] {
-        var result: [(position: SIMD3<Float>, age: Int)] = []
-        result.reserveCapacity(aliveCount)
-        for x in 0..<size {
-            for y in 0..<size {
-                for z in 0..<size {
-                    let age = cells[index(x: x, y: y, z: z)]
-                    if age > 0 {
-                        result.append((cellPosition(x: x, y: y, z: z, cellSize: cellSize, cellSpacing: cellSpacing), age))
-                    }
-                }
-            }
+        let ss = size * size
+        return aliveCellIndices.map { idx in
+            let x = idx / ss
+            let y = (idx / size) % size
+            let z = idx % size
+            return (cellPosition(x: x, y: y, z: z, cellSize: cellSize, cellSpacing: cellSpacing), cells[idx])
         }
-        return result
     }
 
     /// Returns positions of cells that just died (for fade-out rendering).
@@ -293,6 +286,18 @@ struct GridModel: Sendable {
         aliveCount = cells.reduce(0) { $0 + ($1 > 0 ? 1 : 0) }
     }
 
+    /// Rebuilds the alive cell index list by scanning the flat cells array.
+    /// Called after bulk mutations (pattern loading, random seed) where
+    /// incremental tracking isn't practical.
+    private mutating func rebuildAliveCellIndices() {
+        aliveCellIndices.removeAll(keepingCapacity: true)
+        for i in 0..<cellCount {
+            if cells[i] > 0 {
+                aliveCellIndices.append(i)
+            }
+        }
+    }
+
     // MARK: - Cell Positioning
 
     func cellPosition(x: Int, y: Int, z: Int, cellSize: Float, cellSpacing: Float) -> SIMD3<Float> {
@@ -312,6 +317,7 @@ struct GridModel: Sendable {
             cells[i] = Double.random(in: 0...1) < density ? 1 : 0
         }
         recomputeAliveCount()
+        rebuildAliveCellIndices()
     }
 
     /// A dense random blob centered in the grid — produces interesting evolution
@@ -328,6 +334,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A 3D "block" still life — 2x2x2 cube. Each cell has 7 neighbors (survives under B5-7/S5-8). Stable.
@@ -341,6 +348,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A 4x4x4 checkerboard centered in the grid — grows and evolves under B5-7/S5-8
@@ -357,6 +365,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A diamond (octahedron) shell — cells at Manhattan distance exactly r from center.
@@ -375,6 +384,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A 3D cross/plus shape — three orthogonal bars through the center.
@@ -400,6 +410,7 @@ struct GridModel: Sendable {
                 setCell(x: mid + offset, y: mid, z: mid + d, alive: true)
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A hollow tube aligned along the Y axis — ring cross-section.
@@ -422,6 +433,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A hollow sphere shell centered in the grid.
@@ -444,6 +456,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A mirror-symmetric random seed — generates one octant randomly, then mirrors
@@ -473,6 +486,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A staggered lattice: every 3rd cell in each dimension, offset on alternate layers.
@@ -492,6 +506,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A double helix spiral around the Y axis — two interleaved helical strands
@@ -527,6 +542,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// Concentric spherical shells — two thin shells at different radii.
@@ -553,6 +569,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A 3D logarithmic spiral — cells trace a widening helix from the center outward.
@@ -589,6 +606,7 @@ struct GridModel: Sendable {
                 }
             }
         }
+        rebuildAliveCellIndices()
     }
 
     /// A 3D torus (doughnut) lying in the XZ plane — ring of circular cross-section.
@@ -625,6 +643,7 @@ struct GridModel: Sendable {
         dyingCells = []
         bornCells = []
         fadingCells = []
+        aliveCellIndices = []
         aliveCount = 0
     }
 }

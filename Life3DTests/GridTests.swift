@@ -1677,6 +1677,87 @@ struct GenerationRateTests {
 // MARK: - Exit Safety Tests
 
 @Suite("Exit Safety Tests")
+// MARK: - Alive Cell Index Tracking Tests
+
+@Suite("Alive Cell Index Tests")
+struct AliveCellIndexTests {
+    @Test("Index count matches aliveCount after random seed")
+    func indexCountMatchesAliveCount() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+        #expect(model.aliveCellIndices.count == model.aliveCount)
+    }
+
+    @Test("Index list updated after advanceGeneration")
+    func indexListUpdatedAfterAdvance() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+        model.advanceGeneration()
+        #expect(model.aliveCellIndices.count == model.aliveCount)
+        // Verify each index actually points to an alive cell
+        for idx in model.aliveCellIndices {
+            let x = idx / (8 * 8)
+            let y = (idx / 8) % 8
+            let z = idx % 8
+            #expect(model.isAlive(x: x, y: y, z: z))
+        }
+    }
+
+    @Test("Index list consistent over multiple generations")
+    func indexConsistentOverGenerations() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+        for _ in 0..<20 {
+            model.advanceGeneration()
+            #expect(model.aliveCellIndices.count == model.aliveCount,
+                    "Index count diverged from aliveCount")
+        }
+    }
+
+    @Test("Index list empty after clearAll")
+    func indexEmptyAfterClear() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+        #expect(model.aliveCellIndices.count > 0)
+        model.clearAll()
+        #expect(model.aliveCellIndices.isEmpty)
+    }
+
+    @Test("Toggle cell updates index list")
+    func toggleCellUpdatesIndex() {
+        var model = GridModel(size: 8)
+        model.toggleCell(x: 3, y: 3, z: 3)
+        #expect(model.aliveCellIndices.count == 1)
+        model.toggleCell(x: 3, y: 3, z: 3)
+        #expect(model.aliveCellIndices.isEmpty)
+    }
+
+    @Test("Pattern loaders produce correct index count")
+    func patternLoadersCorrectIndex() {
+        var model = GridModel(size: 16)
+        model.loadBlock()
+        #expect(model.aliveCellIndices.count == model.aliveCount)
+        model.loadSphere()
+        #expect(model.aliveCellIndices.count == model.aliveCount)
+        model.loadHelix()
+        #expect(model.aliveCellIndices.count == model.aliveCount)
+        model.loadSpiral()
+        #expect(model.aliveCellIndices.count == model.aliveCount)
+    }
+
+    @Test("aliveCellsWithAge returns correct data using index list")
+    func aliveCellsWithAgeCorrect() {
+        var model = GridModel(size: 8)
+        model.loadBlock()
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == model.aliveCount)
+        // All should be age 1 (just set)
+        for cell in cells {
+            #expect(cell.age == 1)
+        }
+    }
+}
+
 struct ExitSafetyTests {
     @Test("Auto-restart skipped when isExiting is true")
     func noRestartDuringExit() async {
