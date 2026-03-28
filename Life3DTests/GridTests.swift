@@ -1110,7 +1110,7 @@ struct ForestThemeTests {
 
     @Test("All themes count is 16 after Sunset, Twilight, and Jade additions")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 22)
+        #expect(ColorTheme.allThemes.count == 23)
     }
 
     @Test("Forest theme has green color progression")
@@ -1300,7 +1300,7 @@ struct PopulationTrendTests {
 
     @Test("All themes count is 22 after adding Jade")
     func allThemesCount16() {
-        #expect(ColorTheme.allThemes.count == 22)
+        #expect(ColorTheme.allThemes.count == 23)
     }
 
     @Test("Jade theme has cool green-to-dark progression")
@@ -1391,7 +1391,7 @@ struct CrimsonThemeTests {
 
     @Test("Theme count is 22 with Crimson")
     func themeCount17() {
-        #expect(ColorTheme.allThemes.count == 22)
+        #expect(ColorTheme.allThemes.count == 23)
     }
 
     @Test("Crimson stays in pure red family — newborn through mature")
@@ -1825,7 +1825,7 @@ struct CopperThemeTests {
 
     @Test("allThemes contains 22 themes")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 22, "Should have 22 themes total")
+        #expect(ColorTheme.allThemes.count == 23, "Should have 22 themes total")
     }
 
     @Test("Copper has warm metallic color progression")
@@ -2046,7 +2046,7 @@ struct GoldThemeTests {
 
     @Test("Total theme count is 22")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 22)
+        #expect(ColorTheme.allThemes.count == 23)
     }
 
     @Test("Gold has warm metallic color progression")
@@ -2992,7 +2992,7 @@ struct VolcanicThemeTests {
 
     @Test("Theme count is 22 with Volcanic")
     func themeCount22() {
-        #expect(ColorTheme.allThemes.count == 22)
+        #expect(ColorTheme.allThemes.count == 23)
     }
 
     @Test("Volcanic theme has lava-to-obsidian color progression")

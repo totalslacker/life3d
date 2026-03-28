@@ -2,6 +2,22 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 59 (2026-03-28 11:26 PDT)
+
+**Goal**: Performance optimization, new pattern, new theme.
+
+Three improvements:
+
+1. **Bulk memset for aliveIndexMap reset**: Three locations in `GridModel` reset the `aliveIndexMap` array using a per-element `for i in 0..<cellCount { aliveIndexMap[i] = -1 }` loop. Replaced all three (`advanceGeneration`, `rebuildAliveCellIndices`, `clearAll`) with `withUnsafeMutableBufferPointer { $0.update(repeating: -1) }` which compiles to a single `memset` — eliminates per-element bounds checking and loop overhead. For a 32³ grid this is 32,768 individual stores replaced by one bulk operation, consistent with the existing `nextCells` and `cells` bulk zeroing.
+
+2. **Cage pattern (19th)**: A wireframe cube skeleton — cells placed along the 12 edges of a cube with thickness. Unlike blob/shell patterns, this creates linear seed structures where edge cells have ~2 neighbors and corner cells have ~3. Under standard rules, edges erode quickly while corners may nucleate growth, producing dramatic corner-outward expansion that breaks the initial cubic symmetry.
+
+3. **Plasma theme (23rd)**: Electric pink/magenta newborn cells (emissive 2.5) through deep purple young cells to near-black mature cells. Distinct from Amethyst (softer lavender tones) and Nebula (broader purple palette) — Plasma stays in the hot pink-magenta-purple family with high saturation and steep falloff. The high newborn intensity creates an energetic "electric discharge" look.
+
+Added 13 tests: cage non-empty, cage edge structure (center empty), cage engine selection, cage alive count bounds, cage evolution dynamics, cage index consistency, Plasma theme existence, theme count (23), Plasma color progression, Plasma intensity, bulk aliveIndexMap after advance, after clearAll, and multi-cycle consistency. Fixed truncated test file (missing closing braces) and updated 6 stale theme count assertions (22→23).
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes.
+
 ## Day 12 — Session 58 (2026-03-28 11:14 PDT)
 
 **Goal**: Audio resource leak fix, O(alive) index map reset, Checkerboard pattern.
