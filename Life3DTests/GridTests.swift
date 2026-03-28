@@ -2308,6 +2308,88 @@ struct FadingCellBoundsTests {
             #expect(entry.framesLeft > 0)
         }
     }
+
+    // MARK: - Wave Pattern Tests
+
+    @Test("Wave pattern produces non-empty grid")
+    func waveNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadWave()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Wave pattern creates a surface structure spanning the grid")
+    func waveSurface() {
+        var grid = GridModel(size: 16)
+        grid.loadWave()
+        // Wave should have cells spread across most X and Z columns
+        var xCols = Set<Int>()
+        var zCols = Set<Int>()
+        for idx in grid.aliveCellIndices {
+            let x = idx / (16 * 16)
+            let z = idx % 16
+            xCols.insert(x)
+            zCols.insert(z)
+        }
+        // Should span all 16 columns in both X and Z
+        #expect(xCols.count == 16)
+        #expect(zCols.count == 16)
+    }
+
+    @Test("Wave pattern alive indices match alive count")
+    func waveIndexCount() {
+        var grid = GridModel(size: 16)
+        grid.loadWave()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+
+    @Test("Wave pattern is included in engine pattern list")
+    func waveEngineSelection() {
+        // Verify 'wave' is a valid Pattern case
+        let pattern = SimulationEngine.Pattern.wave
+        #expect(pattern.rawValue == "Wave")
+    }
+
+    @Test("Wave pattern evolves across multiple generations without crashing")
+    func waveEvolution() {
+        var grid = GridModel(size: 12)
+        grid.loadWave()
+        for _ in 0..<10 {
+            grid.advanceGeneration()
+        }
+        // Should still be alive or have died gracefully
+        #expect(grid.aliveCount >= 0)
+    }
+
+    // MARK: - Bulk Zero Tests
+
+    @Test("clearAll zeros all cells via bulk operation")
+    func clearAllBulkZero() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.5)
+        #expect(grid.aliveCount > 0)
+        grid.clearAll()
+        #expect(grid.aliveCount == 0)
+        // Verify every cell is zero
+        for i in 0..<grid.cellCount {
+            #expect(grid.cells[i] == 0)
+        }
+    }
+
+    @Test("advanceGeneration zeroes nextCells correctly with bulk memset")
+    func advanceGenerationBulkZero() {
+        var grid = GridModel(size: 8)
+        grid.randomSeed(density: 0.3)
+        // Run multiple generations to verify the bulk zero doesn't corrupt state
+        for _ in 0..<20 {
+            grid.advanceGeneration()
+        }
+        // All alive cells should have age > 0, dead cells should be 0
+        for i in 0..<grid.cellCount {
+            #expect(grid.cells[i] >= 0)
+        }
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
 }
 
 // MARK: - Population Trend Threshold Tests

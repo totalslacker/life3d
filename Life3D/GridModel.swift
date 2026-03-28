@@ -175,8 +175,10 @@ struct GridModel: Sendable {
     mutating func advanceGeneration() {
         let ss = size * size
         let offsets = cachedNeighborOffsets
-        // Zero the next buffer (reuse pre-allocated array instead of allocating each generation)
-        for i in 0..<cellCount { nextCells[i] = 0 }
+        // Zero the next buffer using bulk memset — faster than per-element loop for 32K+ ints
+        nextCells.withUnsafeMutableBufferPointer { buf in
+            buf.update(repeating: 0)
+        }
         // Reuse pre-allocated born/dying/alive buffers — removeAll(keepingCapacity:) avoids heap allocation
         dyingCells.removeAll(keepingCapacity: true)
         bornCells.removeAll(keepingCapacity: true)
@@ -749,8 +751,38 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// A sinusoidal surface — two perpendicular sine waves create a rippling 3D sheet.
+    /// The surface has high neighbor density along the sheet and sparse edges,
+    /// producing wave-like propagation that flows outward as the surface evolves.
+    mutating func loadWave() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let amplitude = Float(size) / 6.0
+        let frequency: Float = 2.0 * .pi / Float(size)
+        let thickness: Float = 1.2
+
+        for x in 0..<size {
+            for z in 0..<size {
+                // Two perpendicular sine waves summed
+                let fx = Float(x) - mid + 0.5
+                let fz = Float(z) - mid + 0.5
+                let yCenter = mid + amplitude * (sin(frequency * fx * 2.0) + sin(frequency * fz * 2.0)) / 2.0
+                // Fill a vertical slice around the surface
+                for y in 0..<size {
+                    let dy = Float(y) - yCenter
+                    if abs(dy) <= thickness {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
-        for i in 0..<cellCount { cells[i] = 0 }
+        cells.withUnsafeMutableBufferPointer { buf in
+            buf.update(repeating: 0)
+        }
         dyingCells.removeAll(keepingCapacity: true)
         bornCells.removeAll(keepingCapacity: true)
         fadingCells.removeAll(keepingCapacity: true)

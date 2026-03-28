@@ -309,6 +309,8 @@ final class SimulationEngine {
             grid.loadGalaxy()
         case .pyramid:
             grid.loadPyramid()
+        case .wave:
+            grid.loadWave()
         case .clear:
             grid.clearAll()
         }
@@ -342,6 +344,7 @@ final class SimulationEngine {
         case torus = "Torus"
         case galaxy = "Galaxy"
         case pyramid = "Pyramid"
+        case wave = "Wave"
         case clear = "Clear"
 
         var id: String { rawValue }

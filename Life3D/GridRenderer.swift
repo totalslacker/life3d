@@ -551,19 +551,64 @@ enum GridRenderer {
         computeMeshData(model: model)
     }
 
+    // MARK: - Cube Template (static, allocated once)
+
+    private static let cubeVertexCount = 24
+    private static let cubeIndexCount = 36
+
+    /// Unit cube positions (±0.5) — scaled per-cell at build time.
+    private static let cubeUnitPositions: [SIMD3<Float>] = [
+        SIMD3( 0.5, -0.5, -0.5), SIMD3( 0.5,  0.5, -0.5),
+        SIMD3( 0.5,  0.5,  0.5), SIMD3( 0.5, -0.5,  0.5),
+        SIMD3(-0.5, -0.5,  0.5), SIMD3(-0.5,  0.5,  0.5),
+        SIMD3(-0.5,  0.5, -0.5), SIMD3(-0.5, -0.5, -0.5),
+        SIMD3(-0.5,  0.5,  0.5), SIMD3( 0.5,  0.5,  0.5),
+        SIMD3( 0.5,  0.5, -0.5), SIMD3(-0.5,  0.5, -0.5),
+        SIMD3(-0.5, -0.5, -0.5), SIMD3( 0.5, -0.5, -0.5),
+        SIMD3( 0.5, -0.5,  0.5), SIMD3(-0.5, -0.5,  0.5),
+        SIMD3(-0.5, -0.5,  0.5), SIMD3( 0.5, -0.5,  0.5),
+        SIMD3( 0.5,  0.5,  0.5), SIMD3(-0.5,  0.5,  0.5),
+        SIMD3( 0.5, -0.5, -0.5), SIMD3(-0.5, -0.5, -0.5),
+        SIMD3(-0.5,  0.5, -0.5), SIMD3( 0.5,  0.5, -0.5),
+    ]
+
+    private static let cubeNormals: [SIMD3<Float>] = [
+        SIMD3(1,0,0), SIMD3(1,0,0), SIMD3(1,0,0), SIMD3(1,0,0),
+        SIMD3(-1,0,0), SIMD3(-1,0,0), SIMD3(-1,0,0), SIMD3(-1,0,0),
+        SIMD3(0,1,0), SIMD3(0,1,0), SIMD3(0,1,0), SIMD3(0,1,0),
+        SIMD3(0,-1,0), SIMD3(0,-1,0), SIMD3(0,-1,0), SIMD3(0,-1,0),
+        SIMD3(0,0,1), SIMD3(0,0,1), SIMD3(0,0,1), SIMD3(0,0,1),
+        SIMD3(0,0,-1), SIMD3(0,0,-1), SIMD3(0,0,-1), SIMD3(0,0,-1),
+    ]
+
+    private static let cubeUVs: [SIMD2<Float>] = [
+        SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
+        SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
+        SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
+        SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
+        SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
+        SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
+    ]
+
+    private static let cubeTemplateIndices: [UInt32] = [
+         0,  1,  2,   0,  2,  3,
+         4,  5,  6,   4,  6,  7,
+         8,  9, 10,   8, 10, 11,
+        12, 13, 14,  12, 14, 15,
+        16, 17, 18,  16, 18, 19,
+        20, 21, 22,  20, 22, 23,
+    ]
+
     /// Computes raw vertex and index arrays for alive cells + fading cells, sorted by age tier.
     /// Applies depth-based scaling: cells further from grid center are slightly smaller,
     /// creating a natural depth-of-field effect without shader-level blur.
     private static func computeMeshData(model: GridModel) -> MeshData {
         var cellsWithAge = model.aliveCellsWithAge(cellSize: cellSize, cellSpacing: cellSpacing)
         // Add fading cells with negative age sentinel (mapped to .dying tier).
-        // Encode fade stage as negative value: -1 = just died, -2 = mid-fade, -3 = nearly gone.
-        // progress is 1.0 when just died (framesLeft=fadeDuration) → age should be -1 (largest).
-        // progress approaches 0.0 as cell vanishes (framesLeft=1) → age should be -fadeDuration (smallest).
         let fadingCells = model.fadingCellsWithProgress(cellSize: cellSize, cellSpacing: cellSpacing)
         for fading in fadingCells {
             let framesLeft = max(Int(round(fading.progress * Float(GridModel.fadeDuration))), 1)
-            let fadeStage = GridModel.fadeDuration - framesLeft + 1  // 1 when just died, fadeDuration when nearly gone
+            let fadeStage = GridModel.fadeDuration - framesLeft + 1
             cellsWithAge.append((position: fading.position, age: -fadeStage))
         }
         let aliveCells = cellsWithAge.count
@@ -584,58 +629,11 @@ enum GridRenderer {
         }
         let sorted = buckets.flatMap { $0 }
 
-        // Pre-compute depth scale: cells at the grid edge are slightly smaller (80% of full size)
-        // This creates a pseudo depth-of-field effect — peripheral cells recede visually
-        // Uses squared distance to avoid per-cell sqrt() — visual difference is negligible
-        let depthFalloff: Float = 0.2  // 20% size reduction at maximum distance
-        let maxDistSq = gridExtent * gridExtent * 3.0  // (gridExtent * sqrt(3))² for 3D diagonal
+        let depthFalloff: Float = 0.2
+        let maxDistSq = gridExtent * gridExtent * 3.0
 
-        let cubeVertexCount = 24
-        let cubeIndexCount = 36
         let totalVertices = aliveCells * cubeVertexCount
         let totalIndices = aliveCells * cubeIndexCount
-
-        let cubePositions: [SIMD3<Float>] = [
-            SIMD3( half, -half, -half), SIMD3( half,  half, -half),
-            SIMD3( half,  half,  half), SIMD3( half, -half,  half),
-            SIMD3(-half, -half,  half), SIMD3(-half,  half,  half),
-            SIMD3(-half,  half, -half), SIMD3(-half, -half, -half),
-            SIMD3(-half,  half,  half), SIMD3( half,  half,  half),
-            SIMD3( half,  half, -half), SIMD3(-half,  half, -half),
-            SIMD3(-half, -half, -half), SIMD3( half, -half, -half),
-            SIMD3( half, -half,  half), SIMD3(-half, -half,  half),
-            SIMD3(-half, -half,  half), SIMD3( half, -half,  half),
-            SIMD3( half,  half,  half), SIMD3(-half,  half,  half),
-            SIMD3( half, -half, -half), SIMD3(-half, -half, -half),
-            SIMD3(-half,  half, -half), SIMD3( half,  half, -half),
-        ]
-
-        let cubeNormals: [SIMD3<Float>] = [
-            SIMD3(1,0,0), SIMD3(1,0,0), SIMD3(1,0,0), SIMD3(1,0,0),
-            SIMD3(-1,0,0), SIMD3(-1,0,0), SIMD3(-1,0,0), SIMD3(-1,0,0),
-            SIMD3(0,1,0), SIMD3(0,1,0), SIMD3(0,1,0), SIMD3(0,1,0),
-            SIMD3(0,-1,0), SIMD3(0,-1,0), SIMD3(0,-1,0), SIMD3(0,-1,0),
-            SIMD3(0,0,1), SIMD3(0,0,1), SIMD3(0,0,1), SIMD3(0,0,1),
-            SIMD3(0,0,-1), SIMD3(0,0,-1), SIMD3(0,0,-1), SIMD3(0,0,-1),
-        ]
-
-        let cubeUVs: [SIMD2<Float>] = [
-            SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
-            SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
-            SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
-            SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
-            SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
-            SIMD2(0,0), SIMD2(0,1), SIMD2(1,1), SIMD2(1,0),
-        ]
-
-        let cubeIndices: [UInt32] = [
-             0,  1,  2,   0,  2,  3,
-             4,  5,  6,   4,  6,  7,
-             8,  9, 10,   8, 10, 11,
-            12, 13, 14,  12, 14, 15,
-            16, 17, 18,  16, 18, 19,
-            20, 21, 22,  20, 22, 23,
-        ]
 
         var vertices = [GridVertex](
             repeating: GridVertex(position: .zero, normal: .zero, uv: .zero),
@@ -660,13 +658,13 @@ enum GridRenderer {
             let vertexOffset = UInt32(vi)
             for j in 0..<cubeVertexCount {
                 vertices[vi] = GridVertex(
-                    position: cubePositions[j] * scale + cell.position,
+                    position: cubeUnitPositions[j] * cellSize * scale + cell.position,
                     normal: cubeNormals[j],
                     uv: cubeUVs[j]
                 )
                 vi += 1
             }
-            for idx in cubeIndices {
+            for idx in cubeTemplateIndices {
                 indices[ii] = idx + vertexOffset
                 ii += 1
             }

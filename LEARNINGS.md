@@ -300,6 +300,26 @@ the same things. Search here before looking things up externally.
 
 ---
 
+## Bulk Array Zeroing with withUnsafeMutableBufferPointer
+
+- `for i in 0..<count { array[i] = 0 }` performs per-element indexed writes with Swift bounds checking
+- `array.withUnsafeMutableBufferPointer { $0.update(repeating: 0) }` compiles down to a single `memset` call — no bounds checks, no loop overhead
+- For `[Int]` arrays, this zeroes `count * MemoryLayout<Int>.stride` bytes in one operation
+- At 32³ grid (32,768 ints = 262KB), the difference is measurable in the hot path of `advanceGeneration()`
+- Also applies to `clearAll()` and any bulk reset operation on pre-allocated buffers
+- `withUnsafeMutableBytes { $0.initializeMemory(as: UInt8.self, repeating: 0) }` is an alternative but `update(repeating:)` is type-safe and clearer
+
+---
+
+## Static Template Arrays for Repeated Mesh Builds
+
+- Constant template data (cube vertex positions, normals, UVs, indices) allocated as local `let` inside a hot function creates heap allocations per call
+- Moving to `static let` on the enclosing type allocates once and shares across all calls
+- Unit coordinates (±0.5) with runtime scaling by `cellSize` keeps the template generic while avoiding per-call recomputation
+- At 5 mesh rebuilds/second, this eliminates ~20 array allocations/second for 4 template arrays
+
+---
+
 ## Set-Backed Index for O(1) Interactive Cell Removal
 
 - Maintaining `aliveCellIndices: [Int]` alongside a `aliveCellIndexSet: Set<Int>` gives O(alive) iteration for rendering AND O(1) membership/removal for interactive edits

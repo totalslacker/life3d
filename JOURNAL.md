@@ -2,6 +2,26 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 57 (2026-03-28 10:56 PDT)
+
+**Goal**: Performance optimizations and Wave pattern.
+
+Three improvements:
+
+1. **Bulk memset for buffer zeroing**: Replaced per-element for loops in `advanceGeneration()` and `clearAll()` with `withUnsafeMutableBufferPointer { buf.update(repeating: 0) }`. The old code (`for i in 0..<cellCount { cells[i] = 0 }`) performs individual indexed writes with bounds checking per element. The bulk operation uses a single `memset` under the hood. For a 32³ grid (32,768 ints = 262KB), this eliminates ~32K individual store operations per generation in `advanceGeneration` and per reset in `clearAll`.
+
+2. **Static cube template arrays in GridRenderer**: Moved `cubePositions`, `cubeNormals`, `cubeUVs`, and `cubeIndices` from local variables inside `computeMeshData()` to `static let` properties on `GridRenderer`. These 4 arrays (24 SIMD3s, 24 SIMD3s, 24 SIMD2s, 36 UInt32s) were re-allocated on every mesh rebuild — at 5 gen/s that's 20 heap allocations/second eliminated. The positions now use unit coordinates (±0.5) scaled by `cellSize` at build time, keeping the same visual output.
+
+3. **Wave pattern**: 17th pattern — a sinusoidal surface created by summing two perpendicular sine waves across the XZ plane. The surface has a thickness of ~1.2 cells for neighbor density. Creates a rippling sheet that evolves into chaotic branching forms as edges erode and the wave breaks apart. The dual-sine creates interference patterns at the peaks and troughs, producing asymmetric evolution even from a symmetric initial state.
+
+Added 7 tests: wave non-empty, wave surface spanning, wave index count, wave engine selection, wave evolution, clearAll bulk zero, advanceGeneration bulk zero.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 12 — Session 57 (2026-03-28 10:53 PDT)
 
 **Goal**: Launch UX polish, draw mode performance, mesh generation test coverage.
