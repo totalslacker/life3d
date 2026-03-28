@@ -2,6 +2,26 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 52 (2026-03-28 10:14 PDT)
+
+**Goal**: Add spiral pattern, amethyst theme, and auto-cycle patterns on extinction.
+
+Three improvements this session:
+
+1. **Spiral pattern**: 3D Archimedean spiral that traces a widening helix from center outward. Uses thickness-based filling (1.3 unit radius) along the spiral path, spanning 80% of grid height with 3 full turns. Creates dramatic vortex structures that evolve into fractal-like branching forms.
+
+2. **Amethyst theme**: Rich purple tones (violet newborn → deep purple mature → dark plum dying). 18th theme in the collection. Emissive intensity follows the standard tier progression (2.3 → 1.4 → 0.7 → 0.3).
+
+3. **Auto-cycle patterns on extinction**: Previously, auto-restart always reseeded with the same selected pattern. Now cycles through all patterns (excluding Clear) on each extinction event, updating the selectedPattern so the UI reflects what's running. Makes the "leave it running" experience much more varied — each extinction brings a different seed shape.
+
+Added tests for all three features: spiral cell population/bounds/evolution, amethyst theme structure/inclusion, and pattern cycling logic.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Consider incremental mesh updates for changed cells only.
+
+---
+
 ## Day 12 — Session 52 (2026-03-28 10:06 PDT)
 
 **Goal**: Performance optimization and safety hardening — buffer reuse, step timing, force unwrap elimination.

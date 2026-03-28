@@ -553,6 +553,42 @@ struct GridModel: Sendable {
         }
     }
 
+    /// A 3D logarithmic spiral — cells trace a widening helix from the center outward.
+    /// Creates a dramatic vortex structure that evolves into fractal-like branching forms.
+    mutating func loadSpiral() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let totalPoints = size * 12  // dense enough to create a solid spiral
+        let maxRadius = Float(min(size / 3, 6))
+        let turns: Float = 3.0
+        let thickness: Float = 1.3
+
+        for i in 0..<totalPoints {
+            let t = Float(i) / Float(totalPoints)
+            let angle = t * turns * 2.0 * .pi
+            let radius = maxRadius * t  // linear growth for Archimedean spiral
+            let y = mid - Float(size) * 0.4 + t * Float(size) * 0.8  // spans 80% of grid height
+
+            let cx = mid + radius * cos(angle)
+            let cz = mid + radius * sin(angle)
+
+            // Fill a small sphere around the spiral center for thickness
+            for x in 0..<size {
+                for z in 0..<size {
+                    let dx = Float(x) - cx + 0.5
+                    let dz = Float(z) - cz + 0.5
+                    let dist = (dx * dx + dz * dz).squareRoot()
+                    if dist <= thickness {
+                        let yi = Int(y)
+                        if yi >= 0 && yi < size {
+                            setCell(x: x, y: yi, z: z, alive: true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     mutating func clearAll() {
         for i in 0..<cellCount { cells[i] = 0 }
         dyingCells = []

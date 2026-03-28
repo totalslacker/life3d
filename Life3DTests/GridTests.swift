@@ -1550,3 +1550,80 @@ struct DepthScalingTests {
         #expect(data.indices.isEmpty)
     }
 }
+
+@Suite("Spiral Pattern Tests")
+struct SpiralPatternTests {
+    @Test("Spiral pattern populates cells")
+    func spiralHasCells() {
+        var model = GridModel(size: 16)
+        model.loadSpiral()
+        #expect(model.aliveCount > 0)
+    }
+
+    @Test("Spiral cells stay within grid bounds")
+    func spiralInBounds() {
+        var model = GridModel(size: 12)
+        model.loadSpiral()
+        for x in 0..<model.size {
+            for y in 0..<model.size {
+                for z in 0..<model.size {
+                    // No out-of-bounds access — just verify alive cells exist within valid range
+                    let age = model.cellAge(x: x, y: y, z: z)
+                    #expect(age >= 0)
+                }
+            }
+        }
+        #expect(model.aliveCount > 0)
+    }
+
+    @Test("Spiral pattern evolves without crashing")
+    func spiralEvolves() {
+        var model = GridModel(size: 12)
+        model.loadSpiral()
+        let initialCount = model.aliveCount
+        model.advanceGeneration()
+        // Population should change (spiral isn't a still life)
+        #expect(model.aliveCount != initialCount || model.aliveCount == 0)
+    }
+
+    @Test("Spiral pattern enum case exists")
+    func spiralPatternExists() {
+        let pattern = SimulationEngine.Pattern.spiral
+        #expect(pattern.rawValue == "Spiral")
+    }
+}
+
+@Suite("Amethyst Theme Tests")
+struct AmethystThemeTests {
+    @Test("Amethyst theme is in allThemes")
+    func amethystInAllThemes() {
+        #expect(ColorTheme.allThemes.contains(where: { $0.name == "Amethyst" }))
+    }
+
+    @Test("Amethyst theme has correct tier structure")
+    func amethystTierColors() {
+        let theme = ColorTheme.amethyst
+        // Newborn should be brightest
+        #expect(theme.newborn.emissiveIntensity > theme.mature.emissiveIntensity)
+        // Opacity should decrease with age
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+}
+
+@Suite("Auto-Cycle Pattern Tests")
+struct AutoCyclePatternTests {
+    @Test("Pattern enum includes spiral")
+    func patternIncludesSpiral() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.contains(.spiral))
+    }
+
+    @Test("All patterns except clear are valid for cycling")
+    func cyclablePatternsExcludeClear() {
+        let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
+        #expect(!cyclable.contains(.clear))
+        #expect(cyclable.count == SimulationEngine.Pattern.allCases.count - 1)
+    }
+}

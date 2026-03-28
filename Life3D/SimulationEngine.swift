@@ -163,6 +163,11 @@ final class SimulationEngine {
     private var extinctionCounter: Int = 0
     private static let extinctionDelay: Int = 3  // wait 3 empty generations (~0.6s at 5 gen/s)
 
+    /// Patterns to cycle through on auto-restart (excludes Clear and user-selected).
+    private static let cyclablePatterns: [Pattern] = Pattern.allCases.filter { $0 != .clear }
+    /// Index into cyclablePatterns for auto-restart cycling.
+    private var cycleIndex: Int = 0
+
     func step() {
         let stepStart = ContinuousClock.now
         grid.advanceGeneration()
@@ -211,7 +216,11 @@ final class SimulationEngine {
                         self._historyCount = 0
                         self._trendWriteIndex = 0
                         self._trendCount = 0
-                        self.loadPattern(self.selectedPattern)
+                        // Cycle through patterns on auto-restart for variety
+                        let nextPattern = Self.cyclablePatterns[self.cycleIndex % Self.cyclablePatterns.count]
+                        self.cycleIndex += 1
+                        self.selectedPattern = nextPattern
+                        self.loadPattern(nextPattern)
                         // Auto-dismiss extinction notice after 2 seconds
                         Task { @MainActor [weak self] in
                             try? await Task.sleep(nanoseconds: 2_000_000_000)
@@ -283,6 +292,8 @@ final class SimulationEngine {
             grid.loadHelix()
         case .rings:
             grid.loadRings()
+        case .spiral:
+            grid.loadSpiral()
         case .clear:
             grid.clearAll()
         }
@@ -312,6 +323,7 @@ final class SimulationEngine {
         case stagger = "Stagger (lattice)"
         case helix = "Helix (DNA)"
         case rings = "Rings (shells)"
+        case spiral = "Spiral"
         case clear = "Clear"
 
         var id: String { rawValue }
