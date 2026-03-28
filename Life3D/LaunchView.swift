@@ -101,6 +101,22 @@ struct LaunchView: View {
                 }
 
                 GridRow {
+                    Text("Topology")
+                        .foregroundStyle(.secondary)
+                    Picker("Topology", selection: Binding(
+                        get: { engine.wrapping },
+                        set: {
+                            engine.wrapping = $0
+                            engine.savePreferences()
+                        }
+                    )) {
+                        Text("Finite").tag(false)
+                        Text("Wrapping").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                }
+
+                GridRow {
                     Text("Speed")
                         .foregroundStyle(.secondary)
                     HStack {

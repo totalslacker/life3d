@@ -24,6 +24,10 @@ struct GridModel: Sendable {
     /// Number of generations a dying cell takes to fully fade out.
     static let fadeDuration: Int = 3
 
+    /// When true, grid edges wrap around (toroidal topology).
+    /// Boundary cells see neighbors on the opposite face instead of treating out-of-bounds as dead.
+    var wrapping: Bool = false
+
     /// Rule configuration: born when neighbor count is in birthCounts, survives when in survivalCounts
     var birthCounts: Set<Int> {
         didSet { birthLookup = Self.buildLookup(from: birthCounts) }
@@ -152,8 +156,15 @@ struct GridModel: Sendable {
             for dy in -1...1 {
                 for dz in -1...1 {
                     if dx == 0 && dy == 0 && dz == 0 { continue }
-                    if isAlive(x: x + dx, y: y + dy, z: z + dz) {
-                        count += 1
+                    if wrapping {
+                        let nx = (x + dx + size) % size
+                        let ny = (y + dy + size) % size
+                        let nz = (z + dz + size) % size
+                        if cells[index(x: nx, y: ny, z: nz)] > 0 { count += 1 }
+                    } else {
+                        if isAlive(x: x + dx, y: y + dy, z: z + dz) {
+                            count += 1
+                        }
                     }
                 }
             }
@@ -204,8 +215,21 @@ struct GridModel: Sendable {
                         for offset in offsets {
                             if cells[idx &+ offset] > 0 { neighbors &+= 1 }
                         }
+                    } else if wrapping {
+                        // Wrapping boundary: use modular arithmetic (toroidal topology)
+                        for dx in -1...1 {
+                            for dy in -1...1 {
+                                for dz in -1...1 {
+                                    if dx == 0 && dy == 0 && dz == 0 { continue }
+                                    let nx = (x + dx + size) % size
+                                    let ny = (y + dy + size) % size
+                                    let nz = (z + dz + size) % size
+                                    if cells[nx * ss + ny * size + nz] > 0 { neighbors &+= 1 }
+                                }
+                            }
+                        }
                     } else {
-                        // Boundary cells: need bounds checking
+                        // Finite boundary: out-of-bounds treated as dead
                         for dx in -1...1 {
                             for dy in -1...1 {
                                 for dz in -1...1 {

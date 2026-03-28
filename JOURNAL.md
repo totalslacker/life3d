@@ -2,6 +2,24 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 58 (2026-03-28 11:10 PDT)
+
+**Goal**: Wrapping topology (toroidal grid) for fundamentally different simulation dynamics.
+
+Added a wrapping/toroidal topology mode to the 3D grid. When enabled, boundary cells see neighbors on the opposite face instead of treating out-of-bounds as dead. This eliminates edge effects — patterns near boundaries evolve the same as interior patterns, and structures can flow off one side and reappear on the other.
+
+Implementation:
+1. **GridModel**: Added `wrapping: Bool` property. `advanceGeneration()` boundary path now has two branches — wrapping uses `(coord + delta + size) % size` modular arithmetic, finite uses the existing bounds-check logic. Interior cells (82% of 32³) are unaffected since they never touch boundaries. `neighborCount()` also updated for test consistency.
+2. **SimulationEngine**: Added `wrapping` property with `didSet` to sync to grid, persistence via UserDefaults, and preservation across grid size changes.
+3. **UI**: Wrapping toggle button in SimulationControlBar (cycle icon), Topology row in MidSimulationSettings (Finite/Wrapping buttons), and segmented picker on LaunchView.
+4. **Tests**: 8 tests covering corner wrap, edge single-axis wrap, interior unaffected, advanceGeneration birth via wrapping, non-wrapping no-birth, alive count consistency, and index list consistency.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 12 — Session 57 (2026-03-28 11:03 PDT)
 
 **Goal**: Performance optimization, new pattern, new theme.

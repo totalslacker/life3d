@@ -2911,3 +2911,95 @@ struct BulkZeroTests {
         #expect(grid.aliveCount == manualCount)
     }
 }
+
+// MARK: - Wrapping Topology Tests
+
+@Suite("Wrapping Topology Tests")
+struct WrappingTopologyTests {
+    @Test("Corner cell sees neighbor across wrapped boundary")
+    func cornerCellWrapsNeighbor() {
+        var model = GridModel(size: 8)
+        model.wrapping = true
+        // Place cell at opposite corner (7,7,7)
+        model.setCell(x: 7, y: 7, z: 7, alive: true)
+        // Cell at (0,0,0) should see (7,7,7) as a neighbor via wrapping
+        let count = model.neighborCount(x: 0, y: 0, z: 0)
+        #expect(count == 1)
+    }
+
+    @Test("Corner cell does NOT wrap without wrapping enabled")
+    func cornerCellNoWrap() {
+        var model = GridModel(size: 8)
+        model.wrapping = false
+        model.setCell(x: 7, y: 7, z: 7, alive: true)
+        let count = model.neighborCount(x: 0, y: 0, z: 0)
+        #expect(count == 0)
+    }
+
+    @Test("Edge cell wraps on one axis")
+    func edgeCellSingleAxisWrap() {
+        var model = GridModel(size: 8)
+        model.wrapping = true
+        // Place cell at x=7, y=3, z=3
+        model.setCell(x: 7, y: 3, z: 3, alive: true)
+        // Cell at x=0, y=3, z=3 should see it as a neighbor
+        let count = model.neighborCount(x: 0, y: 3, z: 3)
+        #expect(count == 1)
+    }
+
+    @Test("Interior cell unaffected by wrapping flag")
+    func interiorCellUnchanged() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 4, y: 4, z: 4, alive: true)
+        let countNoWrap = model.neighborCount(x: 3, y: 4, z: 4)
+        model.wrapping = true
+        let countWrap = model.neighborCount(x: 3, y: 4, z: 4)
+        #expect(countNoWrap == countWrap)
+    }
+
+    @Test("Wrapping advanceGeneration births cell at boundary via wrapped neighbor")
+    func wrappingAdvanceGenerationBirth() {
+        // Create a scenario where wrapping causes a birth that wouldn't happen without wrapping.
+        // Use small grid with B1/S0 rules (born with 1 neighbor) for easy testing.
+        var model = GridModel(size: 4, birthCounts: [1], survivalCounts: [])
+        model.wrapping = true
+        // Place a single cell at (3,0,0) — last X position
+        model.setCell(x: 3, y: 0, z: 0, alive: true)
+        model.advanceGeneration()
+        // With wrapping and B1 rules, (0,0,0) should be born (wraps from x=3 to x=0)
+        #expect(model.cells[model.index(x: 0, y: 0, z: 0)] > 0)
+    }
+
+    @Test("Non-wrapping advanceGeneration does not birth at boundary via missing neighbor")
+    func nonWrappingAdvanceGenerationNoBirth() {
+        var model = GridModel(size: 4, birthCounts: [1], survivalCounts: [])
+        model.wrapping = false
+        model.setCell(x: 3, y: 0, z: 0, alive: true)
+        model.advanceGeneration()
+        // Without wrapping, (0,0,0) has no neighbors from x=3
+        #expect(model.cells[model.index(x: 0, y: 0, z: 0)] == 0)
+    }
+
+    @Test("Wrapping preserves alive count consistency")
+    func wrappingAliveCountConsistency() {
+        var model = GridModel(size: 8)
+        model.wrapping = true
+        model.randomSeed(density: 0.25)
+        let initialCount = model.aliveCount
+        #expect(initialCount > 0)
+        model.advanceGeneration()
+        // aliveCount must match actual cells
+        let actual = model.cells.filter { $0 > 0 }.count
+        #expect(model.aliveCount == actual)
+    }
+
+    @Test("Wrapping index list matches alive count after generation")
+    func wrappingIndexListConsistency() {
+        var model = GridModel(size: 8)
+        model.wrapping = true
+        model.randomSeed(density: 0.25)
+        model.advanceGeneration()
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == model.aliveCount)
+    }
+}

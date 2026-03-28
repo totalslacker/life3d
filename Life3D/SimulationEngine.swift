@@ -14,6 +14,9 @@ final class SimulationEngine {
     var surroundMode: Bool = false  // false = tabletop, true = room-scale
     var audioMuted: Bool = true
     var selectedPattern: Pattern = .random
+    var wrapping: Bool = false {
+        didSet { grid.wrapping = wrapping }
+    }
 
     // Exit animation coordination
     var isExiting: Bool = false
@@ -101,6 +104,7 @@ final class SimulationEngine {
         static let speed = "life3d.speed"
         static let ruleSet = "life3d.ruleSet"
         static let audioMuted = "life3d.audioMuted"
+        static let wrapping = "life3d.wrapping"
     }
 
     init(size: Int = 16) {
@@ -137,6 +141,12 @@ final class SimulationEngine {
         if defaults.object(forKey: PrefKey.audioMuted) != nil {
             self.audioMuted = defaults.bool(forKey: PrefKey.audioMuted)
         }
+
+        // Restore wrapping topology
+        if defaults.object(forKey: PrefKey.wrapping) != nil {
+            self.wrapping = defaults.bool(forKey: PrefKey.wrapping)
+            self.grid.wrapping = self.wrapping
+        }
     }
 
     /// Saves current user preferences to UserDefaults.
@@ -146,6 +156,7 @@ final class SimulationEngine {
         defaults.set(grid.size, forKey: PrefKey.gridSize)
         defaults.set(speed, forKey: PrefKey.speed)
         defaults.set(audioMuted, forKey: PrefKey.audioMuted)
+        defaults.set(wrapping, forKey: PrefKey.wrapping)
         // Find matching rule set
         if let ruleSet = RuleSet.allCases.first(where: {
             $0.birthCounts == grid.birthCounts && $0.survivalCounts == grid.survivalCounts
@@ -325,6 +336,7 @@ final class SimulationEngine {
         let currentBirth = grid.birthCounts
         let currentSurvival = grid.survivalCounts
         grid = GridModel(size: newSize, birthCounts: currentBirth, survivalCounts: currentSurvival)
+        grid.wrapping = wrapping
         grid.randomSeed()
         savePreferences()
     }

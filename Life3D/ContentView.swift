@@ -148,6 +148,17 @@ struct SimulationControlBar: View {
                     .help(engine.eraserMode ? "Eraser: drag to remove cells" : "Pencil: drag to add cells")
                 }
 
+                // Wrapping topology toggle
+                Button {
+                    engine.wrapping.toggle()
+                    engine.savePreferences()
+                } label: {
+                    Image(systemName: engine.wrapping ? "arrow.triangle.2.circlepath.circle.fill" : "arrow.triangle.2.circlepath.circle")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help(engine.wrapping ? "Wrapping: edges connect (toroidal)" : "Finite: edges are boundaries")
+
                 // Surround mode toggle
                 Button {
                     engine.surroundMode.toggle()
@@ -333,6 +344,29 @@ struct MidSimulationSettings: View {
                         .controlSize(.small)
                         .tint(size.rawValue == engine.grid.size ? .accentColor : .gray)
                     }
+                }
+            }
+
+            GridRow {
+                Text("Topology")
+                    .foregroundStyle(.secondary)
+                    .font(.callout)
+                HStack(spacing: 8) {
+                    Button("Finite") {
+                        engine.wrapping = false
+                        engine.savePreferences()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .tint(!engine.wrapping ? .accentColor : .gray)
+
+                    Button("Wrapping") {
+                        engine.wrapping = true
+                        engine.savePreferences()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .tint(engine.wrapping ? .accentColor : .gray)
                 }
             }
         }

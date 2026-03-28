@@ -338,3 +338,13 @@ the same things. Search here before looking things up externally.
 - Must check the result — silent failure leaves the app in a broken state (simulation bar visible but no 3D content)
 - On failure, reset navigation state and fade the launch view back in for a graceful recovery
 - Always include `@unknown default` case for future-proofing against new result types
+
+---
+
+## Toroidal (Wrapping) Grid Topology
+
+- Wrapping boundary cells use `(coord + delta + size) % size` — the `+ size` prevents negative modulo in Swift (which preserves sign: `-1 % 8 = -1`, not `7`)
+- Interior cells (distance >1 from any face) are unaffected by topology — the fast-path offset-based neighbor counting works identically in both modes
+- For 32³, only 18% of cells (boundary cells) take the wrapping path — performance impact is minimal since the fast interior path dominates
+- Wrapping changes simulation dynamics significantly: edge-effect extinction is eliminated, patterns that die at boundaries now sustain and flow across, and stable oscillators are more likely at smaller grid sizes
+- The `advanceGeneration` boundary code path splits into two branches (wrapping vs finite) rather than a single branch with conditional wrapping — avoids a per-neighbor conditional in the hot loop
