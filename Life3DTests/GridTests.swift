@@ -3486,3 +3486,126 @@ struct BulkAliveIndexMapTests {
         var grid = GridModel(size: 16)
         grid.randomSeed(density: 0.30)
         grid.advanceGeneration()
+
+// MARK: - Cage Pattern Tests
+
+@Suite("Cage Pattern Tests")
+struct CagePatternTests {
+    @Test("Cage pattern produces non-empty grid")
+    func cageNonEmpty() {
+        var model = GridModel(size: 16)
+        model.loadCage()
+        #expect(model.aliveCount > 0)
+    }
+
+    @Test("Cage pattern only has cells on edges of a cube")
+    func cageEdgesOnly() {
+        var model = GridModel(size: 12)
+        model.loadCage()
+        let margin = max(1, 12 / 6)
+        let lo = margin
+        let hi = 12 - 1 - margin
+        // Every alive cell must be on at least two boundary planes of the cage
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        for cell in cells {
+            let stride: Float = 0.015 + 0.015
+            let offset = Float(12 - 1) * stride / 2.0
+            let x = Int(round((cell.position.x + offset) / stride))
+            let y = Int(round((cell.position.y + offset) / stride))
+            let z = Int(round((cell.position.z + offset) / stride))
+            // On an edge means exactly 2 of the 3 coordinates are at lo or hi
+            var boundaryCount = 0
+            if x == lo || x == hi { boundaryCount += 1 }
+            if y == lo || y == hi { boundaryCount += 1 }
+            if z == lo || z == hi { boundaryCount += 1 }
+            #expect(boundaryCount >= 2, "Cell at (\(x),\(y),\(z)) has only \(boundaryCount) boundary coordinates")
+        }
+    }
+
+    @Test("Cage pattern is selectable via SimulationEngine")
+    @MainActor
+    func cageEngineSelection() {
+        let engine = SimulationEngine(size: 8)
+        engine.loadPattern(.cage)
+        #expect(engine.grid.aliveCount > 0)
+    }
+
+    @Test("Cage pattern alive index list consistency")
+    func cageIndexConsistency() {
+        var model = GridModel(size: 12)
+        model.loadCage()
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == model.aliveCount)
+    }
+
+    @Test("Cage pattern evolves (population changes after generation)")
+    func cageEvolution() {
+        var model = GridModel(size: 12)
+        model.loadCage()
+        let initial = model.aliveCount
+        model.advanceGeneration()
+        // Cage edges have low neighbor density — expect population change
+        #expect(model.aliveCount != initial)
+    }
+}
+
+// MARK: - Bulk AliveIndexMap Tests
+
+@Suite("Bulk AliveIndexMap Tests")
+struct BulkAliveIndexMapTests {
+    @Test("AliveIndexMap consistency after clearAll with bulk fill")
+    func clearAllBulkMapConsistency() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.3)
+        #expect(model.aliveCount > 0)
+        model.clearAll()
+        #expect(model.aliveCount == 0)
+        // Re-add cells and verify map is clean
+        model.setCell(x: 2, y: 2, z: 2, alive: true)
+        #expect(model.aliveCount == 1)
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == 1)
+    }
+
+    @Test("AliveIndexMap consistency after advanceGeneration with bulk fill")
+    func advanceGenerationBulkMapConsistency() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+        for _ in 0..<5 {
+            model.advanceGeneration()
+        }
+        // Index list must match actual alive cells
+        let actual = model.cells.filter { $0 > 0 }.count
+        #expect(model.aliveCount == actual)
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == actual)
+    }
+
+    @Test("AliveIndexMap O(1) removal still works after bulk fill")
+    func bulkFillThenRemoval() {
+        var model = GridModel(size: 8)
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+        model.setCell(x: 2, y: 2, z: 2, alive: true)
+        model.setCell(x: 3, y: 3, z: 3, alive: true)
+        #expect(model.aliveCount == 3)
+        // Remove middle cell
+        model.setCell(x: 2, y: 2, z: 2, alive: false)
+        #expect(model.aliveCount == 2)
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == 2)
+    }
+
+    @Test("AliveIndexMap correct after rebuildAliveCellIndices via pattern load")
+    func patternLoadMapConsistency() {
+        var model = GridModel(size: 12)
+        // Load multiple patterns in sequence to exercise rebuild path
+        model.loadCage()
+        let cageCount = model.aliveCount
+        #expect(cageCount > 0)
+        model.loadLattice()
+        let latticeCount = model.aliveCount
+        #expect(latticeCount > 0)
+        #expect(latticeCount != cageCount) // different patterns produce different counts
+        // Verify internal consistency
+        let cells = model.aliveCellsWithAge(cellSize: 0.015, cellSpacing: 0.015)
+        #expect(cells.count == latticeCount)

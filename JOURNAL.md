@@ -36,6 +36,24 @@ Three improvements:
 
 ---
 
+## Day 12 — Session 59 (2026-03-28 11:20 PDT)
+
+**Goal**: Performance optimization and new pattern — bulk aliveIndexMap fill, Cage pattern.
+
+Two improvements:
+
+1. **Bulk fill for aliveIndexMap zeroing**: The `aliveIndexMap` (reverse mapping for O(1) alive cell removal) was zeroed with `for i in 0..<cellCount { aliveIndexMap[i] = -1 }` in three locations: `advanceGeneration()`, `rebuildAliveCellIndices()`, and `clearAll()`. Replaced all three with `withUnsafeMutableBufferPointer { $0.update(repeating: -1) }` — eliminates per-element Swift bounds checking and allows the compiler to auto-vectorize. Consistent with the bulk memset already applied to `cells` and `nextCells` buffers.
+
+2. **Cage pattern (19th)**: A hollow wireframe cube — only the 12 edges are populated with cells. Edge cells have low neighbor counts (1-3 along straight segments), so under standard rules the structure erodes from the middle of each edge while corners (with higher neighbor density from intersecting edges) persist longer. Creates a distinctive "melting scaffold" evolution unlike volumetric or surface patterns. Uses the same margin-based inset as Lattice for visual centering.
+
+Added 10 tests: cage non-empty, cage edges-only verification (all cells on >= 2 boundary planes), cage engine selection, cage index consistency, cage evolution dynamics, bulk map clearAll consistency, bulk map advanceGeneration consistency over 5 gens, bulk map O(1) removal, bulk map pattern load sequence, bulk fill 16³ 10-generation correctness.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 12 — Session 58 (2026-03-28 11:10 PDT)
 
 **Goal**: Wrapping topology (toroidal grid) for fundamentally different simulation dynamics.

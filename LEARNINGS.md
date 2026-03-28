@@ -379,3 +379,13 @@ the same things. Search here before looking things up externally.
 - For 32³, only 18% of cells (boundary cells) take the wrapping path — performance impact is minimal since the fast interior path dominates
 - Wrapping changes simulation dynamics significantly: edge-effect extinction is eliminated, patterns that die at boundaries now sustain and flow across, and stable oscillators are more likely at smaller grid sizes
 - The `advanceGeneration` boundary code path splits into two branches (wrapping vs finite) rather than a single branch with conditional wrapping — avoids a per-neighbor conditional in the hot loop
+
+---
+
+## Bulk Fill for Non-Zero Values with withUnsafeMutableBufferPointer
+
+- `withUnsafeMutableBufferPointer { $0.update(repeating: value) }` works for any `value`, not just zero — unlike `memset` which only writes byte patterns
+- For `aliveIndexMap` (sentinel value `-1`), this replaces a per-element `for i in 0..<count { arr[i] = -1 }` loop that has Swift bounds checking overhead
+- The compiler can auto-vectorize `update(repeating:)` into SIMD stores, which is especially effective for `-1` (all-bits-set pattern)
+- Same pattern as the `cells`/`nextCells` bulk zeroing, but proves the technique generalizes to any fill value
+- No exclusivity issues since no `self` properties are captured inside the closure (the buffer pointer owns the memory for the duration)

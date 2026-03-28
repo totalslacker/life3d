@@ -204,6 +204,7 @@ struct GridModel: Sendable {
         // For a 32³ grid with ~5K alive cells, this resets ~5K entries vs 32K.
         for idx in aliveCellIndices { aliveIndexMap[idx] = -1 }
         aliveCellIndices.removeAll(keepingCapacity: true)
+        aliveIndexMap.withUnsafeMutableBufferPointer { $0.update(repeating: -1) }
 
         for x in 0..<size {
             for y in 0..<size {
@@ -350,9 +351,7 @@ struct GridModel: Sendable {
     /// incremental tracking isn't practical.
     private mutating func rebuildAliveCellIndices() {
         aliveCellIndices.removeAll(keepingCapacity: true)
-        for i in 0..<cellCount {
-            aliveIndexMap[i] = -1
-        }
+        aliveIndexMap.withUnsafeMutableBufferPointer { $0.update(repeating: -1) }
         for i in 0..<cellCount {
             if cells[i] > 0 {
                 aliveIndexMap[i] = aliveCellIndices.count
@@ -852,7 +851,6 @@ struct GridModel: Sendable {
         let margin = max(1, size / 8)
         let extent = size - 2 * margin
         guard extent > 0 else { return }
-
         for x in 0..<size {
             for y in 0..<size {
                 for z in 0..<size {
@@ -870,26 +868,44 @@ struct GridModel: Sendable {
     }
 
     private static func isMengerSolid(_ x: Int, _ y: Int, _ z: Int, _ extent: Int) -> Bool {
-        var cx = x
-        var cy = y
-        var cz = z
-        var side = extent
+        var cx = x, cy = y, cz = z, side = extent
         while side >= 3 {
             let third = side / 3
-            let sx = cx / third
-            let sy = cy / third
-            let sz = cz / third
             var centerCount = 0
-            if sx == 1 { centerCount += 1 }
-            if sy == 1 { centerCount += 1 }
-            if sz == 1 { centerCount += 1 }
+            if cx / third == 1 { centerCount += 1 }
+            if cy / third == 1 { centerCount += 1 }
+            if cz / third == 1 { centerCount += 1 }
             if centerCount >= 2 { return false }
-            cx %= third
-            cy %= third
-            cz %= third
-            side = third
+            cx %= third; cy %= third; cz %= third; side = third
         }
         return true
+    }
+
+    /// A wireframe cube — only the 12 edges are populated with cells.
+    mutating func loadCage() {
+        clearAll()
+        let margin = max(1, size / 6)
+        let lo = margin
+        let hi = size - 1 - margin
+        for x in lo...hi {
+            setCell(x: x, y: lo, z: lo, alive: true)
+            setCell(x: x, y: lo, z: hi, alive: true)
+            setCell(x: x, y: hi, z: lo, alive: true)
+            setCell(x: x, y: hi, z: hi, alive: true)
+        }
+        for y in lo...hi {
+            setCell(x: lo, y: y, z: lo, alive: true)
+            setCell(x: lo, y: y, z: hi, alive: true)
+            setCell(x: hi, y: y, z: lo, alive: true)
+            setCell(x: hi, y: y, z: hi, alive: true)
+        }
+        for z in lo...hi {
+            setCell(x: lo, y: lo, z: z, alive: true)
+            setCell(x: lo, y: hi, z: z, alive: true)
+            setCell(x: hi, y: lo, z: z, alive: true)
+            setCell(x: hi, y: hi, z: z, alive: true)
+        }
+        rebuildAliveCellIndices()
     }
 
     mutating func clearAll() {
@@ -900,9 +916,7 @@ struct GridModel: Sendable {
         bornCells.removeAll(keepingCapacity: true)
         fadingCells.removeAll(keepingCapacity: true)
         aliveCellIndices.removeAll(keepingCapacity: true)
-        aliveIndexMap.withUnsafeMutableBufferPointer { buf in
-            buf.update(repeating: -1)
-        }
+        aliveIndexMap.withUnsafeMutableBufferPointer { $0.update(repeating: -1) }
         aliveCount = 0
     }
 }
