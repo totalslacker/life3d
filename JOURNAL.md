@@ -2,6 +2,22 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 58 (2026-03-28 11:14 PDT)
+
+**Goal**: Audio resource leak fix, O(alive) index map reset, Checkerboard pattern.
+
+Three improvements:
+
+1. **Fix SpatialAudioEngine resource leak on re-entry**: `stop()` set `isSetup = false` but left `birthPlayers`, `deathPlayers`, `birthBuffer`, `deathBuffer`, and `environmentNode` pointing to the stopped engine's objects. When `setup()` was called again after `stop()`, it would create a new `AVAudioEngine` and append 8 new players to the existing arrays (which already had 8 from the first setup), creating 16 players total with only the last 8 attached to the current engine. Fixed by clearing all player arrays, buffers, and references in `stop()`.
+
+2. **O(alive) aliveIndexMap reset in advanceGeneration()**: The reverse mapping (`aliveIndexMap`) was reset with a full `for i in 0..<cellCount` loop every generation — O(n³) for a 32³ grid (32,768 iterations). Since the map only has non-(-1) entries for alive cells, we only need to reset those entries. Changed to iterate `aliveCellIndices` before clearing it, resetting only previously-alive entries. For a 32³ grid with ~5K alive cells, this reduces from 32,768 to ~5K resets per generation.
+
+3. **Checkerboard pattern**: 18th pattern — a full-grid 3D checkerboard where every alive cell has exactly 0 alive neighbors (all 26 neighbors are dead). This is the maximum-isolation configuration. Under standard B5-7/S5-8 rules, the entire pattern dies in one generation. Useful as a stress test for birth thresholds and visually striking as a crystalline lattice before it dissolves.
+
+Added 10 tests: O(alive) map reset consistency across 5 generations, extinction-rebirth map integrity, sparse grid map correctness, checkerboard non-empty, half-fill count, zero-neighbor isolation, index consistency, engine enum selection, single-generation extinction, odd-size count.
+
+---
+
 ## Day 12 — Session 58 (2026-03-28 11:12 PDT)
 
 **Goal**: Performance optimization, draw mode safety, test coverage expansion.

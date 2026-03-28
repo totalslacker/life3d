@@ -200,9 +200,10 @@ struct GridModel: Sendable {
         // Reuse pre-allocated born/dying/alive buffers — removeAll(keepingCapacity:) avoids heap allocation
         dyingCells.removeAll(keepingCapacity: true)
         bornCells.removeAll(keepingCapacity: true)
+        // Reset reverse mapping only for previously-alive cells: O(alive) instead of O(n³).
+        // For a 32³ grid with ~5K alive cells, this resets ~5K entries vs 32K.
+        for idx in aliveCellIndices { aliveIndexMap[idx] = -1 }
         aliveCellIndices.removeAll(keepingCapacity: true)
-        // Reset reverse mapping (rebuilt as we populate aliveCellIndices below)
-        for i in 0..<cellCount { aliveIndexMap[i] = -1 }
 
         for x in 0..<size {
             for y in 0..<size {
@@ -817,17 +818,28 @@ struct GridModel: Sendable {
     }
 
     /// A 3D crystal lattice — regularly spaced cells forming a periodic grid-within-a-grid.
-    /// Every other cell in each axis is alive, creating a checkerboard in 3D.
-    /// The structure is highly symmetric with each alive cell having exactly 0 Moore neighbors
-    /// that are also alive (at spacing 2), so evolution under standard rules causes immediate
-    /// mass birth in the interstitial gaps, producing a dramatic first-generation explosion.
     mutating func loadLattice() {
         clearAll()
-        let margin = max(1, size / 6)  // inset from edges for visual centering
+        let margin = max(1, size / 6)
         for x in stride(from: margin, to: size - margin, by: 2) {
             for y in stride(from: margin, to: size - margin, by: 2) {
                 for z in stride(from: margin, to: size - margin, by: 2) {
                     setCell(x: x, y: y, z: z, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    /// A full-grid 3D checkerboard — alternating cells in every dimension.
+    mutating func loadCheckerboard() {
+        clearAll()
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    if (x + y + z) % 2 == 0 {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
                 }
             }
         }

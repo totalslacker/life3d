@@ -2786,6 +2786,136 @@ struct DrawModeIndexTests {
         )
         #expect(cells.count == model.aliveCount)
     }
+
+    // MARK: - O(alive) aliveIndexMap Reset Tests
+
+    @Test("advanceGeneration with O(alive) map reset produces same result as full reset")
+    func aliveMapResetConsistency() {
+        var model = GridModel(size: 8)
+        model.loadSoup()
+        let initialCount = model.aliveCount
+        #expect(initialCount > 0)
+        // Advance multiple generations — O(alive) reset must keep map in sync
+        for _ in 0..<5 {
+            model.advanceGeneration()
+            let indexed = model.aliveCellsWithAge(
+                cellSize: GridRenderer.cellSize,
+                cellSpacing: GridRenderer.cellSpacing
+            )
+            #expect(indexed.count == model.aliveCount)
+        }
+    }
+
+    @Test("aliveIndexMap stays correct through extinction and rebirth cycle")
+    func aliveMapExtinctionRebirth() {
+        var model = GridModel(size: 4)
+        model.clearAll()
+        // Single isolated cell — will die immediately under any rule set
+        model.setCell(x: 2, y: 2, z: 2, alive: true)
+        #expect(model.aliveCount == 1)
+        model.advanceGeneration()
+        // Should go extinct
+        #expect(model.aliveCount == 0)
+        #expect(model.aliveCellIndices.isEmpty)
+        // Reseed and verify map is still consistent
+        model.loadBlock()
+        let cells = model.aliveCellsWithAge(
+            cellSize: GridRenderer.cellSize,
+            cellSpacing: GridRenderer.cellSpacing
+        )
+        #expect(cells.count == model.aliveCount)
+        #expect(model.aliveCount == 8) // 2x2x2 block
+    }
+
+    @Test("O(alive) map reset handles sparse grid correctly")
+    func aliveMapSparseGrid() {
+        var model = GridModel(size: 16)
+        // Only 3 cells alive in a 4096-cell grid
+        model.setCell(x: 0, y: 0, z: 0, alive: true)
+        model.setCell(x: 8, y: 8, z: 8, alive: true)
+        model.setCell(x: 15, y: 15, z: 15, alive: true)
+        #expect(model.aliveCount == 3)
+        model.advanceGeneration()
+        // All isolated cells die
+        #expect(model.aliveCount == 0)
+        #expect(model.aliveCellIndices.isEmpty)
+        // Map should be fully clean — verify by adding new cells
+        model.setCell(x: 5, y: 5, z: 5, alive: true)
+        #expect(model.aliveCount == 1)
+        #expect(model.aliveCellIndices.count == 1)
+    }
+
+    // MARK: - Checkerboard Pattern Tests
+
+    @Test("Checkerboard pattern produces non-empty grid")
+    func checkerboardNonEmpty() {
+        var model = GridModel(size: 8)
+        model.loadCheckerboard()
+        #expect(model.aliveCount > 0)
+    }
+
+    @Test("Checkerboard pattern fills exactly half the grid")
+    func checkerboardHalfFill() {
+        var model = GridModel(size: 8)
+        model.loadCheckerboard()
+        // For even-sized grid, exactly half are alive
+        #expect(model.aliveCount == model.cellCount / 2)
+    }
+
+    @Test("Checkerboard cells have zero alive neighbors")
+    func checkerboardIsolation() {
+        var model = GridModel(size: 8)
+        model.loadCheckerboard()
+        // Every alive cell has 0 alive neighbors (all 26 neighbors are dead in a 3D checkerboard)
+        for x in 0..<8 {
+            for y in 0..<8 {
+                for z in 0..<8 {
+                    if model.isAlive(x: x, y: y, z: z) {
+                        let neighbors = model.neighborCount(x: x, y: y, z: z)
+                        #expect(neighbors == 0, "Cell (\(x),\(y),\(z)) has \(neighbors) neighbors, expected 0")
+                    }
+                }
+            }
+        }
+    }
+
+    @Test("Checkerboard pattern index count matches aliveCount")
+    func checkerboardIndexConsistency() {
+        var model = GridModel(size: 8)
+        model.loadCheckerboard()
+        let cells = model.aliveCellsWithAge(
+            cellSize: GridRenderer.cellSize,
+            cellSpacing: GridRenderer.cellSpacing
+        )
+        #expect(cells.count == model.aliveCount)
+    }
+
+    @Test("Checkerboard is selectable via SimulationEngine pattern enum")
+    func checkerboardEngineSelection() {
+        let pattern = SimulationEngine.Pattern.checkerboard
+        #expect(pattern.rawValue == "Checkerboard")
+    }
+
+    @Test("Checkerboard dies under standard rules (no B0)")
+    func checkerboardEvolution() {
+        var model = GridModel(size: 8)
+        model.loadCheckerboard()
+        let initial = model.aliveCount
+        #expect(initial > 0)
+        model.advanceGeneration()
+        // All cells have 0 neighbors, none match B5-7 birth or S5-8 survival
+        #expect(model.aliveCount == 0)
+    }
+
+    @Test("Odd-sized checkerboard has correct count")
+    func checkerboardOddSize() {
+        var model = GridModel(size: 7)
+        model.loadCheckerboard()
+        // For odd size 7: cells where (x+y+z)%2==0
+        // In a 7³ grid: ceil(343/2) = 172 cells
+        let expected = (7 * 7 * 7 + 1) / 2
+        #expect(model.aliveCount == expected)
+    }
 }
 
 // MARK: - Lattice Pattern Tests

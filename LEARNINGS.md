@@ -342,6 +342,27 @@ the same things. Search here before looking things up externally.
 
 ---
 
+## O(alive) Reverse Map Reset for Sparse Index Tracking
+
+- When maintaining a reverse-mapping array (`aliveIndexMap[cellIndex] → position`) alongside an index list, the map must be reset each generation
+- Naive approach: `for i in 0..<cellCount { map[i] = -1 }` is O(n³) for an n³ grid — 32K iterations at 32³
+- Optimized: iterate the old `aliveCellIndices` before clearing it — reset only entries that were actually set to non-(-1) values
+- For typical 3D cellular automata with 5-25% alive, this is 3-6x fewer resets (e.g., 5K vs 32K at 32³)
+- Critical ordering: reset map entries BEFORE `removeAll(keepingCapacity:)` on the index list, since we need the old indices to know which map entries to clear
+- Same optimization applies to `clearAll()` in principle, but `clearAll` also zeros the cells array in O(n³), so the map reset isn't the bottleneck there
+
+---
+
+## AVAudioEngine Player Pool Lifecycle
+
+- `AVAudioPlayerNode` references are NOT invalidated by `AVAudioEngine.stop()` — the player objects and arrays persist
+- If `setup()` appends new players without clearing old arrays, the arrays grow by poolSize each setup/stop cycle
+- Only the last poolSize players are attached to the new engine; earlier entries reference detached players
+- Fix: clear all player arrays, buffers, and node references in `stop()` before setting `isSetup = false`
+- Same pattern applies to any engine-attached resource pool (environment nodes, mixer nodes, etc.)
+
+---
+
 ## visionOS Immersive Space Error Handling
 
 - `openImmersiveSpace(id:)` returns `OpenImmersiveSpaceAction.Result` with `.opened`, `.userCancelled`, `.error` cases

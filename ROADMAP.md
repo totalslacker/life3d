@@ -22,7 +22,7 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Configurable birth/survival rule sets
 - [x] Step-by-step simulation mode (tap to advance one generation)
 - [x] Continuous simulation with adjustable speed (generations per second)
-- [x] Preset patterns: 3D gliders, oscillators, still lifes, random seed, diamond, cross, tube, sphere, mirror symmetry, stagger lattice, helix, rings, spiral, torus, galaxy, pyramid, wave, lattice (session 34, 45, 47, 48, 49, 52, 54, 55, 56, 57)
+- [x] Preset patterns: 3D gliders, oscillators, still lifes, random seed, diamond, cross, tube, sphere, mirror symmetry, stagger lattice, helix, rings, spiral, torus, galaxy, pyramid, wave, lattice, checkerboard (session 34, 45, 47, 48, 49, 52, 54, 55, 56, 57, 58)
 - [x] Tests: rule correctness, pattern stability, neighbor counting edge cases
 
 ## Phase 3 — Visual Beauty (Day 8-14)

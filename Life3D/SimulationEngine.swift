@@ -350,6 +350,8 @@ final class SimulationEngine {
             grid.loadWave()
         case .lattice:
             grid.loadLattice()
+        case .checkerboard:
+            grid.loadCheckerboard()
         case .clear:
             grid.clearAll()
         }
@@ -391,6 +393,7 @@ final class SimulationEngine {
         case pyramid = "Pyramid"
         case wave = "Wave"
         case lattice = "Lattice"
+        case checkerboard = "Checkerboard"
         case clear = "Clear"
 
         var id: String { rawValue }

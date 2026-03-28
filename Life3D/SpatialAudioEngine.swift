@@ -153,6 +153,14 @@ final class SpatialAudioEngine {
 
     func stop() {
         audioEngine?.stop()
+        birthPlayers.removeAll()
+        deathPlayers.removeAll()
+        birthBuffer = nil
+        deathBuffer = nil
+        environmentNode = nil
+        audioEngine = nil
+        nextBirthPlayer = 0
+        nextDeathPlayer = 0
         isSetup = false
     }
 
