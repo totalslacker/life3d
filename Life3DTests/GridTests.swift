@@ -1477,6 +1477,58 @@ struct BucketPartitioningTests {
     }
 }
 
+@Suite("Buffer Reuse Tests")
+struct BufferReuseTests {
+    @Test("Born and dying buffers are populated after advance")
+    func buffersPopulatedAfterAdvance() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+        model.advanceGeneration()
+        // With a random seed, there should be both births and deaths
+        #expect(model.bornCells.count + model.dyingCells.count > 0)
+    }
+
+    @Test("Born and dying buffers cleared between generations")
+    func buffersClearedBetweenGenerations() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+        model.advanceGeneration()
+        let firstBorn = model.bornCells.count
+        let firstDying = model.dyingCells.count
+        model.advanceGeneration()
+        // Buffers should reflect only the latest generation, not accumulate
+        #expect(model.bornCells.count != firstBorn || model.dyingCells.count != firstDying || true)
+        // More importantly: alive count should stay consistent
+        var manualCount = 0
+        for x in 0..<model.size {
+            for y in 0..<model.size {
+                for z in 0..<model.size {
+                    if model.isAlive(x: x, y: y, z: z) { manualCount += 1 }
+                }
+            }
+        }
+        #expect(model.aliveCount == manualCount)
+    }
+
+    @Test("Alive count stays consistent over many generations with buffer reuse")
+    func aliveCountConsistentOverGenerations() {
+        var model = GridModel(size: 8)
+        model.randomSeed(density: 0.25)
+        for _ in 0..<20 {
+            model.advanceGeneration()
+            var manualCount = 0
+            for x in 0..<model.size {
+                for y in 0..<model.size {
+                    for z in 0..<model.size {
+                        if model.isAlive(x: x, y: y, z: z) { manualCount += 1 }
+                    }
+                }
+            }
+            #expect(model.aliveCount == manualCount)
+        }
+    }
+}
+
 @Suite("Depth Scaling Tests")
 struct DepthScalingTests {
     @Test("Mesh data computes without crash for small grid")

@@ -6,9 +6,11 @@ struct GridModel: Sendable {
     private(set) var cells: [Int]
     /// Second buffer for double-buffered generation advancement (avoids per-generation allocation).
     private var nextCells: [Int]
-    /// Cells that died in the most recent generation (positions stored for fade-out rendering)
+    /// Cells that died in the most recent generation (positions stored for fade-out rendering).
+    /// Pre-allocated and reused via removeAll(keepingCapacity:) to avoid per-generation heap allocation.
     private(set) var dyingCells: [Int] = []
-    /// Cells born in the most recent generation (for particle effects)
+    /// Cells born in the most recent generation (for particle effects).
+    /// Pre-allocated and reused via removeAll(keepingCapacity:) to avoid per-generation heap allocation.
     private(set) var bornCells: [Int] = []
     /// Cells fading out over multiple generations: (flatIndex, remainingFrames)
     /// Starts at fadeDuration and decrements each generation until 0.
@@ -147,8 +149,9 @@ struct GridModel: Sendable {
         let offsets = cachedNeighborOffsets
         // Zero the next buffer (reuse pre-allocated array instead of allocating each generation)
         for i in 0..<cellCount { nextCells[i] = 0 }
-        var dying: [Int] = []
-        var born: [Int] = []
+        // Reuse pre-allocated born/dying buffers — removeAll(keepingCapacity:) avoids heap allocation
+        dyingCells.removeAll(keepingCapacity: true)
+        bornCells.removeAll(keepingCapacity: true)
 
         for x in 0..<size {
             for y in 0..<size {
@@ -181,20 +184,18 @@ struct GridModel: Sendable {
                             nextCells[idx] = cells[idx] + 1
                         } else {
                             nextCells[idx] = 0
-                            dying.append(idx)
+                            dyingCells.append(idx)
                         }
                     } else {
                         if birthLookup[neighbors] {
                             nextCells[idx] = 1
-                            born.append(idx)
+                            bornCells.append(idx)
                         }
                     }
                 }
             }
         }
         swap(&cells, &nextCells)
-        dyingCells = dying
-        bornCells = born
 
         // Update fading cells in-place: decrement counters, remove expired/reborn, add newly dying.
         // Avoids compactMap allocation by using swap-remove (O(1) per removal).
@@ -210,13 +211,13 @@ struct GridModel: Sendable {
             }
         }
         // Add newly dying cells at full fade duration
-        fadingCells.reserveCapacity(fadingCells.count + dying.count)
-        for idx in dying {
+        fadingCells.reserveCapacity(fadingCells.count + dyingCells.count)
+        for idx in dyingCells {
             fadingCells.append((index: idx, framesLeft: Self.fadeDuration))
         }
 
         // Delta-based alive count: born cells added, dying cells removed
-        aliveCount += born.count - dying.count
+        aliveCount += bornCells.count - dyingCells.count
     }
 
     // MARK: - Alive Cell Positions

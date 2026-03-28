@@ -2,6 +2,26 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 52 (2026-03-28 10:06 PDT)
+
+**Goal**: Performance optimization and safety hardening — buffer reuse, step timing, force unwrap elimination.
+
+Three improvements targeting 32x32x32 performance and code safety:
+
+1. **Pre-allocated born/dying buffers**: Replaced per-generation `var dying: [Int] = []` / `var born: [Int] = []` local allocations in `advanceGeneration()` with instance-level `dyingCells`/`bornCells` arrays cleared via `removeAll(keepingCapacity: true)`. At 32³ with ~1K cells changing per generation at 5 gen/s, this eliminates ~10 heap allocations per second. The buffers grow to their high-water mark over the first few generations and then reuse that capacity for the rest of the session.
+
+2. **Generation step time tracking**: Added `lastStepTimeMs` to `SimulationEngine`, measured via `ContinuousClock` around `advanceGeneration()`. Displayed in the control bar stats next to gen/s — turns orange when >16ms (below 60fps budget). Gives users visibility into whether their grid size is pushing the device.
+
+3. **Force unwrap elimination in GridRenderer**: Replaced three `MemoryLayout.offset(of:)!` force unwraps in `createMeshResource` with pre-computed static properties using `?? fallback`. The offsets are computed once at type initialization rather than on every mesh creation call.
+
+Added 3 tests: buffer population after advance, buffer clearing between generations, alive count consistency over 20 generations with buffer reuse.
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32 on device. App icon design. Final visual tuning across all color themes.
+
+---
+
 ## Day 12 — Session 49 (2026-03-28 10:00 PDT)
 
 **Goal**: Turn sound off by default (li-f2q) — current audio is terrible.

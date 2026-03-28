@@ -206,6 +206,10 @@ struct SimulationControlBar: View {
                         Text("| \(String(format: "%.1f", engine.generationRate)) gen/s")
                             .foregroundStyle(.tertiary)
                     }
+                    if engine.lastStepTimeMs > 0 {
+                        Text("| \(String(format: "%.1f", engine.lastStepTimeMs))ms")
+                            .foregroundStyle(engine.lastStepTimeMs > 16.0 ? AnyShapeStyle(.orange) : AnyShapeStyle(.tertiary))
+                    }
                 }
                 .font(.caption)
                 .monospacedDigit()

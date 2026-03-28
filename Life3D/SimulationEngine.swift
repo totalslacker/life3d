@@ -58,6 +58,9 @@ final class SimulationEngine {
     private var rateGenerationCount: Int = 0
     private static let rateSampleInterval: Double = 1.0  // recalculate every 1s
 
+    /// Last generation computation time in milliseconds (for performance monitoring).
+    var lastStepTimeMs: Double = 0.0
+
     /// Returns the last N entries from the trend circular buffer in chronological order.
     private var recentTrendEntries: [Int] {
         guard _trendCount > 0 else { return [] }
@@ -161,7 +164,10 @@ final class SimulationEngine {
     private static let extinctionDelay: Int = 3  // wait 3 empty generations (~0.6s at 5 gen/s)
 
     func step() {
+        let stepStart = ContinuousClock.now
         grid.advanceGeneration()
+        let stepEnd = ContinuousClock.now
+        lastStepTimeMs = Double((stepEnd - stepStart).components.attoseconds) / 1_000_000_000_000_000.0
         generation += 1
         // Track generation rate
         rateGenerationCount += 1
@@ -238,6 +244,7 @@ final class SimulationEngine {
         peakPopulation = 0
         showExtinctionNotice = false
         generationRate = 0.0
+        lastStepTimeMs = 0.0
         rateGenerationCount = 0
         rateTimestamp = .now
         selectedPattern = pattern

@@ -656,6 +656,11 @@ enum GridRenderer {
     }
 
     /// Creates a MeshResource from pre-computed mesh data using LowLevelMesh.
+    /// Pre-computed vertex attribute offsets (computed once, avoids repeated MemoryLayout calls).
+    private static let positionOffset = MemoryLayout<GridVertex>.offset(of: \.position) ?? 0
+    private static let normalOffset = MemoryLayout<GridVertex>.offset(of: \.normal) ?? MemoryLayout<SIMD3<Float>>.stride
+    private static let uvOffset = MemoryLayout<GridVertex>.offset(of: \.uv) ?? MemoryLayout<SIMD3<Float>>.stride * 2
+
     @MainActor
     private static func createMeshResource(from data: MeshData) throws -> MeshResource {
         let vertexStride = MemoryLayout<GridVertex>.stride
@@ -666,11 +671,11 @@ enum GridRenderer {
 
         descriptor.vertexAttributes = [
             .init(semantic: .position, format: .float3, layoutIndex: 0,
-                  offset: MemoryLayout.offset(of: \GridVertex.position)!),
+                  offset: positionOffset),
             .init(semantic: .normal, format: .float3, layoutIndex: 0,
-                  offset: MemoryLayout.offset(of: \GridVertex.normal)!),
+                  offset: normalOffset),
             .init(semantic: .uv0, format: .float2, layoutIndex: 0,
-                  offset: MemoryLayout.offset(of: \GridVertex.uv)!),
+                  offset: uvOffset),
         ]
         descriptor.vertexLayouts = [
             .init(bufferIndex: 0, bufferStride: vertexStride),

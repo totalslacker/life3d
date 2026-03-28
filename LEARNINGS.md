@@ -255,3 +255,23 @@ the same things. Search here before looking things up externally.
 - `flatMap` on small K arrays is effectively free compared to the sort's comparison overhead
 - Swift's `sorted()` uses introsort which has good constant factors, but for K ≤ ~8 the bucket approach is simpler and faster
 - General rule: if the sort key maps to a small enum/integer range, prefer bucketing
+
+---
+
+## Buffer Reuse with removeAll(keepingCapacity:)
+
+- `removeAll(keepingCapacity: true)` zeroes the count but keeps the underlying buffer allocation
+- For arrays that grow to a steady-state size (like born/dying cell lists), this avoids heap allocation after the first few generations
+- Pattern: promote local `var arr: [T] = []` to instance property, call `arr.removeAll(keepingCapacity: true)` at start of each cycle
+- At 32³ with ~1K elements per generation at 5 gen/s, this eliminates ~10 allocations/second
+- `reserveCapacity` is still useful for the first use or when appending to a cleared buffer that needs to grow beyond its previous high-water mark
+
+---
+
+## ContinuousClock for Performance Measurement
+
+- `ContinuousClock.now` provides monotonic time suitable for measuring code execution
+- Duration components: `.components.attoseconds` gives raw attosecond count (Int64)
+- Convert to milliseconds: `attoseconds / 1_000_000_000_000_000.0`
+- Preferred over `Date()` for timing because it's monotonic (not affected by wall clock changes)
+- Lightweight: no allocation, just reads the system monotonic clock
