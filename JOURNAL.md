@@ -2,6 +2,22 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 57 (2026-03-28 11:04 PDT)
+
+**Goal**: Performance optimization and bug fixes — O(1) alive cell removal, depth scale safety, fading cell bounds check.
+
+Three improvements:
+
+1. **O(1) reverse-mapping for aliveCellIndices removal**: `setCell(alive: false)` and `toggleCell` used `firstIndex(of:)` — an O(alive) linear scan — before swap-removing. Added `aliveIndexMap: [Int]` (size = cellCount) that maps cell flat index → position in `aliveCellIndices` (-1 = not alive). Now removal is O(1): read the position from the map, swap-remove, update the swapped element's map entry. For a 32³ grid with ~8K alive cells during interactive drawing, this eliminates ~4K comparisons per cell toggle. The map is maintained in `setCell`, `toggleCell`, `advanceGeneration`, `rebuildAliveCellIndices`, and `clearAll`.
+
+2. **Fix division-by-zero in depth scale for size=1 grid**: `computeMeshData` computed `maxDistSq = gridExtent² × 3.0`. For size=1, `gridExtent = 0`, making `maxDistSq = 0`, causing `distSq / maxDistSq = NaN` which corrupted all vertex positions. Added `max(..., .leastNonzeroMagnitude)` guard.
+
+3. **Fading cell bounds safety in fadingCellsWithProgress**: Changed from `.map` to `.compactMap` with `guard entry.index >= 0 && entry.index < cellCount` check. If the grid is resized while fading cells exist, stale indices could produce invalid coordinate decompositions. The guard silently drops invalid entries instead of producing garbage positions.
+
+Added 7 tests: reverse-map consistency after setCell add/remove, toggleCell rapid sequence, advanceGeneration rebuild, clearAll + re-add, remove-last-cell edge case, size=1 depth scale NaN check, fading cell bounds validation.
+
+---
+
 ## Day 12 — Session 57 (2026-03-28 10:56 PDT)
 
 **Goal**: Performance optimizations and Wave pattern.

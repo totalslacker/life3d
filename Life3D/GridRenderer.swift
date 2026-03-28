@@ -629,8 +629,11 @@ enum GridRenderer {
         }
         let sorted = buckets.flatMap { $0 }
 
-        let depthFalloff: Float = 0.2
-        let maxDistSq = gridExtent * gridExtent * 3.0
+        // Pre-compute depth scale: cells at the grid edge are slightly smaller (80% of full size)
+        // This creates a pseudo depth-of-field effect — peripheral cells recede visually
+        // Uses squared distance to avoid per-cell sqrt() — visual difference is negligible
+        let depthFalloff: Float = 0.2  // 20% size reduction at maximum distance
+        let maxDistSq: Float = max(gridExtent * gridExtent * 3.0, .leastNonzeroMagnitude)  // guard div-by-zero for size=1
 
         let totalVertices = aliveCells * cubeVertexCount
         let totalIndices = aliveCells * cubeIndexCount

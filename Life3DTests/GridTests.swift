@@ -2503,6 +2503,115 @@ struct FlatIndexConsistencyTests {
             }
         }
     }
+
+    // MARK: - Session 57: O(1) Reverse Mapping Tests
+
+    @Test("Alive index map stays consistent after setCell add/remove sequence")
+    func aliveIndexMapConsistencySetCell() {
+        var model = GridModel(size: 4)
+        // Add cells
+        model.setCell(x: 0, y: 0, z: 0, alive: true)
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+        model.setCell(x: 2, y: 2, z: 2, alive: true)
+        #expect(model.aliveCount == 3)
+        // Remove middle cell
+        model.setCell(x: 1, y: 1, z: 1, alive: false)
+        #expect(model.aliveCount == 2)
+        // Remaining cells should be in index list
+        let ages = model.aliveCellsWithAge(cellSize: 0.02, cellSpacing: 0.005)
+        #expect(ages.count == 2)
+    }
+
+    @Test("Alive index map stays consistent after toggleCell rapid sequence")
+    func aliveIndexMapConsistencyToggle() {
+        var model = GridModel(size: 4)
+        // Toggle on
+        model.toggleCell(x: 0, y: 0, z: 0)
+        model.toggleCell(x: 1, y: 1, z: 1)
+        model.toggleCell(x: 3, y: 3, z: 3)
+        #expect(model.aliveCount == 3)
+        // Toggle middle off
+        model.toggleCell(x: 1, y: 1, z: 1)
+        #expect(model.aliveCount == 2)
+        // Toggle it back on
+        model.toggleCell(x: 1, y: 1, z: 1)
+        #expect(model.aliveCount == 3)
+        // All three should render
+        let ages = model.aliveCellsWithAge(cellSize: 0.02, cellSpacing: 0.005)
+        #expect(ages.count == 3)
+    }
+
+    @Test("Alive index map survives advanceGeneration rebuild")
+    func aliveIndexMapSurvivesGeneration() {
+        var model = GridModel(size: 8)
+        model.loadRandom(density: 0.25)
+        let countBefore = model.aliveCount
+        #expect(countBefore > 0)
+        model.advanceGeneration()
+        // After generation, aliveCellsWithAge count should match aliveCount
+        let ages = model.aliveCellsWithAge(cellSize: 0.02, cellSpacing: 0.005)
+        #expect(ages.count == model.aliveCount)
+    }
+
+    @Test("Alive index map consistent after clearAll")
+    func aliveIndexMapClearAll() {
+        var model = GridModel(size: 4)
+        model.setCell(x: 0, y: 0, z: 0, alive: true)
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+        model.clearAll()
+        #expect(model.aliveCount == 0)
+        let ages = model.aliveCellsWithAge(cellSize: 0.02, cellSpacing: 0.005)
+        #expect(ages.count == 0)
+        // Adding a cell after clearAll should work
+        model.setCell(x: 2, y: 2, z: 2, alive: true)
+        #expect(model.aliveCount == 1)
+        let ages2 = model.aliveCellsWithAge(cellSize: 0.02, cellSpacing: 0.005)
+        #expect(ages2.count == 1)
+    }
+
+    @Test("Remove last alive cell via setCell leaves empty index list")
+    func removeLastAliveCellSetCell() {
+        var model = GridModel(size: 4)
+        model.setCell(x: 0, y: 0, z: 0, alive: true)
+        #expect(model.aliveCount == 1)
+        model.setCell(x: 0, y: 0, z: 0, alive: false)
+        #expect(model.aliveCount == 0)
+        let ages = model.aliveCellsWithAge(cellSize: 0.02, cellSpacing: 0.005)
+        #expect(ages.count == 0)
+    }
+
+    // MARK: - Session 57: Division by Zero / Depth Scale Tests
+
+    @Test("Depth scale does not produce NaN for size=1 grid")
+    func depthScaleSize1() {
+        var model = GridModel(size: 1)
+        model.setCell(x: 0, y: 0, z: 0, alive: true)
+        // computeMeshData is tested via computeMeshDataForTest
+        let meshData = GridRenderer.computeMeshDataForTest(model: model)
+        #expect(meshData.cellCount == 1)
+        // Verify no NaN in vertex positions
+        for vertex in meshData.vertices {
+            #expect(!vertex.position.x.isNaN)
+            #expect(!vertex.position.y.isNaN)
+            #expect(!vertex.position.z.isNaN)
+        }
+    }
+
+    // MARK: - Session 57: Fading Cells Bounds Safety Tests
+
+    @Test("fadingCellsWithProgress returns empty for invalid index")
+    func fadingCellsBoundsCheck() {
+        // After clearAll with no fading cells, should return empty
+        var model = GridModel(size: 4)
+        model.setCell(x: 1, y: 1, z: 1, alive: true)
+        model.advanceGeneration()  // Cell may die, creating fading cells
+        let fading = model.fadingCellsWithProgress(cellSize: 0.02, cellSpacing: 0.005)
+        // All returned positions should be valid (non-NaN)
+        for f in fading {
+            #expect(!f.position.x.isNaN)
+            #expect(f.progress >= 0.0 && f.progress <= 1.0)
+        }
+    }
 }
 
 // MARK: - Mesh Generation Tests

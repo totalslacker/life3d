@@ -1,13 +1,5 @@
 import Foundation
 
-extension Array {
-    /// O(1) removal by swapping with last element. Order is not preserved.
-    mutating func swapRemove(at index: Int) {
-        self[index] = self[count - 1]
-        removeLast()
-    }
-}
-
 struct GridModel: Sendable {
     let size: Int
     /// Cell age: 0 = dead, 1+ = alive (value is age in generations)
@@ -26,8 +18,9 @@ struct GridModel: Sendable {
     /// Flat indices of all currently alive cells, maintained incrementally.
     /// Used by `aliveCellsWithAge` to avoid scanning the entire grid (O(alive) vs O(n³)).
     private(set) var aliveCellIndices: [Int] = []
-    /// Set mirror for O(1) removal during interactive editing (draw/erase mode).
-    private var aliveCellIndexSet: Set<Int> = []
+    /// Reverse mapping: cell flat index → position in aliveCellIndices (-1 = not alive).
+    /// Enables O(1) removal from aliveCellIndices instead of O(alive) linear scan.
+    private var aliveIndexMap: [Int] = []
     /// Number of generations a dying cell takes to fully fade out.
     static let fadeDuration: Int = 3
 
@@ -59,6 +52,7 @@ struct GridModel: Sendable {
         self.cachedNeighborOffsets = Self.neighborOffsets(size: size)
         self.birthLookup = Self.buildLookup(from: birthCounts)
         self.survivalLookup = Self.buildLookup(from: survivalCounts)
+        self.aliveIndexMap = [Int](repeating: -1, count: count)
     }
 
     /// Builds a 27-element Bool array for O(1) neighbor count lookup.
@@ -94,14 +88,21 @@ struct GridModel: Sendable {
         cells[idx] = alive ? 1 : 0
         if alive && !wasAlive {
             aliveCount += 1
+            aliveIndexMap[idx] = aliveCellIndices.count
             aliveCellIndices.append(idx)
-            aliveCellIndexSet.insert(idx)
         } else if !alive && wasAlive {
             aliveCount -= 1
-            aliveCellIndexSet.remove(idx)
-            if let i = aliveCellIndices.firstIndex(of: idx) {
-                aliveCellIndices.swapRemove(at: i)
+            // O(1) swap-remove using reverse mapping
+            let pos = aliveIndexMap[idx]
+            if pos >= 0 && pos < aliveCellIndices.count {
+                let lastIdx = aliveCellIndices[aliveCellIndices.count - 1]
+                aliveCellIndices.swapAt(pos, aliveCellIndices.count - 1)
+                aliveCellIndices.removeLast()
+                if pos < aliveCellIndices.count {
+                    aliveIndexMap[lastIdx] = pos
+                }
             }
+            aliveIndexMap[idx] = -1
         }
     }
 
@@ -111,15 +112,21 @@ struct GridModel: Sendable {
         if cells[idx] > 0 {
             cells[idx] = 0
             aliveCount -= 1
-            aliveCellIndexSet.remove(idx)
-            if let i = aliveCellIndices.firstIndex(of: idx) {
-                aliveCellIndices.swapRemove(at: i)
+            let pos = aliveIndexMap[idx]
+            if pos >= 0 && pos < aliveCellIndices.count {
+                let lastIdx = aliveCellIndices[aliveCellIndices.count - 1]
+                aliveCellIndices.swapAt(pos, aliveCellIndices.count - 1)
+                aliveCellIndices.removeLast()
+                if pos < aliveCellIndices.count {
+                    aliveIndexMap[lastIdx] = pos
+                }
             }
+            aliveIndexMap[idx] = -1
         } else {
             cells[idx] = 1
             aliveCount += 1
+            aliveIndexMap[idx] = aliveCellIndices.count
             aliveCellIndices.append(idx)
-            aliveCellIndexSet.insert(idx)
         }
     }
 
@@ -183,7 +190,8 @@ struct GridModel: Sendable {
         dyingCells.removeAll(keepingCapacity: true)
         bornCells.removeAll(keepingCapacity: true)
         aliveCellIndices.removeAll(keepingCapacity: true)
-        aliveCellIndexSet.removeAll(keepingCapacity: true)
+        // Reset reverse mapping (rebuilt as we populate aliveCellIndices below)
+        for i in 0..<cellCount { aliveIndexMap[i] = -1 }
 
         for x in 0..<size {
             for y in 0..<size {
@@ -214,8 +222,9 @@ struct GridModel: Sendable {
                     if cells[idx] > 0 {
                         if survivalLookup[neighbors] {
                             nextCells[idx] = cells[idx] + 1
+                            aliveIndexMap[idx] = aliveCellIndices.count
                             aliveCellIndices.append(idx)
-                            aliveCellIndexSet.insert(idx)
+
                         } else {
                             nextCells[idx] = 0
                             dyingCells.append(idx)
@@ -224,8 +233,9 @@ struct GridModel: Sendable {
                         if birthLookup[neighbors] {
                             nextCells[idx] = 1
                             bornCells.append(idx)
+                            aliveIndexMap[idx] = aliveCellIndices.count
                             aliveCellIndices.append(idx)
-                            aliveCellIndexSet.insert(idx)
+
                         }
                     }
                 }
@@ -283,7 +293,8 @@ struct GridModel: Sendable {
 
     /// Returns all fading cells with their progress (0.0 = about to vanish, 1.0 = just died).
     func fadingCellsWithProgress(cellSize: Float, cellSpacing: Float) -> [(position: SIMD3<Float>, progress: Float)] {
-        fadingCells.map { entry in
+        fadingCells.compactMap { entry in
+            guard entry.index >= 0 && entry.index < cellCount else { return nil }
             let x = entry.index / (size * size)
             let y = (entry.index / size) % size
             let z = entry.index % size
@@ -314,11 +325,13 @@ struct GridModel: Sendable {
     /// incremental tracking isn't practical.
     private mutating func rebuildAliveCellIndices() {
         aliveCellIndices.removeAll(keepingCapacity: true)
-        aliveCellIndexSet.removeAll(keepingCapacity: true)
+        for i in 0..<cellCount {
+            aliveIndexMap[i] = -1
+        }
         for i in 0..<cellCount {
             if cells[i] > 0 {
+                aliveIndexMap[i] = aliveCellIndices.count
                 aliveCellIndices.append(i)
-                aliveCellIndexSet.insert(i)
             }
         }
     }
@@ -787,7 +800,7 @@ struct GridModel: Sendable {
         bornCells.removeAll(keepingCapacity: true)
         fadingCells.removeAll(keepingCapacity: true)
         aliveCellIndices.removeAll(keepingCapacity: true)
-        aliveCellIndexSet.removeAll(keepingCapacity: true)
+        for i in 0..<cellCount { aliveIndexMap[i] = -1 }
         aliveCount = 0
     }
 }
