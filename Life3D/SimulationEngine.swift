@@ -352,6 +352,8 @@ final class SimulationEngine {
             grid.loadLattice()
         case .checkerboard:
             grid.loadCheckerboard()
+        case .mengerSponge:
+            grid.loadMengerSponge()
         case .clear:
             grid.clearAll()
         }
@@ -394,6 +396,7 @@ final class SimulationEngine {
         case wave = "Wave"
         case lattice = "Lattice"
         case checkerboard = "Checkerboard"
+        case mengerSponge = "Menger Sponge"
         case clear = "Clear"
 
         var id: String { rawValue }

@@ -3358,3 +3358,131 @@ struct DrawModePaintTests {
             let origin = model.index(x: 0, y: 0, z: 0)
             let maxCorner = model.index(x: size - 1, y: size - 1, z: size - 1)
             #expect(origin == 0)
+
+// MARK: - Menger Sponge Pattern Tests
+
+@Suite("Menger Sponge Pattern")
+struct MengerSpongeTests {
+    @Test("Menger sponge produces non-empty grid")
+    func mengerSpongeNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadMengerSponge()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Menger sponge has holes — not a solid cube")
+    func mengerSpongeHasHoles() {
+        var grid = GridModel(size: 16)
+        grid.loadMengerSponge()
+        let margin = max(1, 16 / 8)
+        let extent = 16 - 2 * margin
+        let solidCount = extent * extent * extent
+        #expect(grid.aliveCount < solidCount,
+                "Menger sponge should have fewer cells than a solid cube")
+    }
+
+    @Test("Menger sponge core is hollow")
+    func mengerSpongeCoreHollow() {
+        // In a Menger sponge, the center of the cube is removed
+        var grid = GridModel(size: 27)
+        grid.loadMengerSponge()
+        let margin = max(1, 27 / 8)
+        let extent = 27 - 2 * margin
+        let third = extent / 3
+        // Check center column (all three coords in center third) is empty
+        let mid = margin + third + third / 2
+        #expect(!grid.isAlive(x: mid, y: mid, z: mid),
+                "Center of Menger sponge should be hollow")
+    }
+
+    @Test("Menger sponge selects correct engine pattern")
+    func mengerSpongeEngineSelection() {
+        let engine = SimulationEngine(gridSize: 16)
+        engine.loadPattern(.mengerSponge)
+        #expect(engine.grid.aliveCount > 0)
+    }
+
+    @Test("Menger sponge evolves from initial state")
+    func mengerSpongeEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadMengerSponge()
+        let initialCount = grid.aliveCount
+        grid.advanceGeneration()
+        // Population should change — the sponge has lots of surface area
+        #expect(grid.aliveCount != initialCount,
+                "Menger sponge should evolve from initial state")
+    }
+
+    @Test("Menger sponge alive index consistency")
+    func mengerSpongeIndexConsistency() {
+        var grid = GridModel(size: 16)
+        grid.loadMengerSponge()
+        let manualCount = grid.cells.filter { $0 > 0 }.count
+        #expect(grid.aliveCount == manualCount)
+        #expect(grid.aliveCellIndices.count == manualCount)
+    }
+}
+
+// MARK: - Plasma Theme Tests
+
+@Suite("Plasma Theme")
+struct PlasmaThemeTests {
+    @Test("Plasma theme exists in allThemes")
+    func plasmaExists() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Plasma" })
+    }
+
+    @Test("Theme count is 23 with Plasma")
+    func themeCount23() {
+        #expect(ColorTheme.allThemes.count == 23)
+    }
+
+    @Test("Plasma has white-hot to deep purple progression")
+    func plasmaColorProgression() {
+        let plasma = ColorTheme.plasma
+        let newborn = plasma.colors(for: .newborn)
+        let mature = plasma.colors(for: .mature)
+        // Newborn should be near-white (high R, G, B)
+        #expect(newborn.baseColor.x >= 0.9, "Newborn red should be near 1.0")
+        #expect(newborn.baseColor.z >= 0.9, "Newborn blue should be near 1.0")
+        // Mature should be deep purple (low R, zero G, moderate B)
+        #expect(mature.baseColor.y < 0.1, "Mature green should be near zero")
+        #expect(mature.baseColor.z > mature.baseColor.x, "Mature blue > red for purple")
+    }
+
+    @Test("Plasma emissive intensity decreases with age")
+    func plasmaEmissiveDecay() {
+        let plasma = ColorTheme.plasma
+        let newborn = plasma.colors(for: .newborn)
+        let young = plasma.colors(for: .young)
+        let mature = plasma.colors(for: .mature)
+        let dying = plasma.colors(for: .dying)
+        #expect(newborn.emissiveIntensity > young.emissiveIntensity)
+        #expect(young.emissiveIntensity > mature.emissiveIntensity)
+        #expect(mature.emissiveIntensity > dying.emissiveIntensity)
+    }
+}
+
+// MARK: - Bulk AliveIndexMap Reset Tests
+
+@Suite("Bulk AliveIndexMap Reset")
+struct BulkAliveIndexMapTests {
+    @Test("clearAll resets aliveIndexMap correctly")
+    func clearAllResetsMap() {
+        var grid = GridModel(size: 12)
+        grid.randomSeed(density: 0.25)
+        #expect(grid.aliveCount > 0)
+        grid.clearAll()
+        #expect(grid.aliveCount == 0)
+        #expect(grid.aliveCellIndices.isEmpty)
+        // After clear, setting a cell should work correctly
+        grid.setCell(x: 0, y: 0, z: 0, alive: true)
+        #expect(grid.aliveCount == 1)
+        #expect(grid.aliveCellIndices.count == 1)
+    }
+
+    @Test("clearAll then pattern load preserves consistency")
+    func clearAllThenPatternLoad() {
+        var grid = GridModel(size: 16)
+        grid.randomSeed(density: 0.30)
+        grid.advanceGeneration()

@@ -846,6 +846,52 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// A 3D Menger sponge — a fractal cube with recursive square holes through each face.
+    mutating func loadMengerSponge() {
+        clearAll()
+        let margin = max(1, size / 8)
+        let extent = size - 2 * margin
+        guard extent > 0 else { return }
+
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let lx = x - margin
+                    let ly = y - margin
+                    let lz = z - margin
+                    guard lx >= 0, lx < extent, ly >= 0, ly < extent, lz >= 0, lz < extent else { continue }
+                    if Self.isMengerSolid(lx, ly, lz, extent) {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    private static func isMengerSolid(_ x: Int, _ y: Int, _ z: Int, _ extent: Int) -> Bool {
+        var cx = x
+        var cy = y
+        var cz = z
+        var side = extent
+        while side >= 3 {
+            let third = side / 3
+            let sx = cx / third
+            let sy = cy / third
+            let sz = cz / third
+            var centerCount = 0
+            if sx == 1 { centerCount += 1 }
+            if sy == 1 { centerCount += 1 }
+            if sz == 1 { centerCount += 1 }
+            if centerCount >= 2 { return false }
+            cx %= third
+            cy %= third
+            cz %= third
+            side = third
+        }
+        return true
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
@@ -854,7 +900,9 @@ struct GridModel: Sendable {
         bornCells.removeAll(keepingCapacity: true)
         fadingCells.removeAll(keepingCapacity: true)
         aliveCellIndices.removeAll(keepingCapacity: true)
-        for i in 0..<cellCount { aliveIndexMap[i] = -1 }
+        aliveIndexMap.withUnsafeMutableBufferPointer { buf in
+            buf.update(repeating: -1)
+        }
         aliveCount = 0
     }
 }

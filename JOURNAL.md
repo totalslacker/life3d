@@ -54,6 +54,22 @@ Build verified clean on visionOS Simulator.
 
 ---
 
+## Day 12 — Session 58 (2026-03-28 11:17 PDT)
+
+**Goal**: New pattern, new theme, bulk memset optimization.
+
+Three improvements:
+
+1. **Menger Sponge pattern (19th)**: A fractal 3D structure — a cube with recursive square holes through each face. At each subdivision level, the center of each face and the cube's core are removed (7 of 27 sub-cubes). The recursive `isMengerSolid` function checks whether a position falls in a hole at any subdivision level by iterating through thirds. Creates a Swiss-cheese structure with enormous surface area that produces complex, branching evolution as thin bridges and edges erode at different rates from the dense corners.
+
+2. **Plasma theme (23rd)**: Electric white-hot newborn cells (emissive 2.8, opacity 0.65) through vivid magenta young cells to deep purple mature cells fading to near-black. Distinct from Amethyst (cool purple throughout) and Nebula (soft lavender tones) — Plasma has the highest newborn intensity of any theme and the sharpest contrast between white-hot birth and deep purple maturity, creating an electric arc aesthetic.
+
+3. **Bulk memset for aliveIndexMap reset**: `clearAll()` previously used `for i in 0..<cellCount { aliveIndexMap[i] = -1 }` — a per-element indexed loop with bounds checking. Replaced with `withUnsafeMutableBufferPointer { $0.update(repeating: -1) }` for consistency with the existing `cells` bulk zeroing pattern. Eliminates per-element bounds checks for the 32K-element map.
+
+Added 11 tests: Menger sponge non-empty, has-holes verification, core-hollow check, engine selection, evolution dynamics, alive index consistency, Plasma theme existence, theme count (23), Plasma color progression, Plasma emissive decay, bulk aliveIndexMap reset correctness. Fixed 6 stale theme count assertions (22→23).
+
+---
+
 ## Day 12 — Session 57 (2026-03-28 11:03 PDT)
 
 **Goal**: Performance optimization, new pattern, new theme.
