@@ -579,7 +579,32 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.3, opacity: 0.08)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic]
+    /// Deep space aesthetic — brilliant white newborn stars through blue-white young to
+    /// dim cool blue mature to near-black void. Distinct from Glacier (icy teal), Frost
+    /// (pale crystalline), and Midnight (dark blue-purple) — Starfield stays in the
+    /// white-to-deep-blue range with high luminosity contrast, evoking scattered stars
+    /// against the void of space.
+    static let starfield = ColorTheme(
+        name: "Starfield",
+        newborn: TierColors(
+            baseColor: SIMD4(0.95, 0.97, 1.0, 1.0),
+            emissiveColor: SIMD3(0.95, 0.97, 1.0),
+            emissiveIntensity: 2.6, opacity: 0.65),
+        young: TierColors(
+            baseColor: SIMD4(0.5, 0.65, 0.95, 1.0),
+            emissiveColor: SIMD3(0.4, 0.55, 0.9),
+            emissiveIntensity: 1.5, opacity: 0.40),
+        mature: TierColors(
+            baseColor: SIMD4(0.1, 0.15, 0.4, 1.0),
+            emissiveColor: SIMD3(0.08, 0.12, 0.35),
+            emissiveIntensity: 0.6, opacity: 0.20),
+        dying: TierColors(
+            baseColor: SIMD4(0.02, 0.03, 0.12, 1.0),
+            emissiveColor: SIMD3(0.01, 0.02, 0.08),
+            emissiveIntensity: 0.2, opacity: 0.06)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield]
 }
 
 enum GridRenderer {
