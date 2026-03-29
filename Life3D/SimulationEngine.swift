@@ -384,6 +384,8 @@ final class SimulationEngine {
             grid.loadHilbertCurve()
         case .sierpinskiTetrahedron:
             grid.loadSierpinskiTetrahedron()
+        case .dragonCurve:
+            grid.loadDragonCurve()
         case .clear:
             grid.clearAll()
         }
@@ -441,6 +443,7 @@ final class SimulationEngine {
         case lorenzAttractor = "Lorenz Attractor"
         case hilbertCurve = "Hilbert Curve"
         case sierpinskiTetrahedron = "Sierpinski Tetrahedron"
+        case dragonCurve = "Dragon Curve"
         case clear = "Clear"
 
         var id: String { rawValue }

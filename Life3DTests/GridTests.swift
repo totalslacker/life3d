@@ -4322,7 +4322,7 @@ struct PatternCountSession61Tests {
     func totalPatternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.count == 36)
-        #expect(allPatterns.count == 31)
+        #expect(allPatterns.count == 36)
     }
 
     @Test("Cyclable patterns is 27 (excludes clear)")
@@ -4586,7 +4586,7 @@ struct MobiusStripPatternTests {
     func patternCount29() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.count == 36)
-        #expect(allPatterns.count == 31)
+        #expect(allPatterns.count == 36)
     }
 }
 
@@ -4680,7 +4680,7 @@ struct LissajousCurvePatternTests {
     func patternCount30() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.count == 36)
-        #expect(allPatterns.count == 31)
+        #expect(allPatterns.count == 36)
     }
 }
 
@@ -4786,7 +4786,7 @@ struct KleinBottlePatternTests {
     func patternCount31() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.count == 36)
-        #expect(allPatterns.count == 31)
+        #expect(allPatterns.count == 36)
     }
 }
 
@@ -5295,7 +5295,7 @@ struct RoseGoldThemeTests {
 
     @Test("Theme count is 38 after Rose Gold addition")
     func themeCount38() {
-        #expect(ColorTheme.allThemes.count == 38)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Rose Gold has decreasing emissive intensity by age")
@@ -5336,7 +5336,7 @@ struct PeridotThemeTests {
 
     @Test("Theme count is 39 after Peridot addition")
     func themeCount39() {
-        #expect(ColorTheme.allThemes.count == 39)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Peridot has decreasing emissive intensity by age")
@@ -5362,5 +5362,95 @@ struct PeridotThemeTests {
         #expect(theme.newborn.emissiveColor.y > theme.newborn.emissiveColor.z)
         #expect(theme.mature.emissiveColor.y > theme.mature.emissiveColor.x)
         #expect(theme.mature.emissiveColor.y > theme.mature.emissiveColor.z)
+    }
+}
+
+// MARK: - Dragon Curve Pattern Tests (Session 70)
+
+@Suite("Dragon Curve Pattern Tests")
+struct DragonCurvePatternTests {
+    @Test("Dragon curve produces non-empty grid")
+    func dragonCurveNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadDragonCurve()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Dragon curve cell count is within reasonable bounds")
+    func dragonCurveCellCount() {
+        var grid = GridModel(size: 16)
+        grid.loadDragonCurve()
+        #expect(grid.aliveCount > 100)
+        #expect(grid.aliveCount < grid.cellCount / 2)
+    }
+
+    @Test("Dragon curve is available in SimulationEngine.Pattern enum")
+    func dragonCurveEngineEnum() {
+        let pattern = SimulationEngine.Pattern.dragonCurve
+        #expect(pattern.rawValue == "Dragon Curve")
+    }
+
+    @Test("Dragon curve alive cell index consistency")
+    func dragonCurveIndexConsistency() {
+        var grid = GridModel(size: 16)
+        grid.loadDragonCurve()
+        let indexCount = grid.aliveCellIndices.count
+        #expect(indexCount == grid.aliveCount)
+    }
+
+    @Test("Dragon curve evolves under standard rules")
+    func dragonCurveEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadDragonCurve()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount != initial)
+    }
+
+    @Test("Pattern count is 36 after Dragon Curve addition")
+    func patternCount36() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.count == 36)
+    }
+}
+
+// MARK: - Sapphire Theme Tests (Session 70)
+
+@Suite("Sapphire Theme Tests")
+struct SapphireThemeTests {
+    @Test("Sapphire theme exists in allThemes")
+    func sapphireExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Sapphire" }
+        #expect(found)
+    }
+
+    @Test("Theme count is 40 after Sapphire addition")
+    func themeCount40() {
+        #expect(ColorTheme.allThemes.count == 40)
+    }
+
+    @Test("Sapphire has decreasing emissive intensity by age")
+    func sapphireColorProgression() {
+        let theme = ColorTheme.sapphire
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+
+    @Test("Sapphire opacity decreases with age")
+    func sapphireOpacityDecay() {
+        let theme = ColorTheme.sapphire
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+
+    @Test("Sapphire is deep blue (blue channel dominant across all tiers)")
+    func sapphireDeepBlue() {
+        let theme = ColorTheme.sapphire
+        #expect(theme.newborn.emissiveColor.z > theme.newborn.emissiveColor.x)
+        #expect(theme.newborn.emissiveColor.z > theme.newborn.emissiveColor.y)
+        #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.x)
+        #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.y)
     }
 }
