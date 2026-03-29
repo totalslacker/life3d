@@ -2,6 +2,12 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 68d (2026-03-28 18:05 PDT)
+
+**Goal**: Sierpinski Tetrahedron pattern, Champagne theme.
+
+Added Sierpinski Tetrahedron (36th pattern) via chaos game algorithm and Champagne theme (36th). 11 new tests. Duplicate Lorenz Attractor discarded (already on main).
+
 ## Day 12 — Session 68 (2026-03-28 17:49 PDT)
 
 **Goal**: Lorenz Attractor pattern, Lavender theme, tests.

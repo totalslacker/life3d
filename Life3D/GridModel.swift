@@ -1530,6 +1530,42 @@ struct GridModel: Sendable {
         return (x, y, z)
     }
 
+    mutating func loadSierpinskiTetrahedron() {
+        clearAll()
+        let s = Float(size)
+        let margin: Float = 1.0
+
+        let v0 = SIMD3<Float>(s / 2, margin, s / 2)
+        let v1 = SIMD3<Float>(margin, s - margin, margin)
+        let v2 = SIMD3<Float>(s - margin, s - margin, margin)
+        let v3 = SIMD3<Float>(s / 2, s - margin, s - margin)
+
+        var p = (v0 + v1 + v2 + v3) / 4.0
+        let vertices = [v0, v1, v2, v3]
+        let iterations = size * size * size * 2
+        var rng: UInt64 = 42
+
+        for _ in 0..<20 {
+            rng = rng &* 6364136223846793005 &+ 1442695040888963407
+            let vi = Int(rng >> 32) & 3
+            p = (p + vertices[vi]) / 2.0
+        }
+
+        for _ in 0..<iterations {
+            rng = rng &* 6364136223846793005 &+ 1442695040888963407
+            let vi = Int(rng >> 32) & 3
+            p = (p + vertices[vi]) / 2.0
+
+            let gx = Int(round(p.x))
+            let gy = Int(round(p.y))
+            let gz = Int(round(p.z))
+            if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+                setCell(x: gx, y: gy, z: gz, alive: true)
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
