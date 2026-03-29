@@ -4195,9 +4195,9 @@ struct AliveMapResetRegressionTests {
     func patternCount() {
         // 33 total patterns (including Clear), 32 cyclable (excluding Clear)
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 37)
+        #expect(allPatterns.count == 38)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 36)
+        #expect(cyclable.count == 37)
     }
 }
 
@@ -4311,13 +4311,13 @@ struct PatternCountSession61Tests {
     @Test("Total pattern count is 28 (27 + clear)")
     func totalPatternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 37)
+        #expect(allPatterns.count == 38)
     }
 
     @Test("Cyclable patterns is 27 (excludes clear)")
     func cyclablePatternCount() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
-        #expect(cyclable.count == 36)
+        #expect(cyclable.count == 37)
     }
 }
 
@@ -4571,7 +4571,7 @@ struct MobiusStripPatternTests {
     @Test("Pattern count is 29 after Möbius Strip addition")
     func patternCount29() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 37)
+        #expect(allPatterns.count == 38)
     }
 }
 
@@ -4663,7 +4663,7 @@ struct LissajousCurvePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount30() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 37)
+        #expect(allPatterns.count == 38)
     }
 }
 
@@ -4767,7 +4767,7 @@ struct KleinBottlePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount31() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 37)
+        #expect(allPatterns.count == 38)
     }
 }
 
@@ -4858,7 +4858,7 @@ struct GyroidPatternTests {
     @Test("Pattern count is 34 after Gyroid addition")
     func patternCount33() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 37)
+        #expect(allPatterns.count == 38)
     }
 }
 
@@ -4950,7 +4950,7 @@ struct LorenzAttractorPatternTests {
     @Test("Pattern count is 34 after Lorenz Attractor addition")
     func patternCount34() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 37)
+        #expect(allPatterns.count == 38)
     }
 }
 
@@ -5042,7 +5042,7 @@ struct HilbertCurvePatternTests {
     @Test("Pattern count is 35 after Hilbert Curve addition")
     func patternCount35() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 37)
+        #expect(allPatterns.count == 38)
     }
 }
 
@@ -5175,7 +5175,7 @@ struct SierpinskiTetrahedronPatternTests {
     @Test("Pattern count is 36 after Sierpinski Tetrahedron addition")
     func patternCount36() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 37)
+        #expect(allPatterns.count == 38)
     }
 }
 
@@ -5390,7 +5390,7 @@ struct DragonCurvePatternTests {
     @Test("Pattern count is 37 after Dragon Curve and Catenoid additions")
     func patternCount37() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 37)
+        #expect(allPatterns.count == 38)
     }
 }
 
@@ -5438,7 +5438,7 @@ struct CatenoidPatternTests {
     @Test("Pattern count is 37 after Catenoid addition")
     func patternCount37() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 37)
+        #expect(allPatterns.count == 38)
     }
 }
 
@@ -5454,7 +5454,7 @@ struct SapphireThemeTests {
 
     @Test("Theme count is 42 after Sapphire, Obsidian, and Ruby additions")
     func themeCount42() {
-        #expect(ColorTheme.allThemes.count == 42)
+        #expect(ColorTheme.allThemes.count == 43)
     }
 
     @Test("Sapphire has decreasing emissive intensity by age")
@@ -5495,7 +5495,7 @@ struct ObsidianThemeTests {
 
     @Test("Theme count is 42 after Obsidian addition")
     func themeCount42() {
-        #expect(ColorTheme.allThemes.count == 42)
+        #expect(ColorTheme.allThemes.count == 43)
     }
 
     @Test("Obsidian has decreasing emissive intensity by age")
@@ -5536,7 +5536,7 @@ struct RubyThemeTests {
 
     @Test("Theme count is 42 after Ruby addition")
     func themeCount42() {
-        #expect(ColorTheme.allThemes.count == 42)
+        #expect(ColorTheme.allThemes.count == 43)
     }
 
     @Test("Ruby has decreasing emissive intensity by age")
@@ -5562,5 +5562,94 @@ struct RubyThemeTests {
         #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.z)
         #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.y)
         #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.z)
+    }
+}
+
+// MARK: - Apollonian Gasket Pattern Tests (Session 71)
+
+@Suite("Apollonian Gasket Pattern Tests")
+struct ApollonianGasketPatternTests {
+    @Test("Apollonian gasket produces non-empty grid")
+    func apollonianGasketNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadApollonianGasket()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Apollonian gasket cell count is within reasonable bounds")
+    func apollonianGasketCellCount() {
+        var grid = GridModel(size: 16)
+        grid.loadApollonianGasket()
+        #expect(grid.aliveCount > 100)
+        #expect(grid.aliveCount < grid.cellCount / 2)
+    }
+
+    @Test("Apollonian gasket is available in SimulationEngine.Pattern enum")
+    func apollonianGasketEngineEnum() {
+        let pattern = SimulationEngine.Pattern.apollonianGasket
+        #expect(pattern.rawValue == "Apollonian Gasket")
+    }
+
+    @Test("Apollonian gasket alive cell index consistency")
+    func apollonianGasketIndexConsistency() {
+        var grid = GridModel(size: 16)
+        grid.loadApollonianGasket()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+
+    @Test("Apollonian gasket evolves under standard rules")
+    func apollonianGasketEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadApollonianGasket()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount != initial)
+    }
+
+    @Test("Pattern count is 38 after Apollonian Gasket addition")
+    func patternCount38() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.count == 38)
+    }
+}
+
+// MARK: - Titanium Theme Tests (Session 71)
+
+@Suite("Titanium Theme Tests")
+struct TitaniumThemeTests {
+    @Test("Titanium theme exists in allThemes")
+    func titaniumExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Titanium" }
+        #expect(found)
+    }
+
+    @Test("Theme count is 43 after Titanium addition")
+    func themeCount43() {
+        #expect(ColorTheme.allThemes.count == 43)
+    }
+
+    @Test("Titanium has decreasing emissive intensity by age")
+    func titaniumColorProgression() {
+        let theme = ColorTheme.titanium
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+
+    @Test("Titanium opacity decreases with age")
+    func titaniumOpacityDecay() {
+        let theme = ColorTheme.titanium
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+
+    @Test("Titanium is blue-grey (blue slightly dominant across tiers)")
+    func titaniumBlueGrey() {
+        let theme = ColorTheme.titanium
+        #expect(theme.newborn.emissiveColor.z > theme.newborn.emissiveColor.x)
+        #expect(theme.newborn.emissiveColor.z > theme.newborn.emissiveColor.y)
+        #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.x)
+        #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.y)
     }
 }

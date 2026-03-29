@@ -2,6 +2,19 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 71b (2026-03-28 19:01 PDT)
+
+**Goal**: Apollonian Gasket pattern, Titanium theme, fix stale test assertions.
+
+Three improvements:
+
+1. **Apollonian Gasket pattern (36th)**: A 3D extension of the Apollonian gasket — the classic fractal formed by recursively packing circles (here spheres) into the gaps between mutually tangent ones. The implementation starts with 4 spheres at tetrahedral vertices, then recursively fills each triplet gap by computing the incircle center and fitting a smaller sphere. Recursion depth is 3-4 depending on grid size, stopping when sphere radius drops below 1 voxel. Each sphere is rasterized as filled voxels within its radius using distance-squared checks. The result is a fractal cluster of nested spheres. Under evolution, the hollow interiors of larger spheres create interesting neighbor-density gradients — surfaces erode while the dense contact zones between spheres persist longer.
+
+2. **Titanium theme (41st)**: Cool metallic blue-grey aesthetic — bright silver-blue newborn cells (emissive 2.2, all channels high 0.7-0.82 with blue slightly dominant) through steel blue young cells to dark gunmetal mature cells fading to near-black. Distinct from Monochrome (pure neutral grey, equal RGB), Glacier (pale ice blue, much lighter), and Frost (white-blue with very high blue) — Titanium has a warm grey foundation with a subtle blue-steel tint that stays near-neutral across all tiers, evoking aerospace-grade metal under cold light. The blue dominance is under 0.15 difference from red — a tint, not a saturated color.
+
+3. **Fixed 24 stale count assertions**: Updated pattern count assertions (36→37), theme count assertions (36/37/40→41), and cyclable pattern count assertions (35/30→36) across the test suite. Added 11 new tests across 2 new suites: Apollonian Gasket Pattern (6 tests), Titanium Theme (5 tests).
+
+---
 ## Day 12 — Session 71 (2026-03-28 18:53 PDT)
 
 **Goal**: Catenoid pattern, Ruby theme, 11 new tests.

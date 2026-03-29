@@ -1633,40 +1633,74 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
-    mutating func loadCatenoid() {
+    mutating func loadApollonianGasket() {
         clearAll()
-        let s = Float(size)
-        let center = s / 2.0
-        // A catenoid is a minimal surface of revolution defined by
-        // r(v) = cosh(v), where v is the vertical parameter.
-        // Parametric: x = cosh(v)*cos(u), y = cosh(v)*sin(u), z = v
-        // We scale to fit the grid with a waist at the center.
-        let uSteps = max(120, size * 8)
-        let vSteps = max(60, size * 4)
-        let vRange: Float = 1.8  // controls how flared the ends are
-        let radius: Float = s * 0.35  // max radius at grid scale
+        // 3D Apollonian gasket: recursively pack spheres into the gaps between
+        // 4 initial mutually tangent spheres arranged tetrahedrally.
+        // Each sphere is rasterized as filled voxels within its radius.
+        let center = Float(size) / 2.0
+        let mainRadius = Float(size) * 0.42
 
-        // cosh(vRange) gives the max radial extent; normalize so it fits
-        let maxCosh = cosh(vRange)
-        let rScale = radius / maxCosh
+        // Collect all spheres (center, radius) via recursive packing
+        var spheres: [(SIMD3<Float>, Float)] = []
 
-        for ui in 0..<uSteps {
-            let u = Float(ui) / Float(uSteps) * 2.0 * .pi
-            let cosU = cos(u)
-            let sinU = sin(u)
-            for vi in 0..<vSteps {
-                let v = -vRange + 2.0 * vRange * Float(vi) / Float(vSteps - 1)
-                let r = cosh(v) * rScale
-                let px = center + r * cosU
-                let py = center + r * sinU
-                let pz = center + (v / vRange) * (s * 0.42)
-                // Thicken the surface for voxel visibility
-                for dx in -1...1 {
-                    for dy in -1...1 {
-                        let gx = Int(round(px)) + dx
-                        let gy = Int(round(py)) + dy
-                        let gz = Int(round(pz))
-                        if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+        // 4 initial spheres at tetrahedral vertices, tangent to each other
+        let tetR = mainRadius * 0.42  // radius of each initial sphere
+        let tetDist = tetR * 2.0      // distance between centers = 2r (tangent)
+        // Tetrahedral vertex positions centered at origin
+        let sqrt2over3: Float = sqrt(2.0 / 3.0)
+        let sqrt6over3: Float = sqrt(6.0) / 3.0
+        let tetVerts: [SIMD3<Float>] = [
+            SIMD3<Float>(0, 1, -1.0 / sqrt(2.0)),
+            SIMD3<Float>(-sqrt2over3 * sqrt(3.0) / 2.0, -0.5, -1.0 / sqrt(2.0)),
+            SIMD3<Float>(sqrt2over3 * sqrt(3.0) / 2.0, -0.5, -1.0 / sqrt(2.0)),
+            SIMD3<Float>(0, 0, sqrt6over3 - 1.0 / sqrt(2.0))
+        ]
+        // Scale and center
+        for v in tetVerts {
+            let pos = v * tetDist + SIMD3<Float>(repeating: center)
+            spheres.append((pos, tetR))
+        }
+
+        // Recursively fill gaps between triplets of spheres
+        func fillGap(s1: (SIMD3<Float>, Float), s2: (SIMD3<Float>, Float),
+                     s3: (SIMD3<Float>, Float), depth: Int) {
+            guard depth > 0 else { return }
+            // Incircle of the triangle formed by three sphere centers,
+            // with radius that fits tangent to all three
+            let c = (s1.0 + s2.0 + s3.0) / 3.0
+            let d1 = simd_length(s1.0 - s2.0)
+            let d2 = simd_length(s2.0 - s3.0)
+            let d3 = simd_length(s1.0 - s3.0)
+            let avgDist = (d1 + d2 + d3) / 3.0
+            let newR = (avgDist - s1.1 - s2.1) * 0.35
+            guard newR >= 1.0 else { return }  // Stop when too small to voxelize
+            spheres.append((c, newR))
+            // Recurse on the 3 new gaps
+            fillGap(s1: (c, newR), s2: s2, s3: s3, depth: depth - 1)
+            fillGap(s1: s1, s2: (c, newR), s3: s3, depth: depth - 1)
+            fillGap(s1: s1, s2: s2, s3: (c, newR), depth: depth - 1)
+        }
+
+        let maxDepth = size >= 24 ? 4 : 3
+        // Fill gaps between all combinations of 3 from the 4 initial spheres
+        let indices4 = [(0,1,2), (0,1,3), (0,2,3), (1,2,3)]
+        for (a, b, c) in indices4 {
+            fillGap(s1: spheres[a], s2: spheres[b], s3: spheres[c], depth: maxDepth)
+        }
+
+        // Rasterize all spheres
+        for (sCenter, sRadius) in spheres {
+            let rSq = sRadius * sRadius
+            let lo = max(0, Int(sCenter.x - sRadius) - 1)
+            let hi = min(size - 1, Int(sCenter.x + sRadius) + 1)
+            for gx in lo...hi {
+                for gy in max(0, Int(sCenter.y - sRadius) - 1)...min(size - 1, Int(sCenter.y + sRadius) + 1) {
+                    for gz in max(0, Int(sCenter.z - sRadius) - 1)...min(size - 1, Int(sCenter.z + sRadius) + 1) {
+                        let dx = Float(gx) + 0.5 - sCenter.x
+                        let dy = Float(gy) + 0.5 - sCenter.y
+                        let dz = Float(gz) + 0.5 - sCenter.z
+                        if dx * dx + dy * dy + dz * dz <= rSq {
                             setCell(x: gx, y: gy, z: gz, alive: true)
                         }
                     }
