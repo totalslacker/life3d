@@ -2957,6 +2957,44 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadCostaSurface() {
+        clearAll()
+        let n = size
+        // Costa's minimal surface — discovered by Celso Costa (1984), first
+        // complete embedded minimal surface of finite topology found after the
+        // plane, catenoid, and helicoid. It has genus 1 (one handle) and three
+        // ends: two catenoidal (opening up and down) and one planar (spreading
+        // outward at the waist). We approximate with a thickened implicit form:
+        // a catenoid-like body with a horizontal plane punched through at the
+        // waist, creating the characteristic three-pronged silhouette.
+        let half = Float(n) / 2.0
+        let scale: Float = 3.0 / half
+        let thickness: Float = 0.7
+        for gx in 0..<n {
+            let x = (Float(gx) - half + 0.5) * scale
+            for gy in 0..<n {
+                let y = (Float(gy) - half + 0.5) * scale
+                let rSq = x * x + y * y
+                let r = sqrt(rSq)
+                for gz in 0..<n {
+                    let z = (Float(gz) - half + 0.5) * scale
+                    // Catenoid: r = cosh(z) — a surface of revolution
+                    let catenoidR = cosh(z)
+                    let distCatenoid = abs(r - catenoidR)
+                    // Planar end at z=0 — a disc that extends outward
+                    let distPlane = abs(z)
+                    let planeRadius: Float = 2.5
+                    let inPlane = distPlane < thickness * 0.6 && r < planeRadius
+                    let inCatenoid = distCatenoid < thickness && r > 0.3
+                    if inCatenoid || inPlane {
+                        setCell(x: gx, y: gy, z: gz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

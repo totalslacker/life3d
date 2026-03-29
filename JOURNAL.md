@@ -9,6 +9,14 @@ Evolution session log. Most recent entry first. Never delete entries.
 1. **Cross-Cap pattern (62nd cyclable)**: An immersion of the real projective plane in 3D — a non-orientable surface parametrized by x = cos(u)sin(2v)/2, y = sin(u)sin(2v)/2, z = (cos²v - cos²u·sin²v)/2. Produces a pinched, self-intersecting surface visually distinct from Boy's Surface (another projective plane immersion, but without the characteristic pinch point). 6 new tests.
 2. **Mauve theme (63rd)**: Soft purple-pink aesthetic — R and B co-dominant with subdued G across all tiers, evoking the mallow flower color. Distinct from Amethyst (deeper violet), Lavender (lighter, more blue), and Vaporwave (neon pink-cyan). 5 new tests.
 
+---
+## Day 13 — Session 92b (2026-03-29 03:20 PDT)
+
+**Goal**: Costa Surface pattern, Marigold theme.
+
+1. **Costa Surface pattern (63rd cyclable)**: Celso Costa's 1984 minimal surface — the first complete embedded minimal surface of finite topology discovered after the plane, catenoid, and helicoid. It has genus 1 (one handle) and three ends: two catenoidal (opening up/down) and one planar (spreading at the waist). Approximated with a thickened catenoid body (r = cosh(z)) intersected by a horizontal disc at z=0, creating the characteristic three-pronged silhouette. Under evolution, the thin planar end erodes first while the denser catenoidal throat persists. 6 new tests.
+2. **Marigold theme (64th)**: Warm golden-yellow aesthetic — vivid gold newborn cells (R=1.0, G=0.80, B=0.0) through deep amber young cells to dark brown mature cells. Zero blue across all tiers, evoking marigold flower petals. Distinct from Gold (more metallic sheen), Saffron (deeper red-orange), and Warm Amber (broader amber range). 5 new tests.
+
 **Next Steps**: Performance profiling at 32x32x32. App icon design.
 
 ---
