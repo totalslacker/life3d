@@ -392,6 +392,8 @@ final class SimulationEngine {
             grid.loadApollonianGasket()
         case .kochSnowflake:
             grid.loadKochSnowflake()
+        case .torusKnot:
+            grid.loadTorusKnot()
         case .clear:
             grid.clearAll()
         }
@@ -453,6 +455,7 @@ final class SimulationEngine {
         case catenoid = "Catenoid"
         case apollonianGasket = "Apollonian Gasket"
         case kochSnowflake = "Koch Snowflake"
+        case torusKnot = "Torus Knot"
         case clear = "Clear"
 
         var id: String { rawValue }

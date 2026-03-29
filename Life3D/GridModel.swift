@@ -1745,6 +1745,53 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadTorusKnot() {
+        clearAll()
+        let s = Float(size)
+        let center = s / 2.0
+        // A (p,q) torus knot winds p times around the torus axis and q times
+        // through the hole. We use (2,3) — the trefoil's cousin on a torus.
+        // Parametric: x = (R + r·cos(q·t))·cos(p·t),
+        //             y = (R + r·cos(q·t))·sin(p·t),
+        //             z = r·sin(q·t)
+        // where R is the major radius and r is the minor radius.
+        let p: Float = 2.0
+        let q: Float = 3.0
+        let majorRadius: Float = s * 0.28
+        let minorRadius: Float = s * 0.12
+        let steps = max(400, size * 25)
+        let tubeRadius: Float = 1.5  // voxel thickening radius
+
+        for i in 0..<steps {
+            let t = Float(i) / Float(steps) * 2.0 * .pi
+            let r = majorRadius + minorRadius * cos(q * t)
+            let px = center + r * cos(p * t)
+            let py = center + r * sin(p * t)
+            let pz = center + minorRadius * sin(q * t)
+            // Thicken the curve into a tube for voxel visibility
+            let ix = Int(round(px))
+            let iy = Int(round(py))
+            let iz = Int(round(pz))
+            let tr = Int(ceil(tubeRadius))
+            for dx in -tr...tr {
+                for dy in -tr...tr {
+                    for dz in -tr...tr {
+                        let dist = Float(dx * dx + dy * dy + dz * dz)
+                        if dist <= tubeRadius * tubeRadius {
+                            let gx = ix + dx
+                            let gy = iy + dy
+                            let gz = iz + dz
+                            if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+                                setCell(x: gx, y: gy, z: gz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func loadKochSnowflake() {
         clearAll()
         // Build a 3D Koch snowflake: generate 2D Koch curve boundary, fill interior, extrude into 3D

@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 72 (2026-03-28 19:10 PDT)
+
+**Goal**: Torus Knot pattern, Emerald theme.
+
+1. **Torus Knot pattern (40th)**: A (2,3) torus knot — a curve that winds 2 times around the torus's rotational axis and 3 times through the hole. Parametrically defined as x = (R + r·cos(q·t))·cos(p·t), y = (R + r·cos(q·t))·sin(p·t), z = r·sin(q·t). The implementation traces the knot path with high sampling density and thickens it into a tube using a spherical voxel brush. Under evolution, the tube's surface erodes at thin crossings where the knot passes close to itself.
+
+2. **Emerald theme (45th)**: Deep green gemstone aesthetic — brilliant green newborn cells through medium green young cells to dark forest-green mature cells. Complements Ruby and Sapphire as a gemstone trio.
+
+3. **Added Torus Knot and Emerald tests**: 11 new tests across 2 suites.
+
+---
 ## Day 12 — Session 71b (2026-03-28 19:01 PDT)
 
 **Goal**: Apollonian Gasket pattern, Titanium theme, fix stale test assertions.
