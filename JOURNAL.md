@@ -2,6 +2,19 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 83 (2026-03-29 00:05 PDT)
+
+**Goal**: Voronoi Cells pattern, Burgundy theme, update test assertions.
+
+1. **Voronoi Cells pattern (54th cyclable)**: A 3D Voronoi tessellation that creates foam-like structures. Random seed points (scaled with grid area) are generated via a deterministic LCG, partitioning space into Voronoi cells. For each voxel, the nearest and second-nearest seed distances (squared) are computed; voxels where the difference falls below a threshold (1.8) are set alive, tracing the thin boundaries between adjacent cells. The result is an organic foam or honeycomb-like structure with empty cavities surrounded by thin walls — visually distinct from the smooth implicit surfaces (Schwarz P, Gyroid) and the noise-based Perlin pattern. Under evolution, the thin wall segments erode from their edges while junction points where multiple cell boundaries meet persist longer due to higher neighbor density.
+
+2. **Burgundy theme (57th)**: Deep wine-red aesthetic — vivid dark red newborn cells (emissive 2.1, red channel strongly dominant at 0.80 with very low green 0.06 and blue 0.16) through medium dark wine young cells to deep maroon mature cells fading to near-black. Distinct from Crimson (cooler blue-red), Vermilion (red-orange), Volcanic (dark red-black with orange undertones), Ruby (pink-red gemstone), and Garnet (dark magenta-red) — Burgundy stays in the warm dark red range with a subtle blue undertone (red > 5× green, red > 5× blue), evoking the deep color of aged Burgundy wine or oxblood leather.
+
+3. **Updated stale count assertions**: 56→57 for theme counts, 54→55 for pattern counts, 53→54 for cyclable pattern counts across the test suite. Added 11 new tests across 2 suites: Voronoi Cells Pattern (6 tests), Burgundy Theme (5 tests).
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 13 — Session 82 (2026-03-29 00:00 PDT)
 
 **Goal**: Boy's Surface pattern, update test assertions.

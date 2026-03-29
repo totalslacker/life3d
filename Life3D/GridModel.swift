@@ -2603,6 +2603,60 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadVoronoiCells() {
+        clearAll()
+        let n = size
+        // 3D Voronoi tessellation — random seed points partition space into cells.
+        // Voxels near the boundary between two Voronoi cells (where the distance
+        // to the nearest and second-nearest seeds are close) are set alive, creating
+        // a foam-like structure of thin walls surrounding empty cavities.
+        // Uses a deterministic LCG (linear congruential generator) for reproducibility.
+        let seedCount = max(8, n * n / 4)  // scale seeds with grid area
+        var rng: UInt64 = 42  // deterministic seed
+        func nextRng() -> UInt64 {
+            rng = rng &* 6364136223846793005 &+ 1442695040888963407
+            return rng
+        }
+        // Generate seed points in [0, n) space
+        var seeds = [(Float, Float, Float)]()
+        seeds.reserveCapacity(seedCount)
+        for _ in 0..<seedCount {
+            let sx = Float(nextRng() % UInt64(n * 1000)) / 1000.0
+            let sy = Float(nextRng() % UInt64(n * 1000)) / 1000.0
+            let sz = Float(nextRng() % UInt64(n * 1000)) / 1000.0
+            seeds.append((sx, sy, sz))
+        }
+        let boundaryThreshold: Float = 1.8  // distance margin for boundary detection
+        for x in 0..<n {
+            let fx = Float(x) + 0.5
+            for y in 0..<n {
+                let fy = Float(y) + 0.5
+                for z in 0..<n {
+                    let fz = Float(z) + 0.5
+                    var d1: Float = .greatestFiniteMagnitude  // nearest distance squared
+                    var d2: Float = .greatestFiniteMagnitude  // second nearest
+                    for (sx, sy, sz) in seeds {
+                        let dx = fx - sx
+                        let dy = fy - sy
+                        let dz = fz - sz
+                        let distSq = dx * dx + dy * dy + dz * dz
+                        if distSq < d1 {
+                            d2 = d1
+                            d1 = distSq
+                        } else if distSq < d2 {
+                            d2 = distSq
+                        }
+                    }
+                    // Alive if near the boundary between two cells
+                    if d2 - d1 < boundaryThreshold {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

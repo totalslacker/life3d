@@ -423,6 +423,8 @@ final class SimulationEngine {
             grid.loadCliffordTorus()
         case .boysSurface:
             grid.loadBoysSurface()
+        case .voronoiCells:
+            grid.loadVoronoiCells()
         case .clear:
             grid.clearAll()
         }
@@ -499,6 +501,7 @@ final class SimulationEngine {
         case schwarzPSurface = "Schwarz P Surface"
         case cliffordTorus = "Clifford Torus"
         case boysSurface = "Boy's Surface"
+        case voronoiCells = "Voronoi Cells"
         case clear = "Clear"
 
         var id: String { rawValue }
