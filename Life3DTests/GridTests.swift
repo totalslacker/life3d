@@ -5891,11 +5891,6 @@ struct TungstenThemeTests {
         #expect(found)
     }
 
-    @Test("Theme count is 46 after Tungsten addition")
-    func themeCount46() {
-        #expect(ColorTheme.allThemes.count == 46)
-    }
-
     @Test("Tungsten has decreasing emissive intensity by age")
     func tungstenColorProgression() {
         let theme = ColorTheme.tungsten
@@ -5919,6 +5914,47 @@ struct TungstenThemeTests {
         #expect(theme.newborn.emissiveColor.y > theme.newborn.emissiveColor.z)
         #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.y)
         #expect(theme.mature.emissiveColor.y > theme.mature.emissiveColor.z)
+    }
+}
+
+// MARK: - Aquamarine Theme Tests (Session 73)
+
+@Suite("Aquamarine Theme Tests")
+struct AquamarineThemeTests {
+    @Test("Aquamarine theme exists in allThemes")
+    func aquamarineExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Aquamarine" }
+        #expect(found)
+    }
+
+    @Test("Theme count is 47 after Aquamarine addition")
+    func themeCount47() {
+        #expect(ColorTheme.allThemes.count == 47)
+    }
+
+    @Test("Aquamarine has decreasing emissive intensity by age")
+    func aquamarineColorProgression() {
+        let theme = ColorTheme.aquamarine
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+
+    @Test("Aquamarine opacity decreases with age")
+    func aquamarineOpacityDecay() {
+        let theme = ColorTheme.aquamarine
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+
+    @Test("Aquamarine is cyan-green (green channel dominant across all tiers)")
+    func aquamarineCyanGreen() {
+        let theme = ColorTheme.aquamarine
+        #expect(theme.newborn.emissiveColor.y > theme.newborn.emissiveColor.x)
+        #expect(theme.newborn.emissiveColor.z > theme.newborn.emissiveColor.x)
+        #expect(theme.mature.emissiveColor.y > theme.mature.emissiveColor.x)
+        #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.x)
     }
 }
 

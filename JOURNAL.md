@@ -2,6 +2,19 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 73 (2026-03-28 21:55 PDT)
+
+**Goal**: Mandelbulb pattern, Aquamarine theme, fix duplicate Sierpinski Tetrahedron.
+
+1. **Mandelbulb pattern (42nd)**: A 3D fractal based on the Mandelbrot set — the famous power-8 Mandelbulb discovered by Daniel White and Paul Nylander. The 3D iteration uses spherical coordinates: for each point c in space, iterate z → z^n + c where the power map in spherical coordinates is r^n·(sin(nθ)cos(nφ), cos(nθ), sin(nθ)sin(nφ)). Points that don't escape after 8 iterations are considered inside the fractal. The resulting structure is a bulbous, highly detailed fractal solid with intricate surface features. Under evolution, the thin peninsulas and surface detail erode first while the dense core retains high neighbor density.
+
+2. **Aquamarine theme (46th)**: Blue-green gemstone aesthetic — luminous cyan-green newborn cells (emissive 2.3, green 0.95 and blue 0.8 with very low red) through medium teal young cells to dark sea-green mature cells fading to near-black. Fills the gap between blue gems (Sapphire) and green (Emerald, Jade) — Aquamarine stays in the cyan-teal range with both green and blue channels dominant over red, evoking the translucent blue-green of natural beryl aquamarine.
+
+3. **Fixed duplicate Sierpinski Tetrahedron function** from a prior merge. Updated 21 stale theme count assertions (42→46), 8 stale (45→46), 15 stale pattern count assertions (41→42). Added 11 new tests across 2 suites: Mandelbulb Pattern (6 tests), Aquamarine Theme (5 tests).
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 72 (2026-03-28 19:10 PDT)
 
 **Goal**: Torus Knot pattern, Emerald theme.
