@@ -2176,6 +2176,59 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// 3D Vicsek Fractal — a cross-shaped recursive fractal. At each recursion level,
+    /// a cube is divided into a 3×3×3 grid of 27 sub-cubes. Only the center sub-cube
+    /// and the 6 face-adjacent sub-cubes are kept (forming a 3D plus/cross shape),
+    /// discarding the 20 edge and corner sub-cubes. This is the dual of the Menger
+    /// Sponge, which keeps the 20 and removes the 7. After k iterations, 7^k cubes
+    /// remain out of 27^k, giving a fractal dimension of ln(7)/ln(3) ≈ 1.77.
+    /// Under evolution, the thin arms of the cross erode first at their tips while
+    /// the dense central junction retains higher neighbor density and persists longer.
+    mutating func loadVicsekFractal() {
+        clearAll()
+        let n = size
+        // Recursion depth scaled to grid size
+        let maxDepth: Int
+        if n >= 27 { maxDepth = 3 }
+        else if n >= 9 { maxDepth = 2 }
+        else { maxDepth = 1 }
+
+        func fillVicsek(x0: Int, y0: Int, z0: Int, span: Int, depth: Int) {
+            if depth >= maxDepth || span <= 1 {
+                // Fill this entire sub-cube
+                for x in x0..<min(x0 + span, n) {
+                    for y in y0..<min(y0 + span, n) {
+                        for z in z0..<min(z0 + span, n) {
+                            setCell(x: x, y: y, z: z, alive: true)
+                        }
+                    }
+                }
+                return
+            }
+            let sub = span / 3
+            if sub < 1 { return }
+            // Keep only center + 6 face-adjacent sub-cubes (the 3D cross)
+            // Center is at (1,1,1), face-adjacent are the 6 with exactly one
+            // coordinate differing from 1 by ±1 while the other two are 1
+            let kept: [(Int, Int, Int)] = [
+                (1, 1, 1),  // center
+                (0, 1, 1),  // -x face
+                (2, 1, 1),  // +x face
+                (1, 0, 1),  // -y face
+                (1, 2, 1),  // +y face
+                (1, 1, 0),  // -z face
+                (1, 1, 2),  // +z face
+            ]
+            for (dx, dy, dz) in kept {
+                fillVicsek(x0: x0 + dx * sub, y0: y0 + dy * sub, z0: z0 + dz * sub,
+                           span: sub, depth: depth + 1)
+            }
+        }
+
+        fillVicsek(x0: 0, y0: 0, z0: 0, span: n, depth: 0)
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

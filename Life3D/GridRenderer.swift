@@ -1024,7 +1024,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.1, opacity: 0.03)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze, .ivory]
+    static let pearl = ColorTheme(
+        name: "Pearl",
+        newborn: TierColors(
+            baseColor: SIMD4(1.0, 0.95, 0.96, 1.0),
+            emissiveColor: SIMD3(1.0, 0.92, 0.95),
+            emissiveIntensity: 2.1, opacity: 0.55),
+        young: TierColors(
+            baseColor: SIMD4(0.88, 0.82, 0.85, 1.0),
+            emissiveColor: SIMD3(0.82, 0.75, 0.8),
+            emissiveIntensity: 1.0, opacity: 0.35),
+        mature: TierColors(
+            baseColor: SIMD4(0.6, 0.55, 0.58, 1.0),
+            emissiveColor: SIMD3(0.48, 0.42, 0.46),
+            emissiveIntensity: 0.4, opacity: 0.17),
+        dying: TierColors(
+            baseColor: SIMD4(0.3, 0.27, 0.28, 1.0),
+            emissiveColor: SIMD3(0.14, 0.12, 0.13),
+            emissiveIntensity: 0.1, opacity: 0.03)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze, .ivory, .pearl]
 }
 
 enum GridRenderer {

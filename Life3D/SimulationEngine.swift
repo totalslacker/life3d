@@ -405,6 +405,8 @@ final class SimulationEngine {
             grid.loadCantorDust()
         case .barnsleyFern:
             grid.loadBarnsleyFern()
+        case .vicsekFractal:
+            grid.loadVicsekFractal()
         case .clear:
             grid.clearAll()
         }
@@ -472,6 +474,7 @@ final class SimulationEngine {
         case juliaSet = "Julia Set"
         case cantorDust = "Cantor Dust"
         case barnsleyFern = "Barnsley Fern"
+        case vicsekFractal = "Vicsek Fractal"
         case clear = "Clear"
 
         var id: String { rawValue }
