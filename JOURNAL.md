@@ -2,6 +2,19 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 87 (2026-03-29 00:25 PDT)
+
+**Goal**: Dupin Cyclide pattern, Chartreuse theme, fix truncated functions.
+
+1. **Dupin Cyclide pattern (58th cyclable)**: A quartic algebraic surface that generalizes tori and spheres — the image of a torus under inversion in a sphere. All lines of curvature on a Dupin cyclide are circles, making it a classical object in differential geometry. The parametric form uses parameters a=2.0, b=1.0, c=√3, d=0.8 (offset < c ensures no singularity), producing a smooth ring-like surface with non-uniform thickness due to the inversion mapping. Visually distinct from the standard Torus (uniform ring) and Clifford Torus (stereographic projection distortion) — the Dupin cyclide has asymmetric thickness variation where one side is thicker than the other, creating an organic, lens-like profile. Under evolution, thin regions erode first while the denser curved sections persist.
+
+2. **Chartreuse theme (59th)**: Bright yellow-green aesthetic — vivid yellow-green newborn cells (emissive 2.1, green channel at 1.0 with strong red 0.75 and zero blue) through medium olive-green young cells to dark green-brown mature cells fading to near-black. Distinct from Toxic (neon green, more pure green), Peridot (yellow-green gemstone with more green dominance), Forest (darker pure green), and Jade (blue-green) — Chartreuse stays in the balanced yellow-green range with G > R >> B across all tiers, evoking the color of the French liqueur or young spring leaves.
+
+3. **Updated stale count assertions**: Added 11 new tests across 2 suites: Dupin Cyclide Pattern (6 tests), Chartreuse Theme (5 tests).
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 13 — Session 86 (2026-03-29 00:15 PDT)
 
 **Goal**: Fix aliveIndexMap bug, Scherk Surface pattern, Teal theme, clean up stale test assertions.

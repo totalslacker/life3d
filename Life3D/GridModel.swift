@@ -2766,6 +2766,50 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Dupin Cyclide — a quartic algebraic surface that generalizes tori and
+    /// spheres. A Dupin cyclide is the image of a torus under inversion in a sphere,
+    /// producing a surface where all lines of curvature are circles. Parametrized by
+    /// x = (d(c - a*cos(u)*cos(v)) + b²*cos(u)) / (a - c*cos(u)*cos(v)),
+    /// y = (b*sin(u)*(a - d*cos(v))) / (a - c*cos(u)*cos(v)),
+    /// z = (b*sin(v)*(c*cos(u) - d)) / (a - c*cos(u)*cos(v)),
+    /// where a > b > 0, c² = a² - b², and d controls the offset. Under evolution,
+    /// thin surface regions erode from edges while curved junctions persist.
+    mutating func loadDupinCyclide() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale = Float(n) * 0.22
+        // Cyclide parameters: a > b > 0, c = sqrt(a²-b²), d < c for ring cyclide
+        let a: Float = 2.0
+        let b: Float = 1.0
+        let c: Float = sqrt(a * a - b * b) // √3
+        let d: Float = 0.8 // offset — d < c ensures no singularity
+        let stepsU = n * 12
+        let stepsV = n * 12
+        for i in 0..<stepsU {
+            let u = 2.0 * Float.pi * Float(i) / Float(stepsU)
+            let cosU = cos(u)
+            let sinU = sin(u)
+            for j in 0..<stepsV {
+                let v = 2.0 * Float.pi * Float(j) / Float(stepsV)
+                let cosV = cos(v)
+                let sinV = sin(v)
+                let denom = a - c * cosU * cosV
+                if abs(denom) < 0.001 { continue }
+                let px = (d * (c - a * cosU * cosV) + b * b * cosU) / denom
+                let py = (b * sinU * (a - d * cosV)) / denom
+                let pz = (b * sinV * (c * cosU - d)) / denom
+                let gx = Int((px * scale / a + half).rounded())
+                let gy = Int((py * scale / a + half).rounded())
+                let gz = Int((pz * scale / a + half).rounded())
+                if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                    setCell(x: gx, y: gy, z: gz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

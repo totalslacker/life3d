@@ -431,6 +431,8 @@ final class SimulationEngine {
             grid.loadDiniSurface()
         case .scherkSurface:
             grid.loadScherkSurface()
+        case .dupinCyclide:
+            grid.loadDupinCyclide()
         case .clear:
             grid.clearAll()
         }
@@ -511,6 +513,7 @@ final class SimulationEngine {
         case schwarzDSurface = "Schwarz D Surface"
         case diniSurface = "Dini's Surface"
         case scherkSurface = "Scherk Surface"
+        case dupinCyclide = "Dupin Cyclide"
         case clear = "Clear"
 
         var id: String { rawValue }
