@@ -2810,6 +2810,55 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadHelicoid() {
+        clearAll()
+        let n = size
+        // The Helicoid — a ruled minimal surface swept by a line rotating at
+        // constant rate as it translates along an axis. Parametrically:
+        //   x = u * cos(v), y = u * sin(v), z = c * v
+        // where u is the distance from the axis and v is the rotation angle.
+        // Unlike the Helix pattern (a pair of thin spiraling curves), the
+        // Helicoid is a continuous ruled surface — every point on it lies on a
+        // straight line (the ruling) perpendicular to the central axis.
+        let half = Float(n) / 2.0
+        let twists: Float = 2.0
+        let thickness: Float = 0.6
+        let steps = n * 12
+        let rulingSteps = n * 4
+        let maxU = half * 0.85
+        for vi in 0..<steps {
+            let v = Float(vi) / Float(steps) * twists * 2.0 * Float.pi
+            let cosV = cos(v)
+            let sinV = sin(v)
+            let z = half + (v / (twists * 2.0 * Float.pi) - 0.5) * Float(n - 1)
+            for ui in 0..<rulingSteps {
+                let u = (Float(ui) / Float(rulingSteps - 1) - 0.5) * 2.0 * maxU
+                let px = half + u * cosV
+                let py = half + u * sinV
+                let ix = Int(px)
+                let iy = Int(py)
+                let iz = Int(z)
+                if ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n {
+                    setCell(x: ix, y: iy, z: iz, alive: true)
+                    let t = Int(thickness)
+                    for dx in -t...t {
+                        for dy in -t...t {
+                            let nx = ix + dx
+                            let ny = iy + dy
+                            if nx >= 0 && nx < n && ny >= 0 && ny < n {
+                                let dist = sqrt(Float(dx * dx + dy * dy))
+                                if dist <= thickness {
+                                    setCell(x: nx, y: ny, z: iz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func loadSteinmetzSolid() {
         clearAll()
         let n = size

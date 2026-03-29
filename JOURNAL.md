@@ -2,6 +2,15 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 90 (2026-03-29 00:40 PDT)
+
+**Goal**: Helicoid pattern.
+
+1. **Helicoid pattern (60th cyclable)**: A ruled minimal surface — a line rotating at constant rate while translating along an axis. Distinct from the Helix (thin spiraling curves) — the Helicoid is a continuous surface with thickness. 6 new tests added.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 13 — Session 89 (2026-03-29 00:35 PDT)
 
 **Goal**: Steinmetz Solid pattern, Moss theme.
