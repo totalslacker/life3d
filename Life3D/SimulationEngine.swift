@@ -443,6 +443,8 @@ final class SimulationEngine {
             grid.loadCrossCap()
         case .costaSurface:
             grid.loadCostaSurface()
+        case .breatherSurface:
+            grid.loadBreatherSurface()
         case .clear:
             grid.clearAll()
         }
@@ -529,6 +531,7 @@ final class SimulationEngine {
         case steinmetzSolid = "Steinmetz Solid"
         case crossCap = "Cross-Cap"
         case costaSurface = "Costa Surface"
+        case breatherSurface = "Breather Surface"
         case clear = "Clear"
 
         var id: String { rawValue }

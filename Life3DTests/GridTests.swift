@@ -7504,8 +7504,8 @@ struct CeruleanThemeTests {
         #expect(nb.x < 0.05) // R near zero
     }
 
-    @Test func themeCount63m() {
-        #expect(ColorTheme.allThemes.count == 64)
+    @Test func themeCount65c() {
+        #expect(ColorTheme.allThemes.count == 65)
     }
 }
 
@@ -7584,8 +7584,8 @@ struct MauveThemeTests {
         #expect(nb.y < nb.z) // G < B
     }
 
-    @Test func themeCount64m() {
-        #expect(ColorTheme.allThemes.count == 64)
+    @Test func themeCount65m() {
+        #expect(ColorTheme.allThemes.count == 65)
     }
 }
 
@@ -7664,7 +7664,86 @@ struct MarigoldThemeTests {
         #expect(nb.z < 0.05) // B near zero
     }
 
-    @Test func themeCount64mr() {
-        #expect(ColorTheme.allThemes.count == 64)
+    @Test func themeCount65mr() {
+        #expect(ColorTheme.allThemes.count == 65)
+    }
+}
+
+// MARK: - Breather Surface Pattern Tests
+
+@Suite("Breather Surface Tests")
+struct BreatherSurfaceTests {
+    @Test func breatherSurfaceProducesCells() {
+        var grid = GridModel(size: 16)
+        grid.loadBreatherSurface()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test func breatherSurfaceNotFull() {
+        var grid = GridModel(size: 16)
+        grid.loadBreatherSurface()
+        #expect(grid.aliveCount < 16 * 16 * 16)
+    }
+
+    @Test func breatherSurfaceDeterministic() {
+        var grid1 = GridModel(size: 16)
+        grid1.loadBreatherSurface()
+        var grid2 = GridModel(size: 16)
+        grid2.loadBreatherSurface()
+        #expect(grid1.aliveCount == grid2.aliveCount)
+    }
+
+    @Test func breatherSurfaceLargeGrid() {
+        var grid = GridModel(size: 24)
+        grid.loadBreatherSurface()
+        #expect(grid.aliveCount > 0)
+        #expect(grid.aliveCount < 24 * 24 * 24)
+    }
+
+    @Test func breatherSurfacePatternExists() {
+        let pattern = SimulationEngine.Pattern.allCases.first { $0.rawValue == "Breather Surface" }
+        #expect(pattern != nil)
+    }
+
+    @Test func breatherSurfaceDistinctFromEnneperSurface() {
+        var breather = GridModel(size: 16)
+        breather.loadBreatherSurface()
+        var enneper = GridModel(size: 16)
+        enneper.loadEnneperSurface()
+        #expect(breather.aliveCount != enneper.aliveCount)
+    }
+}
+
+// MARK: - Sage Theme Tests
+
+@Suite("Sage Theme Tests")
+struct SageThemeTests {
+    @Test func sageThemeExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Sage" }
+        #expect(found)
+    }
+
+    @Test func sageNewbornBrightest() {
+        let t = ColorTheme.sage
+        #expect(t.newborn.emissiveIntensity > t.young.emissiveIntensity)
+        #expect(t.young.emissiveIntensity > t.mature.emissiveIntensity)
+    }
+
+    @Test func sageOpacityDecreases() {
+        let t = ColorTheme.sage
+        #expect(t.newborn.opacity > t.young.opacity)
+        #expect(t.young.opacity > t.mature.opacity)
+        #expect(t.mature.opacity > t.dying.opacity)
+    }
+
+    @Test func sageGreyGreen() {
+        let nb = ColorTheme.sage.newborn.baseColor
+        #expect(nb.y > nb.x) // G > R (green-dominant)
+        #expect(nb.y > nb.z) // G > B
+        #expect(nb.x > 0.5) // R significant (grey warmth)
+    }
+
+    @Test func themeCount65s() {
+        #expect(ColorTheme.allThemes.count == 65)
     }
 }

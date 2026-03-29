@@ -2995,6 +2995,85 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadBreatherSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Breather surface: a pseudospherical surface from soliton theory.
+        // Parametric form with parameter b (0 < b < 1):
+        //   denom = b * ((1 - b²) * cosh(b*u))² + b² * sin(√(1-b²)*v)²
+        //   x = -u + (2 * (1-b²) * cosh(b*u) * sinh(b*u)) / denom
+        //   y = (2 * √(1-b²) * cosh(b*u) * (-√(1-b²) * cos(v) * cos(√(1-b²)*v) - sin(v) * sin(√(1-b²)*v))) / denom
+        //   z = (2 * √(1-b²) * cosh(b*u) * (-√(1-b²) * sin(v) * cos(√(1-b²)*v) + cos(v) * sin(√(1-b²)*v))) / denom
+        let b: Float = 0.4
+        let b2 = b * b
+        let w = sqrt(1.0 - b2)
+        let uSteps = n * 6
+        let vSteps = n * 6
+        let uRange: Float = 14.0
+        let vRange: Float = Float.pi * 2.0
+
+        // First pass: find extent for scaling
+        var minX: Float = .greatestFiniteMagnitude, maxX: Float = -.greatestFiniteMagnitude
+        var minY: Float = .greatestFiniteMagnitude, maxY: Float = -.greatestFiniteMagnitude
+        var minZ: Float = .greatestFiniteMagnitude, maxZ: Float = -.greatestFiniteMagnitude
+        var points: [(Float, Float, Float)] = []
+        points.reserveCapacity(uSteps * vSteps)
+
+        for ui in 0..<uSteps {
+            let u = -uRange / 2.0 + Float(ui) / Float(uSteps) * uRange
+            let cbu = cosh(b * u)
+            let sbu = sinh(b * u)
+            for vi in 0..<vSteps {
+                let v = -vRange / 2.0 + Float(vi) / Float(vSteps) * vRange
+                let wv = w * v
+                let denom = b * ((1.0 - b2) * cbu) * ((1.0 - b2) * cbu) + b2 * sin(wv) * sin(wv)
+                guard denom > 1e-6 else { continue }
+                let px = -u + (2.0 * (1.0 - b2) * cbu * sbu) / denom
+                let py = (2.0 * w * cbu * (-w * cos(v) * cos(wv) - sin(v) * sin(wv))) / denom
+                let pz = (2.0 * w * cbu * (-w * sin(v) * cos(wv) + cos(v) * sin(wv))) / denom
+                points.append((px, py, pz))
+                minX = min(minX, px); maxX = max(maxX, px)
+                minY = min(minY, py); maxY = max(maxY, py)
+                minZ = min(minZ, pz); maxZ = max(maxZ, pz)
+            }
+        }
+
+        let rangeX = maxX - minX
+        let rangeY = maxY - minY
+        let rangeZ = maxZ - minZ
+        let maxRange = max(rangeX, max(rangeY, rangeZ))
+        guard maxRange > 1e-6 else { return }
+        let scale = Float(n - 2) / maxRange
+        let cx = (minX + maxX) / 2.0
+        let cy = (minY + maxY) / 2.0
+        let cz = (minZ + maxZ) / 2.0
+        let thickness: Float = 0.6
+
+        for (px, py, pz) in points {
+            let ix = Int(half + (px - cx) * scale)
+            let iy = Int(half + (py - cy) * scale)
+            let iz = Int(half + (pz - cz) * scale)
+            let t = Int(thickness)
+            for dx in -t...t {
+                for dy in -t...t {
+                    for dz in -t...t {
+                        let dist = sqrt(Float(dx * dx + dy * dy + dz * dz))
+                        if dist <= thickness {
+                            let nx = ix + dx
+                            let ny = iy + dy
+                            let nz = iz + dz
+                            if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                setCell(x: nx, y: ny, z: nz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
