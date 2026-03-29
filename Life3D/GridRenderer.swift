@@ -804,7 +804,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.15, opacity: 0.05)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold]
+    static let peridot = ColorTheme(
+        name: "Peridot",
+        newborn: TierColors(
+            baseColor: SIMD4(0.6, 1.0, 0.1, 1.0),
+            emissiveColor: SIMD3(0.55, 1.0, 0.05),
+            emissiveIntensity: 2.3, opacity: 0.58),
+        young: TierColors(
+            baseColor: SIMD4(0.4, 0.7, 0.05, 1.0),
+            emissiveColor: SIMD3(0.35, 0.65, 0.02),
+            emissiveIntensity: 1.3, opacity: 0.36),
+        mature: TierColors(
+            baseColor: SIMD4(0.15, 0.3, 0.02, 1.0),
+            emissiveColor: SIMD3(0.1, 0.25, 0.01),
+            emissiveIntensity: 0.7, opacity: 0.22),
+        dying: TierColors(
+            baseColor: SIMD4(0.05, 0.1, 0.01, 1.0),
+            emissiveColor: SIMD3(0.03, 0.06, 0.0),
+            emissiveIntensity: 0.2, opacity: 0.06)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot]
 }
 
 enum GridRenderer {

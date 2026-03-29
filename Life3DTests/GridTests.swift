@@ -5323,3 +5323,44 @@ struct RoseGoldThemeTests {
         #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.z)
     }
 }
+
+// MARK: - Peridot Theme Tests (Session 69)
+
+@Suite("Peridot Theme Tests")
+struct PeridotThemeTests {
+    @Test("Peridot theme exists in allThemes")
+    func peridotExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Peridot" }
+        #expect(found)
+    }
+
+    @Test("Theme count is 39 after Peridot addition")
+    func themeCount39() {
+        #expect(ColorTheme.allThemes.count == 39)
+    }
+
+    @Test("Peridot has decreasing emissive intensity by age")
+    func peridotColorProgression() {
+        let theme = ColorTheme.peridot
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+
+    @Test("Peridot opacity decreases with age")
+    func peridotOpacityDecay() {
+        let theme = ColorTheme.peridot
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+
+    @Test("Peridot is yellow-green dominant (green channel highest across all tiers)")
+    func peridotYellowGreenDominant() {
+        let theme = ColorTheme.peridot
+        #expect(theme.newborn.emissiveColor.y > theme.newborn.emissiveColor.x)
+        #expect(theme.newborn.emissiveColor.y > theme.newborn.emissiveColor.z)
+        #expect(theme.mature.emissiveColor.y > theme.mature.emissiveColor.x)
+        #expect(theme.mature.emissiveColor.y > theme.mature.emissiveColor.z)
+    }
+}

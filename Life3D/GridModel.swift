@@ -1499,6 +1499,89 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Sierpinski Tetrahedron — a 3D fractal formed by recursively removing
+    /// the central octahedron from a tetrahedron, leaving four smaller
+    /// tetrahedra at the corners. Also known as the Tetrix.
+    mutating func loadSierpinskiTetrahedron() {
+        clearAll()
+        // Use the largest power-of-2 that fits in the grid for clean fractal levels
+        var depth = 1
+        while (1 << (depth + 1)) <= size { depth += 1 }
+        let n = 1 << depth
+
+        let offset = (size - n) / 2
+
+        // The four vertices of the base tetrahedron inscribed in the cube [0, n)
+        let v0 = SIMD3<Float>(0, 0, 0)
+        let v1 = SIMD3<Float>(Float(n - 1), Float(n - 1), 0)
+        let v2 = SIMD3<Float>(Float(n - 1), 0, Float(n - 1))
+        let v3 = SIMD3<Float>(0, Float(n - 1), Float(n - 1))
+
+        // A point belongs to the Sierpinski tetrahedron if, at every subdivision
+        // level, it falls within one of the four corner sub-tetrahedra (not the
+        // central octahedral void). We use the "chaos game" / IFS check:
+        // express coordinates in barycentric form relative to the tetrahedron
+        // and check the binary digits.
+        //
+        // Simpler approach: recursive subdivision marking.
+        func fillTetra(_ a: SIMD3<Float>, _ b: SIMD3<Float>, _ c: SIMD3<Float>, _ d: SIMD3<Float>, _ level: Int) {
+            if level == 0 {
+                // Fill the tetrahedron defined by a,b,c,d
+                let minX = Int(min(a.x, min(b.x, min(c.x, d.x))))
+                let maxX = Int(max(a.x, max(b.x, max(c.x, d.x))))
+                let minY = Int(min(a.y, min(b.y, min(c.y, d.y))))
+                let maxY = Int(max(a.y, max(b.y, max(c.y, d.y))))
+                let minZ = Int(min(a.z, min(b.z, min(c.z, d.z))))
+                let maxZ = Int(max(a.z, max(b.z, max(c.z, d.z))))
+                for x in minX...maxX {
+                    for y in minY...maxY {
+                        for z in minZ...maxZ {
+                            let p = SIMD3<Float>(Float(x), Float(y), Float(z))
+                            if pointInTetrahedron(p, a, b, c, d) {
+                                let gx = x + offset
+                                let gy = y + offset
+                                let gz = z + offset
+                                if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+                                    setCell(x: gx, y: gy, z: gz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+                return
+            }
+            // Midpoints of the six edges
+            let ab = (a + b) * 0.5
+            let ac = (a + c) * 0.5
+            let ad = (a + d) * 0.5
+            let bc = (b + c) * 0.5
+            let bd = (b + d) * 0.5
+            let cd = (c + d) * 0.5
+            // Recurse into four corner tetrahedra (skip the central octahedron)
+            fillTetra(a, ab, ac, ad, level - 1)
+            fillTetra(b, ab, bc, bd, level - 1)
+            fillTetra(c, ac, bc, cd, level - 1)
+            fillTetra(d, ad, bd, cd, level - 1)
+        }
+
+        fillTetra(v0, v1, v2, v3, depth)
+        rebuildAliveCellIndices()
+    }
+
+    /// Check if point p is inside tetrahedron (a, b, c, d) using barycentric coordinates.
+    private func pointInTetrahedron(_ p: SIMD3<Float>, _ a: SIMD3<Float>, _ b: SIMD3<Float>, _ c: SIMD3<Float>, _ d: SIMD3<Float>) -> Bool {
+        func sameSide(_ v1: SIMD3<Float>, _ v2: SIMD3<Float>, _ v3: SIMD3<Float>, _ v4: SIMD3<Float>, _ p: SIMD3<Float>) -> Bool {
+            let normal = simd_cross(v2 - v1, v3 - v1)
+            let dotV4 = simd_dot(normal, v4 - v1)
+            let dotP = simd_dot(normal, p - v1)
+            return dotV4 * dotP >= 0
+        }
+        return sameSide(a, b, c, d, p) &&
+               sameSide(b, c, d, a, p) &&
+               sameSide(c, d, a, b, p) &&
+               sameSide(d, a, b, c, p)
+    }
+
     /// 3D Hilbert curve — a space-filling fractal curve that visits every cell
     /// in a cube exactly once, creating a continuous winding path.
     mutating func loadHilbertCurve() {
