@@ -2002,6 +2002,53 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    // MARK: - Julia Set (Quaternion)
+    mutating func loadJuliaSet() {
+        clearAll()
+        // 3D Julia set using quaternion iteration.
+        // For each voxel, map to continuous coordinates and iterate
+        // q = q² + c where q is a quaternion (x, y, z, 0) and c is a
+        // fixed quaternion constant chosen for visual interest.
+        // Points that don't escape are inside the Julia set.
+        let maxIter = 10
+        let bailoutSq: Float = 4.0
+        let scale: Float = 3.0 / Float(size)
+        // c constant: produces a connected, visually rich Julia set
+        let cx: Float = -0.2, cy: Float = 0.6, cz: Float = 0.2, cw: Float = 0.0
+
+        for gx in 0..<size {
+            for gy in 0..<size {
+                for gz in 0..<size {
+                    // Map voxel to [-1.5, 1.5]³
+                    var qx = (Float(gx) + 0.5) * scale - 1.5
+                    var qy = (Float(gy) + 0.5) * scale - 1.5
+                    var qz = (Float(gz) + 0.5) * scale - 1.5
+                    var qw: Float = 0.0
+
+                    var escaped = false
+                    for _ in 0..<maxIter {
+                        let rSq = qx * qx + qy * qy + qz * qz + qw * qw
+                        if rSq > bailoutSq {
+                            escaped = true
+                            break
+                        }
+                        // Quaternion square: q² = (x² - y² - z² - w², 2xy, 2xz, 2xw)
+                        let nx = qx * qx - qy * qy - qz * qz - qw * qw + cx
+                        let ny = 2.0 * qx * qy + cy
+                        let nz = 2.0 * qx * qz + cz
+                        let nw = 2.0 * qx * qw + cw
+                        qx = nx; qy = ny; qz = nz; qw = nw
+                    }
+
+                    if !escaped {
+                        setCell(x: gx, y: gy, z: gz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

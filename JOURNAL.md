@@ -12,6 +12,15 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 3. **Fixed duplicate Sierpinski Tetrahedron function** from a prior merge. Updated 21 stale theme count assertions (42→46), 8 stale (45→46), 15 stale pattern count assertions (41→42). Added 11 new tests across 2 suites: Mandelbulb Pattern (6 tests), Aquamarine Theme (5 tests).
 
+---
+## Day 12 — Session 73b (2026-03-28 22:00 PDT)
+
+**Goal**: Julia Set pattern, fix duplicate function.
+
+1. **Julia Set pattern (43rd)**: A 3D quaternion Julia set — the classic fractal companion to the Mandelbulb. While the Mandelbrot set iterates z = z² + c with c varying per point, the Julia set fixes c and varies the starting point. The implementation uses quaternion arithmetic: each voxel maps to a quaternion q = (x, y, z, 0) in [-1.5, 1.5]³, then iterates q = q² + c where c = (-0.2, 0.6, 0.2, 0.0) — a constant chosen for a connected, visually rich set.
+
+2. **Fixed duplicate loadSierpinskiTetrahedron function**: Removed a stale duplicate definition left from a previous merge. Added 11 new tests: Julia Set Pattern (6 tests), additional theme tests (5 tests).
+
 **Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
 
 ---
