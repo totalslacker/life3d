@@ -24,6 +24,15 @@ Evolution session log. Most recent entry first. Never delete entries.
 2. **Mahogany theme**: Already merged in session 81 (duplicate — kept existing definition).
 
 3. **Updated stale count assertions**: 53→54 for pattern counts, 52→53 for cyclable pattern counts across the test suite. Added 6 new tests: Boy's Surface Pattern (6 tests). Mahogany theme tests already present from session 81.
+## Day 13 — Session 84 (2026-03-29 00:08 PDT)
+
+**Goal**: Schwarz D Surface pattern, Teal theme, update test assertions.
+
+1. **Schwarz D Surface pattern (55th cyclable)**: The Schwarz Diamond Surface — a triply periodic minimal surface (TPMS) with tetrahedral symmetry, dual to the Schwarz P surface. The implicit equation sin(x)sin(y)sin(z) + sin(x)cos(y)cos(z) + cos(x)sin(y)cos(z) + cos(x)cos(y)sin(z) = 0 defines a smooth surface that divides space into two congruent labyrinthine channels interweaving at tetrahedral angles. The implementation evaluates the implicit function at each voxel over 2 periods and sets cells alive where |value| < 0.35 (a thickness threshold), producing a thin shell tracing the surface. Visually distinct from Schwarz P (cubic symmetry, straight tunnels) — the D surface has more diagonal, diamond-like channels that produce a more complex and interlocking visual pattern. Under evolution, thin regions erode from edges while smoothly curved junctions with higher neighbor density persist longer.
+
+2. **Teal theme (58th)**: Blue-green aesthetic — brilliant cyan-green newborn cells (emissive 2.1, green and blue channels strongly co-dominant at 0.85/0.75 with zero red) through medium teal young cells to dark blue-green mature cells fading to near-black. Distinct from Jade (yellow-green, warmer), Glacier (pale ice blue with more white), Ocean Blues (broader blue range with teal undertones), and Toxic (neon green with more green dominance) — Teal stays in the balanced blue-green range with green ≈ blue >> red across all tiers, evoking the color of the common teal duck's head plumage or tropical ocean shallows.
+
+3. **Updated stale count assertions**: 57→58 for theme counts, 55→56 for pattern counts, 54→55 for cyclable pattern counts. Added 11 new tests across 2 suites: Schwarz D Surface Pattern (6 tests), Teal Theme (5 tests).
 
 **Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
 

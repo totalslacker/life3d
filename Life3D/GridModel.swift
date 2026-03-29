@@ -2649,6 +2649,29 @@ struct GridModel: Sendable {
                     }
                     // Alive if near the boundary between two cells
                     if d2 - d1 < boundaryThreshold {
+    mutating func loadSchwarzDSurface() {
+        clearAll()
+        let n = size
+        // Schwarz D (Diamond) Surface — a triply periodic minimal surface.
+        // The implicit equation is: sin(x)sin(y)sin(z) + sin(x)cos(y)cos(z)
+        //   + cos(x)sin(y)cos(z) + cos(x)cos(y)sin(z) = 0
+        // This creates a smooth surface with tetrahedral symmetry that divides
+        // space into two congruent labyrinths. It is the dual of the Schwarz P
+        // surface — where P has cubic symmetry with straight tunnels, D has
+        // diamond-like channels that interweave at tetrahedral angles.
+        let half = Float(n) / 2.0
+        let periods: Float = 2.0
+        let thickness: Float = 0.35
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let fx = (Float(x) - half + 0.5) / half * Float.pi * periods
+                    let fy = (Float(y) - half + 0.5) / half * Float.pi * periods
+                    let fz = (Float(z) - half + 0.5) / half * Float.pi * periods
+                    let sx = sin(fx), sy = sin(fy), sz = sin(fz)
+                    let cx = cos(fx), cy = cos(fy), cz = cos(fz)
+                    let value = sx * sy * sz + sx * cy * cz + cx * sy * cz + cx * cy * sz
+                    if abs(value) < thickness {
                         setCell(x: x, y: y, z: z, alive: true)
                     }
                 }
