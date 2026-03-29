@@ -5239,13 +5239,46 @@ struct ChampagneThemeTests {
         #expect(theme.mature.emissiveColor.y > theme.mature.emissiveColor.z)
     }
 }
-    @Test("Vaporwave is pink-to-blue gradient (high red+blue newborn, blue-dominant mature)")
-    func vaporwavePinkBlueGradient() {
-        let theme = ColorTheme.vaporwave
-        // Newborn should have high pink (red > green, blue > green)
-        #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.y)
-        #expect(theme.newborn.emissiveColor.z > theme.newborn.emissiveColor.y)
-        // Mature should shift toward blue (blue channel dominant)
+
+// MARK: - Opal Theme Tests (Session 69)
+
+@Suite("Opal Theme Tests")
+struct OpalThemeTests {
+    @Test("Opal theme exists in allThemes")
+    func opalExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Opal" }
+        #expect(found)
+    }
+
+    @Test("Theme count is 37 after Opal addition")
+    func themeCount37() {
+        #expect(ColorTheme.allThemes.count == 37)
+    }
+
+    @Test("Opal has decreasing emissive intensity by age")
+    func opalColorProgression() {
+        let theme = ColorTheme.opal
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+
+    @Test("Opal opacity decreases with age")
+    func opalOpacityDecay() {
+        let theme = ColorTheme.opal
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+
+    @Test("Opal transitions from near-white to blue (blue channel high across all tiers)")
+    func opalWhiteToBlue() {
+        let theme = ColorTheme.opal
+        // Newborn should be near-white (all channels high, blue highest)
+        #expect(theme.newborn.emissiveColor.z >= theme.newborn.emissiveColor.x)
+        #expect(theme.newborn.emissiveColor.z >= theme.newborn.emissiveColor.y)
+        // Mature should have blue as dominant channel
         #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.x)
+        #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.y)
     }
 }
