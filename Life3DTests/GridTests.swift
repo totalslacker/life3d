@@ -8271,7 +8271,6 @@ struct AliveCountSyncTests {
         }
         #expect(countAfterLoad == manualCount)
     }
-}
 
     @Test func celadonPaleGreen() {
         let nb = ColorTheme.celadon.newborn.baseColor
@@ -8285,6 +8284,160 @@ struct AliveCountSyncTests {
         let jade = ColorTheme.jade.newborn.baseColor
         let diff = abs(celadon.x - jade.x) + abs(celadon.y - jade.y) + abs(celadon.z - jade.z)
         #expect(diff > 0.1)
+    }
+
+    // MARK: - Astroidal Ellipsoid Pattern Tests
+
+    @Test("Astroidal Ellipsoid pattern produces non-empty grid")
+    func astroidalEllipsoidNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadAstroidalEllipsoid()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Astroidal Ellipsoid pattern is roughly symmetric")
+    func astroidalEllipsoidSymmetry() {
+        var grid = GridModel(size: 16)
+        grid.loadAstroidalEllipsoid()
+        // Astroid is symmetric about all 3 axes; check cell count in each half
+        var countLow = 0
+        var countHigh = 0
+        for x in 0..<16 {
+            for y in 0..<16 {
+                for z in 0..<16 {
+                    if grid.isAlive(x: x, y: y, z: z) {
+                        if x < 8 { countLow += 1 } else { countHigh += 1 }
+                    }
+                }
+            }
+        }
+        // Symmetric within 20%
+        let ratio = Double(min(countLow, countHigh)) / Double(max(countLow, countHigh))
+        #expect(ratio > 0.8)
+    }
+
+    @Test("Astroidal Ellipsoid alive count matches manual scan")
+    func astroidalEllipsoidAliveCountConsistency() {
+        var grid = GridModel(size: 12)
+        grid.loadAstroidalEllipsoid()
+        var manualCount = 0
+        for x in 0..<12 {
+            for y in 0..<12 {
+                for z in 0..<12 {
+                    if grid.isAlive(x: x, y: y, z: z) { manualCount += 1 }
+                }
+            }
+        }
+        #expect(grid.aliveCount == manualCount)
+    }
+
+    @Test("Astroidal Ellipsoid survives at least one generation")
+    func astroidalEllipsoidSurvivesGeneration() {
+        var grid = GridModel(size: 16)
+        grid.loadAstroidalEllipsoid()
+        let initialCount = grid.aliveCount
+        grid.advanceGeneration()
+        // Pattern should produce some survivors (not instant extinction)
+        #expect(grid.aliveCount > 0)
+        #expect(grid.aliveCount != initialCount) // evolution should change population
+    }
+
+    @Test("Astroidal Ellipsoid on small grid still produces cells")
+    func astroidalEllipsoidSmallGrid() {
+        var grid = GridModel(size: 8)
+        grid.loadAstroidalEllipsoid()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Astroidal Ellipsoid distinct from Sphere")
+    func astroidalEllipsoidDistinctFromSphere() {
+        var astroid = GridModel(size: 16)
+        astroid.loadAstroidalEllipsoid()
+        var sphere = GridModel(size: 16)
+        sphere.loadSphere()
+        // Different cell counts indicates different shapes
+        #expect(astroid.aliveCount != sphere.aliveCount)
+    }
+
+    // MARK: - Denim Theme Tests
+
+    @Test func denimBlueDominant() {
+        let nb = ColorTheme.denim.newborn.baseColor
+        // Denim: blue-grey, B dominant
+        #expect(nb.z > nb.x)  // B > R
+        #expect(nb.z > nb.y)  // B > G
+    }
+
+    @Test func denimDistinctFromSlate() {
+        let denim = ColorTheme.denim.newborn.baseColor
+        let slate = ColorTheme.slate.newborn.baseColor
+        let diff = abs(denim.x - slate.x) + abs(denim.y - slate.y) + abs(denim.z - slate.z)
+        #expect(diff > 0.1)
+    }
+
+    @Test func denimDistinctFromCobalt() {
+        let denim = ColorTheme.denim.newborn.baseColor
+        let cobalt = ColorTheme.cobalt.newborn.baseColor
+        let diff = abs(denim.x - cobalt.x) + abs(denim.y - cobalt.y) + abs(denim.z - cobalt.z)
+        #expect(diff > 0.1)
+    }
+
+    @Test func denimDistinctFromIndigo() {
+        let denim = ColorTheme.denim.newborn.baseColor
+        let indigo = ColorTheme.indigo.newborn.baseColor
+        let diff = abs(denim.x - indigo.x) + abs(denim.y - indigo.y) + abs(denim.z - indigo.z)
+        #expect(diff > 0.1)
+    }
+
+    @Test func denimInAllThemes() {
+        #expect(ColorTheme.allThemes.contains(where: { $0.name == "Denim" }))
+    }
+
+    // MARK: - Performance Stress Tests
+
+    @Test("32-cube grid advances 10 generations without error")
+    func stressTest32Cube10Gens() {
+        var grid = GridModel(size: 32)
+        grid.randomSeed()
+        let initialAlive = grid.aliveCount
+        #expect(initialAlive > 0)
+        for _ in 0..<10 {
+            grid.advanceGeneration()
+        }
+        // Grid should still be functional after 10 generations
+        #expect(grid.cellCount == 32 * 32 * 32)
+    }
+
+    @Test("24-cube grid with wrapping runs 20 generations")
+    func stressTest24CubeWrapping() {
+        var grid = GridModel(size: 24)
+        grid.wrapping = true
+        grid.randomSeed()
+        for _ in 0..<20 {
+            grid.advanceGeneration()
+        }
+        // Wrapping grids tend to sustain life longer
+        #expect(grid.aliveCount >= 0) // no crash is the main assertion
+    }
+
+    @Test("Alive index tracking stays consistent through 50 generations")
+    func aliveIndexConsistency50Gens() {
+        var grid = GridModel(size: 16)
+        grid.randomSeed()
+        for _ in 0..<50 {
+            grid.advanceGeneration()
+            // Verify aliveCellIndices matches actual cells
+            var manualCount = 0
+            for x in 0..<16 {
+                for y in 0..<16 {
+                    for z in 0..<16 {
+                        if grid.isAlive(x: x, y: y, z: z) { manualCount += 1 }
+                    }
+                }
+            }
+            #expect(grid.aliveCount == manualCount)
+            #expect(grid.aliveCellIndices.count == manualCount)
+        }
     }
 }
 

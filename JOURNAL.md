@@ -16,6 +16,17 @@ Evolution session log. Most recent entry first. Never delete entries.
 1. **Richmond Surface pattern (68th cyclable)**: A minimal surface with a flat point at the origin, discovered by Herbert William Richmond. Uses the Weierstrass-Enneper parametrization with f(z)=z^(-2), g(z)=z^2. Parametrized in polar coordinates (r, θ) with r ∈ [0.3, 2.0], producing a saddle-like surface with radial folds. 6 new tests.
 
 ---
+## Day 13 — Session 99 (2026-03-29 04:50 PDT)
+
+**Goal**: Astroidal Ellipsoid pattern, Denim theme, performance stress tests.
+
+1. **Astroidal Ellipsoid pattern (68th cyclable)**: A quartic surface defined by x = cos³(u)cos³(v), y = sin³(u)cos³(v), z = sin³(v). Produces a pinched, star-shaped form with cusps along all three coordinate axes — visually distinct from Sphere (smooth), Catenoid (hyperbolic revolution), and Octahedron (flat-faced polyhedron). The cusps create a distinctive "pillow star" silhouette that erodes interestingly under evolution as the thin cusp tips dissolve first. Two-pass normalization maps parametric points to grid bounds with thickness. 6 new tests.
+2. **Denim theme (72nd)**: Blue-grey textile aesthetic — muted indigo-blue newborn cells (R 0.40, G 0.55, B 0.78) through medium steel-blue young cells to dark navy mature cells fading to near-black. Blue channel dominant across all tiers (B > G > R), but warmer and more saturated than Slate (neutral grey-blue), with more green than Cobalt (pure blue) and lighter than Indigo (deep violet-blue). Evokes the familiar washed-denim color. 5 new tests.
+3. **Performance stress tests**: Added 3 tests exercising larger grids and multi-generation consistency — 32³ grid through 10 generations, 24³ wrapping grid through 20 generations, and a 50-generation alive-index consistency check on 16³ that verifies `aliveCount` and `aliveCellIndices.count` match a manual cell scan every generation.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 13 — Session 98 (2026-03-29 04:35 PDT)
 
 **Goal**: Celadon theme (merged alongside Kuen Surface from parallel polecat).

@@ -457,6 +457,8 @@ final class SimulationEngine {
             grid.loadRichmondSurface()
         case .bohemianDome:
             grid.loadBohemianDome()
+        case .astroidalEllipsoid:
+            grid.loadAstroidalEllipsoid()
         case .clear:
             grid.clearAll()
         }
@@ -550,6 +552,7 @@ final class SimulationEngine {
         case kuenSurface = "Kuen Surface"
         case richmondSurface = "Richmond Surface"
         case bohemianDome = "Bohemian Dome"
+        case astroidalEllipsoid = "Astroidal Ellipsoid"
         case clear = "Clear"
 
         var id: String { rawValue }
