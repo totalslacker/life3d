@@ -1353,6 +1353,35 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadGyroid() {
+        clearAll()
+        // Scale so one full period of the gyroid fits in the grid
+        let freq = 2.0 * Float.pi / Float(size)
+        // Threshold for the implicit surface |sin(x)cos(y) + sin(y)cos(z) + sin(z)cos(x)| < t
+        let threshold: Float = 0.3
+
+        for x in 0..<size {
+            let fx = Float(x) * freq * 2.0
+            let sinX = sin(fx)
+            let cosX = cos(fx)
+            for y in 0..<size {
+                let fy = Float(y) * freq * 2.0
+                let sinY = sin(fy)
+                let cosY = cos(fy)
+                for z in 0..<size {
+                    let fz = Float(z) * freq * 2.0
+                    let sinZ = sin(fz)
+                    let cosZ = cos(fz)
+                    let val = sinX * cosY + sinY * cosZ + sinZ * cosX
+                    if abs(val) < threshold {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

@@ -376,6 +376,8 @@ final class SimulationEngine {
             grid.loadLissajous()
         case .kleinBottle:
             grid.loadKleinBottle()
+        case .gyroid:
+            grid.loadGyroid()
         case .clear:
             grid.clearAll()
         }
@@ -429,6 +431,7 @@ final class SimulationEngine {
         case mobiusStrip = "Möbius Strip"
         case lissajous = "Lissajous Curve"
         case kleinBottle = "Klein Bottle"
+        case gyroid = "Gyroid"
         case clear = "Clear"
 
         var id: String { rawValue }
