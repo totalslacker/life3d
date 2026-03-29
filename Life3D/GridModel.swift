@@ -3269,6 +3269,46 @@ struct GridModel: Sendable {
             }
         }
         guard !points.isEmpty else { return }
+        var minX = Float.greatestFiniteMagnitude, maxX = -Float.greatestFiniteMagnitude
+        var minY = Float.greatestFiniteMagnitude, maxY = -Float.greatestFiniteMagnitude
+        var minZ = Float.greatestFiniteMagnitude, maxZ = -Float.greatestFiniteMagnitude
+        for (px, py, pz) in points {
+            minX = min(minX, px); maxX = max(maxX, px)
+            minY = min(minY, py); maxY = max(maxY, py)
+            minZ = min(minZ, pz); maxZ = max(maxZ, pz)
+        }
+        let extX = maxX - minX
+        let extY = maxY - minY
+        let extZ = maxZ - minZ
+        let maxExt = max(extX, max(extY, extZ))
+        guard maxExt > 0 else { return }
+        let scale = half * 1.5 / maxExt
+        let cx = (minX + maxX) / 2.0
+        let cy = (minY + maxY) / 2.0
+        let cz = (minZ + maxZ) / 2.0
+        let t = Int(thickness)
+        for (px, py, pz) in points {
+            let ix = Int(half + (px - cx) * scale)
+            let iy = Int(half + (py - cy) * scale)
+            let iz = Int(half + (pz - cz) * scale)
+            for dx in -t...t {
+                for dy in -t...t {
+                    for dz in -t...t {
+                        let dist = sqrt(Float(dx * dx + dy * dy + dz * dz))
+                        if dist <= thickness {
+                            let gx = ix + dx
+                            let gy = iy + dy
+                            let gz = iz + dz
+                            if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                                setCell(x: gx, y: gy, z: gz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
 
     /// Richmond Surface — a minimal surface with a flat point at the origin.
     /// Uses the Weierstrass-Enneper parametrization with f(z) = z^(-2), g(z) = z^2.
@@ -3470,6 +3510,40 @@ struct GridModel: Sendable {
                                 setCell(x: gx, y: gy, z: gz, alive: true)
                             }
                         }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    /// Barth Sextic: a degree-6 algebraic surface with icosahedral symmetry.
+    /// Defined implicitly as: 4(φ²x²−y²)(φ²y²−z²)(φ²z²−x²) − (1+2φ)(x²+y²+z²−1)² = 0
+    /// where φ = (1+√5)/2 (golden ratio). Has 65 double points — the maximum for a sextic.
+    mutating func loadBarthSextic() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let phi: Float = (1.0 + sqrt(5.0)) / 2.0
+        let phi2 = phi * phi
+        let coeff = 1.0 + 2.0 * phi
+        let threshold: Float = 0.15
+        let range: Float = 1.3
+        for xi in 0..<n {
+            let x = (Float(xi) - half + 0.5) / half * range
+            let x2 = x * x
+            for yi in 0..<n {
+                let y = (Float(yi) - half + 0.5) / half * range
+                let y2 = y * y
+                for zi in 0..<n {
+                    let z = (Float(zi) - half + 0.5) / half * range
+                    let z2 = z * z
+                    let r2 = x2 + y2 + z2
+                    let term1 = 4.0 * (phi2 * x2 - y2) * (phi2 * y2 - z2) * (phi2 * z2 - x2)
+                    let term2 = coeff * (r2 - 1.0) * (r2 - 1.0)
+                    let value = term1 - term2
+                    if abs(value) < threshold {
+                        setCell(x: xi, y: yi, z: zi, alive: true)
                     }
                 }
             }

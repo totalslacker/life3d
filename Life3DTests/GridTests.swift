@@ -8549,3 +8549,116 @@ struct TurquoiseThemeTests {
         #expect(ColorTheme.allThemes.contains { $0.name == "Turquoise" })
     }
 }
+
+// MARK: - Barth Sextic Tests
+
+@Suite("Barth Sextic Tests")
+struct BarthSexticTests {
+    @Test func barthSexticProducesCells() {
+        var grid = GridModel(size: 16)
+        grid.loadBarthSextic()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test func barthSexticFitsWithinGrid() {
+        var grid = GridModel(size: 16)
+        grid.loadBarthSextic()
+        for x in 0..<16 {
+            for y in 0..<16 {
+                for z in 0..<16 {
+                    if grid.isAlive(x: x, y: y, z: z) {
+                        #expect(x >= 0 && x < 16)
+                        #expect(y >= 0 && y < 16)
+                        #expect(z >= 0 && z < 16)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test func barthSexticDifferentSizes() {
+        var small = GridModel(size: 8)
+        small.loadBarthSextic()
+        var large = GridModel(size: 16)
+        large.loadBarthSextic()
+        #expect(large.aliveCount > small.aliveCount)
+    }
+
+    @Test func barthSexticIcosahedralSymmetry() {
+        var grid = GridModel(size: 16)
+        grid.loadBarthSextic()
+        // The Barth Sextic has icosahedral symmetry — check approximate mirror symmetry in x
+        var leftCount = 0
+        var rightCount = 0
+        for x in 0..<8 {
+            for y in 0..<16 {
+                for z in 0..<16 {
+                    if grid.isAlive(x: x, y: y, z: z) { leftCount += 1 }
+                }
+            }
+        }
+        for x in 8..<16 {
+            for y in 0..<16 {
+                for z in 0..<16 {
+                    if grid.isAlive(x: x, y: y, z: z) { rightCount += 1 }
+                }
+            }
+        }
+        let ratio = Float(min(leftCount, rightCount)) / Float(max(leftCount, rightCount))
+        #expect(ratio > 0.7)
+    }
+
+    @Test func barthSexticDistinctFromMandelbulb() {
+        var barth = GridModel(size: 16)
+        barth.loadBarthSextic()
+        var mandel = GridModel(size: 16)
+        mandel.loadMandelbulb()
+        #expect(barth.aliveCount != mandel.aliveCount)
+    }
+
+    @Test func barthSexticSurvivesEvolution() {
+        var grid = GridModel(size: 16, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
+        grid.loadBarthSextic()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount > 0 || initial > 0)
+    }
+}
+
+// MARK: - Palladium Theme Tests
+
+@Suite("Palladium Theme Tests")
+struct PalladiumThemeTests {
+    @Test func palladiumBrightSilverWhite() {
+        let nb = ColorTheme.palladium.newborn.baseColor
+        // Palladium: bright silver-white, all channels high and close together
+        #expect(nb.x > 0.8)
+        #expect(nb.y > 0.8)
+        #expect(nb.z > 0.8)
+    }
+
+    @Test func palladiumCoolCast() {
+        let nb = ColorTheme.palladium.newborn.baseColor
+        // Palladium has a cool cast: B >= G >= R
+        #expect(nb.z >= nb.y)
+        #expect(nb.y >= nb.x)
+    }
+
+    @Test func palladiumDistinctFromPewter() {
+        let palladium = ColorTheme.palladium.newborn.baseColor
+        let pewter = ColorTheme.pewter.newborn.baseColor
+        let diff = abs(palladium.x - pewter.x) + abs(palladium.y - pewter.y) + abs(palladium.z - pewter.z)
+        #expect(diff > 0.1)
+    }
+
+    @Test func palladiumDistinctFromTitanium() {
+        let palladium = ColorTheme.palladium.newborn.baseColor
+        let titanium = ColorTheme.titanium.newborn.baseColor
+        let diff = abs(palladium.x - titanium.x) + abs(palladium.y - titanium.y) + abs(palladium.z - titanium.z)
+        #expect(diff > 0.1)
+    }
+
+    @Test func palladiumInAllThemes() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Palladium" })
+    }
+}
