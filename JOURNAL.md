@@ -2,6 +2,19 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 74 (2026-03-28 22:05 PDT)
+
+**Goal**: Cantor Dust pattern, Bronze theme, fix stale test assertions.
+
+1. **Cantor Dust pattern (43rd)**: A 3D generalization of the Cantor set — the classic fractal formed by recursively removing the middle third of an interval. In 3D, each recursion level divides the cube into 27 sub-cubes (3×3×3) and keeps only the 8 corner sub-cubes, discarding the 19 that touch a middle third on any axis. After k iterations, 8^k cubes remain out of 27^k, giving a fractal dimension of ln(8)/ln(3) ≈ 1.89. The implementation uses recursive subdivision with depth scaled to grid size (3 levels for 27+ grids, 2 for 9+). The result is a dust-like structure with self-similar voids at every scale. Under evolution, the isolated corner clusters lose surface cells first while the dense cube interiors sustain, progressively revealing the fractal's hierarchical structure.
+
+2. **Bronze theme (48th)**: Warm metallic brown-gold aesthetic — brilliant gold-bronze newborn cells (emissive 2.2, red 0.9, green 0.65, blue 0.25) through darker brown young cells to deep dark bronze mature cells fading to near-black. Distinct from Copper (reddish-orange metallic), Gold (pure bright yellow-gold), and Tungsten (cool grey metallic) — Bronze stays in the warm brown-gold range with red always dominant over green over blue, evoking the warm patina of cast bronze.
+
+3. **Fixed 29 stale theme count assertions (46→48), 1 stale (47→48), 16 stale pattern count assertions (42→43)**. Added 11 new tests across 2 suites: Cantor Dust Pattern (6 tests), Bronze Theme (5 tests).
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 73 (2026-03-28 21:55 PDT)
 
 **Goal**: Mandelbulb pattern, Aquamarine theme, fix duplicate Sierpinski Tetrahedron.

@@ -2049,6 +2049,55 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadCantorDust() {
+        clearAll()
+        // Cantor Dust: 3D generalization of the Cantor set. Start with the full
+        // cube and recursively remove the middle third along each axis. At each
+        // recursion level, the cube is divided into 27 sub-cubes (3×3×3) and only
+        // the 8 corner sub-cubes are kept — the same rule applied along x, y, z.
+        // After k iterations, 8^k cubes remain out of 27^k, giving fractal
+        // dimension ln(8)/ln(3) ≈ 1.89. The result is a dust-like structure with
+        // self-similar voids at every scale.
+        let maxDepth = size >= 27 ? 3 : (size >= 9 ? 2 : 1)
+
+        func fillCantor(x0: Int, y0: Int, z0: Int, span: Int, depth: Int) {
+            if depth >= maxDepth || span <= 1 {
+                // Base case: fill the entire sub-cube
+                for gx in x0..<min(x0 + span, size) {
+                    for gy in y0..<min(y0 + span, size) {
+                        for gz in z0..<min(z0 + span, size) {
+                            setCell(x: gx, y: gy, z: gz, alive: true)
+                        }
+                    }
+                }
+                return
+            }
+            let third = span / 3
+            if third < 1 { // span too small to subdivide further
+                for gx in x0..<min(x0 + span, size) {
+                    for gy in y0..<min(y0 + span, size) {
+                        for gz in z0..<min(z0 + span, size) {
+                            setCell(x: gx, y: gy, z: gz, alive: true)
+                        }
+                    }
+                }
+                return
+            }
+            // Recurse into the 8 corner sub-cubes only (skip middle third on each axis)
+            for dx in [0, 2] {
+                for dy in [0, 2] {
+                    for dz in [0, 2] {
+                        fillCantor(x0: x0 + dx * third, y0: y0 + dy * third,
+                                   z0: z0 + dz * third, span: third, depth: depth + 1)
+                    }
+                }
+            }
+        }
+
+        fillCantor(x0: 0, y0: 0, z0: 0, span: size, depth: 0)
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
