@@ -2,6 +2,13 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 98 (2026-03-29 04:35 PDT)
+
+**Goal**: Celadon theme (merged alongside Kuen Surface from parallel polecat).
+
+1. **Celadon theme (71st)**: Pale jade-green ceramic glaze aesthetic — soft celadon-green newborn cells (R 0.68, G 0.85, B 0.72) through medium sage-green young cells to dark forest mature cells fading to near-black. Distinct from Jade (deeper blue-green), Viridian (cooler blue-green), Sage (greyer, more desaturated), and Moss (darker earthy green) — Celadon stays in the pale warm-green range with G > B > R across all tiers, evoking the famous pale green glaze of Chinese celadon pottery. 5 new tests.
+
+---
 ## Day 13 — Session 97 (2026-03-29 04:30 PDT)
 
 **Goal**: Kuen Surface pattern, Pewter theme, rebuildAliveCellIndices defensive fix.
