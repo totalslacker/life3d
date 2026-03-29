@@ -2555,6 +2555,54 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadBoysSurface() {
+        clearAll()
+        let n = size
+        // Boy's Surface — an immersion of the real projective plane into R³
+        // without singular points (unlike the Roman Surface which has pinch points).
+        // Discovered by Werner Boy in 1901 as a counterexample to Hilbert's conjecture.
+        // The parametric form uses Bryant-Kusner coordinates:
+        //   x = (√2 cos²v cos(2u) + cos(u) sin(2v)) / D
+        //   y = (√2 cos²v sin(2u) - sin(u) sin(2v)) / D
+        //   z = (3 cos²v) / D
+        // where D = 2 - √2 sin(3u) sin(2v)
+        // This produces a smooth, three-lobed surface with elegant three-fold
+        // symmetry. Under evolution, the thin lobes erode from their edges
+        // while the dense triple junction at the center persists longer.
+        let half = Float(n) / 2.0
+        let scale = half * 0.7
+        let uSteps = n * 8
+        let vSteps = n * 4
+        for ui in 0..<uSteps {
+            let u = Float(ui) / Float(uSteps) * Float.pi
+            for vi in 0..<vSteps {
+                let v = Float(vi) / Float(vSteps) * Float.pi / 2.0
+                let cosV = cos(v)
+                let sinV = sin(v)
+                let cos2V = cosV * cosV
+                let sin2V = 2.0 * sinV * cosV // sin(2v)
+                let cosU = cos(u)
+                let sinU = sin(u)
+                let cos2U = cos(2.0 * u)
+                let sin2U = sin(2.0 * u)
+                let sin3U = sin(3.0 * u)
+                let sqrt2: Float = 1.41421356
+                let denom = 2.0 - sqrt2 * sin3U * sin2V
+                guard abs(denom) > 0.001 else { continue }
+                let px = (sqrt2 * cos2V * cos2U + cosU * sin2V) / denom
+                let py = (sqrt2 * cos2V * sin2U - sinU * sin2V) / denom
+                let pz = (3.0 * cos2V) / denom
+                let gx = Int((px * scale) + half)
+                let gy = Int((py * scale) + half)
+                let gz = Int((pz * scale * 0.5) + half)
+                if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                    setCell(x: gx, y: gy, z: gz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

@@ -421,6 +421,8 @@ final class SimulationEngine {
             grid.loadSchwarzPSurface()
         case .cliffordTorus:
             grid.loadCliffordTorus()
+        case .boysSurface:
+            grid.loadBoysSurface()
         case .clear:
             grid.clearAll()
         }
@@ -496,6 +498,7 @@ final class SimulationEngine {
         case romanSurface = "Roman Surface"
         case schwarzPSurface = "Schwarz P Surface"
         case cliffordTorus = "Clifford Torus"
+        case boysSurface = "Boy's Surface"
         case clear = "Clear"
 
         var id: String { rawValue }

@@ -2,6 +2,19 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 82 (2026-03-29 00:00 PDT)
+
+**Goal**: Boy's Surface pattern, update test assertions.
+
+1. **Boy's Surface pattern (52nd cyclable)**: Werner Boy's 1901 immersion of the real projective plane into R³ — a smooth, non-singular counterexample to Hilbert's conjecture that no such immersion exists. Unlike the Roman Surface (which has pinch-point singularities), Boy's Surface is a smooth immersion with elegant three-fold symmetry. The implementation uses Bryant-Kusner parametric coordinates: x = (√2 cos²v cos(2u) + cos(u) sin(2v)) / D, y = (√2 cos²v sin(2u) - sin(u) sin(2v)) / D, z = (3 cos²v) / D, where D = 2 - √2 sin(3u) sin(2v). The surface is sampled densely over u ∈ [0,π] and v ∈ [0,π/2] and mapped onto the voxel grid. The result is a three-lobed pinwheel-like surface that is smooth everywhere — visually distinct from the Roman Surface (four lobes with singular points) and the Klein Bottle (closed non-orientable tube). Under evolution, the thin lobes erode from their edges while the dense triple junction at the center persists longer.
+
+2. **Mahogany theme**: Already merged in session 81 (duplicate — kept existing definition).
+
+3. **Updated stale count assertions**: 53→54 for pattern counts, 52→53 for cyclable pattern counts across the test suite. Added 6 new tests: Boy's Surface Pattern (6 tests). Mahogany theme tests already present from session 81.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 80 (2026-03-28 23:55 PDT)
 
 **Goal**: Schwarz P Surface pattern, Indigo theme, update test assertions.
