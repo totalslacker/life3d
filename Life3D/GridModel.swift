@@ -1571,6 +1571,46 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Sierpinski Tetrahedron — a 3D fractal formed by the chaos game on a
+    /// regular tetrahedron. The algorithm randomly picks one of four tetrahedron
+    /// vertices and moves halfway toward it from the current point, plotting each
+    /// result. After many iterations, the attractor converges to the Sierpinski
+    /// tetrahedron (also known as a tetrix), a self-similar fractal with Hausdorff
+    /// dimension 2. Under evolution, the fractal's porous structure creates varied
+    /// neighbor densities — dense cluster zones persist while sparse fractal dust
+    /// erodes quickly.
+    mutating func loadSierpinskiTetrahedron() {
+        clearAll()
+        let s = Float(size)
+
+        // Regular tetrahedron vertices filling the grid
+        let vertices: [SIMD3<Float>] = [
+            SIMD3<Float>(s * 0.5, s * 0.1, s * 0.5),
+            SIMD3<Float>(s * 0.1, s * 0.9, s * 0.2),
+            SIMD3<Float>(s * 0.9, s * 0.9, s * 0.2),
+            SIMD3<Float>(s * 0.5, s * 0.9, s * 0.9)
+        ]
+
+        // Chaos game: iterate many times
+        let iterations = size * size * size * 4
+        var point = SIMD3<Float>(s * 0.5, s * 0.5, s * 0.5)
+
+        // Simple LCG for deterministic results
+        var seed: UInt64 = 42
+        for _ in 0..<iterations {
+            seed = seed &* 6364136223846793005 &+ 1442695040888963407
+            let vi = Int((seed >> 33) % 4)
+            point = (point + vertices[vi]) * 0.5
+            let gx = Int(point.x)
+            let gy = Int(point.y)
+            let gz = Int(point.z)
+            if gx >= 0 && gx < size && gy >= 0 && gy < size && gz >= 0 && gz < size {
+                setCell(x: gx, y: gy, z: gz, alive: true)
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     /// the sequence of turns is mirrored and appended with a right turn.
     /// The result is extruded into 3D by stacking layers with alternating
     /// orientations, producing a space-filling fractal slab.
@@ -1891,6 +1931,57 @@ struct GridModel: Sendable {
                     let idx2d = row * size + col
                     if !exterior[idx2d] { // interior or boundary
                         setCell(x: col, y: row, z: gz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    /// Reuleaux Tetrahedron — a 3D curve of constant width formed by the intersection
+    /// of four spheres, each centered at one vertex of a regular tetrahedron with radius
+    /// equal to the tetrahedron's edge length. The resulting solid has curved triangular
+    /// faces and is the simplest non-spherical body of constant width in 3D. Under
+    /// evolution, the curved surfaces erode while the thicker central region persists.
+    mutating func loadReuleauxTetrahedron() {
+        clearAll()
+        let s = Float(size)
+        let center = s / 2.0
+        let edge = s * 0.45 // edge length scaled to grid
+
+        // Regular tetrahedron vertices centered in grid
+        let sqrt3 = Float(3.0).squareRoot()
+        let sqrt6 = Float(6.0).squareRoot()
+        let vertices: [SIMD3<Float>] = [
+            SIMD3<Float>(0, 1, 0),
+            SIMD3<Float>(-sqrt3 / 3.0, -1.0 / 3.0, sqrt6 / 3.0),
+            SIMD3<Float>(sqrt3 * 2.0 / 3.0, -1.0 / 3.0, 0),
+            SIMD3<Float>(-sqrt3 / 3.0, -1.0 / 3.0, -sqrt6 / 3.0)
+        ]
+
+        // Scale and center the tetrahedron vertices
+        let scale = edge / 2.0
+        let scaledVertices = vertices.map { v in
+            SIMD3<Float>(v.x * scale + center, v.y * scale + center, v.z * scale + center)
+        }
+
+        let radiusSq = edge * edge // sphere radius = edge length
+
+        // A point is inside the Reuleaux tetrahedron if it's within ALL four spheres
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let p = SIMD3<Float>(Float(x) + 0.5, Float(y) + 0.5, Float(z) + 0.5)
+                    var insideAll = true
+                    for sv in scaledVertices {
+                        let d = p - sv
+                        if simd_length_squared(d) > radiusSq {
+                            insideAll = false
+                            break
+                        }
+                    }
+                    if insideAll {
+                        setCell(x: x, y: y, z: z, alive: true)
                     }
                 }
             }

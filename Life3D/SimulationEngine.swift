@@ -256,6 +256,7 @@ final class SimulationEngine {
                         self.extinctionCounter = 0
                         self.showExtinctionNotice = true
                         self.generation = 0
+                        self.peakPopulation = 0
                         self._historyWriteIndex = 0
                         self._historyCount = 0
                         self._trendWriteIndex = 0
@@ -394,6 +395,8 @@ final class SimulationEngine {
             grid.loadKochSnowflake()
         case .torusKnot:
             grid.loadTorusKnot()
+        case .reuleauxTetrahedron:
+            grid.loadReuleauxTetrahedron()
         case .clear:
             grid.clearAll()
         }
@@ -456,6 +459,7 @@ final class SimulationEngine {
         case apollonianGasket = "Apollonian Gasket"
         case kochSnowflake = "Koch Snowflake"
         case torusKnot = "Torus Knot"
+        case reuleauxTetrahedron = "Reuleaux Tetrahedron"
         case clear = "Clear"
 
         var id: String { rawValue }
