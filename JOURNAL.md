@@ -2,6 +2,23 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 72 (2026-03-28 19:30 PDT)
+
+**Goal**: Enneper Surface pattern, Emerald theme, fix missing Sierpinski Tetrahedron loader.
+
+Three improvements:
+
+1. **Enneper Surface pattern (38th)**: A classic minimal surface discovered by Alfred Enneper in 1864. The surface is defined by the parametric equations x(u,v) = u - u³/3 + uv², y(u,v) = v - v³/3 + vu², z(u,v) = u² - v². The resulting shape is a self-intersecting saddle surface with beautiful undulating ruffled edges that extend outward from the center. The implementation samples u,v over [-1.8, 1.8] at high density, scales to fit the grid, and rasterizes with 3x3 thickness for solid surface visibility. Under evolution, the thin ruffled edges erode first due to low neighbor density, while the dense central crossing region persists longer, creating an elegant progressive collapse from the periphery inward.
+
+2. **Emerald theme (44th)**: Deep green gemstone aesthetic — brilliant green newborn cells (emissive 2.3, green channel at 0.95 with low red and blue) through medium green young cells to dark forest green mature cells fading to near-black. Distinct from Forest (muted olive-green), Jade (blue-green tint), Toxic (neon yellow-green), and Matrix (pure digital green with zero warmth) — Emerald has a rich, saturated gem green with warm undertones (subtle red presence) that stays green-dominant across all tiers, evoking the deep color of natural emerald gemstones. Complements Ruby and Sapphire as a gemstone trio.
+
+3. **Restored missing Sierpinski Tetrahedron loader**: The `loadSierpinskiTetrahedron()` function was lost in a prior merge, causing build failure. Restored via chaos game algorithm: starting from the centroid of 4 tetrahedral vertices, repeatedly jumping halfway to a random vertex for 50K+ iterations, marking each position. Uses a deterministic PRNG for reproducibility. Also updated 25 stale theme count assertions (40/41/43→44) and 12 stale pattern count assertions (38→39). Added 11 new tests across 2 suites: Enneper Surface (6 tests), Emerald Theme (5 tests).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 71b (2026-03-28 19:01 PDT)
 
 **Goal**: Apollonian Gasket pattern, Titanium theme, fix stale test assertions.

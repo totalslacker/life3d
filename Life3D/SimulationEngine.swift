@@ -390,6 +390,8 @@ final class SimulationEngine {
             grid.loadCatenoid()
         case .apollonianGasket:
             grid.loadApollonianGasket()
+        case .enneperSurface:
+            grid.loadEnneperSurface()
         case .clear:
             grid.clearAll()
         }
@@ -450,6 +452,7 @@ final class SimulationEngine {
         case dragonCurve = "Dragon Curve"
         case catenoid = "Catenoid"
         case apollonianGasket = "Apollonian Gasket"
+        case enneperSurface = "Enneper Surface"
         case clear = "Clear"
 
         var id: String { rawValue }

@@ -1537,6 +1537,38 @@ struct GridModel: Sendable {
     /// takes when stretched between two parallel rings. The surface is defined
     /// parametrically: x = c·cosh(v/c)·cos(u), y = c·cosh(v/c)·sin(u), z = v,
     /// where u ∈ [0, 2π) is the angle around the axis and v spans the height.
+    mutating func loadSierpinskiTetrahedron() {
+        clearAll()
+        // Chaos game algorithm: start at a random point inside a tetrahedron,
+        // repeatedly jump halfway to a randomly chosen vertex, and mark each position.
+        let center = Float(size) / 2.0
+        let radius = Float(size) * 0.42
+        // Tetrahedral vertices
+        let verts: [SIMD3<Float>] = [
+            SIMD3<Float>(0, 1, -1.0 / sqrt(2.0)),
+            SIMD3<Float>(-sqrt(2.0 / 3.0) * sqrt(3.0) / 2.0, -0.5, -1.0 / sqrt(2.0)),
+            SIMD3<Float>(sqrt(2.0 / 3.0) * sqrt(3.0) / 2.0, -0.5, -1.0 / sqrt(2.0)),
+            SIMD3<Float>(0, 0, sqrt(6.0) / 3.0 - 1.0 / sqrt(2.0))
+        ].map { $0 * radius + SIMD3<Float>(repeating: center) }
+
+        var point = (verts[0] + verts[1] + verts[2] + verts[3]) / 4.0
+        let iterations = max(50000, size * size * size * 4)
+        // Simple deterministic PRNG for reproducibility
+        var rng: UInt64 = 42
+        for _ in 0..<iterations {
+            rng = rng &* 6364136223846793005 &+ 1442695040888963407
+            let vi = Int((rng >> 33) % 4)
+            point = (point + verts[vi]) / 2.0
+            let gx = Int(point.x)
+            let gy = Int(point.y)
+            let gz = Int(point.z)
+            if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+                setCell(x: gx, y: gy, z: gz, alive: true)
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     /// The parameter c controls the waist radius. The result is a smooth
     /// hourglass-shaped surface that thins at the middle and flares at the ends.
     mutating func loadCatenoid() {
@@ -1702,6 +1734,47 @@ struct GridModel: Sendable {
                         let dz = Float(gz) + 0.5 - sCenter.z
                         if dx * dx + dy * dy + dz * dz <= rSq {
                             setCell(x: gx, y: gy, z: gz, alive: true)
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    mutating func loadEnneperSurface() {
+        clearAll()
+        // Enneper surface: a minimal surface defined by the parametric equations
+        // x(u,v) = u - u³/3 + u·v²
+        // y(u,v) = v - v³/3 + v·u²
+        // z(u,v) = u² - v²
+        // We sample u,v in [-range, range] and map to grid coordinates.
+        let center = Float(size) / 2.0
+        let range: Float = 1.8 // parameter range for interesting shape
+        let steps = max(120, size * 8) // sampling density
+
+        for ui in 0..<steps {
+            let u = -range + Float(ui) / Float(steps - 1) * 2.0 * range
+            for vi in 0..<steps {
+                let v = -range + Float(vi) / Float(steps - 1) * 2.0 * range
+                let px = u - (u * u * u) / 3.0 + u * v * v
+                let py = v - (v * v * v) / 3.0 + v * u * u
+                let pz = u * u - v * v
+
+                // Scale to fit grid (Enneper extends roughly [-range³, range³])
+                let maxExtent = range + range * range * range / 3.0 + range * range * range
+                let scale = Float(size - 2) / (2.0 * maxExtent)
+                let gx = Int(px * scale + center)
+                let gy = Int(py * scale + center)
+                let gz = Int(pz * scale + center)
+
+                // Rasterize with thickness for solid surface
+                for dx in -1...1 {
+                    for dy in -1...1 {
+                        let fx = gx + dx
+                        let fy = gy + dy
+                        if fx >= 0, fx < size, fy >= 0, fy < size, gz >= 0, gz < size {
+                            setCell(x: fx, y: fy, z: gz, alive: true)
                         }
                     }
                 }
