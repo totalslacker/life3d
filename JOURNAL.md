@@ -40,6 +40,15 @@ Three improvements:
 
 3. **Updated 14 stale pattern count assertions (36→37), 2 stale cyclable count assertions (35→36), and 3 stale theme count assertions (40→41)**. Added 11 new tests across 2 new suites: Catenoid Pattern (6 tests: non-empty, cell count bounds, engine enum, index consistency, evolution dynamics, pattern count 37), Ruby Theme (5 tests: existence, theme count 41, color progression, opacity decay, red dominance).
 
+---
+## Day 12 — Session 71-garnet (2026-03-28 19:11 PDT)
+
+**Goal**: Garnet theme addition (Apollonian Gasket pattern already merged from parallel session).
+
+1. **Garnet theme (44th)**: Deep wine-red gemstone aesthetic — brilliant crimson-red newborn cells (emissive 2.2, red channel at 0.9 with very low green and blue) through rich burgundy young cells to dark wine-red mature cells fading to near-black. Distinct from Ruby (pure deep red), Crimson (bright vivid red), Ember (fiery orange-red) — Garnet stays in the deep wine-red range evoking pyrope garnets.
+
+2. **Added Garnet theme tests**: 5 tests (existence, theme count, color progression, opacity decay, red dominance).
+
 Build verified clean on visionOS Simulator.
 
 **Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.

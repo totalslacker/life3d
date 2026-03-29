@@ -1574,6 +1574,41 @@ struct GridModel: Sendable {
     /// the sequence of turns is mirrored and appended with a right turn.
     /// The result is extruded into 3D by stacking layers with alternating
     /// orientations, producing a space-filling fractal slab.
+    /// Sierpinski tetrahedron via chaos game algorithm — the 3D analogue of
+    /// the Sierpinski triangle. Points converge to the fractal by iteratively
+    /// jumping halfway toward randomly chosen tetrahedron vertices.
+    mutating func loadSierpinskiTetrahedron() {
+        clearAll()
+        let s = Float(size)
+        let margin: Float = 1.0
+        let extent = s - 2.0 * margin
+
+        // Tetrahedron vertices scaled to fit the grid
+        let vertices: [SIMD3<Float>] = [
+            SIMD3(margin + extent / 2.0, margin, margin + extent / 2.0),
+            SIMD3(margin, margin + extent, margin),
+            SIMD3(margin + extent, margin + extent, margin),
+            SIMD3(margin + extent / 2.0, margin + extent, margin + extent)
+        ]
+
+        // Chaos game: start at a random vertex, iterate
+        let iterations = size * size * size * 4
+        var point = vertices[0]
+        for i in 0..<iterations {
+            let target = vertices[i % 4]  // deterministic cycling gives good coverage
+            point = (point + target) / 2.0
+            if i > 10 {  // skip initial transient
+                let gx = Int(round(point.x))
+                let gy = Int(round(point.y))
+                let gz = Int(round(point.z))
+                if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+                    setCell(x: gx, y: gy, z: gz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func loadDragonCurve() {
         clearAll()
         // Build 2D dragon curve turn sequence: R=1, L=0
