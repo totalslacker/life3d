@@ -1447,6 +1447,49 @@ struct GridModel: Sendable {
                             let gz = cz + ddz
                             if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
                                 setCell(x: gx, y: gy, z: gz, alive: true)
+        let scale = Float(size) / 2.5
+        let tubeRadius: Float = 1.2
+        let uSteps = 200
+        let vSteps = 80
+
+        // Figure-8 Klein bottle immersion in 3D
+        // x = (a + cos(v/2)*sin(u) - sin(v/2)*sin(2u)) * cos(v)
+        // y = (a + cos(v/2)*sin(u) - sin(v/2)*sin(2u)) * sin(v)
+        // z = sin(v/2)*sin(u) + cos(v/2)*sin(2u)
+        let a: Float = 2.0
+
+        for ui in 0..<uSteps {
+            let u = Float(ui) / Float(uSteps) * 2.0 * .pi
+            for vi in 0..<vSteps {
+                let v = Float(vi) / Float(vSteps) * 2.0 * .pi
+                let halfV = v / 2.0
+                let sinU = sin(u)
+                let sin2U = sin(2.0 * u)
+                let cosHV = cos(halfV)
+                let sinHV = sin(halfV)
+                let r = a + cosHV * sinU - sinHV * sin2U
+
+                let px = scale * r * cos(v)
+                let py = scale * r * sin(v)
+                let pz = scale * (sinHV * sinU + cosHV * sin2U)
+
+                let gx = Int(round(px + mid - 0.5))
+                let gy = Int(round(py + mid - 0.5))
+                let gz = Int(round(pz + mid - 0.5))
+
+                // Rasterize as thick tube
+                let tr = Int(ceil(tubeRadius))
+                for dx in -tr...tr {
+                    for dy in -tr...tr {
+                        for dz in -tr...tr {
+                            let dist = sqrt(Float(dx * dx + dy * dy + dz * dz))
+                            if dist <= tubeRadius {
+                                let cx = gx + dx
+                                let cy = gy + dy
+                                let cz = gz + dz
+                                if cx >= 0, cx < size, cy >= 0, cy < size, cz >= 0, cz < size {
+                                    setCell(x: cx, y: cy, z: cz, alive: true)
+                                }
                             }
                         }
                     }
