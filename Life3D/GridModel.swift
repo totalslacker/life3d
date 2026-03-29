@@ -2810,6 +2810,31 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadSteinmetzSolid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let r = half * 0.75  // radius — 75% of half-grid for good fill
+        let rSq = r * r
+        for x in 0..<n {
+            let fx = Float(x) - half + 0.5
+            for y in 0..<n {
+                let fy = Float(y) - half + 0.5
+                for z in 0..<n {
+                    let fz = Float(z) - half + 0.5
+                    // Intersection of three cylinders along x, y, z axes
+                    let cyl1 = fx * fx + fy * fy  // cylinder along z-axis
+                    let cyl2 = fx * fx + fz * fz  // cylinder along y-axis
+                    let cyl3 = fy * fy + fz * fz  // cylinder along x-axis
+                    if cyl1 <= rSq && cyl2 <= rSq && cyl3 <= rSq {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
