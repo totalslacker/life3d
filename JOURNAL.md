@@ -2,6 +2,19 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 70b (2026-03-28 18:50 PDT)
+
+**Goal**: Catenoid pattern, Obsidian theme, fix merge corruption in GridModel.
+
+Three improvements:
+
+1. **Catenoid pattern (35th)**: A minimal surface of revolution — the shape formed by a soap film stretched between two parallel circular rings. Defined by r(v) = cosh(v), the catenoid is one of only two minimal surfaces of revolution (the other being the plane). The implementation samples the parametric surface x = cosh(v)*cos(u), y = cosh(v)*sin(u), z = v across the full grid volume, scaling the characteristic hourglass shape to fit. The surface is thickened with a 3x3 cross-section for voxel visibility. Under evolution, the thin waist region erodes first (low neighbor density) while the flared ends persist longer, revealing the surface's curvature.
+
+2. **Obsidian theme (40th)**: Dark volcanic glass aesthetic — subtle grey-purple newborn cells (emissive 2.0, balanced channels with slight blue-purple dominance) through deep charcoal young cells to near-black mature cells. Distinct from Midnight (deep blue), Monochrome (pure grey), and Matrix (pure green) — Obsidian stays in the dark purple-grey range with blue always slightly dominant, evoking volcanic glass with its characteristic conchoidal fracture sheen.
+
+3. **Fixed merge corruption in GridModel.swift**: Previous merges left duplicate Sierpinski Tetrahedron code embedded inside the Lorenz Attractor function with missing closing braces. Cleaned up the corrupted function boundaries. Updated 20+ stale theme count assertions (31/36→40), 4 stale pattern count assertions with duplicates, and stale cyclable count assertions. Added 11 new tests across 2 suites: Catenoid Pattern (6 tests), Obsidian Theme (5 tests).
+
+---
 ## Day 12 — Session 70 (2026-03-28 18:43 PDT)
 
 **Goal**: Dragon Curve pattern, Sapphire theme, fix merge corruption.

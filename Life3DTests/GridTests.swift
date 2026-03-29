@@ -1111,8 +1111,7 @@ struct ForestThemeTests {
 
     @Test("All themes count is 16 after Sunset, Twilight, and Jade additions")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Forest theme has green color progression")
@@ -1307,8 +1306,7 @@ struct PopulationTrendTests {
 
     @Test("All themes count is 22 after adding Jade")
     func allThemesCount16() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Jade theme has cool green-to-dark progression")
@@ -1399,8 +1397,7 @@ struct CrimsonThemeTests {
 
     @Test("Theme count is 22 with Crimson")
     func themeCount17() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Crimson stays in pure red family — newborn through mature")
@@ -1835,8 +1832,7 @@ struct CopperThemeTests {
 
     @Test("allThemes contains 24 themes")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 36, "Should have 36 themes total")
-        #expect(ColorTheme.allThemes.count == 31, "Should have 31 themes total")
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Copper has warm metallic color progression")
@@ -2057,8 +2053,7 @@ struct GoldThemeTests {
 
     @Test("Total theme count is 22")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Gold has warm metallic color progression")
@@ -3004,8 +2999,7 @@ struct VolcanicThemeTests {
 
     @Test("Theme count is 22 with Volcanic")
     func themeCount22() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Volcanic theme has lava-to-obsidian color progression")
@@ -3451,8 +3445,7 @@ struct PlasmaThemeTests {
 
     @Test("Theme count is 24 with Plasma and Arctic")
     func themeCount24() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Plasma has white-hot to deep purple progression")
@@ -3854,8 +3847,7 @@ struct ArcticThemeTests {
 
     @Test("Theme count is 24")
     func themeCount24() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Frost newborn is brightest tier")
@@ -3941,8 +3933,7 @@ struct SetCellAgePreservationTests {
 struct ColorThemeCompletenessTests {
     @Test("allThemes contains exactly the expected count")
     func allThemesCount() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("All theme names are unique")
@@ -4286,8 +4277,7 @@ struct SolarThemeTests {
 
     @Test("Theme count is 26 after Solar addition")
     func themeCount26() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Solar newborn is brightest tier")
@@ -4321,15 +4311,13 @@ struct PatternCountSession61Tests {
     @Test("Total pattern count is 28 (27 + clear)")
     func totalPatternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 36)
-        #expect(allPatterns.count == 36)
+        #expect(allPatterns.count == 37)
     }
 
     @Test("Cyclable patterns is 27 (excludes clear)")
     func cyclablePatternCount() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
         #expect(cyclable.count == 35)
-        #expect(cyclable.count == 30)
     }
 }
 
@@ -4407,8 +4395,7 @@ struct ToxicThemeTests {
 
     @Test("Theme count is 27 after Toxic addition")
     func themeCount27() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Toxic has decreasing emissive intensity by age")
@@ -4510,8 +4497,7 @@ struct StarfieldThemeTests {
 
     @Test("Theme count is 28 after Starfield addition")
     func themeCount28() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Starfield has decreasing emissive intensity by age")
@@ -4585,8 +4571,7 @@ struct MobiusStripPatternTests {
     @Test("Pattern count is 29 after Möbius Strip addition")
     func patternCount29() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 36)
-        #expect(allPatterns.count == 36)
+        #expect(allPatterns.count == 37)
     }
 }
 
@@ -4602,8 +4587,7 @@ struct HologramThemeTests {
 
     @Test("Theme count is 29 after Hologram addition")
     func themeCount29() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Hologram has decreasing emissive intensity by age")
@@ -4679,8 +4663,7 @@ struct LissajousCurvePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount30() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 36)
-        #expect(allPatterns.count == 36)
+        #expect(allPatterns.count == 37)
     }
 }
 
@@ -4696,8 +4679,7 @@ struct CyberpunkThemeTests {
 
     @Test("Theme count is 31 after Vaporwave addition")
     func themeCount30() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Cyberpunk has decreasing emissive intensity by age")
@@ -4785,8 +4767,7 @@ struct KleinBottlePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount31() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 36)
-        #expect(allPatterns.count == 36)
+        #expect(allPatterns.count == 37)
     }
 }
 
@@ -4802,8 +4783,7 @@ struct VaporwaveThemeTests {
 
     @Test("Theme count is 31 after Vaporwave addition")
     func themeCount31() {
-        #expect(ColorTheme.allThemes.count == 36)
-        #expect(ColorTheme.allThemes.count == 31)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Vaporwave has decreasing emissive intensity by age")
@@ -4894,7 +4874,7 @@ struct SynthwaveThemeTests {
 
     @Test("Theme count is 34 after Synthwave addition")
     func themeCount34() {
-        #expect(ColorTheme.allThemes.count == 36)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Synthwave has decreasing emissive intensity by age")
@@ -4986,7 +4966,7 @@ struct TerracottaThemeTests {
 
     @Test("Theme count is 34 after Terracotta addition")
     func themeCount34() {
-        #expect(ColorTheme.allThemes.count == 36)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Terracotta has decreasing emissive intensity by age")
@@ -5078,7 +5058,7 @@ struct LavenderThemeTests {
 
     @Test("Theme count is 34 after Lavender addition")
     func themeCount34() {
-        #expect(ColorTheme.allThemes.count == 36)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Lavender has decreasing emissive intensity by age")
@@ -5119,7 +5099,7 @@ struct MatrixThemeTests {
 
     @Test("Theme count is 35 after Matrix addition")
     func themeCount35() {
-        #expect(ColorTheme.allThemes.count == 36)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Matrix has decreasing emissive intensity by age")
@@ -5211,7 +5191,7 @@ struct ChampagneThemeTests {
 
     @Test("Theme count is 36 after Champagne addition")
     func themeCount36() {
-        #expect(ColorTheme.allThemes.count == 36)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Champagne has decreasing emissive intensity by age")
@@ -5252,7 +5232,7 @@ struct OpalThemeTests {
 
     @Test("Theme count is 37 after Opal addition")
     func themeCount37() {
-        #expect(ColorTheme.allThemes.count == 37)
+        #expect(ColorTheme.allThemes.count == 40)
     }
 
     @Test("Opal has decreasing emissive intensity by age")
@@ -5407,10 +5387,58 @@ struct DragonCurvePatternTests {
         #expect(grid.aliveCount != initial)
     }
 
-    @Test("Pattern count is 36 after Dragon Curve addition")
-    func patternCount36() {
+    @Test("Pattern count is 37 after Dragon Curve and Catenoid additions")
+    func patternCount37() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 36)
+        #expect(allPatterns.count == 37)
+    }
+}
+
+// MARK: - Catenoid Pattern Tests (Session 70)
+
+@Suite("Catenoid Pattern Tests")
+struct CatenoidPatternTests {
+    @Test("Catenoid produces non-empty grid")
+    func catenoidNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadCatenoid()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Catenoid cell count is within expected bounds")
+    func catenoidCellBounds() {
+        var grid = GridModel(size: 16)
+        grid.loadCatenoid()
+        #expect(grid.aliveCount > 100)
+        #expect(grid.aliveCount < 16 * 16 * 16)
+    }
+
+    @Test("Catenoid is available in Pattern enum")
+    func catenoidEnumCase() {
+        let pattern = SimulationEngine.Pattern.catenoid
+        #expect(pattern.rawValue == "Catenoid")
+    }
+
+    @Test("Catenoid aliveCellIndices matches aliveCount")
+    func catenoidIndexConsistency() {
+        var grid = GridModel(size: 16)
+        grid.loadCatenoid()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+
+    @Test("Catenoid evolves under standard rules")
+    func catenoidEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadCatenoid()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount != initial)
+    }
+
+    @Test("Pattern count is 37 after Catenoid addition")
+    func patternCount37() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.count == 37)
     }
 }
 
@@ -5424,9 +5452,9 @@ struct SapphireThemeTests {
         #expect(found)
     }
 
-    @Test("Theme count is 40 after Sapphire addition")
-    func themeCount40() {
-        #expect(ColorTheme.allThemes.count == 40)
+    @Test("Theme count is 41 after Sapphire and Obsidian additions")
+    func themeCount41() {
+        #expect(ColorTheme.allThemes.count == 41)
     }
 
     @Test("Sapphire has decreasing emissive intensity by age")
@@ -5452,5 +5480,46 @@ struct SapphireThemeTests {
         #expect(theme.newborn.emissiveColor.z > theme.newborn.emissiveColor.y)
         #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.x)
         #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.y)
+    }
+}
+
+// MARK: - Obsidian Theme Tests (Session 70)
+
+@Suite("Obsidian Theme Tests")
+struct ObsidianThemeTests {
+    @Test("Obsidian theme exists in allThemes")
+    func obsidianExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Obsidian" }
+        #expect(found)
+    }
+
+    @Test("Theme count is 41 after Obsidian addition")
+    func themeCount41() {
+        #expect(ColorTheme.allThemes.count == 41)
+    }
+
+    @Test("Obsidian has decreasing emissive intensity by age")
+    func obsidianColorProgression() {
+        let theme = ColorTheme.obsidian
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+
+    @Test("Obsidian opacity decreases with age")
+    func obsidianOpacityDecay() {
+        let theme = ColorTheme.obsidian
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+
+    @Test("Obsidian is dark purple-grey (blue >= red >= green across tiers)")
+    func obsidianDarkPurpleGrey() {
+        let theme = ColorTheme.obsidian
+        #expect(theme.newborn.emissiveColor.z >= theme.newborn.emissiveColor.x)
+        #expect(theme.newborn.emissiveColor.x >= theme.newborn.emissiveColor.y)
+        #expect(theme.mature.emissiveColor.z >= theme.mature.emissiveColor.x)
+        #expect(theme.mature.emissiveColor.x >= theme.mature.emissiveColor.y)
     }
 }
