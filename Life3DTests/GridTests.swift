@@ -5282,3 +5282,44 @@ struct OpalThemeTests {
         #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.y)
     }
 }
+
+// MARK: - Rose Gold Theme Tests (Session 69)
+
+@Suite("Rose Gold Theme Tests")
+struct RoseGoldThemeTests {
+    @Test("Rose Gold theme exists in allThemes")
+    func roseGoldExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Rose Gold" }
+        #expect(found)
+    }
+
+    @Test("Theme count is 38 after Rose Gold addition")
+    func themeCount38() {
+        #expect(ColorTheme.allThemes.count == 38)
+    }
+
+    @Test("Rose Gold has decreasing emissive intensity by age")
+    func roseGoldColorProgression() {
+        let theme = ColorTheme.roseGold
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+
+    @Test("Rose Gold opacity decreases with age")
+    func roseGoldOpacityDecay() {
+        let theme = ColorTheme.roseGold
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+
+    @Test("Rose Gold is warm pink (red dominant across all tiers)")
+    func roseGoldWarmPink() {
+        let theme = ColorTheme.roseGold
+        #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.y)
+        #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.z)
+        #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.y)
+        #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.z)
+    }
+}
