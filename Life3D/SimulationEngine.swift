@@ -433,6 +433,8 @@ final class SimulationEngine {
             grid.loadScherkSurface()
         case .dupinCyclide:
             grid.loadDupinCyclide()
+        case .monkeySaddle:
+            grid.loadMonkeySaddle()
         case .helicoid:
             grid.loadHelicoid()
         case .steinmetzSolid:
@@ -518,6 +520,7 @@ final class SimulationEngine {
         case diniSurface = "Dini's Surface"
         case scherkSurface = "Scherk Surface"
         case dupinCyclide = "Dupin Cyclide"
+        case monkeySaddle = "Monkey Saddle"
         case helicoid = "Helicoid"
         case steinmetzSolid = "Steinmetz Solid"
         case clear = "Clear"

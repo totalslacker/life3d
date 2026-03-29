@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 91 (2026-03-29 00:45 PDT)
+
+**Goal**: Monkey Saddle pattern, Cerulean theme.
+
+1. **Monkey Saddle pattern (61st cyclable)**: z = x³ - 3xy² — a surface with three-fold saddle symmetry. 5 new tests.
+2. **Cerulean theme (62nd)**: Sky blue aesthetic with blue-dominant channels. 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 13 — Session 90 (2026-03-29 00:40 PDT)
 
 **Goal**: Helicoid pattern.

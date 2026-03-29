@@ -2810,6 +2810,29 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadMonkeySaddle() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 2.0 / half
+        let zScale = half / 8.0
+        let thickness: Float = 0.8
+        for gx in 0..<n {
+            for gy in 0..<n {
+                let x = (Float(gx) - half + 0.5) * scale
+                let y = (Float(gy) - half + 0.5) * scale
+                let zSurface = (x * x * x - 3.0 * x * y * y) * zScale + half
+                for gz in 0..<n {
+                    let zGrid = Float(gz)
+                    if abs(zGrid - zSurface) < thickness {
+                        setCell(x: gx, y: gy, z: gz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func loadHelicoid() {
         clearAll()
         let n = size
