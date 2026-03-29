@@ -2,6 +2,25 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 63 (2026-03-28 17:15 PDT)
+
+**Goal**: Icosahedron pattern (5th Platonic solid), Hologram theme, tests.
+
+Three improvements:
+
+1. **Icosahedron pattern (28th)**: A wireframe regular icosahedron — the 5th and final Platonic solid, with 20 triangular faces, 12 vertices, and 30 edges. Vertices are computed from golden ratio coordinates (pairs on each axis plane: (0, ±1, ±φ) and cyclic permutations). Edges are identified by angular distance between normalized vertices on the unit sphere. Each edge is rendered as a thick tube (radius 1.3) sampled densely along its length. Under evolution, thin edge sections erode first while vertex junctions (where 5 edges meet, creating highest local neighbor density among Platonic solids) persist longest, producing a distinctive pentagonal fragmentation pattern. Has perfect inversion symmetry. Completes all five Platonic solids in the pattern library (Block/cube, Tetrahedron, Octahedron, Dodecahedron, Icosahedron).
+
+2. **Hologram theme (28th)**: Bright cyan-white newborn cells (emissive 2.3) through electric blue-magenta young cells to deep indigo mature cells fading to near-black. Distinct from Glacier (soft ice blues), Ocean Blues (deep sea), and Nebula (purple/pink gas) — Hologram uses a cyan-to-magenta color shift with high saturation, mimicking sci-fi holographic display interference patterns.
+
+3. **Updated stale assertions**: 11 theme count assertions (27→28), 2 pattern count assertions (26→28 total, 25→27 cyclable).
+
+Added 11 tests across 2 new suites: Icosahedron Pattern (6 tests: non-empty, edge count bounds, inversion symmetry, engine enum, index consistency, evolution dynamics), Hologram Theme (5 tests: existence, theme count 28, color progression, opacity decay, cyan dominance).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 62 (2026-03-28 14:05 PDT)
 
 **Goal**: Dodecahedron pattern, Toxic theme, tests.

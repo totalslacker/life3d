@@ -579,7 +579,32 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.3, opacity: 0.08)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic]
+    /// Hologram — bright cyan-white newborn cells through electric blue-magenta young
+    /// cells to deep indigo mature cells, evoking sci-fi holographic displays. High initial
+    /// emissive (2.3) gives a clean, digital glow. Distinct from Glacier (soft ice blues),
+    /// Ocean Blues (deep sea), and Nebula (purple/pink gas) — Hologram uses a cyan-magenta
+    /// color shift with high saturation, mimicking light interference patterns.
+    static let hologram = ColorTheme(
+        name: "Hologram",
+        newborn: TierColors(
+            baseColor: SIMD4(0.7, 1.0, 1.0, 1.0),
+            emissiveColor: SIMD3(0.6, 1.0, 1.0),
+            emissiveIntensity: 2.3, opacity: 0.62),
+        young: TierColors(
+            baseColor: SIMD4(0.3, 0.5, 1.0, 1.0),
+            emissiveColor: SIMD3(0.4, 0.3, 0.95),
+            emissiveIntensity: 1.5, opacity: 0.40),
+        mature: TierColors(
+            baseColor: SIMD4(0.5, 0.1, 0.6, 1.0),
+            emissiveColor: SIMD3(0.4, 0.05, 0.5),
+            emissiveIntensity: 0.8, opacity: 0.24),
+        dying: TierColors(
+            baseColor: SIMD4(0.15, 0.02, 0.25, 1.0),
+            emissiveColor: SIMD3(0.1, 0.01, 0.2),
+            emissiveIntensity: 0.3, opacity: 0.08)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .hologram]
 }
 
 enum GridRenderer {

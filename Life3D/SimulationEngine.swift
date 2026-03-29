@@ -368,6 +368,8 @@ final class SimulationEngine {
             grid.loadOctahedron()
         case .dodecahedron:
             grid.loadDodecahedron()
+        case .icosahedron:
+            grid.loadIcosahedron()
         case .clear:
             grid.clearAll()
         }
@@ -417,6 +419,7 @@ final class SimulationEngine {
         case tetrahedron = "Tetrahedron"
         case octahedron = "Octahedron"
         case dodecahedron = "Dodecahedron"
+        case icosahedron = "Icosahedron"
         case clear = "Clear"
 
         var id: String { rawValue }
