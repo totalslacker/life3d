@@ -445,6 +445,8 @@ final class SimulationEngine {
             grid.loadCostaSurface()
         case .breatherSurface:
             grid.loadBreatherSurface()
+        case .seashell:
+            grid.loadSeashell()
         case .clear:
             grid.clearAll()
         }
@@ -532,6 +534,7 @@ final class SimulationEngine {
         case crossCap = "Cross-Cap"
         case costaSurface = "Costa Surface"
         case breatherSurface = "Breather Surface"
+        case seashell = "Seashell"
         case clear = "Clear"
 
         var id: String { rawValue }

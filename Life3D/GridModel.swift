@@ -2960,13 +2960,6 @@ struct GridModel: Sendable {
     mutating func loadCostaSurface() {
         clearAll()
         let n = size
-        // Costa's minimal surface — discovered by Celso Costa (1984), first
-        // complete embedded minimal surface of finite topology found after the
-        // plane, catenoid, and helicoid. It has genus 1 (one handle) and three
-        // ends: two catenoidal (opening up and down) and one planar (spreading
-        // outward at the waist). We approximate with a thickened implicit form:
-        // a catenoid-like body with a horizontal plane punched through at the
-        // waist, creating the characteristic three-pronged silhouette.
         let half = Float(n) / 2.0
         let scale: Float = 3.0 / half
         let thickness: Float = 0.7
@@ -2978,10 +2971,8 @@ struct GridModel: Sendable {
                 let r = sqrt(rSq)
                 for gz in 0..<n {
                     let z = (Float(gz) - half + 0.5) * scale
-                    // Catenoid: r = cosh(z) — a surface of revolution
                     let catenoidR = cosh(z)
                     let distCatenoid = abs(r - catenoidR)
-                    // Planar end at z=0 — a disc that extends outward
                     let distPlane = abs(z)
                     let planeRadius: Float = 2.5
                     let inPlane = distPlane < thickness * 0.6 && r < planeRadius
@@ -2999,12 +2990,6 @@ struct GridModel: Sendable {
         clearAll()
         let n = size
         let half = Float(n) / 2.0
-        // Breather surface: a pseudospherical surface from soliton theory.
-        // Parametric form with parameter b (0 < b < 1):
-        //   denom = b * ((1 - b²) * cosh(b*u))² + b² * sin(√(1-b²)*v)²
-        //   x = -u + (2 * (1-b²) * cosh(b*u) * sinh(b*u)) / denom
-        //   y = (2 * √(1-b²) * cosh(b*u) * (-√(1-b²) * cos(v) * cos(√(1-b²)*v) - sin(v) * sin(√(1-b²)*v))) / denom
-        //   z = (2 * √(1-b²) * cosh(b*u) * (-√(1-b²) * sin(v) * cos(√(1-b²)*v) + cos(v) * sin(√(1-b²)*v))) / denom
         let b: Float = 0.4
         let b2 = b * b
         let w = sqrt(1.0 - b2)
@@ -3012,14 +2997,11 @@ struct GridModel: Sendable {
         let vSteps = n * 6
         let uRange: Float = 14.0
         let vRange: Float = Float.pi * 2.0
-
-        // First pass: find extent for scaling
         var minX: Float = .greatestFiniteMagnitude, maxX: Float = -.greatestFiniteMagnitude
         var minY: Float = .greatestFiniteMagnitude, maxY: Float = -.greatestFiniteMagnitude
         var minZ: Float = .greatestFiniteMagnitude, maxZ: Float = -.greatestFiniteMagnitude
         var points: [(Float, Float, Float)] = []
         points.reserveCapacity(uSteps * vSteps)
-
         for ui in 0..<uSteps {
             let u = -uRange / 2.0 + Float(ui) / Float(uSteps) * uRange
             let cbu = cosh(b * u)
@@ -3038,7 +3020,6 @@ struct GridModel: Sendable {
                 minZ = min(minZ, pz); maxZ = max(maxZ, pz)
             }
         }
-
         let rangeX = maxX - minX
         let rangeY = maxY - minY
         let rangeZ = maxZ - minZ
@@ -3049,7 +3030,6 @@ struct GridModel: Sendable {
         let cy = (minY + maxY) / 2.0
         let cz = (minZ + maxZ) / 2.0
         let thickness: Float = 0.6
-
         for (px, py, pz) in points {
             let ix = Int(half + (px - cx) * scale)
             let iy = Int(half + (py - cy) * scale)
@@ -3065,6 +3045,59 @@ struct GridModel: Sendable {
                             let nz = iz + dz
                             if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
                                 setCell(x: nx, y: ny, z: nz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    mutating func loadSeashell() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let uSteps = n * 8
+        let vSteps = n * 8
+        let scale = half * 0.75
+        let thickness: Float = 0.6
+        let a: Float = 0.2
+        let b: Float = 0.1
+        let c: Float = 0.1
+        let nTurns: Float = 3.0
+        for ui in 0..<uSteps {
+            let u = Float(ui) / Float(uSteps) * 2.0 * Float.pi
+            let cosU = cos(u)
+            let sinU = sin(u)
+            for vi in 0..<vSteps {
+                let v = Float(vi) / Float(vSteps) * nTurns * 2.0 * Float.pi
+                let ev = exp(b * v)
+                let r = a * ev
+                let R = ev
+                let px = (R + r * cosU) * cos(v)
+                let py = (R + r * cosU) * sin(v)
+                let pz = -c * v + r * sinU
+                let maxExtent = exp(b * nTurns * 2.0 * Float.pi) * (1.0 + a)
+                let norm = 1.0 / maxExtent
+                let nx = px * norm
+                let ny = py * norm
+                let nz = pz * norm + 0.3
+                let ix = Int(half + nx * scale)
+                let iy = Int(half + ny * scale)
+                let iz = Int(half + nz * scale)
+                let t = Int(thickness)
+                for dx in -t...t {
+                    for dy in -t...t {
+                        for dz in -t...t {
+                            let dist = sqrt(Float(dx * dx + dy * dy + dz * dz))
+                            if dist <= thickness {
+                                let gx = ix + dx
+                                let gy = iy + dy
+                                let gz = iz + dz
+                                if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                                    setCell(x: gx, y: gy, z: gz, alive: true)
+                                }
                             }
                         }
                     }

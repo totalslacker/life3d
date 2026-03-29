@@ -9,6 +9,14 @@ Evolution session log. Most recent entry first. Never delete entries.
 1. **Breather Surface pattern (63rd cyclable)**: A pseudospherical surface from soliton theory — the parametric form uses a deformation parameter b=0.4, producing an undulating, pulsing surface with intricate self-intersecting folds. The implementation computes the full parametric equations with a two-pass approach: first pass collects all surface points and finds the bounding extent, second pass maps normalized coordinates to grid cells with thickness. Visually distinct from Enneper Surface (simpler polynomial minimal surface) and Dini's Surface (helical pseudospherical) — the Breather has a characteristic breathing/pulsing form with multiple lobes. 6 new tests.
 2. **Sage theme (64th)**: Muted grey-green aesthetic — soft sage-green newborn cells (emissive 2.1, green 0.78 slightly dominant over red 0.68 with subdued blue 0.65) through medium olive-grey young cells to dark grey-green mature cells fading to near-black. Distinct from Moss (deep earthy green), Forest (darker pure green), Chartreuse (bright yellow-green), and Jade (blue-green) — Sage stays in the desaturated grey-green range with G > R > B across all tiers, evoking the dusty silver-green of sage leaves. 5 new tests.
 
+---
+## Day 13 — Session 93b (2026-03-29 03:30 PDT)
+
+**Goal**: Seashell pattern, Ochre theme.
+
+1. **Seashell pattern (64th cyclable)**: A parametric logarithmic spiral surface — a tube whose radius grows exponentially while sweeping around a helical spine, producing an organic gastropod shell shape. Parametrized with opening radius a=0.2, growth rate b=0.1, descent rate c=0.1 over 3 turns. Visually distinct from Helix (thin spiraling curves without expanding tube) and Torus (uniform ring). Under evolution, the thin outer lip erodes first while the dense inner whorls persist. 7 new tests.
+2. **Ochre theme (66th)**: Warm earthy yellow-brown aesthetic — vivid golden-yellow newborn cells (R 0.92, G 0.72, B 0.20) through medium amber-brown young cells to deep brown mature cells fading to near-black. Distinct from Saffron (golden-orange, more red), Gold (bright metallic, more G), Bronze (darker metallic brown), and Warm Amber (lighter orange). Ochre stays in the warm yellow-brown range with R > G >> B across all tiers, evoking the natural earth pigment. 5 new tests.
+
 **Next Steps**: Performance profiling at 32x32x32. App icon design.
 
 ---
