@@ -12,6 +12,19 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 3. **Updated stale count assertions**: 54→55 for theme counts, 51→52 for pattern counts, 50→51 for cyclable pattern counts across the test suite. Added 11 new tests across 2 suites: Schwarz P Surface Pattern (6 tests), Indigo Theme (5 tests).
 
+**Next Steps**: Continue pattern and theme expansion.
+
+---
+## Day 12 — Session 81 (2026-03-28 23:58 PDT)
+
+**Goal**: Clifford Torus pattern, Mahogany theme, update test assertions.
+
+1. **Clifford Torus pattern (51st)**: The Clifford torus — a flat torus living in the 3-sphere S³ ⊂ R⁴, stereographically projected into R³. The Clifford torus is the set of points (cos θ, sin θ, cos φ, sin φ)/√2 in S³, which is a product of two circles S¹ × S¹ embedded in 4D. Stereographic projection from the north pole (0,0,0,1) maps (x₁,x₂,x₃,x₄) → (x₁,x₂,x₃)/(1-x₄), producing a torus in R³ whose curvature varies due to the projection distortion — unlike a standard parametric torus which has uniform tube thickness. The implementation densely samples θ and φ over [0, 2π], computes the S³ point, then projects to R³ and maps onto the voxel grid. Points near the projection pole (x₄ ≈ 1) are skipped to avoid singularity. The resulting structure is a smooth torus surface with varying thickness — visually distinct from the standard Torus pattern (uniform ring). Under evolution, thinner regions erode first while the denser curved sections persist.
+
+2. **Mahogany theme (56th)**: Deep warm red-brown wood aesthetic — rich red-brown newborn cells (emissive 2.0, red channel dominant at 0.75 with low green 0.22 and very low blue 0.08) through darker brown young cells to deep chocolate-brown mature cells fading to near-black. Distinct from Vermilion (vivid red-orange, much brighter/hotter), Crimson (cool blue-red), Bronze (gold-brown metallic with more green), Ember (orange-yellow fire gradient), and Terracotta (earthy orange-brown with more green) — Mahogany stays in the deep red-brown range with red > 3× green and red > 9× blue across all tiers, evoking the rich dark heartwood of Swietenia mahogany lumber.
+
+3. **Updated stale count assertions**: 55→56 for theme counts, 52→53 for pattern counts, 51→52 for cyclable pattern counts across the test suite. Added 11 new tests across 2 suites: Clifford Torus Pattern (6 tests), Mahogany Theme (5 tests).
+
 **Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
 
 ---

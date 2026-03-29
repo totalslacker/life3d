@@ -2509,6 +2509,52 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Clifford Torus — the flat torus in S³ stereographically projected to R³.
+    /// The Clifford torus is the set of points (cos θ, sin θ, cos φ, sin φ)/√2
+    /// in S³ ⊂ R⁴. Stereographic projection from the north pole (0,0,0,1) maps
+    /// (x₁,x₂,x₃,x₄) → (x₁,x₂,x₃)/(1-x₄), producing a torus in R³ whose
+    /// shape depends on the projection point. The result is a smoothly curved
+    /// torus with even surface density — visually distinct from the standard
+    /// parametric torus (which has uniform thickness) because the stereographic
+    /// distortion creates varying curvature. Under evolution, the thin surface
+    /// erodes from the outer rim first while the denser inner ring persists.
+    mutating func loadCliffordTorus() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let steps = n * 12  // dense sampling for smooth surface
+        let invSqrt2: Float = 1.0 / sqrt(2.0)
+        let scale = Float(n) * 0.28  // keep torus within grid bounds
+        for i in 0..<steps {
+            let theta = 2.0 * Float.pi * Float(i) / Float(steps)
+            let cosTheta = cos(theta)
+            let sinTheta = sin(theta)
+            for j in 0..<steps {
+                let phi = 2.0 * Float.pi * Float(j) / Float(steps)
+                let cosPhi = cos(phi)
+                let sinPhi = sin(phi)
+                // Point on Clifford torus in S³
+                let x1 = cosTheta * invSqrt2
+                let x2 = sinTheta * invSqrt2
+                let x3 = cosPhi * invSqrt2
+                let x4 = sinPhi * invSqrt2
+                // Stereographic projection from (0,0,0,1)
+                let denom = 1.0 - x4
+                if abs(denom) < 0.01 { continue }  // skip near-pole singularity
+                let px = scale * x1 / denom
+                let py = scale * x2 / denom
+                let pz = scale * x3 / denom
+                let gx = Int((px + half).rounded())
+                let gy = Int((py + half).rounded())
+                let gz = Int((pz + half).rounded())
+                if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                    setCell(x: gx, y: gy, z: gz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

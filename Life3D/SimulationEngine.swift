@@ -419,6 +419,8 @@ final class SimulationEngine {
             grid.loadRomanSurface()
         case .schwarzPSurface:
             grid.loadSchwarzPSurface()
+        case .cliffordTorus:
+            grid.loadCliffordTorus()
         case .clear:
             grid.clearAll()
         }
@@ -493,6 +495,7 @@ final class SimulationEngine {
         case perlinNoise = "Perlin Noise"
         case romanSurface = "Roman Surface"
         case schwarzPSurface = "Schwarz P Surface"
+        case cliffordTorus = "Clifford Torus"
         case clear = "Clear"
 
         var id: String { rawValue }
