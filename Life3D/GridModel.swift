@@ -1989,6 +1989,57 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadMandelbulb() {
+        clearAll()
+        // Mandelbulb: 3D extension of the Mandelbrot set using spherical coordinates.
+        // For each voxel, map to [-1.5, 1.5]³ and iterate z = z^n + c where the power
+        // operation uses spherical coordinates: (r, θ, φ) → (r^n, nθ, nφ).
+        // The power-8 Mandelbulb is the most visually striking variant.
+        let n: Float = 8.0
+        let maxIter = 8
+        let bailout: Float = 2.0
+        let bailoutSq = bailout * bailout
+        let scale: Float = 3.0 / Float(size)  // Map grid to [-1.5, 1.5]³
+
+        for gx in 0..<size {
+            for gy in 0..<size {
+                for gz in 0..<size {
+                    // Map to continuous coordinates centered at origin
+                    let cx = (Float(gx) + 0.5) * scale - 1.5
+                    let cy = (Float(gy) + 0.5) * scale - 1.5
+                    let cz = (Float(gz) + 0.5) * scale - 1.5
+
+                    var zx = cx, zy = cy, zz = cz
+                    var escaped = false
+
+                    for _ in 0..<maxIter {
+                        let rSq = zx * zx + zy * zy + zz * zz
+                        if rSq > bailoutSq {
+                            escaped = true
+                            break
+                        }
+                        let r = sqrt(rSq)
+                        let theta = acos(zz / max(r, 1e-10))
+                        let phi = atan2(zy, zx)
+
+                        let rN = pow(r, n)
+                        let nTheta = n * theta
+                        let nPhi = n * phi
+
+                        zx = rN * sin(nTheta) * cos(nPhi) + cx
+                        zy = rN * sin(nTheta) * sin(nPhi) + cy
+                        zz = rN * cos(nTheta) + cz
+                    }
+
+                    if !escaped {
+                        setCell(x: gx, y: gy, z: gz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

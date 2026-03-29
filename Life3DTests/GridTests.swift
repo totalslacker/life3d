@@ -4195,9 +4195,9 @@ struct AliveMapResetRegressionTests {
     func patternCount() {
         // 33 total patterns (including Clear), 32 cyclable (excluding Clear)
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 40)
+        #expect(cyclable.count == 41)
     }
 }
 
@@ -4311,13 +4311,13 @@ struct PatternCountSession61Tests {
     @Test("Total pattern count is 28 (27 + clear)")
     func totalPatternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 
     @Test("Cyclable patterns is 27 (excludes clear)")
     func cyclablePatternCount() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
-        #expect(cyclable.count == 40)
+        #expect(cyclable.count == 41)
     }
 }
 
@@ -4571,7 +4571,7 @@ struct MobiusStripPatternTests {
     @Test("Pattern count is 29 after Möbius Strip addition")
     func patternCount29() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -4663,7 +4663,7 @@ struct LissajousCurvePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount30() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -4767,7 +4767,7 @@ struct KleinBottlePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount31() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -4858,7 +4858,7 @@ struct GyroidPatternTests {
     @Test("Pattern count is 34 after Gyroid addition")
     func patternCount33() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -4950,7 +4950,7 @@ struct LorenzAttractorPatternTests {
     @Test("Pattern count is 34 after Lorenz Attractor addition")
     func patternCount34() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -5042,7 +5042,7 @@ struct HilbertCurvePatternTests {
     @Test("Pattern count is 35 after Hilbert Curve addition")
     func patternCount35() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -5175,7 +5175,7 @@ struct SierpinskiTetrahedronPatternTests {
     @Test("Pattern count is 36 after Sierpinski Tetrahedron addition")
     func patternCount36() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -5390,7 +5390,7 @@ struct DragonCurvePatternTests {
     @Test("Pattern count is 37 after Dragon Curve and Catenoid additions")
     func patternCount37() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -5438,7 +5438,7 @@ struct CatenoidPatternTests {
     @Test("Pattern count is 37 after Catenoid addition")
     func patternCount37() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -5569,7 +5569,7 @@ struct KochSnowflakePatternTests {
     @Test("Pattern count is 39 after Koch Snowflake addition")
     func patternCount39() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -5658,7 +5658,7 @@ struct ApollonianGasketPatternTests {
     @Test("Pattern count is 39 after Apollonian Gasket addition")
     func patternCount39() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -5788,7 +5788,7 @@ struct TorusKnotPatternTests {
     @Test("Pattern count is 40 after Torus Knot addition")
     func patternCount40() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -5877,7 +5877,7 @@ struct ReuleauxTetrahedronPatternTests {
     @Test("Pattern count is 41 after Reuleaux Tetrahedron addition")
     func patternCount41() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 41)
+        #expect(allPatterns.count == 42)
     }
 }
 
@@ -5919,5 +5919,53 @@ struct TungstenThemeTests {
         #expect(theme.newborn.emissiveColor.y > theme.newborn.emissiveColor.z)
         #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.y)
         #expect(theme.mature.emissiveColor.y > theme.mature.emissiveColor.z)
+    }
+}
+
+// MARK: - Mandelbulb Pattern Tests (Session 72)
+
+@Suite("Mandelbulb Pattern Tests")
+struct MandelbulbPatternTests {
+    @Test("Mandelbulb produces non-empty grid")
+    func mandelbulbNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadMandelbulb()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Mandelbulb cell count is within expected bounds")
+    func mandelbulbCellBounds() {
+        var grid = GridModel(size: 16)
+        grid.loadMandelbulb()
+        #expect(grid.aliveCount > 100)
+        #expect(grid.aliveCount < 16 * 16 * 16)
+    }
+
+    @Test("Mandelbulb is available in Pattern enum")
+    func mandelbulbEnumCase() {
+        let pattern = SimulationEngine.Pattern.mandelbulb
+        #expect(pattern.rawValue == "Mandelbulb")
+    }
+
+    @Test("Mandelbulb aliveCellIndices matches aliveCount")
+    func mandelbulbIndexConsistency() {
+        var grid = GridModel(size: 16)
+        grid.loadMandelbulb()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+
+    @Test("Mandelbulb evolves under standard rules")
+    func mandelbulbEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadMandelbulb()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount != initial)
+    }
+
+    @Test("Pattern count is 42 after Mandelbulb addition")
+    func patternCount42() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.count == 42)
     }
 }

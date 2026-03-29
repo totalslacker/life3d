@@ -397,6 +397,8 @@ final class SimulationEngine {
             grid.loadTorusKnot()
         case .reuleauxTetrahedron:
             grid.loadReuleauxTetrahedron()
+        case .mandelbulb:
+            grid.loadMandelbulb()
         case .clear:
             grid.clearAll()
         }
@@ -460,6 +462,7 @@ final class SimulationEngine {
         case kochSnowflake = "Koch Snowflake"
         case torusKnot = "Torus Knot"
         case reuleauxTetrahedron = "Reuleaux Tetrahedron"
+        case mandelbulb = "Mandelbulb"
         case clear = "Clear"
 
         var id: String { rawValue }
