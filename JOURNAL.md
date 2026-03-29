@@ -2,6 +2,25 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 63 (2026-03-28 17:15 PDT)
+
+**Goal**: Icosahedron pattern (final Platonic solid), Neon Pink theme, fix test file structural bugs, tests.
+
+Three improvements:
+
+1. **Icosahedron pattern (27th)**: A wireframe regular icosahedron — the fifth and final Platonic solid, with 20 triangular faces, 12 vertices, and 30 edges. Vertices are placed using golden-ratio coordinates (0, ±1, ±φ) and cyclic permutations, normalized to a unit sphere then scaled to fit the grid. Edges are identified by angular distance on the unit sphere and rendered as thick tubes (radius 1.3) sampled densely along their length. Under evolution, edge midpoints erode first while the 5-way vertex junctions (higher local density from 5 converging edges) persist longer, creating a star-burst fragmentation pattern. Has perfect inversion symmetry. Completes all five Platonic solids in the pattern library (cube/Block, Tetrahedron, Octahedron, Dodecahedron, Icosahedron).
+
+2. **Neon Pink theme (28th)**: Brilliant hot magenta newborn cells (emissive 2.5) through deep rose young cells to dark plum mature cells fading to near-black. Distinct from Sakura (soft pastel pink/white), Crimson (red), and Amethyst (purple/violet) — Neon Pink stays in the vivid magenta-to-black range with a synthetic, electric aesthetic. Red and blue channels dominate while green stays low across all tiers.
+
+3. **Fixed test file structural bugs**: Repaired 3 pre-existing structural issues in GridTests.swift: (a) `FrostThemeTests.frostExists()` was missing its closing `}`, causing all subsequent test suites to nest inside it; (b) `SnowflakePatternTests.snowflakeSymmetry()` was missing 3 closing braces for its nested for-loops, causing Arctic theme tests to nest inside it; (c) renamed duplicate `WrappingTopologyTests` struct (previously hidden by nesting) to `WrappingTopologyExtraTests`. Also fixed 2 tests that incorrectly used `SimulationEngine` (MainActor-isolated) instead of `GridModel` directly.
+
+Added 11 tests across 2 new suites: Icosahedron Pattern (6 tests: non-empty, cell count bounds, inversion symmetry, engine enum, index consistency, evolution dynamics), Neon Pink Theme (5 tests: existence, theme count 28, color progression, opacity decay, pink dominance). Updated 11 stale theme count assertions (27→28) and 4 stale pattern count assertions (27→28 total, 26→27 cyclable).
+
+Build verified clean on visionOS Simulator (both app and test targets).
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 62 (2026-03-28 14:05 PDT)
 
 **Goal**: Dodecahedron pattern, Toxic theme, tests.

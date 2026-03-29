@@ -1166,6 +1166,80 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// A regular icosahedron — the dual of the dodecahedron, with 20 triangular faces,
+    /// 12 vertices, and 30 edges. The 12 vertices are placed using golden-ratio coordinates
+    /// and connected by thick wireframe edges. Under standard rules, edge midpoints erode
+    /// first while the 5-way vertex junctions (higher local density) persist longer, creating
+    /// a characteristic star-burst fragmentation. Completes all five Platonic solids.
+    mutating func loadIcosahedron() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let radius = Float(min(size / 3, 6))
+        let edgeThickness: Float = 1.3
+
+        // Golden ratio
+        let phi: Float = (1.0 + Float(5.0).squareRoot()) / 2.0
+
+        // 12 vertices of a regular icosahedron (±1, 0, ±φ) and cyclic permutations
+        let raw: [SIMD3<Float>] = [
+            SIMD3( 0,  1,  phi), SIMD3( 0,  1, -phi),
+            SIMD3( 0, -1,  phi), SIMD3( 0, -1, -phi),
+            SIMD3( 1,  phi,  0), SIMD3( 1, -phi,  0),
+            SIMD3(-1,  phi,  0), SIMD3(-1, -phi,  0),
+            SIMD3( phi,  0,  1), SIMD3( phi,  0, -1),
+            SIMD3(-phi,  0,  1), SIMD3(-phi,  0, -1),
+        ]
+
+        // Normalize to unit sphere then scale to radius
+        let verts = raw.map { v -> SIMD3<Float> in
+            let len = simd_length(v)
+            return v / len * radius
+        }
+
+        // Two vertices share an edge if their distance on the unit sphere equals
+        // the icosahedron edge length (2.0 for unit radius, threshold with tolerance)
+        let edgeLen: Float = 2.0 / simd_length(SIMD3<Float>(0, 1, phi))  // normalized edge
+        let unitVerts = raw.map { simd_normalize($0) }
+        var edges: [(Int, Int)] = []
+        for i in 0..<raw.count {
+            for j in (i+1)..<raw.count {
+                let d = simd_length(unitVerts[i] - unitVerts[j])
+                if d < edgeLen * 1.1 {
+                    edges.append((i, j))
+                }
+            }
+        }
+
+        // For each grid cell, check proximity to any edge
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let p = SIMD3<Float>(Float(x) - mid + 0.5,
+                                         Float(y) - mid + 0.5,
+                                         Float(z) - mid + 0.5)
+                    var onEdge = false
+                    for (i, j) in edges where !onEdge {
+                        let a = verts[i]
+                        let b = verts[j]
+                        let ab = b - a
+                        let ap = p - a
+                        let abDot = simd_dot(ab, ab)
+                        let t = max(Float(0), min(Float(1), simd_dot(ap, ab) / abDot))
+                        let closest = a + t * ab
+                        let dist = simd_length(p - closest)
+                        if dist <= edgeThickness {
+                            onEdge = true
+                        }
+                    }
+                    if onEdge {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

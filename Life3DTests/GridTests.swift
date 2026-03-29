@@ -1111,7 +1111,7 @@ struct ForestThemeTests {
 
     @Test("All themes count is 16 after Sunset, Twilight, and Jade additions")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 27)
+        #expect(ColorTheme.allThemes.count == 28)
     }
 
     @Test("Forest theme has green color progression")
@@ -1306,7 +1306,7 @@ struct PopulationTrendTests {
 
     @Test("All themes count is 22 after adding Jade")
     func allThemesCount16() {
-        #expect(ColorTheme.allThemes.count == 27)
+        #expect(ColorTheme.allThemes.count == 28)
     }
 
     @Test("Jade theme has cool green-to-dark progression")
@@ -1397,7 +1397,7 @@ struct CrimsonThemeTests {
 
     @Test("Theme count is 22 with Crimson")
     func themeCount17() {
-        #expect(ColorTheme.allThemes.count == 27)
+        #expect(ColorTheme.allThemes.count == 28)
     }
 
     @Test("Crimson stays in pure red family — newborn through mature")
@@ -1832,7 +1832,7 @@ struct CopperThemeTests {
 
     @Test("allThemes contains 24 themes")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 27, "Should have 27 themes total")
+        #expect(ColorTheme.allThemes.count == 28, "Should have 27 themes total")
     }
 
     @Test("Copper has warm metallic color progression")
@@ -2053,7 +2053,7 @@ struct GoldThemeTests {
 
     @Test("Total theme count is 22")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 27)
+        #expect(ColorTheme.allThemes.count == 28)
     }
 
     @Test("Gold has warm metallic color progression")
@@ -2999,7 +2999,7 @@ struct VolcanicThemeTests {
 
     @Test("Theme count is 22 with Volcanic")
     func themeCount22() {
-        #expect(ColorTheme.allThemes.count == 27)
+        #expect(ColorTheme.allThemes.count == 28)
     }
 
     @Test("Volcanic theme has lava-to-obsidian color progression")
@@ -3408,9 +3408,9 @@ struct MengerSpongeTests {
 
     @Test("Menger sponge selects correct engine pattern")
     func mengerSpongeEngineSelection() {
-        let engine = SimulationEngine(gridSize: 16)
-        engine.loadPattern(.mengerSponge)
-        #expect(engine.grid.aliveCount > 0)
+        var grid = GridModel(size: 16)
+        grid.loadMengerSponge()
+        #expect(grid.aliveCount > 0)
     }
 
     @Test("Menger sponge evolves from initial state")
@@ -3445,7 +3445,7 @@ struct PlasmaThemeTests {
 
     @Test("Theme count is 24 with Plasma and Arctic")
     func themeCount24() {
-        #expect(ColorTheme.allThemes.count == 27)
+        #expect(ColorTheme.allThemes.count == 28)
     }
 
     @Test("Plasma has white-hot to deep purple progression")
@@ -3681,11 +3681,13 @@ struct FrostThemeTests {
     @Test("Frost theme exists in allThemes")
     func frostExists() {
         #expect(ColorTheme.allThemes.contains(where: { $0.name == "Frost" }))
+    }
+}
 
-// MARK: - Wrapping Topology Tests
+// MARK: - Wrapping Topology Extra Tests
 
-@Suite("Wrapping Topology Tests")
-struct WrappingTopologyTests {
+@Suite("Wrapping Topology Extra Tests")
+struct WrappingTopologyExtraTests {
     @Test("Corner cell wraps to opposite corner neighbors")
     func cornerWrapping() {
         var model = GridModel(size: 8)
@@ -3847,7 +3849,7 @@ struct ArcticThemeTests {
 
     @Test("Theme count is 24")
     func themeCount24() {
-        #expect(ColorTheme.allThemes.count == 27)
+        #expect(ColorTheme.allThemes.count == 28)
     }
 
     @Test("Frost newborn is brightest tier")
@@ -3933,7 +3935,7 @@ struct SetCellAgePreservationTests {
 struct ColorThemeCompletenessTests {
     @Test("allThemes contains exactly the expected count")
     func allThemesCount() {
-        #expect(ColorTheme.allThemes.count == 27)
+        #expect(ColorTheme.allThemes.count == 28)
     }
 
     @Test("All theme names are unique")
@@ -4068,7 +4070,15 @@ struct SnowflakePatternTests {
                         #expect(model.isAlive(x: x, y: y, z: mz), "Z-mirror symmetry broken at (\(x),\(y),\(z))")
                     }
                 }
+            }
+        }
+    }
+}
 
+// MARK: - Arctic Theme Extra Tests
+
+@Suite("Arctic Theme Extra Tests")
+struct ArcticThemeExtraTests {
     @Test("Arctic has cool blue progression")
     func arcticColorProgression() {
         let theme = ColorTheme.arctic
@@ -4124,9 +4134,9 @@ struct AliveMapResetFixTests {
 
     @Test("Snowflake engine selection via pattern enum")
     func snowflakeEngineSelection() {
-        let engine = SimulationEngine(size: 12)
-        engine.loadPattern(.snowflake)
-        #expect(engine.grid.aliveCount > 0)
+        var grid = GridModel(size: 12)
+        grid.loadSnowflake()
+        #expect(grid.aliveCount > 0)
     }
 
     @Test("Snowflake alive index consistency")
@@ -4191,13 +4201,12 @@ struct AliveMapResetRegressionTests {
         }
     }
 
-    @Test("Pattern count matches 23 cyclable patterns")
+    @Test("Pattern count matches 27 cyclable patterns")
     func patternCount() {
-        // 24 total patterns (including Clear), 23 cyclable (excluding Clear)
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 26)
+        #expect(allPatterns.count == 28)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 25)
+        #expect(cyclable.count == 27)
     }
 }
 
@@ -4277,7 +4286,7 @@ struct SolarThemeTests {
 
     @Test("Theme count is 26 after Solar addition")
     func themeCount26() {
-        #expect(ColorTheme.allThemes.count == 27)
+        #expect(ColorTheme.allThemes.count == 28)
     }
 
     @Test("Solar newborn is brightest tier")
@@ -4308,16 +4317,16 @@ struct SolarThemeTests {
 
 @Suite("Pattern Count Session 61")
 struct PatternCountSession61Tests {
-    @Test("Total pattern count is 27 (26 + clear)")
+    @Test("Total pattern count is 28 (27 + clear)")
     func totalPatternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 27)
+        #expect(allPatterns.count == 28)
     }
 
-    @Test("Cyclable patterns is 26 (excludes clear)")
+    @Test("Cyclable patterns is 27 (excludes clear)")
     func cyclablePatternCount() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
-        #expect(cyclable.count == 26)
+        #expect(cyclable.count == 27)
     }
 }
 
@@ -4395,7 +4404,7 @@ struct ToxicThemeTests {
 
     @Test("Theme count is 27 after Toxic addition")
     func themeCount27() {
-        #expect(ColorTheme.allThemes.count == 27)
+        #expect(ColorTheme.allThemes.count == 28)
     }
 
     @Test("Toxic has decreasing emissive intensity by age")
@@ -4420,5 +4429,106 @@ struct ToxicThemeTests {
         // Green channel should be the highest in newborn
         #expect(theme.newborn.emissiveColor.y > theme.newborn.emissiveColor.x)
         #expect(theme.newborn.emissiveColor.y > theme.newborn.emissiveColor.z)
+    }
+}
+
+// MARK: - Icosahedron Pattern Tests (Session 63)
+
+@Suite("Icosahedron Pattern Tests")
+struct IcosahedronPatternTests {
+    @Test("Icosahedron produces non-empty grid")
+    func icosahedronNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadIcosahedron()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Icosahedron has 12 vertices and 30 edges worth of cells")
+    func icosahedronCellCount() {
+        var grid = GridModel(size: 16)
+        grid.loadIcosahedron()
+        // Wireframe icosahedron should have moderate cell count (edges are thick tubes)
+        #expect(grid.aliveCount > 50)
+        #expect(grid.aliveCount < grid.size * grid.size * grid.size / 2)
+    }
+
+    @Test("Icosahedron has inversion symmetry")
+    func icosahedronInversionSymmetry() {
+        var grid = GridModel(size: 16)
+        grid.loadIcosahedron()
+        let s = grid.size
+        var mismatches = 0
+        for x in 0..<s {
+            for y in 0..<s {
+                for z in 0..<s {
+                    let alive = grid.isAlive(x: x, y: y, z: z)
+                    let mirror = grid.isAlive(x: s - 1 - x, y: s - 1 - y, z: s - 1 - z)
+                    if alive != mirror { mismatches += 1 }
+                }
+            }
+        }
+        #expect(mismatches == 0)
+    }
+
+    @Test("Icosahedron pattern in engine enum")
+    func icosahedronEngineEnum() {
+        let pattern = SimulationEngine.Pattern.icosahedron
+        #expect(pattern.rawValue == "Icosahedron")
+    }
+
+    @Test("Icosahedron alive index consistency")
+    func icosahedronIndexConsistency() {
+        var grid = GridModel(size: 16)
+        grid.loadIcosahedron()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+
+    @Test("Icosahedron evolves under standard rules")
+    func icosahedronEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadIcosahedron()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount != initial)
+    }
+}
+
+// MARK: - Neon Pink Theme Tests (Session 63)
+
+@Suite("Neon Pink Theme Tests")
+struct NeonPinkThemeTests {
+    @Test("Neon Pink theme exists in allThemes")
+    func neonPinkExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Neon Pink" }
+        #expect(found)
+    }
+
+    @Test("Theme count is 28 after Neon Pink addition")
+    func themeCount28() {
+        #expect(ColorTheme.allThemes.count == 28)
+    }
+
+    @Test("Neon Pink has decreasing emissive intensity by age")
+    func neonPinkColorProgression() {
+        let theme = ColorTheme.neonPink
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+
+    @Test("Neon Pink opacity decreases with age")
+    func neonPinkOpacityDecay() {
+        let theme = ColorTheme.neonPink
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+
+    @Test("Neon Pink is pink-dominant (high red+blue, lower green)")
+    func neonPinkDominant() {
+        let theme = ColorTheme.neonPink
+        // Red channel should be highest, green should be lowest
+        #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.y)
+        #expect(theme.newborn.emissiveColor.z > theme.newborn.emissiveColor.y)
     }
 }
