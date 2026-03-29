@@ -2,6 +2,23 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 65 (2026-03-28 17:29 PDT)
+
+**Goal**: Lissajous Curve pattern, Cyberpunk theme, tests.
+
+Three improvements:
+
+1. **Lissajous Curve pattern (30th)**: A 3D parametric curve defined by x = sin(2t + π/4), y = sin(3t), z = sin(5t) — the classic Lissajous figure extended into three dimensions. The frequency ratios (2:3:5) are coprime, creating a complex, non-repeating path that fills the volume with graceful interlocking loops. Each point on the curve is rasterized as a thick tube (radius 1.3) with 500 sample points along the full period, producing a solid sculptural form. Under evolution, the tube cross-sections erode at exposed surfaces while intersection points (where the curve crosses itself) retain higher neighbor density, creating a fragmentation that reveals the underlying parametric structure.
+
+2. **Cyberpunk theme (30th)**: Hot magenta-pink aesthetic — brilliant magenta newborn cells (emissive 2.5, strong red channel with moderate blue) through deep rose young cells to dark purple-black mature cells fading to near-black. Distinct from Sakura (soft pastel pink), Amethyst (blue-purple), Crimson (pure red), and Plasma (warm purple-orange) — Cyberpunk stays in the pure magenta range (red + blue, zero green) evoking neon-lit city streets and synthwave visuals. Green channel is zero across all tiers.
+
+3. **Updated 13 stale theme count assertions (29→30), 2 stale pattern count assertions (29→30 total, 28→29 cyclable), and 1 stale comment**. Added 11 new tests across 2 new suites: Lissajous Curve Pattern (6 tests: non-empty, cell count bounds, engine enum, index consistency, evolution dynamics, pattern count 30), Cyberpunk Theme (5 tests: existence, theme count 30, color progression, opacity decay, magenta dominance).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 64 (2026-03-28 17:19 PDT)
 
 **Goal**: Möbius Strip pattern, Hologram theme, tests.

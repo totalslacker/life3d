@@ -1282,6 +1282,45 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadLissajous() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let scale = Float(size) / 2.0 - 1.5
+        // Lissajous parameters: x = sin(at + δ), y = sin(bt), z = sin(ct)
+        // Using a=2, b=3, c=5, δ=π/4 creates a complex, non-repeating 3D curve
+        let a: Float = 2.0
+        let b: Float = 3.0
+        let c: Float = 5.0
+        let delta: Float = .pi / 4.0
+        let tubeRadius: Float = 1.3
+        let steps = 500
+
+        for step in 0..<steps {
+            let t = Float(step) / Float(steps) * 2.0 * .pi
+            let px = scale * sin(a * t + delta)
+            let py = scale * sin(b * t)
+            let pz = scale * sin(c * t)
+            // Rasterize a thick tube around the curve point
+            let r = Int(ceil(tubeRadius))
+            for dx in -r...r {
+                for dy in -r...r {
+                    for dz in -r...r {
+                        let dist = sqrt(Float(dx * dx + dy * dy + dz * dz))
+                        if dist <= tubeRadius {
+                            let gx = Int(round(px + mid - 0.5)) + dx
+                            let gy = Int(round(py + mid - 0.5)) + dy
+                            let gz = Int(round(pz + mid - 0.5)) + dz
+                            if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+                                setCell(x: gx, y: gy, z: gz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
