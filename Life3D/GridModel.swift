@@ -2098,6 +2098,84 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// 3D Barnsley Fern — the classic IFS fractal fern extended into 3D by rotating
+    /// the 2D fern around its stem axis. The standard Barnsley fern uses four affine
+    /// transformations with probabilities that produce a realistic fern frond. The 3D
+    /// extension applies the same (x, y) → (x', y') maps then wraps x' around the
+    /// Y-axis using cylindrical coordinates, giving a rotationally symmetric fern.
+    mutating func loadBarnsleyFern() {
+        clearAll()
+        let n = size
+        // Run the IFS chaos game in 2D, collect (x, y) points
+        let iterations = n * n * n * 4
+        var points: [(Double, Double)] = []
+        points.reserveCapacity(iterations)
+        var x = 0.0
+        var y = 0.0
+        for _ in 0..<iterations {
+            let r = Double.random(in: 0..<1)
+            let (nx, ny): (Double, Double)
+            if r < 0.01 {
+                // Stem
+                nx = 0.0
+                ny = 0.16 * y
+            } else if r < 0.86 {
+                // Main frond (successively smaller leaflets)
+                nx = 0.85 * x + 0.04 * y
+                ny = -0.04 * x + 0.85 * y + 1.6
+            } else if r < 0.93 {
+                // Left leaflet
+                nx = 0.20 * x - 0.26 * y
+                ny = 0.23 * x + 0.22 * y + 1.6
+            } else {
+                // Right leaflet
+                nx = -0.15 * x + 0.28 * y
+                ny = 0.26 * x + 0.24 * y + 0.44
+            }
+            x = nx
+            y = ny
+            points.append((x, y))
+        }
+        // Find bounding box of 2D fern
+        var minX = Double.infinity, maxX = -Double.infinity
+        var minY = Double.infinity, maxY = -Double.infinity
+        for (px, py) in points {
+            if px < minX { minX = px }
+            if px > maxX { maxX = px }
+            if py < minY { minY = py }
+            if py > maxY { maxY = py }
+        }
+        let rangeX = maxX - minX
+        let rangeY = maxY - minY
+        guard rangeX > 0 && rangeY > 0 else {
+            rebuildAliveCellIndices()
+            return
+        }
+        // Map 2D fern points to 3D voxels by rotating around the Y-axis
+        let margin = 1
+        let usable = n - 2 * margin
+        for (px, py) in points {
+            // Normalize to [0, 1]
+            let nx = (px - minX) / rangeX
+            let ny = (py - minY) / rangeY
+            // The fern's x becomes a radial distance, y becomes height
+            let radius = nx * Double(usable) * 0.4
+            let height = Int(ny * Double(usable - 1)) + margin
+            // Rotate around Y-axis at several angles for a bushy 3D fern
+            let angleCount = max(6, n / 3)
+            for ai in 0..<angleCount {
+                let angle = Double(ai) * (2.0 * .pi / Double(angleCount))
+                let gx = Int(Double(n / 2) + radius * cos(angle))
+                let gz = Int(Double(n / 2) + radius * sin(angle))
+                let gy = height
+                if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                    setCell(x: gx, y: gy, z: gz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

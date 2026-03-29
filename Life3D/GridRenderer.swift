@@ -1004,7 +1004,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.1, opacity: 0.03)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze]
+    static let ivory = ColorTheme(
+        name: "Ivory",
+        newborn: TierColors(
+            baseColor: SIMD4(1.0, 0.97, 0.88, 1.0),
+            emissiveColor: SIMD3(1.0, 0.96, 0.85),
+            emissiveIntensity: 2.0, opacity: 0.55),
+        young: TierColors(
+            baseColor: SIMD4(0.85, 0.8, 0.68, 1.0),
+            emissiveColor: SIMD3(0.8, 0.75, 0.62),
+            emissiveIntensity: 1.0, opacity: 0.35),
+        mature: TierColors(
+            baseColor: SIMD4(0.55, 0.5, 0.4, 1.0),
+            emissiveColor: SIMD3(0.45, 0.4, 0.32),
+            emissiveIntensity: 0.4, opacity: 0.17),
+        dying: TierColors(
+            baseColor: SIMD4(0.25, 0.22, 0.18, 1.0),
+            emissiveColor: SIMD3(0.12, 0.1, 0.08),
+            emissiveIntensity: 0.1, opacity: 0.03)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze, .ivory]
 }
 
 enum GridRenderer {

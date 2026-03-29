@@ -403,6 +403,8 @@ final class SimulationEngine {
             grid.loadJuliaSet()
         case .cantorDust:
             grid.loadCantorDust()
+        case .barnsleyFern:
+            grid.loadBarnsleyFern()
         case .clear:
             grid.clearAll()
         }
@@ -469,6 +471,7 @@ final class SimulationEngine {
         case mandelbulb = "Mandelbulb"
         case juliaSet = "Julia Set"
         case cantorDust = "Cantor Dust"
+        case barnsleyFern = "Barnsley Fern"
         case clear = "Clear"
 
         var id: String { rawValue }

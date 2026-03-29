@@ -2,6 +2,19 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 75 (2026-03-28 22:25 PDT)
+
+**Goal**: Barnsley Fern pattern, Ivory theme, fix stale test assertions.
+
+1. **Barnsley Fern pattern (44th)**: A 3D extension of the classic Barnsley fern — the famous IFS (Iterated Function System) fractal that produces a realistic fern frond from four affine transformations. The standard 2D fern uses probability-weighted maps: stem (1%), main frond (85%), left leaflet (7%), and right leaflet (7%). The 3D extension runs the chaos game in 2D to generate the fern shape, then rotates the fern around its vertical axis at multiple angles to produce a rotationally symmetric 3D fern structure. The result is a bushy volumetric fern where the frond structure is visible from all angles. Under evolution, the thin tips and outer fronds erode first while the dense central stem region retains higher neighbor density and persists longer.
+
+2. **Ivory theme (49th)**: Warm white/cream aesthetic — luminous warm-white newborn cells (emissive 2.0, all channels high with red slightly dominant at 1.0/0.96/0.85) through muted cream young cells to warm grey mature cells fading to near-black. Distinct from Monochrome (pure neutral grey, equal RGB), Champagne (golden-yellow tint), Frost (cool blue-white), and Glacier (pale ice blue) — Ivory stays in the warm cream-white range with red >= green >= blue across all tiers, evoking the warm organic tone of natural elephant ivory or aged bone.
+
+3. **Fixed 31 stale theme count assertions (48→49), 17 stale pattern count assertions (43→45, 44→45), 1 stale cyclable count assertion (42→44)**. Added 11 new tests across 2 suites: Barnsley Fern Pattern (6 tests), Ivory Theme (5 tests).
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 74 (2026-03-28 22:05 PDT)
 
 **Goal**: Cantor Dust pattern, Bronze theme, fix stale test assertions.
