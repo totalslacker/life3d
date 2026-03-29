@@ -2595,6 +2595,37 @@ struct GridModel: Sendable {
                 let gx = Int((px * scale) + half)
                 let gy = Int((py * scale) + half)
                 let gz = Int((pz * scale * 0.5) + half)
+    /// Dini's Surface — a twisted pseudospherical surface with constant negative
+    /// Gaussian curvature. Parametrized by x = a*cos(u)*sin(v), y = a*sin(u)*sin(v),
+    /// z = a*(cos(v) + log(tan(v/2))) + b*u, producing a helicoid-like spiral that
+    /// twists along its axis. Under evolution, the thin twisted sheet erodes from
+    /// edges while the denser spiral core persists.
+    mutating func loadDiniSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale = Float(n) * 0.10
+        let a: Float = 1.0
+        let b: Float = 0.2
+        let stepsU = n * 16
+        let stepsV = n * 8
+        for i in 0..<stepsU {
+            let u = 4.0 * Float.pi * Float(i) / Float(stepsU)
+            let cosU = cos(u)
+            let sinU = sin(u)
+            for j in 1..<stepsV {
+                let v = Float.pi * 0.95 * Float(j) / Float(stepsV) + 0.05
+                let sinV = sin(v)
+                let cosV = cos(v)
+                let tanHalfV = tan(v / 2.0)
+                if tanHalfV <= 0.001 { continue }
+                let logTan = log(tanHalfV)
+                let px = scale * a * cosU * sinV
+                let py = scale * a * sinU * sinV
+                let pz = scale * (a * (cosV + logTan) + b * u)
+                let gx = Int((px + half).rounded())
+                let gy = Int((py + half).rounded())
+                let gz = Int((pz + half).rounded())
                 if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
                     setCell(x: gx, y: gy, z: gz, alive: true)
                 }

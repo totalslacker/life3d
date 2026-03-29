@@ -33,6 +33,15 @@ Evolution session log. Most recent entry first. Never delete entries.
 2. **Teal theme (58th)**: Blue-green aesthetic — brilliant cyan-green newborn cells (emissive 2.1, green and blue channels strongly co-dominant at 0.85/0.75 with zero red) through medium teal young cells to dark blue-green mature cells fading to near-black. Distinct from Jade (yellow-green, warmer), Glacier (pale ice blue with more white), Ocean Blues (broader blue range with teal undertones), and Toxic (neon green with more green dominance) — Teal stays in the balanced blue-green range with green ≈ blue >> red across all tiers, evoking the color of the common teal duck's head plumage or tropical ocean shallows.
 
 3. **Updated stale count assertions**: 57→58 for theme counts, 55→56 for pattern counts, 54→55 for cyclable pattern counts. Added 11 new tests across 2 suites: Schwarz D Surface Pattern (6 tests), Teal Theme (5 tests).
+## Day 13 — Session 85 (2026-03-29 00:10 PDT)
+
+**Goal**: Dini's Surface pattern, update test assertions.
+
+1. **Dini's Surface pattern (56th cyclable)**: Dini's surface — a twisted pseudospherical surface with constant negative Gaussian curvature from differential geometry. Parametrized by x = a·cos(u)·sin(v), y = a·sin(u)·sin(v), z = a·(cos(v) + log(tan(v/2))) + b·u, where the logarithmic term creates the characteristic twist along the axis. The implementation samples u over 4π (two full twists) and v over (0, π) (avoiding the pole singularity), producing a helicoid-like spiral surface that winds through 3D space. The parameter b = 0.2 controls how tightly the turns are spaced. Under evolution, the thin twisted sheet erodes from its edges while the denser central spiral axis persists due to higher neighbor density.
+
+2. **Teal theme**: Already merged in session 84 (duplicate — kept existing definition).
+
+3. **Updated stale count assertions**: 56→57 for pattern counts, 55→56 for cyclable pattern counts. Added 6 new tests: Dini's Surface Pattern (6 tests). Teal theme tests already present from session 84.
 
 **Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
 
