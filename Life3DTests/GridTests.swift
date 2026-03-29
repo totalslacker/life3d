@@ -1832,7 +1832,7 @@ struct CopperThemeTests {
 
     @Test("allThemes contains 24 themes")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 32, "Should have 31 themes total")
+        #expect(ColorTheme.allThemes.count == 33, "Should have 33 themes total")
     }
 
     @Test("Copper has warm metallic color progression")
@@ -4311,13 +4311,13 @@ struct PatternCountSession61Tests {
     @Test("Total pattern count is 28 (27 + clear)")
     func totalPatternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 33)
+        #expect(allPatterns.count == 34)
     }
 
     @Test("Cyclable patterns is 27 (excludes clear)")
     func cyclablePatternCount() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
-        #expect(cyclable.count == 32)
+        #expect(cyclable.count == 33)
     }
 }
 
@@ -4571,7 +4571,7 @@ struct MobiusStripPatternTests {
     @Test("Pattern count is 29 after Möbius Strip addition")
     func patternCount29() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 33)
+        #expect(allPatterns.count == 34)
     }
 }
 
@@ -4663,7 +4663,7 @@ struct LissajousCurvePatternTests {
     @Test("Pattern count is 30 after Lissajous Curve addition")
     func patternCount30() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 33)
+        #expect(allPatterns.count == 34)
     }
 }
 
@@ -4757,7 +4757,7 @@ struct KleinBottlePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount31() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 33)
+        #expect(allPatterns.count == 34)
     }
 }
 
@@ -4845,10 +4845,10 @@ struct GyroidPatternTests {
         #expect(grid.aliveCount != initial)
     }
 
-    @Test("Pattern count is 33 after Gyroid addition")
+    @Test("Pattern count is 34 after Gyroid addition")
     func patternCount33() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 33)
+        #expect(allPatterns.count == 34)
     }
 }
 
@@ -4862,9 +4862,9 @@ struct SynthwaveThemeTests {
         #expect(found)
     }
 
-    @Test("Theme count is 32 after Synthwave addition")
-    func themeCount32() {
-        #expect(ColorTheme.allThemes.count == 32)
+    @Test("Theme count is 33 after Synthwave addition")
+    func themeCount33() {
+        #expect(ColorTheme.allThemes.count == 33)
     }
 
     @Test("Synthwave has decreasing emissive intensity by age")
@@ -4890,5 +4890,99 @@ struct SynthwaveThemeTests {
         #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.z)
         // Mature should be purple-dominant (blue > red)
         #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.x)
+    }
+}
+
+// MARK: - Lorenz Attractor Pattern Tests (Session 67)
+
+@Suite("Lorenz Attractor Pattern Tests")
+struct LorenzAttractorPatternTests {
+    @Test("Lorenz attractor produces non-empty grid")
+    func lorenzAttractorNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadLorenzAttractor()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Lorenz attractor cell count is within reasonable bounds")
+    func lorenzAttractorCellCount() {
+        var grid = GridModel(size: 16)
+        grid.loadLorenzAttractor()
+        // A thick curve should produce moderate cell count
+        #expect(grid.aliveCount > 50)
+        #expect(grid.aliveCount < grid.cellCount / 2)
+    }
+
+    @Test("Lorenz attractor is available in SimulationEngine.Pattern enum")
+    func lorenzAttractorEngineEnum() {
+        let pattern = SimulationEngine.Pattern.lorenzAttractor
+        #expect(pattern.rawValue == "Lorenz Attractor")
+    }
+
+    @Test("Lorenz attractor alive cell index consistency")
+    func lorenzAttractorIndexConsistency() {
+        var grid = GridModel(size: 16)
+        grid.loadLorenzAttractor()
+        let indexCount = grid.aliveCellIndices.count
+        #expect(indexCount == grid.aliveCount)
+    }
+
+    @Test("Lorenz attractor evolves under standard rules")
+    func lorenzAttractorEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadLorenzAttractor()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        // Population should change under evolution
+        #expect(grid.aliveCount != initial)
+    }
+
+    @Test("Pattern count is 34 after Lorenz Attractor addition")
+    func patternCount34() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.count == 34)
+    }
+}
+
+// MARK: - Terracotta Theme Tests (Session 67)
+
+@Suite("Terracotta Theme Tests")
+struct TerracottaThemeTests {
+    @Test("Terracotta theme exists in allThemes")
+    func terracottaExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Terracotta" }
+        #expect(found)
+    }
+
+    @Test("Theme count is 33 after Terracotta addition")
+    func themeCount33() {
+        #expect(ColorTheme.allThemes.count == 33)
+    }
+
+    @Test("Terracotta has decreasing emissive intensity by age")
+    func terracottaColorProgression() {
+        let theme = ColorTheme.terracotta
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+
+    @Test("Terracotta opacity decreases with age")
+    func terracottaOpacityDecay() {
+        let theme = ColorTheme.terracotta
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+
+    @Test("Terracotta is warm orange-brown (red dominant across all tiers)")
+    func terracottaWarmOrange() {
+        let theme = ColorTheme.terracotta
+        // Red channel should be dominant in newborn (warm orange)
+        #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.y)
+        #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.z)
+        // Mature should still have red as dominant channel
+        #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.y)
+        #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.z)
     }
 }

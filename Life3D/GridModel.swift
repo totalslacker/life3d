@@ -1382,6 +1382,80 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadLorenzAttractor() {
+        clearAll()
+        // Lorenz system parameters
+        let sigma: Float = 10.0
+        let rho: Float = 28.0
+        let beta: Float = 8.0 / 3.0
+        let dt: Float = 0.005
+        let steps = 8000
+        let tubeRadius: Float = 1.0
+
+        // Initial condition (slightly off origin to break symmetry)
+        var lx: Float = 1.0
+        var ly: Float = 1.0
+        var lz: Float = 1.0
+
+        // Track min/max to scale the attractor into the grid
+        var positions: [(Float, Float, Float)] = []
+        positions.reserveCapacity(steps)
+
+        for _ in 0..<steps {
+            let dxdt = sigma * (ly - lx)
+            let dydt = lx * (rho - lz) - ly
+            let dzdt = lx * ly - beta * lz
+            lx += dxdt * dt
+            ly += dydt * dt
+            lz += dzdt * dt
+            positions.append((lx, ly, lz))
+        }
+
+        // Find bounding box
+        var minX: Float = .infinity, maxX: Float = -.infinity
+        var minY: Float = .infinity, maxY: Float = -.infinity
+        var minZ: Float = .infinity, maxZ: Float = -.infinity
+        for (px, py, pz) in positions {
+            minX = min(minX, px); maxX = max(maxX, px)
+            minY = min(minY, py); maxY = max(maxY, py)
+            minZ = min(minZ, pz); maxZ = max(maxZ, pz)
+        }
+
+        // Scale to fit grid with margin
+        let margin: Float = 2.0
+        let rangeX = maxX - minX
+        let rangeY = maxY - minY
+        let rangeZ = maxZ - minZ
+        let maxRange = max(rangeX, max(rangeY, rangeZ))
+        let gridScale = (Float(size) - 2.0 * margin) / maxRange
+
+        let r = Int(ceil(tubeRadius))
+        for (px, py, pz) in positions {
+            let gxf = (px - minX) * gridScale + margin
+            let gyf = (py - minY) * gridScale + margin
+            let gzf = (pz - minZ) * gridScale + margin
+            let cx = Int(round(gxf))
+            let cy = Int(round(gyf))
+            let cz = Int(round(gzf))
+            for ddx in -r...r {
+                for ddy in -r...r {
+                    for ddz in -r...r {
+                        let dist = sqrt(Float(ddx * ddx + ddy * ddy + ddz * ddz))
+                        if dist <= tubeRadius {
+                            let gx = cx + ddx
+                            let gy = cy + ddy
+                            let gz = cz + ddz
+                            if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+                                setCell(x: gx, y: gy, z: gz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
