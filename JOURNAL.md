@@ -2,6 +2,19 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 79 (2026-03-28 23:50 PDT)
+
+**Goal**: Roman Surface pattern, Vermilion theme, update test assertions.
+
+1. **Roman Surface pattern (49th)**: Steiner's Roman Surface — a classical self-intersecting mapping of the real projective plane into R³. The implicit equation x²y² + y²z² + z²x² - r²xyz = 0 describes four lobes meeting at a central triple point. The parametric form uses spherical coordinates on S²: x = r²cos(θ)sin(θ)cos²(φ), y = r²cos(θ)sin(θ)sin²(φ), z = r²cos²(θ)sin(φ)cos(φ), sampled densely over θ ∈ [0,π] and φ ∈ [0,2π]. The resulting structure is a pinwheel-like surface with four smooth lobes converging at the origin — visually distinct from the Enneper surface (saddle-shaped) and Klein bottle (closed non-orientable). Under evolution, the thin surface regions erode from edges inward while the dense self-intersection hub persists due to higher neighbor density.
+
+2. **Vermilion theme (54th)**: Vivid red-orange pigment aesthetic — brilliant warm red-orange newborn cells (emissive 2.2, red channel strongly dominant at 1.0 with very low green 0.30 and blue 0.05) through medium deep red young cells to dark maroon mature cells fading to near-black. Distinct from Crimson (blue-red, cooler hue), Ember (orange-yellow fire gradient), Volcanic (dark red-black), Ruby (pink-red gemstone), and Coral (pink-orange with more green) — Vermilion stays in the intense red-orange range with red > 3× green and red > 5× blue across all tiers, evoking the vivid red-orange of Chinese cinnabar pigment or Japanese torii gates.
+
+3. **Updated stale count assertions**: 53→54 for theme counts, 50→51 for pattern counts, 49→50 for cyclable pattern counts across the test suite. Added 11 new tests across 2 suites: Roman Surface Pattern (6 tests), Vermilion Theme (5 tests).
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 78 (2026-03-28 23:30 PDT)
 
 **Goal**: Perlin Noise pattern, Cobalt theme, update test assertions.

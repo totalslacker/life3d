@@ -415,6 +415,8 @@ final class SimulationEngine {
             grid.loadEnneperSurface()
         case .perlinNoise:
             grid.loadPerlinNoise()
+        case .romanSurface:
+            grid.loadRomanSurface()
         case .clear:
             grid.clearAll()
         }
@@ -487,6 +489,7 @@ final class SimulationEngine {
         case hopfFibration = "Hopf Fibration"
         case enneperSurface = "Enneper Surface"
         case perlinNoise = "Perlin Noise"
+        case romanSurface = "Roman Surface"
         case clear = "Clear"
 
         var id: String { rawValue }

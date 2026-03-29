@@ -1104,7 +1104,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.08, opacity: 0.03)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze, .ivory, .pearl, .graphite, .slate, .cobalt]
+    static let vermilion = ColorTheme(
+        name: "Vermilion",
+        newborn: TierColors(
+            baseColor: SIMD4(1.0, 0.30, 0.05, 1.0),
+            emissiveColor: SIMD3(1.0, 0.25, 0.04),
+            emissiveIntensity: 2.2, opacity: 0.55),
+        young: TierColors(
+            baseColor: SIMD4(0.78, 0.18, 0.03, 1.0),
+            emissiveColor: SIMD3(0.70, 0.14, 0.02),
+            emissiveIntensity: 1.1, opacity: 0.35),
+        mature: TierColors(
+            baseColor: SIMD4(0.50, 0.10, 0.02, 1.0),
+            emissiveColor: SIMD3(0.42, 0.08, 0.01),
+            emissiveIntensity: 0.40, opacity: 0.18),
+        dying: TierColors(
+            baseColor: SIMD4(0.22, 0.05, 0.01, 1.0),
+            emissiveColor: SIMD3(0.12, 0.03, 0.005),
+            emissiveIntensity: 0.08, opacity: 0.03)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze, .ivory, .pearl, .graphite, .slate, .cobalt, .vermilion]
 }
 
 enum GridRenderer {

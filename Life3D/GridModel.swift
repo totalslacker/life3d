@@ -2438,6 +2438,46 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadRomanSurface() {
+        clearAll()
+        let n = size
+        // Steiner's Roman Surface — a self-intersecting mapping of the real
+        // projective plane into 3D. The implicit equation is:
+        //   x²y² + y²z² + z²x² - r²xyz = 0
+        // We parametrize via spherical coordinates on S²:
+        //   x = r² cos(θ)sin(θ)cos²(φ)
+        //   y = r² cos(θ)sin(θ)sin²(φ)  (with sign flip for lobe orientation)
+        //   z = r² cos²(θ)sin(φ)cos(φ)
+        // Dense sampling over θ ∈ [0, π] and φ ∈ [0, 2π] traces all four lobes
+        // plus the self-intersection lines, producing a visually distinctive
+        // pinwheel-like structure. Under evolution, thin surface regions erode
+        // while the dense intersection hub persists.
+        let half = Float(n) / 2.0
+        let scale = Float(n) * 0.38  // scale factor — keep surface within grid bounds
+        let steps = n * 12  // dense sampling for continuous surface
+        for i in 0..<steps {
+            let theta = Float.pi * Float(i) / Float(steps - 1)
+            let sinT = sin(theta)
+            let cosT = cos(theta)
+            for j in 0..<steps {
+                let phi = 2.0 * Float.pi * Float(j) / Float(steps)
+                let sinP = sin(phi)
+                let cosP = cos(phi)
+                // Parametric Roman surface
+                let px = scale * cosT * sinT * cosP * cosP
+                let py = scale * cosT * sinT * sinP * sinP
+                let pz = scale * cosT * cosT * sinP * cosP
+                let gx = Int((px + half).rounded())
+                let gy = Int((py + half).rounded())
+                let gz = Int((pz + half).rounded())
+                if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                    setCell(x: gx, y: gy, z: gz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
