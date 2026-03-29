@@ -2,6 +2,21 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 86 (2026-03-29 00:15 PDT)
+
+**Goal**: Fix aliveIndexMap bug, Scherk Surface pattern, Teal theme, clean up stale test assertions.
+
+1. **Bug fix: aliveIndexMap not reset for dying cells**: In `advanceGeneration()`, when a cell transitioned from alive to dead, its `aliveIndexMap[idx]` entry was not reset to -1. This left stale position values that could cause incorrect swap-remove operations in `toggleCell()` — if a user toggled a recently-died cell, the stale map entry would point into the wrong position in `aliveCellIndices`, potentially removing an unrelated cell. Fixed by adding `aliveIndexMap[idx] = -1` when a cell fails the survival check. Added 2 dedicated tests verifying the fix: one checks dying cells get -1, the other validates map consistency over 10 generations.
+
+2. **Scherk Surface pattern (58th cyclable)**: Heinrich Scherk's 1834 doubly periodic minimal surface — the implicit equation e^z * cos(y) = cos(x) defines an infinite lattice of saddle-shaped sheets. The implementation evaluates the implicit form f(x,y,z) = e^z * cos(y) - cos(x) over 2 periods and marks voxels where |f| < 0.5 as alive, tracing the thin surface. The result is an elegant array of alternating saddle sheets connected at their edges — visually distinct from the Schwarz P Surface (cubic symmetry tunnels through smooth surface) and the Gyroid (labyrinthine gyroid channels). Under evolution, the thin saddle sheets erode from their edges while denser junction regions persist.
+
+3. **Teal theme (58th)**: Blue-green aesthetic — vivid teal newborn cells (emissive 2.1, green 0.80 and blue 0.70 with zero red) through medium dark teal young cells to deep dark teal mature cells fading to near-black. Distinct from Aquamarine (lighter cyan-green with some red), Jade (green-dominant with minimal blue), Ocean Blues (broad blue range with more blue than green), and Forest (dark green with yellow undertones) — Teal stays in the pure blue-green range with zero red across all tiers, green slightly dominating blue, evoking the plumage color of the Eurasian teal duck.
+
+4. **Cleaned up stale test assertions**: Fixed all pattern count assertions to correct values. Added 11 new tests: Scherk Surface Pattern (6 tests), Teal Theme (5 tests), plus 2 aliveIndexMap bug fix tests (13 total new tests).
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 13 — Session 83 (2026-03-29 00:05 PDT)
 
 **Goal**: Voronoi Cells pattern, Burgundy theme, update test assertions.

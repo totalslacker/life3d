@@ -252,6 +252,7 @@ struct GridModel: Sendable {
 
                         } else {
                             nextCells[idx] = 0
+                            aliveIndexMap[idx] = -1
                             dyingCells.append(idx)
                         }
                     } else {
@@ -2595,6 +2596,14 @@ struct GridModel: Sendable {
                 let gx = Int((px * scale) + half)
                 let gy = Int((py * scale) + half)
                 let gz = Int((pz * scale * 0.5) + half)
+                if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                    setCell(x: gx, y: gy, z: gz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     /// Dini's Surface — a twisted pseudospherical surface with constant negative
     /// Gaussian curvature. Parametrized by x = a*cos(u)*sin(v), y = a*sin(u)*sin(v),
     /// z = a*(cos(v) + log(tan(v/2))) + b*u, producing a helicoid-like spiral that
@@ -2680,6 +2689,14 @@ struct GridModel: Sendable {
                     }
                     // Alive if near the boundary between two cells
                     if d2 - d1 < boundaryThreshold {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func loadSchwarzDSurface() {
         clearAll()
         let n = size
@@ -2703,6 +2720,44 @@ struct GridModel: Sendable {
                     let cx = cos(fx), cy = cos(fy), cz = cos(fz)
                     let value = sx * sy * sz + sx * cy * cz + cx * sy * cz + cx * cy * sz
                     if abs(value) < thickness {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    mutating func loadScherkSurface() {
+        clearAll()
+        let n = size
+        // Scherk's First Surface — a doubly periodic minimal surface discovered by
+        // Heinrich Scherk in 1834. The implicit equation is:
+        //   e^z * cos(y) = cos(x)  ⟺  z = ln(cos(x) / cos(y))
+        // The surface extends infinitely with saddle-like sheets connected at their
+        // edges, creating an alternating checkerboard of rising and falling minimal
+        // surfaces. The implementation evaluates the implicit form
+        //   f(x,y,z) = e^z * cos(y) - cos(x)
+        // over 2 periods and marks voxels where |f| < threshold as alive, tracing
+        // the thin surface. The result is an elegant lattice of saddle sheets —
+        // visually distinct from the Schwarz P Surface (cubic symmetry tunnels) and
+        // the Gyroid (labyrinthine channels). Under evolution, the thin saddle sheets
+        // erode from their edges while the denser junction lines persist.
+        let periods: Float = 2.0
+        let scale = 2.0 * Float.pi * periods / Float(n)
+        let threshold: Float = 0.5
+        for x in 0..<n {
+            let fx = (Float(x) + 0.5) * scale - Float.pi * periods
+            let cosX = cos(fx)
+            for y in 0..<n {
+                let fy = (Float(y) + 0.5) * scale - Float.pi * periods
+                let cosY = cos(fy)
+                for z in 0..<n {
+                    let fz = (Float(z) + 0.5) * scale - Float.pi * periods
+                    let expZ = exp(fz)
+                    // Implicit: e^z * cos(y) - cos(x) = 0
+                    let value = expZ * cosY - cosX
+                    if abs(value) < threshold {
                         setCell(x: x, y: y, z: z, alive: true)
                     }
                 }
