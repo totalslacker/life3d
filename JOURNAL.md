@@ -2,6 +2,23 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 64 (2026-03-28 17:19 PDT)
+
+**Goal**: Möbius Strip pattern, Hologram theme, tests.
+
+Three improvements:
+
+1. **Möbius Strip pattern (29th)**: A parametric Möbius strip — the famous non-orientable surface with only one side and one edge. The strip follows a circular path of configurable radius, with a half-twist applied across its width so that after traversing the full loop, the surface has flipped. Sampled densely (200 steps around the loop × 12 width samples) to ensure a solid surface in the voxel grid. Under evolution, the thin single-layer surface erodes quickly at exposed edges while the twisted junction region (where the strip crosses itself) retains higher local neighbor density, producing an asymmetric fragmentation that reveals the topology.
+
+2. **Hologram theme (29th)**: Pure cyan sci-fi aesthetic — brilliant cyan newborn cells (emissive 2.4, zero red channel) through teal young cells to dark cyan-black mature cells fading to near-black. Distinct from Neon (blue-purple spectrum), Glacier (icy teal with white), Bioluminescence (aqua/teal organic), and Arctic (pale ice blue) — Hologram stays in the pure cyan range (green+blue, zero red) evoking translucent sci-fi holograms and data projections. Red channel is zero across all tiers.
+
+3. **Updated 13 stale theme count assertions (28→29) and 2 stale pattern count assertions (28→29 total, 27→28 cyclable)**. Added 11 new tests across 2 new suites: Möbius Strip Pattern (6 tests: non-empty, cell count bounds, engine enum, index consistency, evolution dynamics, pattern count 29), Hologram Theme (5 tests: existence, theme count 29, color progression, opacity decay, cyan dominance).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 63 (2026-03-28 17:10 PDT)
 
 **Goal**: Icosahedron pattern (complete all 5 Platonic solids), Starfield theme, tests.

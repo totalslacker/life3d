@@ -604,7 +604,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.2, opacity: 0.06)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield]
+    static let hologram = ColorTheme(
+        name: "Hologram",
+        newborn: TierColors(
+            baseColor: SIMD4(0.0, 1.0, 0.95, 1.0),
+            emissiveColor: SIMD3(0.0, 1.0, 0.95),
+            emissiveIntensity: 2.4, opacity: 0.60),
+        young: TierColors(
+            baseColor: SIMD4(0.0, 0.7, 0.85, 1.0),
+            emissiveColor: SIMD3(0.0, 0.6, 0.8),
+            emissiveIntensity: 1.4, opacity: 0.38),
+        mature: TierColors(
+            baseColor: SIMD4(0.0, 0.3, 0.5, 1.0),
+            emissiveColor: SIMD3(0.0, 0.25, 0.45),
+            emissiveIntensity: 0.7, opacity: 0.20),
+        dying: TierColors(
+            baseColor: SIMD4(0.0, 0.1, 0.2, 1.0),
+            emissiveColor: SIMD3(0.0, 0.08, 0.15),
+            emissiveIntensity: 0.25, opacity: 0.07)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram]
 }
 
 enum GridRenderer {

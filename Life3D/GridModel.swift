@@ -1242,6 +1242,46 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadMobiusStrip() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let radius = Float(min(size / 3, 6))
+        let halfWidth: Float = 2.5
+        let steps = 200
+
+        for step in 0..<steps {
+            let t = Float(step) / Float(steps) * 2.0 * .pi
+            // Center of the strip follows a circle
+            let cx = radius * cos(t)
+            let cy: Float = 0
+            let cz = radius * sin(t)
+            // Local frame: radial direction in XZ plane
+            let radialX = cos(t)
+            let radialZ = sin(t)
+            // Möbius twist: the local "up" vector rotates by half a turn over the full loop
+            let twist = t / 2.0
+            // Sample across the strip width
+            let widthSteps = 12
+            for w in 0..<widthSteps {
+                let s = (Float(w) / Float(widthSteps - 1) - 0.5) * 2.0 * halfWidth
+                // The strip surface point: offset along twisted normal
+                let upY = cos(twist)
+                let upRadial = sin(twist)
+                let px = cx + s * upRadial * radialX
+                let py = cy + s * upY
+                let pz = cz + s * upRadial * radialZ
+                // Map to grid coordinates
+                let gx = Int(round(px + mid - 0.5))
+                let gy = Int(round(py + mid - 0.5))
+                let gz = Int(round(pz + mid - 0.5))
+                if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+                    setCell(x: gx, y: gy, z: gz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
