@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 97 (2026-03-29 04:30 PDT)
+
+**Goal**: Kuen Surface pattern, Pewter theme, rebuildAliveCellIndices defensive fix.
+
+1. **Kuen Surface pattern (67th cyclable)**: A pseudospherical surface of constant negative Gaussian curvature — parametrized by x = 2(cos(v) + v·sin(v))·sin(u)/(1+v²sin²u), y = 2(cos(v) + v·sin(v))·cos(u)/(1+v²sin²u), z = log(tan(v/2)) + 2cos(v)/(1+v²sin²u). Related to the Breather Surface (both have constant negative curvature) and Dini's Surface (helical pseudospherical), but the Kuen Surface has a distinctive trumpet-bell flare with pinched edges. The parametrization avoids singularities at v=0 and v=π where tan(v/2) diverges. Two-pass normalization maps points to grid bounds with thickness. 6 new tests.
+2. **Pewter theme (70th)**: Cool metallic grey aesthetic — silvery-blue newborn cells (R 0.70, G 0.72, B 0.75) through medium steel-grey young cells to dark gunmetal mature cells. Blue channel slightly dominant across all tiers (B > G > R), giving a cool cast. Distinct from Slate (more saturated blue-grey), Graphite (darker, more neutral), Titanium (warmer), and Monochrome (pure grey without blue bias). 5 new tests.
+3. **Defensive fix**: Added `aliveCount = aliveCellIndices.count` at end of `rebuildAliveCellIndices()` — ensures count stays synchronized even if callers bypass `setCell()`. Also added 1 test verifying manual cell count matches `aliveCount` after pattern load.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 13 — Session 96 (2026-03-29 04:15 PDT)
 
 **Goal**: Viridian theme (merged alongside Henneberg Surface from parallel polecat).
