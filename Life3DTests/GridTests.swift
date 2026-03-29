@@ -4195,9 +4195,9 @@ struct AliveMapResetRegressionTests {
     func patternCount() {
         // 33 total patterns (including Clear), 32 cyclable (excluding Clear)
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 34)
+        #expect(allPatterns.count == 35)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 33)
+        #expect(cyclable.count == 34)
     }
 }
 
@@ -4311,13 +4311,13 @@ struct PatternCountSession61Tests {
     @Test("Total pattern count is 28 (27 + clear)")
     func totalPatternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 34)
+        #expect(allPatterns.count == 35)
     }
 
     @Test("Cyclable patterns is 27 (excludes clear)")
     func cyclablePatternCount() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
-        #expect(cyclable.count == 33)
+        #expect(cyclable.count == 34)
     }
 }
 
@@ -4571,7 +4571,7 @@ struct MobiusStripPatternTests {
     @Test("Pattern count is 29 after Möbius Strip addition")
     func patternCount29() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 34)
+        #expect(allPatterns.count == 35)
     }
 }
 
@@ -4663,7 +4663,7 @@ struct LissajousCurvePatternTests {
     @Test("Pattern count is 30 after Lissajous Curve addition")
     func patternCount30() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 34)
+        #expect(allPatterns.count == 35)
     }
 }
 
@@ -4757,7 +4757,7 @@ struct KleinBottlePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount31() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 34)
+        #expect(allPatterns.count == 35)
     }
 }
 
@@ -4848,7 +4848,7 @@ struct GyroidPatternTests {
     @Test("Pattern count is 34 after Gyroid addition")
     func patternCount33() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 34)
+        #expect(allPatterns.count == 35)
     }
 }
 
@@ -4940,7 +4940,7 @@ struct LorenzAttractorPatternTests {
     @Test("Pattern count is 34 after Lorenz Attractor addition")
     func patternCount34() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 34)
+        #expect(allPatterns.count == 35)
     }
 }
 
@@ -4984,6 +4984,55 @@ struct TerracottaThemeTests {
         // Mature should still have red as dominant channel
         #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.y)
         #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.z)
+    }
+}
+
+// MARK: - Hilbert Curve Pattern Tests (Session 68)
+
+@Suite("Hilbert Curve Pattern Tests")
+struct HilbertCurvePatternTests {
+    @Test("Hilbert curve produces non-empty grid")
+    func hilbertCurveNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadHilbertCurve()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Hilbert curve cell count is within reasonable bounds")
+    func hilbertCurveCellCount() {
+        var grid = GridModel(size: 16)
+        grid.loadHilbertCurve()
+        #expect(grid.aliveCount > 50)
+        #expect(grid.aliveCount < grid.cellCount)
+    }
+
+    @Test("Hilbert curve is available in SimulationEngine.Pattern enum")
+    func hilbertCurveEngineEnum() {
+        let pattern = SimulationEngine.Pattern.hilbertCurve
+        #expect(pattern.rawValue == "Hilbert Curve")
+    }
+
+    @Test("Hilbert curve alive cell index consistency")
+    func hilbertCurveIndexConsistency() {
+        var grid = GridModel(size: 16)
+        grid.loadHilbertCurve()
+        let indexCount = grid.aliveCellIndices.count
+        #expect(indexCount == grid.aliveCount)
+    }
+
+    @Test("Hilbert curve evolves under standard rules")
+    func hilbertCurveEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadHilbertCurve()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount != initial)
+    }
+
+    @Test("Pattern count is 35 after Hilbert Curve addition")
+    func patternCount35() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.count == 35)
     }
 }
 

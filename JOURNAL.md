@@ -14,6 +14,12 @@ Three improvements:
 
 3. **Updated 16 stale theme count assertions (32→33), 5 stale pattern count assertions (33→34 total), and 2 stale cyclable count assertions (32→33)**. Added 11 new tests across 2 new suites: Lorenz Attractor Pattern (6 tests: non-empty, cell count bounds, engine enum, index consistency, evolution dynamics, pattern count 34), Lavender Theme (5 tests: existence, theme count 33, color progression, opacity decay, purple dominance).
 
+## Day 12 — Session 68b (2026-03-28 17:56 PDT)
+
+**Goal**: Hilbert Curve pattern (merged with existing Lavender theme).
+
+Added Hilbert Curve pattern (35th): A 3D space-filling fractal curve that visits every point in a cube exactly once. Implementation uses iterative algorithm to convert linear indices to 3D Hilbert coordinates, rasterized as thick tube. Added 6 new Hilbert Curve tests. Lavender theme already present from prior merge — duplicate discarded.
+
 Build verified clean on visionOS Simulator.
 
 **Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.

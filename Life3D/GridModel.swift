@@ -1456,6 +1456,80 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// 3D Hilbert curve — a space-filling fractal curve that visits every cell
+    /// in a cube exactly once, creating a continuous winding path.
+    mutating func loadHilbertCurve() {
+        clearAll()
+        // Determine the largest power-of-2 order that fits in the grid
+        var order = 1
+        while (1 << (order + 1)) <= size { order += 1 }
+        let n = 1 << order  // side length of the Hilbert cube
+
+        let totalPoints = n * n * n
+        let tubeRadius: Float = 1.0
+        let r = Int(ceil(tubeRadius))
+        let offset = (size - n) / 2  // center in the grid
+
+        // Generate 3D Hilbert curve points using iterative algorithm
+        for d in 0..<totalPoints {
+            var (x, y, z) = hilbert3D(d: d, order: order)
+            x += offset
+            y += offset
+            z += offset
+
+            // Rasterize as a thick tube
+            for ddx in -r...r {
+                for ddy in -r...r {
+                    for ddz in -r...r {
+                        let dist = Float(ddx * ddx + ddy * ddy + ddz * ddz)
+                        if dist <= tubeRadius * tubeRadius {
+                            let gx = x + ddx
+                            let gy = y + ddy
+                            let gz = z + ddz
+                            if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+                                setCell(x: gx, y: gy, z: gz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    /// Convert a linear index d to (x,y,z) on a 3D Hilbert curve of given order.
+    private func hilbert3D(d: Int, order: Int) -> (Int, Int, Int) {
+        var x = 0, y = 0, z = 0
+        var dd = d
+        for s in 0..<order {
+            let step = 1 << s
+            let rx = (dd >> 2) & 1
+            let ry = ((dd >> 1) ^ rx) & 1
+            let rz = (dd ^ ry) & 1
+
+            // Rotate quadrant
+            if rz == 0 {
+                if ry == 1 {
+                    x = step - 1 - x
+                    y = step - 1 - y
+                }
+                if rx == 1 {
+                    // Swap y and z
+                    let tmp = y; y = z; z = tmp
+                } else {
+                    // Swap x and z
+                    let tmp = x; x = z; z = tmp
+                }
+            }
+
+            x += step * rx
+            y += step * ry
+            z += step * rz
+            dd >>= 3
+        }
+        return (x, y, z)
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

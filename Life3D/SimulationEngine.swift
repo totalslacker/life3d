@@ -380,6 +380,8 @@ final class SimulationEngine {
             grid.loadGyroid()
         case .lorenzAttractor:
             grid.loadLorenzAttractor()
+        case .hilbertCurve:
+            grid.loadHilbertCurve()
         case .clear:
             grid.clearAll()
         }
@@ -435,6 +437,7 @@ final class SimulationEngine {
         case kleinBottle = "Klein Bottle"
         case gyroid = "Gyroid"
         case lorenzAttractor = "Lorenz Attractor"
+        case hilbertCurve = "Hilbert Curve"
         case clear = "Clear"
 
         var id: String { rawValue }
