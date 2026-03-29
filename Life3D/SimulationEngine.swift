@@ -439,6 +439,8 @@ final class SimulationEngine {
             grid.loadHelicoid()
         case .steinmetzSolid:
             grid.loadSteinmetzSolid()
+        case .crossCap:
+            grid.loadCrossCap()
         case .clear:
             grid.clearAll()
         }
@@ -523,6 +525,7 @@ final class SimulationEngine {
         case monkeySaddle = "Monkey Saddle"
         case helicoid = "Helicoid"
         case steinmetzSolid = "Steinmetz Solid"
+        case crossCap = "Cross-Cap"
         case clear = "Clear"
 
         var id: String { rawValue }

@@ -2907,6 +2907,56 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadCrossCap() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Cross-Cap: an immersion of the real projective plane in 3D.
+        // Parametric form (u in [0, π], v in [0, 2π]):
+        //   x = cos(u) * sin(2v) / 2
+        //   y = sin(u) * sin(2v) / 2
+        //   z = (cos²(v) - cos²(u) * sin²(v)) / 2
+        let uSteps = n * 8
+        let vSteps = n * 8
+        let scale = half * 0.8
+        let thickness: Float = 0.6
+        for ui in 0..<uSteps {
+            let u = Float(ui) / Float(uSteps) * Float.pi
+            let cosU = cos(u)
+            let sinU = sin(u)
+            let cos2U = cosU * cosU
+            for vi in 0..<vSteps {
+                let v = Float(vi) / Float(vSteps) * 2.0 * Float.pi
+                let sin2V = sin(2.0 * v)
+                let cosV = cos(v)
+                let sinV = sin(v)
+                let px = cosU * sin2V / 2.0
+                let py = sinU * sin2V / 2.0
+                let pz = (cosV * cosV - cos2U * sinV * sinV) / 2.0
+                let ix = Int(half + px * scale)
+                let iy = Int(half + py * scale)
+                let iz = Int(half + pz * scale)
+                let t = Int(thickness)
+                for dx in -t...t {
+                    for dy in -t...t {
+                        for dz in -t...t {
+                            let dist = sqrt(Float(dx * dx + dy * dy + dz * dz))
+                            if dist <= thickness {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

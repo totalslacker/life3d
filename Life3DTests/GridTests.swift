@@ -7504,7 +7504,87 @@ struct CeruleanThemeTests {
         #expect(nb.x < 0.05) // R near zero
     }
 
-    @Test func themeCount62c() {
-        #expect(ColorTheme.allThemes.count == 62)
+    @Test func themeCount63m() {
+        #expect(ColorTheme.allThemes.count == 63)
+    }
+}
+
+// MARK: - Cross-Cap Pattern Tests
+
+@Suite("Cross-Cap Pattern Tests")
+struct CrossCapPatternTests {
+    @Test func crossCapProducesCells() {
+        var grid = GridModel(size: 16)
+        grid.loadCrossCap()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test func crossCapNotFull() {
+        var grid = GridModel(size: 16)
+        grid.loadCrossCap()
+        #expect(grid.aliveCount < 16 * 16 * 16 / 2)
+    }
+
+    @Test func crossCapDeterministic() {
+        var grid1 = GridModel(size: 16)
+        grid1.loadCrossCap()
+        var grid2 = GridModel(size: 16)
+        grid2.loadCrossCap()
+        #expect(grid1.aliveCount == grid2.aliveCount)
+    }
+
+    @Test func crossCapLargeGrid() {
+        var grid = GridModel(size: 24)
+        grid.loadCrossCap()
+        #expect(grid.aliveCount > 0)
+        #expect(grid.aliveCount < 24 * 24 * 24)
+    }
+
+    @Test func crossCapPatternExists() {
+        let pattern = SimulationEngine.Pattern.allCases.first { $0.rawValue == "Cross-Cap" }
+        #expect(pattern != nil)
+    }
+
+    @Test func crossCapDistinctFromBoysSurface() {
+        var crossCap = GridModel(size: 16)
+        crossCap.loadCrossCap()
+        var boys = GridModel(size: 16)
+        boys.loadBoysSurface()
+        #expect(crossCap.aliveCount != boys.aliveCount)
+    }
+}
+
+// MARK: - Mauve Theme Tests
+
+@Suite("Mauve Theme Tests")
+struct MauveThemeTests {
+    @Test func mauveThemeExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Mauve" }
+        #expect(found)
+    }
+
+    @Test func mauveNewbornBrightest() {
+        let t = ColorTheme.mauve
+        #expect(t.newborn.emissiveIntensity > t.young.emissiveIntensity)
+        #expect(t.young.emissiveIntensity > t.mature.emissiveIntensity)
+    }
+
+    @Test func mauveOpacityDecreases() {
+        let t = ColorTheme.mauve
+        #expect(t.newborn.opacity > t.young.opacity)
+        #expect(t.young.opacity > t.mature.opacity)
+        #expect(t.mature.opacity > t.dying.opacity)
+    }
+
+    @Test func mauvePurplePink() {
+        let nb = ColorTheme.mauve.newborn.baseColor
+        #expect(nb.x > 0.5) // R significant (pink component)
+        #expect(nb.z > 0.5) // B significant (purple component)
+        #expect(nb.y < nb.x) // G < R
+        #expect(nb.y < nb.z) // G < B
+    }
+
+    @Test func themeCount63m() {
+        #expect(ColorTheme.allThemes.count == 63)
     }
 }
