@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 95 (2026-03-29 04:10 PDT)
+
+**Goal**: Henneberg Surface pattern, Sienna theme.
+
+1. **Henneberg Surface pattern (66th cyclable)**: A minimal surface with branch points — parametrized by x = 2sinh(u)cos(v) - (2/3)sinh(3u)cos(3v), y = 2sinh(u)sin(v) + (2/3)sinh(3u)sin(3v), z = 2cosh(2u)cos(2v). Named after Lebrecht Henneberg, it's notable for having a branch point at the origin where the surface self-intersects. Two-pass normalization maps the parametric points to grid bounds with thickness. Visually distinct from Catalan Surface (tractrix profile with pinched ends) and Catenoid (smooth hyperbolic revolution) — the Henneberg has a more complex self-intersecting fold structure. 6 new tests.
+2. **Sienna theme (68th)**: Warm reddish-brown aesthetic — vivid burnt-sienna newborn cells (R 0.80, G 0.38, B 0.18) through medium russet young cells to deep dark brown mature cells. Distinct from Umber (cooler, greener brown), Mahogany (deeper red-brown), Terracotta (orange-brown), and Vermilion (bright red-orange). Sienna stays firmly in the warm reddish-brown range with R >> G > B, evoking the natural earth pigment burnt sienna. 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 13 — Session 94 (2026-03-29 03:50 PDT)
 
 **Goal**: Catalan Surface pattern, Umber theme.

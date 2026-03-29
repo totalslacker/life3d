@@ -7921,3 +7921,91 @@ struct UmberThemeTests {
         #expect(diff > 0.1)
     }
 }
+
+// MARK: - Henneberg Surface Pattern Tests
+
+@Suite("Henneberg Surface Pattern Tests")
+struct HennebergSurfacePatternTests {
+    @Test func hennebergSurfacePopulatesGrid() {
+        var grid = GridModel(size: 16)
+        grid.loadHennebergSurface()
+        #expect(grid.aliveCount > 50)
+    }
+
+    @Test func hennebergSurfaceScalesWithGridSize() {
+        var small = GridModel(size: 12)
+        small.loadHennebergSurface()
+        var large = GridModel(size: 24)
+        large.loadHennebergSurface()
+        #expect(large.aliveCount > small.aliveCount)
+    }
+
+    @Test func hennebergSurfaceDeterministic() {
+        var a = GridModel(size: 16)
+        a.loadHennebergSurface()
+        var b = GridModel(size: 16)
+        b.loadHennebergSurface()
+        #expect(a.aliveCount == b.aliveCount)
+    }
+
+    @Test func hennebergSurfaceDistinctFromCatalanSurface() {
+        var henneberg = GridModel(size: 16)
+        henneberg.loadHennebergSurface()
+        var catalan = GridModel(size: 16)
+        catalan.loadCatalanSurface()
+        #expect(henneberg.aliveCount != catalan.aliveCount)
+    }
+
+    @Test func hennebergSurfaceDistinctFromCatenoid() {
+        var henneberg = GridModel(size: 16)
+        henneberg.loadHennebergSurface()
+        var catenoid = GridModel(size: 16)
+        catenoid.loadCatenoid()
+        #expect(henneberg.aliveCount != catenoid.aliveCount)
+    }
+
+    @Test func hennebergSurfacePatternExists() {
+        let pattern = SimulationEngine.Pattern.allCases.first { $0.rawValue == "Henneberg Surface" }
+        #expect(pattern != nil)
+    }
+}
+
+// MARK: - Sienna Theme Tests
+
+@Suite("Sienna Theme Tests")
+struct SiennaThemeTests {
+    @Test func siennaThemeExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Sienna" }
+        #expect(found)
+    }
+
+    @Test func siennaNewbornBrightest() {
+        let t = ColorTheme.sienna
+        #expect(t.newborn.emissiveIntensity > t.young.emissiveIntensity)
+        #expect(t.young.emissiveIntensity > t.mature.emissiveIntensity)
+        #expect(t.mature.emissiveIntensity > t.dying.emissiveIntensity)
+    }
+
+    @Test func siennaOpacityDecreases() {
+        let t = ColorTheme.sienna
+        #expect(t.newborn.opacity > t.young.opacity)
+        #expect(t.young.opacity > t.mature.opacity)
+        #expect(t.mature.opacity > t.dying.opacity)
+    }
+
+    @Test func siennaWarmReddishBrown() {
+        let nb = ColorTheme.sienna.newborn.baseColor
+        // Sienna: R dominant, G and B subdued, R > G > B
+        #expect(nb.x > nb.y)
+        #expect(nb.y > nb.z)
+        // Reddish — R should be significantly higher than G
+        #expect(nb.x - nb.y > 0.3)
+    }
+
+    @Test func siennaDistinctFromUmber() {
+        let sienna = ColorTheme.sienna.newborn.baseColor
+        let umber = ColorTheme.umber.newborn.baseColor
+        let diff = abs(sienna.x - umber.x) + abs(sienna.y - umber.y) + abs(sienna.z - umber.z)
+        #expect(diff > 0.1)
+    }
+}
