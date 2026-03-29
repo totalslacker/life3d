@@ -604,7 +604,31 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.2, opacity: 0.06)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield]
+    /// Vaporwave aesthetic — hot pink newborn cells through cyan/teal young to deep
+    /// purple mature to near-black. The pink-to-teal gradient is unique in the palette,
+    /// distinct from Sakura (pink/mauve), Nebula (lavender/purple), and Neon (cyan/blue).
+    /// Evokes retro-futuristic digital landscapes with maximum chromatic contrast.
+    static let vapor = ColorTheme(
+        name: "Vapor",
+        newborn: TierColors(
+            baseColor: SIMD4(1.0, 0.2, 0.6, 1.0),
+            emissiveColor: SIMD3(1.0, 0.15, 0.55),
+            emissiveIntensity: 2.4, opacity: 0.60),
+        young: TierColors(
+            baseColor: SIMD4(0.1, 0.85, 0.8, 1.0),
+            emissiveColor: SIMD3(0.05, 0.8, 0.75),
+            emissiveIntensity: 1.4, opacity: 0.38),
+        mature: TierColors(
+            baseColor: SIMD4(0.3, 0.05, 0.45, 1.0),
+            emissiveColor: SIMD3(0.2, 0.02, 0.35),
+            emissiveIntensity: 0.7, opacity: 0.22),
+        dying: TierColors(
+            baseColor: SIMD4(0.1, 0.02, 0.18, 1.0),
+            emissiveColor: SIMD3(0.06, 0.01, 0.12),
+            emissiveIntensity: 0.3, opacity: 0.08)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .vapor]
 }
 
 enum GridRenderer {

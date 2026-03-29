@@ -1242,6 +1242,33 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// A gyroid — a triply periodic minimal surface defined by
+    /// sin(x)cos(y) + sin(y)cos(z) + sin(z)cos(x) ≈ 0. Cells near the surface
+    /// are alive, creating a beautiful network of interconnected tunnels and channels
+    /// that fills the entire grid. The gyroid has no straight lines and divides space
+    /// into two intertwined labyrinthine regions. Under evolution, thin surface sections
+    /// erode while junction nodes (where multiple channels meet) persist, creating
+    /// a fracturing network that breaks into evolving clusters.
+    mutating func loadGyroid() {
+        clearAll()
+        let scale = 2.0 * Float.pi / Float(size)
+        let threshold: Float = 0.8 // surface thickness
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let fx = Float(x) * scale
+                    let fy = Float(y) * scale
+                    let fz = Float(z) * scale
+                    let value = sin(fx) * cos(fy) + sin(fy) * cos(fz) + sin(fz) * cos(fx)
+                    if abs(value) <= threshold {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
