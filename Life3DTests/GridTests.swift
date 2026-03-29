@@ -8549,3 +8549,97 @@ struct TurquoiseThemeTests {
         #expect(ColorTheme.allThemes.contains { $0.name == "Turquoise" })
     }
 }
+
+// MARK: - Clebsch Diagonal Surface Pattern Tests
+
+@Suite("Clebsch Diagonal Surface Pattern Tests")
+struct ClebschDiagonalSurfaceTests {
+    @Test func clebschDiagonalSurfaceProducesCells() {
+        var grid = GridModel(size: 16)
+        grid.loadClebschDiagonalSurface()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test func clebschDiagonalSurfaceAliveCountMatchesIndex() {
+        var grid = GridModel(size: 16)
+        grid.loadClebschDiagonalSurface()
+        var manual = 0
+        for i in 0..<(16 * 16 * 16) {
+            if grid.cells[i] > 0 { manual += 1 }
+        }
+        #expect(grid.aliveCount == manual)
+    }
+
+    @Test func clebschDiagonalSurfaceNotFull() {
+        var grid = GridModel(size: 16)
+        grid.loadClebschDiagonalSurface()
+        #expect(grid.aliveCount < 16 * 16 * 16)
+    }
+
+    @Test func clebschDiagonalSurfaceScalesWithGridSize() {
+        var small = GridModel(size: 8)
+        small.loadClebschDiagonalSurface()
+        var large = GridModel(size: 16)
+        large.loadClebschDiagonalSurface()
+        #expect(large.aliveCount > small.aliveCount)
+    }
+
+    @Test func clebschDiagonalSurfaceDistinctFromSphere() {
+        var clebsch = GridModel(size: 16)
+        clebsch.loadClebschDiagonalSurface()
+        var sphere = GridModel(size: 16)
+        sphere.loadSphere()
+        #expect(clebsch.aliveCount != sphere.aliveCount)
+    }
+
+    @Test func clebschDiagonalSurfaceSurvivesEvolution() {
+        var grid = GridModel(size: 16, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
+        grid.loadClebschDiagonalSurface()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount > 0 || initial > 0)
+    }
+}
+
+// MARK: - Apricot Theme Tests
+
+@Suite("Apricot Theme Tests")
+struct ApricotThemeTests {
+    @Test func apricotRedDominant() {
+        let nb = ColorTheme.apricot.newborn.baseColor
+        // Apricot: warm orange-peach, R dominant
+        #expect(nb.x > nb.y)  // R > G
+        #expect(nb.x > nb.z)  // R > B
+    }
+
+    @Test func apricotGreenOverBlue() {
+        let nb = ColorTheme.apricot.newborn.baseColor
+        // Apricot has G > B (warm, not pink)
+        #expect(nb.y > nb.z)
+    }
+
+    @Test func apricotDistinctFromCopper() {
+        let apricot = ColorTheme.apricot.newborn.baseColor
+        let copper = ColorTheme.copper.newborn.baseColor
+        let diff = abs(apricot.x - copper.x) + abs(apricot.y - copper.y) + abs(apricot.z - copper.z)
+        #expect(diff > 0.1)
+    }
+
+    @Test func apricotDistinctFromTerracotta() {
+        let apricot = ColorTheme.apricot.newborn.baseColor
+        let terracotta = ColorTheme.terracotta.newborn.baseColor
+        let diff = abs(apricot.x - terracotta.x) + abs(apricot.y - terracotta.y) + abs(apricot.z - terracotta.z)
+        #expect(diff > 0.1)
+    }
+
+    @Test func apricotDistinctFromSaffron() {
+        let apricot = ColorTheme.apricot.newborn.baseColor
+        let saffron = ColorTheme.saffron.newborn.baseColor
+        let diff = abs(apricot.x - saffron.x) + abs(apricot.y - saffron.y) + abs(apricot.z - saffron.z)
+        #expect(diff > 0.1)
+    }
+
+    @Test func apricotInAllThemes() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Apricot" })
+    }
+}

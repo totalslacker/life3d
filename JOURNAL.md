@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 101 (2026-03-29 05:15 PDT)
+
+**Goal**: Clebsch Diagonal Surface pattern, Apricot theme, fix Kuen Surface build break.
+
+1. **Fixed Kuen Surface build break**: The `loadKuenSurface()` function was missing its entire second pass (normalization + cell creation + closing brace). The function collected parametric points but never mapped them to grid cells, and its missing `}` caused `loadRichmondSurface`, `loadBohemianDome`, `loadAstroidalEllipsoid`, and `clearAll` to be nested inside it — breaking the build. Added the standard two-pass normalization block and closing brace.
+2. **Clebsch Diagonal Surface pattern (69th cyclable)**: A famous cubic surface defined implicitly by x³ + y³ + z³ + w³ + t³ = 0 where w = -(x+y+z+t) and t = 1. Notable for containing all 27 lines on a smooth cubic surface. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the cubic equation at each cell, and activates cells where the value is near zero. Produces an elegant curved surface with saddle-like features. 6 new tests.
+3. **Apricot theme (74th)**: Warm orange-peach aesthetic — vivid apricot newborn cells (R 0.95, G 0.65, B 0.38) through medium burnt-apricot young cells to deep brown mature cells fading to near-black. R dominant across all tiers (R > G > B), warmer and lighter than Copper (darker metallic), more orange than Terracotta (earthy brown), and softer than Saffron (vivid yellow-orange). Evokes the warm glow of ripe apricot fruit. 6 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 13 — Session 100 (2026-03-29 04:50 PDT)
 
 **Goal**: Bohemian Dome pattern, Turquoise theme.

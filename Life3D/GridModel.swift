@@ -3269,6 +3269,46 @@ struct GridModel: Sendable {
             }
         }
         guard !points.isEmpty else { return }
+        var minX = Float.greatestFiniteMagnitude, maxX = -Float.greatestFiniteMagnitude
+        var minY = Float.greatestFiniteMagnitude, maxY = -Float.greatestFiniteMagnitude
+        var minZ = Float.greatestFiniteMagnitude, maxZ = -Float.greatestFiniteMagnitude
+        for (px, py, pz) in points {
+            minX = min(minX, px); maxX = max(maxX, px)
+            minY = min(minY, py); maxY = max(maxY, py)
+            minZ = min(minZ, pz); maxZ = max(maxZ, pz)
+        }
+        let extX = maxX - minX
+        let extY = maxY - minY
+        let extZ = maxZ - minZ
+        let maxExt = max(extX, max(extY, extZ))
+        guard maxExt > 0 else { return }
+        let scale = half * 1.5 / maxExt
+        let cx = (minX + maxX) / 2.0
+        let cy = (minY + maxY) / 2.0
+        let cz = (minZ + maxZ) / 2.0
+        let t = Int(thickness)
+        for (px, py, pz) in points {
+            let ix = Int(half + (px - cx) * scale)
+            let iy = Int(half + (py - cy) * scale)
+            let iz = Int(half + (pz - cz) * scale)
+            for dx in -t...t {
+                for dy in -t...t {
+                    for dz in -t...t {
+                        let dist = sqrt(Float(dx * dx + dy * dy + dz * dz))
+                        if dist <= thickness {
+                            let gx = ix + dx
+                            let gy = iy + dy
+                            let gz = iz + dz
+                            if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                                setCell(x: gx, y: gy, z: gz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
 
     /// Richmond Surface — a minimal surface with a flat point at the origin.
     /// Uses the Weierstrass-Enneper parametrization with f(z) = z^(-2), g(z) = z^2.
@@ -3470,6 +3510,34 @@ struct GridModel: Sendable {
                                 setCell(x: gx, y: gy, z: gz, alive: true)
                             }
                         }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    /// Clebsch Diagonal Surface — a famous cubic surface defined implicitly by
+    /// x³ + y³ + z³ + w³ + t³ = 0 where w = -(x+y+z+t) and t = 1. In 3D, this
+    /// reduces to: x³ + y³ + z³ + (-(x+y+z+1))³ + 1 = 0. The surface is
+    /// notable for containing all 27 lines of a smooth cubic surface.
+    mutating func loadClebschDiagonalSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let range: Float = 2.0
+        let threshold: Float = 0.15
+        for xi in 0..<n {
+            for yi in 0..<n {
+                for zi in 0..<n {
+                    let x = (Float(xi) - half) / half * range
+                    let y = (Float(yi) - half) / half * range
+                    let z = (Float(zi) - half) / half * range
+                    let t: Float = 1.0
+                    let w = -(x + y + z + t)
+                    let value = x * x * x + y * y * y + z * z * z + w * w * w + t * t * t
+                    if abs(value) < threshold * range {
+                        setCell(x: xi, y: yi, z: zi, alive: true)
                     }
                 }
             }
