@@ -2,6 +2,19 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 78 (2026-03-28 23:30 PDT)
+
+**Goal**: Perlin Noise pattern, Cobalt theme, update test assertions.
+
+1. **Perlin Noise pattern (48th)**: A 3D value noise field thresholded to create organic cave-like structures — fundamentally different from the geometric and fractal patterns in the collection. The implementation uses Perlin's improved noise algorithm with a deterministic permutation table (LCG-seeded shuffle), improved smoothstep (6t⁵ - 15t⁴ + 10t³), and gradient hash function mapping to 16 gradient directions. Two octaves of noise are summed (70%/30% weighting) at a base frequency of 4.0 to create multi-scale detail. Voxels above a 0.42 threshold are set alive. The resulting structures are organic, interconnected cave networks with smooth surfaces — they look like natural terrain or coral formations rather than mathematical constructs. Under evolution, thin protrusions erode while dense interior regions sustain, progressively opening up the cave structure.
+
+2. **Cobalt theme (53rd)**: Intense deep blue metallic aesthetic — brilliant saturated blue newborn cells (emissive 2.1, blue channel strongly dominant at 0.90 with very low red 0.08 and green 0.22) through medium deep blue young cells to dark navy mature cells fading to near-black. Distinct from Ocean Blues (cyan-blue gradient with significant green), Sapphire (gemstone blue with moderate red), Midnight (very dark blue-black), and Slate (muted blue-grey) — Cobalt stays in the intensely saturated deep blue range with blue > 3× red and blue > 3× green across all tiers, evoking the vivid blue of cobalt oxide pigment used in ceramics and glass.
+
+3. **Updated stale count assertions**: 52→53 for theme counts, 48→49 for pattern counts, 47→48 for cyclable pattern counts across the test suite. Added 11 new tests across 2 suites: Perlin Noise Pattern (6 tests), Cobalt Theme (5 tests).
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 77 (2026-03-28 23:20 PDT)
 
 **Goal**: Hopf Fibration pattern, Slate theme, update test assertions.

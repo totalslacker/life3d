@@ -2358,6 +2358,86 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadPerlinNoise() {
+        clearAll()
+        let n = size
+        // 3D value noise using a simple hash-based approach.
+        // We evaluate noise at each voxel and threshold to create organic structures.
+        // The permutation table provides pseudo-random gradients; trilinear
+        // interpolation smooths between grid points for coherent noise.
+        let freq: Float = 4.0  // noise frequency — controls feature size
+        let threshold: Float = 0.42  // density threshold — cells alive above this
+
+        // Simple hash-based permutation table (256 entries, wrapping)
+        let perm: [Int] = {
+            var p = Array(0..<256)
+            // Deterministic shuffle using a simple LCG
+            var seed: UInt32 = 42
+            for i in stride(from: 255, through: 1, by: -1) {
+                seed = seed &* 1664525 &+ 1013904223
+                let j = Int(seed >> 16) % (i + 1)
+                p.swapAt(i, j)
+            }
+            return p + p  // double for wrapping
+        }()
+
+        func fade(_ t: Float) -> Float {
+            t * t * t * (t * (t * 6.0 - 15.0) + 10.0)  // Perlin's improved smoothstep
+        }
+
+        func grad(_ hash: Int, _ x: Float, _ y: Float, _ z: Float) -> Float {
+            let h = hash & 15
+            let u = h < 8 ? x : y
+            let v = h < 4 ? y : (h == 12 || h == 14 ? x : z)
+            return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v)
+        }
+
+        func noise3D(_ x: Float, _ y: Float, _ z: Float) -> Float {
+            let xi = Int(floor(x)) & 255
+            let yi = Int(floor(y)) & 255
+            let zi = Int(floor(z)) & 255
+            let xf = x - floor(x)
+            let yf = y - floor(y)
+            let zf = z - floor(z)
+            let u = fade(xf)
+            let v = fade(yf)
+            let w = fade(zf)
+            let a  = perm[xi] + yi
+            let aa = perm[a] + zi
+            let ab = perm[a + 1] + zi
+            let b  = perm[xi + 1] + yi
+            let ba = perm[b] + zi
+            let bb = perm[b + 1] + zi
+            let x1 = lerp(grad(perm[aa], xf, yf, zf), grad(perm[ba], xf - 1, yf, zf), u)
+            let x2 = lerp(grad(perm[ab], xf, yf - 1, zf), grad(perm[bb], xf - 1, yf - 1, zf), u)
+            let y1 = lerp(x1, x2, v)
+            let x3 = lerp(grad(perm[aa + 1], xf, yf, zf - 1), grad(perm[ba + 1], xf - 1, yf, zf - 1), u)
+            let x4 = lerp(grad(perm[ab + 1], xf, yf - 1, zf - 1), grad(perm[bb + 1], xf - 1, yf - 1, zf - 1), u)
+            let y2 = lerp(x3, x4, v)
+            return (lerp(y1, y2, w) + 1.0) / 2.0  // normalize to [0, 1]
+        }
+
+        func lerp(_ a: Float, _ b: Float, _ t: Float) -> Float {
+            a + t * (b - a)
+        }
+
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let nx = Float(x) / Float(n) * freq
+                    let ny = Float(y) / Float(n) * freq
+                    let nz = Float(z) / Float(n) * freq
+                    // Two octaves for more interesting structure
+                    let val = noise3D(nx, ny, nz) * 0.7 + noise3D(nx * 2.0, ny * 2.0, nz * 2.0) * 0.3
+                    if val > threshold {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
