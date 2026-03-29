@@ -12,6 +12,14 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 3. **Updated stale count assertions**: 51→52 for theme counts, 47→48 for pattern counts, 46→47 for cyclable pattern counts across the test suite. Added 11 new tests across 2 suites: Hopf Fibration Pattern (6 tests), Slate Theme (5 tests).
 
+**Goal**: Enneper Surface pattern, Cobalt theme, fix stale test assertions.
+
+1. **Enneper Surface pattern (48th)**: A 3D rendering of the classical Enneper minimal surface from differential geometry. The Enneper surface is parametrized by x = u - u³/3 + uv², y = v - v³/3 + vu², z = u² - v², producing an elegant saddle-shaped surface with ruffled edges that self-intersects at higher parameter ranges. The implementation samples the parametric surface densely over u,v ∈ [-1.5, 1.5] and maps the resulting 3D points onto the voxel grid. The result is a thin, flowing surface with characteristic hyperbolic curvature — visually distinct from the solid fractal patterns. Under evolution, the thin sheet erodes from its edges inward while denser self-intersection regions persist longer due to higher neighbor counts.
+
+2. **Cobalt theme (53rd)**: Deep vivid blue aesthetic — brilliant electric blue newborn cells (emissive 2.2, blue channel dominant at 1.0 with very low red 0.10/green 0.25) through medium navy young cells to dark deep-blue mature cells fading to near-black. Distinct from Sapphire (lighter gemstone blue with more green), Ocean Blues (broad blue range with teal undertones), and Midnight (very dark blue-black) — Cobalt stays in the vivid pure-blue range with blue >> green >> red across all tiers, evoking the intense pigment of cobalt blue glass or cobalt oxide ceramics.
+
+3. **Fixed stale theme count assertions, stale cyclable count assertions**. Added 11 new tests across 2 suites: Enneper Surface Pattern (6 tests), Cobalt Theme (5 tests).
+
 **Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
 
 ---

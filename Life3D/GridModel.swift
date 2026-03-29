@@ -2327,6 +2327,37 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadEnneperSurface() {
+        clearAll()
+        let n = size
+        // Enneper surface: a classical minimal surface from differential geometry.
+        // Parametric form: x = u - u³/3 + uv², y = v - v³/3 + vu², z = u² - v²
+        // The surface self-intersects, creating an elegant ruffled shape.
+        let steps = n * 8 // sample density for good coverage
+        let half = Double(n) / 2.0
+        // Parameter range: [-1.5, 1.5] gives a nice ruffled shape without too much self-intersection
+        let range = 1.5
+        for i in 0..<steps {
+            for j in 0..<steps {
+                let u = -range + 2.0 * range * Double(i) / Double(steps - 1)
+                let v = -range + 2.0 * range * Double(j) / Double(steps - 1)
+                // Enneper surface parametric equations
+                let ex = u - u * u * u / 3.0 + u * v * v
+                let ey = v - v * v * v / 3.0 + v * u * u
+                let ez = u * u - v * v
+                // Scale to fit grid: the surface spans roughly [-3, 3] in each axis
+                let scale = half / 3.5
+                let gx = Int((ex * scale + half).rounded())
+                let gy = Int((ey * scale + half).rounded())
+                let gz = Int((ez * scale + half).rounded())
+                if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                    setCell(x: gx, y: gy, z: gz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
