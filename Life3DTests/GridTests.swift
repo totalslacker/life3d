@@ -4195,9 +4195,9 @@ struct AliveMapResetRegressionTests {
     func patternCount() {
         // 33 total patterns (including Clear), 32 cyclable (excluding Clear)
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 36)
+        #expect(allPatterns.count == 37)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 35)
+        #expect(cyclable.count == 36)
     }
 }
 
@@ -4317,7 +4317,7 @@ struct PatternCountSession61Tests {
     @Test("Cyclable patterns is 27 (excludes clear)")
     func cyclablePatternCount() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
-        #expect(cyclable.count == 35)
+        #expect(cyclable.count == 36)
     }
 }
 
@@ -4858,7 +4858,7 @@ struct GyroidPatternTests {
     @Test("Pattern count is 34 after Gyroid addition")
     func patternCount33() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 36)
+        #expect(allPatterns.count == 37)
     }
 }
 
@@ -4950,7 +4950,7 @@ struct LorenzAttractorPatternTests {
     @Test("Pattern count is 34 after Lorenz Attractor addition")
     func patternCount34() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 36)
+        #expect(allPatterns.count == 37)
     }
 }
 
@@ -5042,7 +5042,7 @@ struct HilbertCurvePatternTests {
     @Test("Pattern count is 35 after Hilbert Curve addition")
     func patternCount35() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 36)
+        #expect(allPatterns.count == 37)
     }
 }
 
@@ -5175,7 +5175,7 @@ struct SierpinskiTetrahedronPatternTests {
     @Test("Pattern count is 36 after Sierpinski Tetrahedron addition")
     func patternCount36() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 36)
+        #expect(allPatterns.count == 37)
     }
 }
 
@@ -5275,7 +5275,7 @@ struct RoseGoldThemeTests {
 
     @Test("Theme count is 38 after Rose Gold addition")
     func themeCount38() {
-        #expect(ColorTheme.allThemes.count == 40)
+        #expect(ColorTheme.allThemes.count == 41)
     }
 
     @Test("Rose Gold has decreasing emissive intensity by age")
@@ -5316,7 +5316,7 @@ struct PeridotThemeTests {
 
     @Test("Theme count is 39 after Peridot addition")
     func themeCount39() {
-        #expect(ColorTheme.allThemes.count == 40)
+        #expect(ColorTheme.allThemes.count == 41)
     }
 
     @Test("Peridot has decreasing emissive intensity by age")
@@ -5452,9 +5452,9 @@ struct SapphireThemeTests {
         #expect(found)
     }
 
-    @Test("Theme count is 41 after Sapphire and Obsidian additions")
-    func themeCount41() {
-        #expect(ColorTheme.allThemes.count == 41)
+    @Test("Theme count is 42 after Sapphire, Obsidian, and Ruby additions")
+    func themeCount42() {
+        #expect(ColorTheme.allThemes.count == 42)
     }
 
     @Test("Sapphire has decreasing emissive intensity by age")
@@ -5493,9 +5493,9 @@ struct ObsidianThemeTests {
         #expect(found)
     }
 
-    @Test("Theme count is 41 after Obsidian addition")
-    func themeCount41() {
-        #expect(ColorTheme.allThemes.count == 41)
+    @Test("Theme count is 42 after Obsidian addition")
+    func themeCount42() {
+        #expect(ColorTheme.allThemes.count == 42)
     }
 
     @Test("Obsidian has decreasing emissive intensity by age")
@@ -5521,5 +5521,46 @@ struct ObsidianThemeTests {
         #expect(theme.newborn.emissiveColor.x >= theme.newborn.emissiveColor.y)
         #expect(theme.mature.emissiveColor.z >= theme.mature.emissiveColor.x)
         #expect(theme.mature.emissiveColor.x >= theme.mature.emissiveColor.y)
+    }
+}
+
+// MARK: - Ruby Theme Tests (Session 71)
+
+@Suite("Ruby Theme Tests")
+struct RubyThemeTests {
+    @Test("Ruby theme exists in allThemes")
+    func rubyExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Ruby" }
+        #expect(found)
+    }
+
+    @Test("Theme count is 42 after Ruby addition")
+    func themeCount42() {
+        #expect(ColorTheme.allThemes.count == 42)
+    }
+
+    @Test("Ruby has decreasing emissive intensity by age")
+    func rubyColorProgression() {
+        let theme = ColorTheme.ruby
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+
+    @Test("Ruby opacity decreases with age")
+    func rubyOpacityDecay() {
+        let theme = ColorTheme.ruby
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+
+    @Test("Ruby is deep red (red channel dominant across all tiers)")
+    func rubyDeepRed() {
+        let theme = ColorTheme.ruby
+        #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.y)
+        #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.z)
+        #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.y)
+        #expect(theme.mature.emissiveColor.x > theme.mature.emissiveColor.z)
     }
 }

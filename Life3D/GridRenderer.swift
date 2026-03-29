@@ -864,7 +864,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.1, opacity: 0.04)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian]
+    static let ruby = ColorTheme(
+        name: "Ruby",
+        newborn: TierColors(
+            baseColor: SIMD4(1.0, 0.08, 0.15, 1.0),
+            emissiveColor: SIMD3(1.0, 0.05, 0.12),
+            emissiveIntensity: 2.4, opacity: 0.60),
+        young: TierColors(
+            baseColor: SIMD4(0.7, 0.04, 0.12, 1.0),
+            emissiveColor: SIMD3(0.65, 0.03, 0.1),
+            emissiveIntensity: 1.3, opacity: 0.38),
+        mature: TierColors(
+            baseColor: SIMD4(0.35, 0.02, 0.08, 1.0),
+            emissiveColor: SIMD3(0.3, 0.01, 0.06),
+            emissiveIntensity: 0.6, opacity: 0.20),
+        dying: TierColors(
+            baseColor: SIMD4(0.12, 0.01, 0.04, 1.0),
+            emissiveColor: SIMD3(0.08, 0.005, 0.03),
+            emissiveIntensity: 0.15, opacity: 0.05)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby]
 }
 
 enum GridRenderer {

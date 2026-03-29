@@ -2,6 +2,23 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 71 (2026-03-28 18:53 PDT)
+
+**Goal**: Catenoid pattern, Ruby theme, 11 new tests.
+
+Three improvements:
+
+1. **Catenoid pattern (36th)**: A minimal surface of revolution — the shape a soap film takes when stretched between two parallel rings. The catenoid is defined by rotating a catenary curve (hyperbolic cosine) around an axis: x = c·cosh(v/c)·cos(u), y = c·cosh(v/c)·sin(u), z = v. The parameter c controls the waist radius. The implementation samples u ∈ [0, 2π) and v across the grid height, rasterizing with thickness (3×3 cross-section) to produce a solid hourglass-shaped surface. The catenoid is one of only two complete, embedded minimal surfaces of revolution (the other being the plane). Under evolution, the thin waist region erodes first due to low neighbor density, while the flared top and bottom rings retain higher density and persist longer, creating a progressive collapse that reveals the surface's curvature.
+
+2. **Ruby theme (41st)**: Deep red gemstone aesthetic — brilliant red newborn cells (emissive 2.4, red channel at 1.0 with very low green and blue) through medium crimson young cells to dark garnet mature cells fading to near-black. Distinct from Crimson (brighter red-orange, higher green channel), Ember (fiery orange-red), Volcanic (dark red with orange), and Coral (warm pink-orange) — Ruby stays in the pure deep red range with red always strongly dominant, evoking the rich saturated color of natural ruby gemstones. Complements Sapphire as a gemstone pair.
+
+3. **Updated 14 stale pattern count assertions (36→37), 2 stale cyclable count assertions (35→36), and 3 stale theme count assertions (40→41)**. Added 11 new tests across 2 new suites: Catenoid Pattern (6 tests: non-empty, cell count bounds, engine enum, index consistency, evolution dynamics, pattern count 37), Ruby Theme (5 tests: existence, theme count 41, color progression, opacity decay, red dominance).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 70b (2026-03-28 18:50 PDT)
 
 **Goal**: Catenoid pattern, Obsidian theme, fix merge corruption in GridModel.
