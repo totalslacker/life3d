@@ -2,6 +2,23 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 65 (2026-03-28 17:35 PDT)
+
+**Goal**: Klein Bottle pattern, Vaporwave theme, tests.
+
+Three improvements:
+
+1. **Klein Bottle pattern (30th)**: A non-orientable closed surface with no boundary — the figure-8 immersion of a Klein bottle in 3D. Unlike the Möbius strip (which has one edge), the Klein bottle has no edges at all, forming a closed surface that passes through itself. Parametrized with u (around the tube) and v (cross-section), sampled densely (200×20) to produce a solid voxelized surface. Under evolution, the self-intersection region (where the surface passes through itself) has higher local neighbor density and persists longest, while thin single-layer sections erode quickly, revealing the topology through asymmetric fragmentation.
+
+2. **Vaporwave theme (30th)**: Retro-futuristic aesthetic — brilliant hot pink newborn cells (emissive 2.3) through deep purple young cells to cool teal-blue mature cells fading to near-black void. Distinct from Sakura (soft pink), Nebula (purple/magenta cosmic), and Amethyst (deep purple) — Vaporwave transitions from warm pink to cool blue across the age tiers, evoking 80s/90s retro-futurism and synthwave aesthetics. The pink-to-blue gradient is the signature visual.
+
+3. **Updated 14 stale theme count assertions (29→30) and 2 stale pattern count assertions (29→30 total, 28→29 cyclable)**. Added 11 new tests across 2 new suites: Klein Bottle Pattern (6 tests: non-empty, cell count bounds, engine enum, index consistency, evolution dynamics, pattern count 30), Vaporwave Theme (5 tests: existence, theme count 30, color progression, opacity decay, pink-to-blue transition).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 64 (2026-03-28 17:19 PDT)
 
 **Goal**: Möbius Strip pattern, Hologram theme, tests.

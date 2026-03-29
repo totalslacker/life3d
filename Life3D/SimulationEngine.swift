@@ -372,6 +372,8 @@ final class SimulationEngine {
             grid.loadIcosahedron()
         case .mobiusStrip:
             grid.loadMobiusStrip()
+        case .kleinBottle:
+            grid.loadKleinBottle()
         case .clear:
             grid.clearAll()
         }
@@ -423,6 +425,7 @@ final class SimulationEngine {
         case dodecahedron = "Dodecahedron"
         case icosahedron = "Icosahedron"
         case mobiusStrip = "Möbius Strip"
+        case kleinBottle = "Klein Bottle"
         case clear = "Clear"
 
         var id: String { rawValue }

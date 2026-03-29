@@ -1282,6 +1282,41 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Klein bottle — a non-orientable closed surface with no boundary.
+    /// Parametrized as a "figure-8" immersion in 3D where the surface passes through itself.
+    mutating func loadKleinBottle() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let scale = Float(min(size / 4, 5))
+        let uSteps = 200
+        let vSteps = 20
+
+        for ui in 0..<uSteps {
+            let u = Float(ui) / Float(uSteps) * 2.0 * .pi
+            let cosU = cos(u)
+            let sinU = sin(u)
+            for vi in 0..<vSteps {
+                let v = Float(vi) / Float(vSteps) * 2.0 * .pi
+                // Figure-8 Klein bottle immersion
+                let cosV = cos(v)
+                let sin2V = sin(2.0 * v)
+                let r: Float = 2.0
+
+                let px = (r + cosU / 2.0 * cosV - sinU / 2.0 * sin2V) * cos(u) * scale / 3.0
+                let py = (r + cosU / 2.0 * cosV - sinU / 2.0 * sin2V) * sin(u) * scale / 3.0
+                let pz = (sinU / 2.0 * cosV + cosU / 2.0 * sin2V) * scale / 3.0
+
+                let gx = Int(round(px + mid - 0.5))
+                let gy = Int(round(py + mid - 0.5))
+                let gz = Int(round(pz + mid - 0.5))
+                if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+                    setCell(x: gx, y: gy, z: gz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
