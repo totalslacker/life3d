@@ -2,6 +2,13 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 96 (2026-03-29 04:15 PDT)
+
+**Goal**: Viridian theme (merged alongside Henneberg Surface from parallel polecat).
+
+1. **Viridian theme (69th)**: Cool blue-green aesthetic — vivid viridian newborn cells (R 0.25, G 0.72, B 0.55) through medium dark teal young cells to deep blue-green mature cells fading to near-black. Distinct from Jade (warmer green-blue), Teal (darker, more even blue-green), and Emerald (pure green) — Viridian stays in the cool blue-green range with G > B > R across all tiers, evoking the chromium oxide pigment viridian green. 5 new tests.
+
+---
 ## Day 13 — Session 95 (2026-03-29 04:10 PDT)
 
 **Goal**: Henneberg Surface pattern, Sienna theme.
