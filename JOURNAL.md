@@ -15,6 +15,19 @@ Three improvements:
 3. **Fixed 24 stale count assertions**: Updated pattern count assertions (36→37), theme count assertions (36/37/40→41), and cyclable pattern count assertions (35/30→36) across the test suite. Added 11 new tests across 2 new suites: Apollonian Gasket Pattern (6 tests), Titanium Theme (5 tests).
 
 ---
+## Day 12 — Session 71-koch (2026-03-28 19:05 PDT)
+
+**Goal**: Koch Snowflake pattern, Ruby theme, tests.
+
+Three improvements:
+
+1. **Koch Snowflake pattern (38th)**: A 3D extension of the classic Koch snowflake fractal. The 2D Koch snowflake is constructed by starting with an equilateral triangle and recursively replacing each edge with a Koch curve (divide into thirds, erect an equilateral triangle on the middle third). The implementation generates the full boundary using recursive edge subdivision (2-5 iterations scaled to grid size), then rasterizes the boundary onto a 2D grid using line drawing. A flood-fill from the grid edges identifies the exterior, and the complement gives the filled snowflake interior. This 2D filled shape is then extruded into 3D across multiple z-layers, producing a solid prismatic snowflake. Under evolution, the fractal boundary erodes first at its fine peninsulas while the dense interior retains high neighbor density, gradually revealing the self-similar structure.
+
+2. **Ruby theme**: Already merged from parallel polecat session.
+
+3. **Added Koch Snowflake tests**: 6 tests (non-empty, cell count bounds, engine enum, index consistency, evolution dynamics, pattern count).
+
+---
 ## Day 12 — Session 71 (2026-03-28 18:53 PDT)
 
 **Goal**: Catenoid pattern, Ruby theme, 11 new tests.

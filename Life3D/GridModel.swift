@@ -1710,6 +1710,112 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadKochSnowflake() {
+        clearAll()
+        // Build a 3D Koch snowflake: generate 2D Koch curve boundary, fill interior, extrude into 3D
+        // The Koch snowflake is formed by starting with an equilateral triangle and recursively
+        // adding smaller triangles to each edge. We approximate this by computing the snowflake
+        // boundary points and rasterizing them onto a 2D grid, then extruding.
+        let depth = max(2, min(5, Int(log2(Float(size)))))
+        let margin = 1
+        let usable = Float(size - 2 * margin)
+        let center = Float(size) / 2.0
+
+        // Generate Koch snowflake vertices starting from equilateral triangle
+        func kochEdge(_ ax: Float, _ ay: Float, _ bx: Float, _ by: Float, _ level: Int) -> [(Float, Float)] {
+            if level == 0 {
+                return [(ax, ay)]
+            }
+            let dx = bx - ax, dy = by - ay
+            let p1x = ax + dx / 3, p1y = ay + dy / 3
+            let p2x = ax + 2 * dx / 3, p2y = ay + 2 * dy / 3
+            // Peak of equilateral triangle on the edge
+            let peakX = (ax + bx) / 2 - (by - ay) * Float(3).squareRoot() / 6
+            let peakY = (ay + by) / 2 + (bx - ax) * Float(3).squareRoot() / 6
+            var pts: [(Float, Float)] = []
+            pts.append(contentsOf: kochEdge(ax, ay, p1x, p1y, level - 1))
+            pts.append(contentsOf: kochEdge(p1x, p1y, peakX, peakY, level - 1))
+            pts.append(contentsOf: kochEdge(peakX, peakY, p2x, p2y, level - 1))
+            pts.append(contentsOf: kochEdge(p2x, p2y, bx, by, level - 1))
+            return pts
+        }
+
+        // Equilateral triangle centered in the grid (2D, normalized to usable area)
+        let r = usable * 0.45
+        let t0x = center, t0y = center - r
+        let t1x = center - r * Float(3).squareRoot() / 2, t1y = center + r / 2
+        let t2x = center + r * Float(3).squareRoot() / 2, t2y = center + r / 2
+
+        var boundary: [(Float, Float)] = []
+        boundary.append(contentsOf: kochEdge(t0x, t0y, t1x, t1y, depth))
+        boundary.append(contentsOf: kochEdge(t1x, t1y, t2x, t2y, depth))
+        boundary.append(contentsOf: kochEdge(t2x, t2y, t0x, t0y, depth))
+
+        // Rasterize boundary onto 2D grid using line drawing
+        var filled = [Bool](repeating: false, count: size * size)
+        func plotLine(_ x0: Float, _ y0: Float, _ x1: Float, _ y1: Float) {
+            let steps = max(Int(abs(x1 - x0)), Int(abs(y1 - y0)), 1)
+            for s in 0...steps {
+                let t = Float(s) / Float(steps)
+                let px = Int(x0 + (x1 - x0) * t)
+                let py = Int(y0 + (y1 - y0) * t)
+                if px >= 0, px < size, py >= 0, py < size {
+                    filled[py * size + px] = true
+                }
+            }
+        }
+        for i in 0..<boundary.count {
+            let a = boundary[i]
+            let b = boundary[(i + 1) % boundary.count]
+            plotLine(a.0, a.1, b.0, b.1)
+        }
+
+        // Flood-fill exterior then invert to get filled snowflake
+        var exterior = [Bool](repeating: false, count: size * size)
+        var queue = [Int]()
+        // Seed from edges
+        for i in 0..<size {
+            if !filled[i] { exterior[i] = true; queue.append(i) }
+            let bottom = (size - 1) * size + i
+            if !filled[bottom] { exterior[bottom] = true; queue.append(bottom) }
+            let left = i * size
+            if !filled[left] { exterior[left] = true; queue.append(left) }
+            let right = i * size + (size - 1)
+            if !filled[right] { exterior[right] = true; queue.append(right) }
+        }
+        while !queue.isEmpty {
+            let idx = queue.removeLast()
+            let row = idx / size, col = idx % size
+            let neighbors = [(row-1, col), (row+1, col), (row, col-1), (row, col+1)]
+            for (nr, nc) in neighbors {
+                if nr >= 0, nr < size, nc >= 0, nc < size {
+                    let ni = nr * size + nc
+                    if !filled[ni], !exterior[ni] {
+                        exterior[ni] = true
+                        queue.append(ni)
+                    }
+                }
+            }
+        }
+
+        // Extrude into 3D: fill layers around center z
+        let zLayers = max(3, size / 4)
+        let zStart = (size - zLayers) / 2
+        for layer in 0..<zLayers {
+            let gz = zStart + layer
+            if gz < 0 || gz >= size { continue }
+            for row in 0..<size {
+                for col in 0..<size {
+                    let idx2d = row * size + col
+                    if !exterior[idx2d] { // interior or boundary
+                        setCell(x: col, y: row, z: gz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
