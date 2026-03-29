@@ -7792,11 +7792,59 @@ struct SeashellPatternTests {
         #expect(seashell.aliveCount != helix.aliveCount)
     }
 
-    @Test func patternCount63s() {
+    @Test func patternCount64s() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 63)
+        #expect(allPatterns.count == 64)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 62)
+        #expect(cyclable.count == 63)
+    }
+}
+
+// MARK: - Catalan Surface Pattern Tests
+
+@Suite("Catalan Surface Pattern Tests")
+struct CatalanSurfacePatternTests {
+    @Test func catalanSurfacePopulatesGrid() {
+        var grid = GridModel(size: 16)
+        grid.loadCatalanSurface()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test func catalanSurfaceScalesWithGridSize() {
+        var small = GridModel(size: 8)
+        small.loadCatalanSurface()
+        var large = GridModel(size: 16)
+        large.loadCatalanSurface()
+        #expect(large.aliveCount > small.aliveCount)
+    }
+
+    @Test func catalanSurfaceDeterministic() {
+        var a = GridModel(size: 16)
+        a.loadCatalanSurface()
+        var b = GridModel(size: 16)
+        b.loadCatalanSurface()
+        #expect(a.aliveCount == b.aliveCount)
+    }
+
+    @Test func catalanSurfaceDistinctFromCatenoid() {
+        var catalan = GridModel(size: 16)
+        catalan.loadCatalanSurface()
+        var catenoid = GridModel(size: 16)
+        catenoid.loadCatenoid()
+        #expect(catalan.aliveCount != catenoid.aliveCount)
+    }
+
+    @Test func catalanSurfaceDistinctFromSeashell() {
+        var catalan = GridModel(size: 16)
+        catalan.loadCatalanSurface()
+        var seashell = GridModel(size: 16)
+        seashell.loadSeashell()
+        #expect(catalan.aliveCount != seashell.aliveCount)
+    }
+
+    @Test func catalanSurfacePatternExists() {
+        let pattern = SimulationEngine.Pattern.allCases.first { $0.rawValue == "Catalan Surface" }
+        #expect(pattern != nil)
     }
 }
 
@@ -7831,6 +7879,45 @@ struct OchreThemeTests {
     }
 
     @Test func themeCount64o() {
-        #expect(ColorTheme.allThemes.count == 66)
+        #expect(ColorTheme.allThemes.count == 67)
+    }
+}
+
+// MARK: - Umber Theme Tests
+
+@Suite("Umber Theme Tests")
+struct UmberThemeTests {
+    @Test func umberThemeExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Umber" }
+        #expect(found)
+    }
+
+    @Test func umberNewbornBrightest() {
+        let t = ColorTheme.umber
+        #expect(t.newborn.emissiveIntensity > t.young.emissiveIntensity)
+        #expect(t.young.emissiveIntensity > t.mature.emissiveIntensity)
+    }
+
+    @Test func umberOpacityDecreases() {
+        let t = ColorTheme.umber
+        #expect(t.newborn.opacity > t.young.opacity)
+        #expect(t.young.opacity > t.mature.opacity)
+        #expect(t.mature.opacity > t.dying.opacity)
+    }
+
+    @Test func umberWarmBrown() {
+        let nb = ColorTheme.umber.newborn.baseColor
+        #expect(nb.x > 0.5)  // R high (warm)
+        #expect(nb.y > 0.3)  // G moderate (brown component)
+        #expect(nb.z < 0.3)  // B low (earthy, not blue)
+        #expect(nb.x > nb.y) // R > G (warm brown)
+        #expect(nb.y > nb.z) // G > B (brown, not red)
+    }
+
+    @Test func umberDistinctFromOchre() {
+        let umber = ColorTheme.umber.newborn.baseColor
+        let ochre = ColorTheme.ochre.newborn.baseColor
+        let diff = abs(umber.x - ochre.x) + abs(umber.y - ochre.y) + abs(umber.z - ochre.z)
+        #expect(diff > 0.1)
     }
 }
