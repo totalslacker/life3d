@@ -3269,6 +3269,38 @@ struct GridModel: Sendable {
             }
         }
         guard !points.isEmpty else { return }
+
+    /// Richmond Surface — a minimal surface with a flat point at the origin.
+    /// Uses the Weierstrass-Enneper parametrization with f(z) = z^(-2), g(z) = z^2.
+    /// Parametric form: x = -Re(1/(3z^3) + 1/z), y = Re(i/(3z^3) - i/z), z_coord = Re(1/z^2).
+    mutating func loadRichmondSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let rSteps = n * 6
+        let tSteps = n * 8
+        let thickness: Float = 0.6
+        var points: [(Float, Float, Float)] = []
+        points.reserveCapacity(rSteps * tSteps)
+        for ri in 1...rSteps {
+            let r = 0.3 + 1.7 * Float(ri) / Float(rSteps)
+            for ti in 0..<tSteps {
+                let t = Float(ti) / Float(tSteps) * 2.0 * Float.pi
+                let cosT = cos(t)
+                let sinT = sin(t)
+                let cos2T = cos(2.0 * t)
+                let cos3T = cos(3.0 * t)
+                let sin3T = sin(3.0 * t)
+                let r3 = r * r * r
+                let invR = 1.0 / r
+                let invR2 = invR * invR
+                let invR3 = 1.0 / r3
+                let px = -(invR3 * cos3T / 3.0 + invR * cosT)
+                let py = invR3 * sin3T / 3.0 - invR * sinT
+                let pz = invR2 * cos2T
+                points.append((px, py, pz))
+            }
+        }
         var minX = Float.greatestFiniteMagnitude, maxX = -Float.greatestFiniteMagnitude
         var minY = Float.greatestFiniteMagnitude, maxY = -Float.greatestFiniteMagnitude
         var minZ = Float.greatestFiniteMagnitude, maxZ = -Float.greatestFiniteMagnitude

@@ -8040,6 +8040,8 @@ struct ViridianThemeTests {
         let sienna = ColorTheme.sienna.newborn.baseColor
         let umber = ColorTheme.umber.newborn.baseColor
         let diff = abs(sienna.x - umber.x) + abs(sienna.y - umber.y) + abs(sienna.z - umber.z)
+        #expect(diff > 0.1)
+    }
 
     @Test func viridianBlueGreen() {
         let nb = ColorTheme.viridian.newborn.baseColor
@@ -8052,6 +8054,97 @@ struct ViridianThemeTests {
         let viridian = ColorTheme.viridian.newborn.baseColor
         let jade = ColorTheme.jade.newborn.baseColor
         let diff = abs(viridian.x - jade.x) + abs(viridian.y - jade.y) + abs(viridian.z - jade.z)
+        #expect(diff > 0.1)
+    }
+
+    // MARK: - Richmond Surface Tests
+
+    @Test func richmondSurfaceProducesCells() {
+        var grid = GridModel(size: 16)
+        grid.loadRichmondSurface()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test func richmondSurfaceNotSolid() {
+        var grid = GridModel(size: 16)
+        grid.loadRichmondSurface()
+        let total = 16 * 16 * 16
+        #expect(grid.aliveCount < total / 2)
+    }
+
+    @Test func richmondSurfaceCenteredInGrid() {
+        var grid = GridModel(size: 16)
+        grid.loadRichmondSurface()
+        var hasNearCenter = false
+        let mid = 8
+        for x in (mid - 2)...(mid + 2) {
+            for y in (mid - 2)...(mid + 2) {
+                for z in (mid - 2)...(mid + 2) {
+                    if grid.isAlive(x: x, y: y, z: z) { hasNearCenter = true }
+                }
+            }
+        }
+        #expect(hasNearCenter)
+    }
+
+    @Test func richmondSurfaceDistinctFromEnneper() {
+        var richmond = GridModel(size: 16)
+        richmond.loadRichmondSurface()
+        var enneper = GridModel(size: 16)
+        enneper.loadEnneperSurface()
+        #expect(richmond.aliveCount != enneper.aliveCount)
+    }
+
+    @Test func richmondSurfaceScalesWithSize() {
+        var small = GridModel(size: 12)
+        small.loadRichmondSurface()
+        var large = GridModel(size: 16)
+        large.loadRichmondSurface()
+        #expect(large.aliveCount > small.aliveCount)
+    }
+
+    @Test func richmondSurfaceSurvivesOneGeneration() {
+        var grid = GridModel(size: 16, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
+        grid.loadRichmondSurface()
+        let before = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount > before / 10)
+    }
+
+    // MARK: - Pewter Theme Tests
+
+    @Test func pewterThemeExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Pewter" }
+        #expect(found)
+    }
+
+    @Test func pewterCoolMetallicGrey() {
+        let nb = ColorTheme.pewter.newborn.baseColor
+        // Pewter: B slightly dominant, near-neutral grey
+        #expect(nb.z >= nb.x)  // B >= R
+        #expect(nb.z >= nb.y)  // B >= G
+        // Channels close together (grey, not saturated)
+        let spread = nb.z - nb.x
+        #expect(spread < 0.15)
+    }
+
+    @Test func pewterOpacityDecreases() {
+        let t = ColorTheme.pewter
+        #expect(t.newborn.opacity > t.young.opacity)
+        #expect(t.young.opacity > t.mature.opacity)
+        #expect(t.mature.opacity > t.dying.opacity)
+    }
+
+    @Test func pewterEmissiveDecreases() {
+        let t = ColorTheme.pewter
+        #expect(t.newborn.emissiveIntensity > t.young.emissiveIntensity)
+        #expect(t.young.emissiveIntensity > t.mature.emissiveIntensity)
+    }
+
+    @Test func pewterDistinctFromSlate() {
+        let pewter = ColorTheme.pewter.newborn.baseColor
+        let slate = ColorTheme.slate.newborn.baseColor
+        let diff = abs(pewter.x - slate.x) + abs(pewter.y - slate.y) + abs(pewter.z - slate.z)
         #expect(diff > 0.1)
     }
 }

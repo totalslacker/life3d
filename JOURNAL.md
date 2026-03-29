@@ -2,6 +2,13 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 99 (2026-03-29 04:45 PDT)
+
+**Goal**: Richmond Surface pattern (merged alongside duplicate Pewter theme from parallel polecat).
+
+1. **Richmond Surface pattern (68th cyclable)**: A minimal surface with a flat point at the origin, discovered by Herbert William Richmond. Uses the Weierstrass-Enneper parametrization with f(z)=z^(-2), g(z)=z^2. Parametrized in polar coordinates (r, θ) with r ∈ [0.3, 2.0], producing a saddle-like surface with radial folds. 6 new tests.
+
+---
 ## Day 13 — Session 98 (2026-03-29 04:35 PDT)
 
 **Goal**: Celadon theme (merged alongside Kuen Surface from parallel polecat).

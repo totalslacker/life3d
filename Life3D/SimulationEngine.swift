@@ -453,6 +453,8 @@ final class SimulationEngine {
             grid.loadHennebergSurface()
         case .kuenSurface:
             grid.loadKuenSurface()
+        case .richmondSurface:
+            grid.loadRichmondSurface()
         case .clear:
             grid.clearAll()
         }
@@ -544,6 +546,7 @@ final class SimulationEngine {
         case catalanSurface = "Catalan Surface"
         case hennebergSurface = "Henneberg Surface"
         case kuenSurface = "Kuen Surface"
+        case richmondSurface = "Richmond Surface"
         case clear = "Clear"
 
         var id: String { rawValue }
