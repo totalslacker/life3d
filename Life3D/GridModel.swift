@@ -1321,6 +1321,38 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadKleinBottle() {
+        clearAll()
+        let mid = Float(size) / 2.0
+        let scale = Float(size) / 2.0 - 1.5
+        let tubeRadius: Float = 1.0
+        let uSteps = 200
+        let vSteps = 24
+
+        for uStep in 0..<uSteps {
+            let u = Float(uStep) / Float(uSteps) * 2.0 * .pi
+            for vStep in 0..<vSteps {
+                let v = Float(vStep) / Float(vSteps) * 2.0 * .pi
+                // Figure-8 Klein bottle immersion in 3D
+                let cosU = cos(u)
+                let sinU = sin(u)
+                let cosV = cos(v)
+                let sinV = sin(v)
+                let r = tubeRadius
+                let px = scale * (cosU * (1.0 + sinV * r) * 0.5 + r * cosV * cos(u / 2.0))
+                let py = scale * (sinU * (1.0 + sinV * r) * 0.5 + r * cosV * sin(u / 2.0))
+                let pz = scale * r * sinV * 0.5
+                let gx = Int(round(px + mid - 0.5))
+                let gy = Int(round(py + mid - 0.5))
+                let gz = Int(round(pz + mid - 0.5))
+                if gx >= 0, gx < size, gy >= 0, gy < size, gz >= 0, gz < size {
+                    setCell(x: gx, y: gy, z: gz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

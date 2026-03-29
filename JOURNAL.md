@@ -2,6 +2,23 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 66 (2026-03-28 17:36 PDT)
+
+**Goal**: Klein Bottle pattern, Vaporwave theme, tests.
+
+Three improvements:
+
+1. **Klein Bottle pattern (31st)**: A figure-8 Klein bottle immersion — the famous non-orientable surface that has no inside or outside. Unlike the Möbius strip (which has one edge), the Klein bottle is a closed surface with no boundary. The immersion uses parametric equations that trace the surface through u (around the bottle, 0 to 2π) and v (around the cross-section, 0 to 2π), with a figure-8 cross-section that allows the surface to self-intersect cleanly in 3D. Sampled densely (200 × 24 steps) to produce a solid surface in the voxel grid. Under evolution, the thin surface erodes at exposed areas while the self-intersection region (where the bottle passes through itself) retains higher local neighbor density, creating an asymmetric fragmentation that reveals the topology.
+
+2. **Vaporwave theme (31st)**: Pastel pink-to-cool-blue aesthetic — brilliant pink-magenta newborn cells (emissive 2.3, high red and blue with moderate green undertone) through lavender-purple young cells to deep teal-blue mature cells fading to dark navy. Distinct from Cyberpunk (pure hot magenta, zero green), Sakura (soft pastel pink), and Amethyst (blue-purple) — Vaporwave transitions from warm pink through purple to cool blue, evoking the retro-futuristic pastel palette of 80s/90s nostalgia aesthetics. The gradient spans warm-to-cool across the age spectrum.
+
+3. **Updated 15 stale theme count assertions (30→31), 3 stale pattern count assertions (30→31 total, 29→30 cyclable), and 1 stale comment**. Added 11 new tests across 2 new suites: Klein Bottle Pattern (6 tests: non-empty, cell count bounds, engine enum, index consistency, evolution dynamics, pattern count 31), Vaporwave Theme (5 tests: existence, theme count 31, color progression, opacity decay, pink-blue gradient).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 65 (2026-03-28 17:29 PDT)
 
 **Goal**: Lissajous Curve pattern, Cyberpunk theme, tests.
