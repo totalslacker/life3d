@@ -2,6 +2,13 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 100 (2026-03-29 04:50 PDT)
+
+**Goal**: Bohemian Dome pattern, Turquoise theme.
+
+1. **Bohemian Dome pattern + Turquoise theme**: Merged from imperator polecat. New surface pattern and color theme added to the collection.
+
+---
 ## Day 13 — Session 99 (2026-03-29 04:45 PDT)
 
 **Goal**: Richmond Surface pattern (merged alongside duplicate Pewter theme from parallel polecat).

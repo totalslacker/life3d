@@ -455,6 +455,8 @@ final class SimulationEngine {
             grid.loadKuenSurface()
         case .richmondSurface:
             grid.loadRichmondSurface()
+        case .bohemianDome:
+            grid.loadBohemianDome()
         case .clear:
             grid.clearAll()
         }
@@ -547,6 +549,7 @@ final class SimulationEngine {
         case hennebergSurface = "Henneberg Surface"
         case kuenSurface = "Kuen Surface"
         case richmondSurface = "Richmond Surface"
+        case bohemianDome = "Bohemian Dome"
         case clear = "Clear"
 
         var id: String { rawValue }

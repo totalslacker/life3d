@@ -3342,6 +3342,70 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadBohemianDome() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let uSteps = n * 8
+        let vSteps = n * 8
+        let thickness: Float = 0.6
+        let a: Float = 1.0
+        let b: Float = 1.0
+        let c: Float = 1.0
+        var points: [(Float, Float, Float)] = []
+        points.reserveCapacity(uSteps * vSteps)
+        for ui in 0..<uSteps {
+            let u = 2.0 * Float.pi * Float(ui) / Float(uSteps - 1)
+            for vi in 0..<vSteps {
+                let v = 2.0 * Float.pi * Float(vi) / Float(vSteps - 1)
+                let px = a * cos(u)
+                let py = b * cos(v) + a * sin(u)
+                let pz = c * sin(v)
+                points.append((px, py, pz))
+            }
+        }
+        guard !points.isEmpty else { return }
+        var minX = Float.greatestFiniteMagnitude, maxX = -Float.greatestFiniteMagnitude
+        var minY = Float.greatestFiniteMagnitude, maxY = -Float.greatestFiniteMagnitude
+        var minZ = Float.greatestFiniteMagnitude, maxZ = -Float.greatestFiniteMagnitude
+        for (px, py, pz) in points {
+            minX = min(minX, px); maxX = max(maxX, px)
+            minY = min(minY, py); maxY = max(maxY, py)
+            minZ = min(minZ, pz); maxZ = max(maxZ, pz)
+        }
+        let extX = maxX - minX
+        let extY = maxY - minY
+        let extZ = maxZ - minZ
+        let maxExt = max(extX, max(extY, extZ))
+        guard maxExt > 0 else { return }
+        let scale = half * 1.5 / maxExt
+        let cx = (minX + maxX) / 2.0
+        let cy = (minY + maxY) / 2.0
+        let cz = (minZ + maxZ) / 2.0
+        let t = Int(thickness)
+        for (px, py, pz) in points {
+            let ix = Int(half + (px - cx) * scale)
+            let iy = Int(half + (py - cy) * scale)
+            let iz = Int(half + (pz - cz) * scale)
+            for dx in -t...t {
+                for dy in -t...t {
+                    for dz in -t...t {
+                        let dist = sqrt(Float(dx * dx + dy * dy + dz * dz))
+                        if dist <= thickness {
+                            let gx = ix + dx
+                            let gy = iy + dy
+                            let gz = iz + dz
+                            if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                                setCell(x: gx, y: gy, z: gz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
