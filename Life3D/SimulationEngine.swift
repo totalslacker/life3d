@@ -409,6 +409,8 @@ final class SimulationEngine {
             grid.loadVicsekFractal()
         case .burningShip:
             grid.loadBurningShip()
+        case .hopfFibration:
+            grid.loadHopfFibration()
         case .clear:
             grid.clearAll()
         }
@@ -478,6 +480,7 @@ final class SimulationEngine {
         case barnsleyFern = "Barnsley Fern"
         case vicsekFractal = "Vicsek Fractal"
         case burningShip = "Burning Ship"
+        case hopfFibration = "Hopf Fibration"
         case clear = "Clear"
 
         var id: String { rawValue }

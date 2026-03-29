@@ -2278,6 +2278,55 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadHopfFibration() {
+        clearAll()
+        let n = size
+        // The Hopf fibration maps S³ → S² with S¹ fibers. We visualize it by
+        // stereographically projecting fibers back to R³. For a grid of base
+        // points on S² parameterized by (θ, φ), the fiber through that point
+        // is a circle in R³. We sample several base points and trace their
+        // circles, filling nearby voxels.
+        let fiberCount = max(8, n / 2)  // number of fibers
+        let pointsPerFiber = n * 4      // sample density per fiber
+
+        for f in 0..<fiberCount {
+            // Base point on S²: evenly spaced latitude
+            let theta = Float.pi * Float(f) / Float(fiberCount)  // [0, π]
+            let phi = Float.pi * 2.0 * Float(f) * 0.618034  // golden angle for spread
+
+            // Lift to S³: one point in the fiber over (θ, φ)
+            let cosH = cos(theta / 2.0)
+            let sinH = sin(theta / 2.0)
+
+            for p in 0..<pointsPerFiber {
+                // Rotate around the fiber (S¹ action on S³)
+                let t = Float.pi * 2.0 * Float(p) / Float(pointsPerFiber)
+                // S³ point: (cos(θ/2)e^{it}, sin(θ/2)e^{i(t+φ)})
+                let q0 = cosH * cos(t)
+                let q1 = cosH * sin(t)
+                let q2 = sinH * cos(t + phi)
+                let q3 = sinH * sin(t + phi)
+                // Stereographic projection from S³ to R³ (project from north pole (1,0,0,0))
+                let denom = 1.0 - q0 + 1e-6
+                let px = q1 / denom
+                let py = q2 / denom
+                let pz = q3 / denom
+                // Scale projected point into grid
+                let gx = px * 0.3 + 0.5  // normalize to ~[0,1]
+                let gy = py * 0.3 + 0.5
+                let gz = pz * 0.3 + 0.5
+                // Map to voxel coordinates
+                let vx = Int((gx * Float(n)).rounded())
+                let vy = Int((gy * Float(n)).rounded())
+                let vz = Int((gz * Float(n)).rounded())
+                if vx >= 0 && vx < n && vy >= 0 && vy < n && vz >= 0 && vz < n {
+                    setCell(x: vx, y: vy, z: vz, alive: true)
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

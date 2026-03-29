@@ -1064,7 +1064,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.08, opacity: 0.03)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze, .ivory, .pearl, .graphite]
+    static let slate = ColorTheme(
+        name: "Slate",
+        newborn: TierColors(
+            baseColor: SIMD4(0.55, 0.58, 0.65, 1.0),
+            emissiveColor: SIMD3(0.50, 0.54, 0.62),
+            emissiveIntensity: 1.9, opacity: 0.52),
+        young: TierColors(
+            baseColor: SIMD4(0.35, 0.38, 0.45, 1.0),
+            emissiveColor: SIMD3(0.30, 0.34, 0.42),
+            emissiveIntensity: 0.95, opacity: 0.32),
+        mature: TierColors(
+            baseColor: SIMD4(0.20, 0.22, 0.28, 1.0),
+            emissiveColor: SIMD3(0.16, 0.18, 0.24),
+            emissiveIntensity: 0.38, opacity: 0.16),
+        dying: TierColors(
+            baseColor: SIMD4(0.10, 0.11, 0.14, 1.0),
+            emissiveColor: SIMD3(0.05, 0.06, 0.08),
+            emissiveIntensity: 0.08, opacity: 0.03)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze, .ivory, .pearl, .graphite, .slate]
 }
 
 enum GridRenderer {
