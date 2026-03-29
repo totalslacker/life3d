@@ -12,6 +12,19 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 3. **Fixed 32 stale theme count assertions (49→50), 18 stale pattern count assertions (45→46), 2 stale cyclable count assertions (44→45)**. Added 11 new tests across 2 suites: Vicsek Fractal Pattern (6 tests), Pearl Theme (5 tests).
 
+---
+## Day 12 — Session 76b (2026-03-28 22:35 PDT)
+
+**Goal**: Burning Ship pattern, Graphite theme, fix broken SnowflakePatternTests struct, clean up duplicate test structs.
+
+1. **Burning Ship pattern (46th)**: A 3D variant of the Burning Ship fractal — a Mandelbrot-family fractal where absolute values are taken before squaring each iteration, producing an asymmetric ship-like structure. The standard 2D formula iterates z = (|Re(z)| + i|Im(z)|)² + c; the 3D implementation uses a triplex number system similar to the Mandelbulb, converting to spherical coordinates for the power-2 map but applying abs() to the Cartesian components first. This creates a bulbous, asymmetric solid that lacks the Mandelbulb's rotational symmetry — the abs() twist breaks the smooth spherical structure into jagged, ship-hull-like surfaces. Under evolution, the thin peninsulas erode first while the dense interior core persists.
+
+2. **Graphite theme (51st)**: Cool dark grey metallic aesthetic — soft silver-grey newborn cells (emissive 1.8, near-neutral RGB 0.65-0.68 with blue barely dominant) through medium grey young cells to dark charcoal mature cells fading to near-black. Distinct from Monochrome (pure neutral grey, equal RGB channels), Titanium (blue-steel tint with 0.15 blue offset), and Obsidian (very dark with volcanic undertones) — Graphite stays in the cool dark grey range with blue offset under 0.03, evoking pencil graphite or carbon fiber under diffuse light.
+
+3. **Fixed broken SnowflakePatternTests struct**: The snowflake symmetry test was missing closing braces for its nested `for y/z` loops, and had stale ArcticThemeTests functions incorrectly pasted inside it. This caused all 50+ subsequent test structs to be nested inside the unclosed snowflake struct (3 levels deep). Fixed by restoring the proper loop closing braces and removing the misplaced arctic test code (which already exists in the dedicated ArcticThemeTests struct). Also removed duplicate AquamarineThemeTests and WrappingTopologyTests structs.
+
+4. **Updated stale count assertions**: 50→51 for theme counts, 46→47 for pattern counts, 45→46 for cyclable pattern counts across the test suite. Added 11 new tests: Burning Ship Pattern (6 tests), Graphite Theme (5 tests).
+
 **Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
 
 ---

@@ -2229,6 +2229,55 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadBurningShip() {
+        clearAll()
+        let n = size
+        // 3D Burning Ship fractal: like Mandelbrot but takes absolute values
+        // before squaring, producing an asymmetric ship-like structure.
+        // Iterate z = (|Re(z)| + i|Im(z)|)^2 + c for each point c in space.
+        // The 3D version uses a triplex number system similar to Mandelbulb.
+        let maxIter = 8
+        let bailout = 4.0
+        let scale = 3.0 / Double(n)
+        let half = Double(n) / 2.0
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    // Map voxel to [-1.5, 1.5]^3
+                    let cx = (Double(x) - half) * scale
+                    let cy = (Double(y) - half) * scale
+                    let cz = (Double(z) - half) * scale
+                    var zx = 0.0, zy = 0.0, zz = 0.0
+                    var inside = true
+                    for _ in 0..<maxIter {
+                        // Take absolute values (the "burning ship" twist)
+                        let ax = abs(zx)
+                        let ay = abs(zy)
+                        let az = abs(zz)
+                        // Spherical coordinates for triplex power-2
+                        let r = (ax * ax + ay * ay + az * az).squareRoot()
+                        if r * r > bailout { inside = false; break }
+                        if r < 1e-10 {
+                            zx = cx; zy = cy; zz = cz
+                            continue
+                        }
+                        let theta = acos(ay / r)
+                        let phi = atan2(az, ax)
+                        let r2 = r * r
+                        let s2t = sin(2.0 * theta)
+                        zx = r2 * s2t * cos(2.0 * phi) + cx
+                        zy = r2 * cos(2.0 * theta) + cy
+                        zz = r2 * s2t * sin(2.0 * phi) + cz
+                    }
+                    if inside {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
