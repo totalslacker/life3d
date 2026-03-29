@@ -2,6 +2,18 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 13 — Session 101 (2026-03-29 11:35 PDT)
+
+**Goal**: Whitney Umbrella pattern, Plum theme, fix Kuen Surface truncation bug.
+
+1. **Whitney Umbrella pattern (70th cyclable)**: An algebraic ruled surface defined by x² = y²z, parametrized as x = uv, y = v, z = u² over u, v ∈ [-1.5, 1.5]. Has a characteristic pinch-crease singularity at the origin where the surface self-intersects along the negative z-axis. Visually distinct from Cross-Cap (closed non-orientable) and Roman Surface (symmetric self-intersection) — the Whitney Umbrella has an open, flared sheet shape. 6 new tests.
+2. **Plum theme (74th)**: Deep reddish-purple aesthetic — vivid plum newborn cells (R 0.72, G 0.22, B 0.55) through medium dark magenta young cells to deep wine-purple mature cells fading to near-black. R > B > G across all tiers, evoking the fruit's dark purple-red skin. Distinct from Amethyst (lighter violet), Mauve (soft pink-purple), Burgundy (red-wine), and Indigo (deep blue-purple). 5 new tests.
+3. **Bug fix**: Kuen Surface (`loadKuenSurface`) was missing its normalization and rasterization block — the function body ended after collecting parametric points but before mapping them to grid cells. This was a merge artifact from parallel polecat sessions. Added the standard two-pass normalization block.
+4. **Test fix**: Updated all `allThemes.count == 72` assertions to `== 74` — count was stale after Turquoise and Denim were added in sessions 99-100 without updating these assertions.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 13 — Session 100 (2026-03-29 04:50 PDT)
 
 **Goal**: Bohemian Dome pattern, Turquoise theme.
