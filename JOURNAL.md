@@ -2,6 +2,19 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 80 (2026-03-28 23:55 PDT)
+
+**Goal**: Schwarz P Surface pattern, Indigo theme, update test assertions.
+
+1. **Schwarz P Surface pattern (50th)**: The Schwarz Primitive Surface — a triply periodic minimal surface (TPMS) with cubic symmetry. The implicit equation cos(x) + cos(y) + cos(z) = 0 defines a smooth, continuous surface that divides 3D space into two interlocking labyrinthine channels. The implementation evaluates the implicit function at each voxel over 2 periods and sets cells alive where |value| < 0.35 (a thickness threshold), producing a thin shell tracing the surface. The result is a lattice-like structure with smooth tunnels running in all three coordinate directions — visually distinct from the solid fractal patterns (Menger Sponge, Vicsek) and the parametric surfaces (Enneper, Roman). Under evolution, thin regions erode from edges while the smoothly curved junctions with higher neighbor density persist longer.
+
+2. **Indigo theme (55th)**: Deep violet-blue aesthetic — brilliant violet-blue newborn cells (emissive 2.2, blue channel strongly dominant at 1.0 with moderate red 0.30 and very low green 0.08) through medium dark violet young cells to deep indigo mature cells fading to near-black. Distinct from Cobalt (pure blue, minimal red), Sapphire (gemstone blue with more green), Amethyst (purple with balanced red/blue), and Midnight (very dark blue-black) — Indigo stays in the violet-blue range with blue > 3× red > 3× green across all tiers, evoking the deep blue-violet of natural indigo dye or the night sky just past twilight.
+
+3. **Updated stale count assertions**: 54→55 for theme counts, 51→52 for pattern counts, 50→51 for cyclable pattern counts across the test suite. Added 11 new tests across 2 suites: Schwarz P Surface Pattern (6 tests), Indigo Theme (5 tests).
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 79 (2026-03-28 23:50 PDT)
 
 **Goal**: Roman Surface pattern, Vermilion theme, update test assertions.

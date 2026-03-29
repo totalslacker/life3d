@@ -2478,6 +2478,37 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadSchwarzPSurface() {
+        clearAll()
+        let n = size
+        // Schwarz P (Primitive) Surface — a triply periodic minimal surface.
+        // The implicit equation is: cos(x) + cos(y) + cos(z) = 0
+        // This creates a smooth, continuous surface that divides 3D space into
+        // two interlocking labyrinthine channels. The surface has cubic symmetry
+        // and zero mean curvature everywhere. We sample the implicit function at
+        // each voxel and set cells alive where the value is near zero (within a
+        // thickness threshold), producing a thin shell that traces the surface.
+        // Under evolution, the thin sheet erodes from edges while the smooth
+        // curvature regions with higher neighbor density persist longer.
+        let half = Float(n) / 2.0
+        let periods: Float = 2.0  // number of periods across the grid
+        let thickness: Float = 0.35  // surface thickness threshold
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let fx = (Float(x) - half + 0.5) / half * Float.pi * periods
+                    let fy = (Float(y) - half + 0.5) / half * Float.pi * periods
+                    let fz = (Float(z) - half + 0.5) / half * Float.pi * periods
+                    let value = cos(fx) + cos(fy) + cos(fz)
+                    if abs(value) < thickness {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
