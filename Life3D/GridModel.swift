@@ -1242,6 +1242,37 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// An hourglass — two opposing cones meeting at a single-cell waist in the center.
+    /// The top cone points up and the bottom cone points down, creating a symmetric
+    /// double-cone shape. Under standard B5-7/S5-8 rules, the thin waist erodes first
+    /// (low local neighbor density at the pinch point), splitting the shape into two
+    /// separate evolving clusters that fragment outward from the cone surfaces.
+    mutating func loadHourglass() {
+        clearAll()
+        let mid = size / 2
+        let radius = max(size / 3, 4)
+
+        for x in 0..<size {
+            for y in 0..<size {
+                for z in 0..<size {
+                    let dx = x - mid
+                    let dy = y - mid
+                    let dz = z - mid
+                    // Horizontal distance from vertical axis
+                    let hDist = Int((Float(dx * dx + dz * dz)).squareRoot())
+                    let vDist = abs(dy)
+                    // Each cone: horizontal radius shrinks linearly as |y| decreases toward center
+                    // At top/bottom (vDist == radius): full radius allowed
+                    // At center (vDist == 0): radius == 0 (single cell)
+                    if vDist <= radius && hDist <= vDist {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

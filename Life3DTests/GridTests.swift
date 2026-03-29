@@ -1111,7 +1111,7 @@ struct ForestThemeTests {
 
     @Test("All themes count is 16 after Sunset, Twilight, and Jade additions")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 28)
+        #expect(ColorTheme.allThemes.count == 29)
     }
 
     @Test("Forest theme has green color progression")
@@ -1306,7 +1306,7 @@ struct PopulationTrendTests {
 
     @Test("All themes count is 22 after adding Jade")
     func allThemesCount16() {
-        #expect(ColorTheme.allThemes.count == 28)
+        #expect(ColorTheme.allThemes.count == 29)
     }
 
     @Test("Jade theme has cool green-to-dark progression")
@@ -1397,7 +1397,7 @@ struct CrimsonThemeTests {
 
     @Test("Theme count is 22 with Crimson")
     func themeCount17() {
-        #expect(ColorTheme.allThemes.count == 28)
+        #expect(ColorTheme.allThemes.count == 29)
     }
 
     @Test("Crimson stays in pure red family — newborn through mature")
@@ -1832,7 +1832,7 @@ struct CopperThemeTests {
 
     @Test("allThemes contains 24 themes")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 28, "Should have 28 themes total")
+        #expect(ColorTheme.allThemes.count == 29, "Should have 28 themes total")
     }
 
     @Test("Copper has warm metallic color progression")
@@ -2053,7 +2053,7 @@ struct GoldThemeTests {
 
     @Test("Total theme count is 22")
     func themeCount() {
-        #expect(ColorTheme.allThemes.count == 28)
+        #expect(ColorTheme.allThemes.count == 29)
     }
 
     @Test("Gold has warm metallic color progression")
@@ -2999,7 +2999,7 @@ struct VolcanicThemeTests {
 
     @Test("Theme count is 22 with Volcanic")
     func themeCount22() {
-        #expect(ColorTheme.allThemes.count == 28)
+        #expect(ColorTheme.allThemes.count == 29)
     }
 
     @Test("Volcanic theme has lava-to-obsidian color progression")
@@ -3445,7 +3445,7 @@ struct PlasmaThemeTests {
 
     @Test("Theme count is 24 with Plasma and Arctic")
     func themeCount24() {
-        #expect(ColorTheme.allThemes.count == 28)
+        #expect(ColorTheme.allThemes.count == 29)
     }
 
     @Test("Plasma has white-hot to deep purple progression")
@@ -3847,7 +3847,7 @@ struct ArcticThemeTests {
 
     @Test("Theme count is 24")
     func themeCount24() {
-        #expect(ColorTheme.allThemes.count == 28)
+        #expect(ColorTheme.allThemes.count == 29)
     }
 
     @Test("Frost newborn is brightest tier")
@@ -3933,7 +3933,7 @@ struct SetCellAgePreservationTests {
 struct ColorThemeCompletenessTests {
     @Test("allThemes contains exactly the expected count")
     func allThemesCount() {
-        #expect(ColorTheme.allThemes.count == 28)
+        #expect(ColorTheme.allThemes.count == 29)
     }
 
     @Test("All theme names are unique")
@@ -4277,7 +4277,7 @@ struct SolarThemeTests {
 
     @Test("Theme count is 26 after Solar addition")
     func themeCount26() {
-        #expect(ColorTheme.allThemes.count == 28)
+        #expect(ColorTheme.allThemes.count == 29)
     }
 
     @Test("Solar newborn is brightest tier")
@@ -4395,7 +4395,7 @@ struct ToxicThemeTests {
 
     @Test("Theme count is 27 after Toxic addition")
     func themeCount27() {
-        #expect(ColorTheme.allThemes.count == 28)
+        #expect(ColorTheme.allThemes.count == 29)
     }
 
     @Test("Toxic has decreasing emissive intensity by age")
@@ -4497,7 +4497,7 @@ struct StarfieldThemeTests {
 
     @Test("Theme count is 28 after Starfield addition")
     func themeCount28() {
-        #expect(ColorTheme.allThemes.count == 28)
+        #expect(ColorTheme.allThemes.count == 29)
     }
 
     @Test("Starfield has decreasing emissive intensity by age")
@@ -4522,5 +4522,116 @@ struct StarfieldThemeTests {
         // Blue channel should be >= other channels in newborn (white-blue stars)
         #expect(theme.newborn.emissiveColor.z >= theme.newborn.emissiveColor.x)
         #expect(theme.newborn.emissiveColor.z >= theme.newborn.emissiveColor.y)
+    }
+}
+
+// MARK: - Hourglass Pattern Tests (Session 64)
+
+@Suite("Hourglass Pattern Tests")
+struct HourglassPatternTests {
+    @Test("Hourglass produces non-empty grid")
+    func hourglassNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadHourglass()
+        #expect(grid.aliveCount > 0)
+    }
+
+    @Test("Hourglass has vertical symmetry (top-bottom mirror)")
+    func hourglassVerticalSymmetry() {
+        var grid = GridModel(size: 16)
+        grid.loadHourglass()
+        let s = grid.size
+        var mismatches = 0
+        for x in 0..<s {
+            for y in 0..<s {
+                for z in 0..<s {
+                    let alive = grid.isAlive(x: x, y: y, z: z)
+                    let mirror = grid.isAlive(x: x, y: s - 1 - y, z: z)
+                    if alive != mirror { mismatches += 1 }
+                }
+            }
+        }
+        #expect(mismatches == 0)
+    }
+
+    @Test("Hourglass has rotational symmetry around Y axis")
+    func hourglassRotationalSymmetry() {
+        var grid = GridModel(size: 16)
+        grid.loadHourglass()
+        let s = grid.size
+        // 90-degree rotation around Y: (x,y,z) → (z,y,s-1-x)
+        var mismatches = 0
+        for x in 0..<s {
+            for y in 0..<s {
+                for z in 0..<s {
+                    let alive = grid.isAlive(x: x, y: y, z: z)
+                    let rotated = grid.isAlive(x: z, y: y, z: s - 1 - x)
+                    if alive != rotated { mismatches += 1 }
+                }
+            }
+        }
+        #expect(mismatches == 0)
+    }
+
+    @Test("Hourglass pattern in engine enum")
+    func hourglassEngineEnum() {
+        let pattern = SimulationEngine.Pattern.hourglass
+        #expect(pattern.rawValue == "Hourglass")
+    }
+
+    @Test("Hourglass alive index consistency")
+    func hourglassIndexConsistency() {
+        var grid = GridModel(size: 16)
+        grid.loadHourglass()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+
+    @Test("Hourglass evolves under standard rules")
+    func hourglassEvolution() {
+        var grid = GridModel(size: 16)
+        grid.loadHourglass()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount != initial)
+    }
+}
+
+// MARK: - Cyberpunk Theme Tests (Session 64)
+
+@Suite("Cyberpunk Theme Tests")
+struct CyberpunkThemeTests {
+    @Test("Cyberpunk theme exists in allThemes")
+    func cyberpunkExists() {
+        let found = ColorTheme.allThemes.contains { $0.name == "Cyberpunk" }
+        #expect(found)
+    }
+
+    @Test("Theme count is 29 after Cyberpunk addition")
+    func themeCount29() {
+        #expect(ColorTheme.allThemes.count == 29)
+    }
+
+    @Test("Cyberpunk has decreasing emissive intensity by age")
+    func cyberpunkColorProgression() {
+        let theme = ColorTheme.cyberpunk
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+
+    @Test("Cyberpunk opacity decreases with age")
+    func cyberpunkOpacityDecay() {
+        let theme = ColorTheme.cyberpunk
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+
+    @Test("Cyberpunk is pink-dominant (red > green in newborn)")
+    func cyberpunkPinkDominant() {
+        let theme = ColorTheme.cyberpunk
+        // Red channel should be highest (hot pink = high red, zero green)
+        #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.y)
+        #expect(theme.newborn.emissiveColor.x > theme.newborn.emissiveColor.z)
     }
 }

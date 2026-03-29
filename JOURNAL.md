@@ -2,6 +2,23 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 12 — Session 64 (2026-03-28 17:25 PDT)
+
+**Goal**: Hourglass pattern, Cyberpunk theme, tests.
+
+Three improvements:
+
+1. **Hourglass pattern (29th)**: Two opposing cones meeting at a single-cell waist in the center, creating a symmetric double-cone shape. The top cone points up and the bottom cone points down, with horizontal radius shrinking linearly toward the center. Has both vertical (Y-axis mirror) and rotational (90° around Y) symmetry. Under standard B5-7/S5-8 rules, the thin waist erodes first (low local neighbor density at the pinch point), splitting the shape into two separate evolving clusters that fragment outward from the cone surfaces.
+
+2. **Cyberpunk theme (29th)**: Hot pink/magenta newborn cells (emissive 2.4) through neon purple young cells to deep indigo mature cells fading to near-black void. Distinct from Sakura (soft pink/white), Nebula (purple/pink mix), Amethyst (purple/violet), and Crimson (red/scarlet) — Cyberpunk stays in the intense hot-pink-to-dark-blue range with a synthetic neon aesthetic. Red channel is dominant in newborn (hot pink = high red, zero green, medium blue).
+
+3. **Updated 12 stale theme count assertions (28→29)**. Added 11 new tests across 2 new suites: Hourglass Pattern (6 tests: non-empty, vertical symmetry, rotational symmetry, engine enum, index consistency, evolution dynamics), Cyberpunk Theme (5 tests: existence, theme count 29, color progression, opacity decay, pink dominance).
+
+Build verified clean on visionOS Simulator.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design. Final visual tuning across all color themes.
+
+---
 ## Day 12 — Session 63 (2026-03-28 17:10 PDT)
 
 **Goal**: Icosahedron pattern (complete all 5 Platonic solids), Starfield theme, tests.
