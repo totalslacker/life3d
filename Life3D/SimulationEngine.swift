@@ -463,6 +463,8 @@ final class SimulationEngine {
             grid.loadClebschDiagonalSurface()
         case .whitneyUmbrella:
             grid.loadWhitneyUmbrella()
+        case .pseudosphere:
+            grid.loadPseudosphere()
         case .clear:
             grid.clearAll()
         }
@@ -559,6 +561,7 @@ final class SimulationEngine {
         case astroidalEllipsoid = "Astroidal Ellipsoid"
         case clebschDiagonalSurface = "Clebsch Diagonal Surface"
         case whitneyUmbrella = "Whitney Umbrella"
+        case pseudosphere = "Pseudosphere"
         case clear = "Clear"
 
         var id: String { rawValue }
