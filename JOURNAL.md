@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 14 — Session 103 (2026-03-30 08:15 PDT)
+
+**Goal**: Hyperboloid pattern, Rosewood theme, 11 new tests.
+
+1. **Hyperboloid pattern (76th cyclable)**: A one-sheeted hyperboloid — a classic quadric surface defined by x² + y² - z² = 1. Parametrized as x = cosh(v)cos(u), y = cosh(v)sin(u), z = sinh(v) over u ∈ [0, 2π) and v ∈ [-1.5, 1.5]. Produces a distinctive cooling-tower/hourglass shape that narrows at the waist and flares outward at both ends. Distinct from Sphere (closed, no waist), Catenoid (minimal surface with thinner neck), and Pseudosphere (single trumpet). The rotational symmetry creates an elegant ruled surface where straight lines can be drawn on the curved shape. 6 new tests.
+2. **Rosewood theme (77th)**: Warm reddish-brown wood aesthetic — vivid rosewood newborn cells (R 0.80, G 0.35, B 0.22) through medium dark auburn young cells to deep chocolate-brown mature cells fading to near-black. R > G > B across all tiers, evoking the rich, warm tones of Dalbergia rosewood. Distinct from Mahogany (darker, less red), Sienna (more orange-earthy), Terracotta (pinker-orange), and Umber (cooler dark brown). 5 new tests.
+3. **Test count fixes**: Updated all stale `allPatterns.count == 62` assertions to `== 77` and `allThemes.count == 76` to `== 77` — counts were stale after many patterns and themes were added without updating these assertions.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 14 — Session 102 (2026-03-30 07:49 PDT)
 
 **Goal**: Pseudosphere pattern, Wisteria theme, 11 new tests.
