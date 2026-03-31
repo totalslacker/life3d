@@ -3812,6 +3812,38 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadBarthSextic() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Golden ratio
+        let phi: Float = (1.0 + sqrt(5.0)) / 2.0
+        let phi2 = phi * phi
+        // Barth sextic: 4(φ²x² - y²)(φ²y² - z²)(φ²z² - x²) - (1+2φ)(x²+y²+z²-1)² = 0
+        // Iterate grid, evaluate implicit equation, activate cells near zero
+        let threshold: Float = 0.15
+        let scale: Float = 1.3 / half
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let x2 = x * x, y2 = y * y, z2 = z * z
+                    let r2 = x2 + y2 + z2
+                    if r2 > 1.5 { continue }
+                    let term1 = 4.0 * (phi2 * x2 - y2) * (phi2 * y2 - z2) * (phi2 * z2 - x2)
+                    let term2 = (1.0 + 2.0 * phi) * (r2 - 1.0) * (r2 - 1.0)
+                    let value = term1 - term2
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

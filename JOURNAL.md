@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 105 (2026-03-31 08:44 PDT)
+
+**Goal**: Barth Sextic pattern, Carnelian theme, 11 new tests.
+
+1. **Barth Sextic pattern (78th cyclable)**: A famous degree-6 algebraic surface discovered by Wolf Barth, notable for having 65 ordinary double points — the maximum possible for a sextic surface. Defined implicitly by 4(φ²x² - y²)(φ²y² - z²)(φ²z² - x²) - (1+2φ)(x²+y²+z²-1)² = 0, where φ is the golden ratio. The surface has icosahedral symmetry and produces a strikingly intricate, spiky form with many self-intersection nodes. Uses an implicit isosurface approach — iterates the 3D grid within a bounding sphere (r² < 1.5), evaluates the sextic equation at each cell, and activates cells where |value| < threshold. Visually distinct from Clebsch Diagonal Surface (cubic, fewer nodes), Mandelbulb (fractal, not algebraic), and Gyroid (triply periodic). 6 new tests.
+2. **Carnelian theme (79th)**: Warm reddish-orange semi-precious stone aesthetic — vivid carnelian newborn cells (R 0.88, G 0.32, B 0.15) through medium dark rust young cells to deep brown-red mature cells fading to near-black. R > G > B across all tiers, evoking the distinctive warm orange-red of polished carnelian gemstone. Distinct from Copper (darker, more metallic brown), Vermilion (brighter pure red), Ember (more orange glow), Terracotta (earthy brown-orange), and Apricot (lighter peach-orange). 5 new tests.
+3. **Test count updates**: Updated all stale `allPatterns.count == 78` assertions to `== 79` and `allThemes.count == 78` to `== 79`.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 104 (2026-03-31 08:18 PDT)
 
 **Goal**: Bour's Minimal Surface pattern, Patina theme, 11 new tests.
