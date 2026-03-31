@@ -3745,6 +3745,73 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadBourMinimalSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let steps = n * 8
+        let thickness: Float = 0.6
+        var points: [(Float, Float, Float)] = []
+        points.reserveCapacity(steps * steps)
+        // Bour's minimal surface with n=3
+        // x(r,θ) = r cos(θ) - r^n/(2n) cos(nθ)
+        // y(r,θ) = -r sin(θ) - r^n/(2n) sin(nθ)
+        // z(r,θ) = 2 r^(n/2) / n cos(nθ/2)
+        let order: Float = 3.0
+        for ri in 0..<steps {
+            let r = 0.1 + 1.9 * Float(ri) / Float(steps - 1)
+            for ti in 0..<steps {
+                let theta = 2.0 * Float.pi * Float(ti) / Float(steps - 1)
+                let rn = pow(r, order)
+                let rHalf = pow(r, order / 2.0)
+                let px = r * cos(theta) - rn / (2.0 * order) * cos(order * theta)
+                let py = -r * sin(theta) - rn / (2.0 * order) * sin(order * theta)
+                let pz = 2.0 * rHalf / order * cos(order * theta / 2.0)
+                points.append((px, py, pz))
+            }
+        }
+        guard !points.isEmpty else { return }
+        var minX = Float.greatestFiniteMagnitude, maxX = -Float.greatestFiniteMagnitude
+        var minY = Float.greatestFiniteMagnitude, maxY = -Float.greatestFiniteMagnitude
+        var minZ = Float.greatestFiniteMagnitude, maxZ = -Float.greatestFiniteMagnitude
+        for (px, py, pz) in points {
+            minX = min(minX, px); maxX = max(maxX, px)
+            minY = min(minY, py); maxY = max(maxY, py)
+            minZ = min(minZ, pz); maxZ = max(maxZ, pz)
+        }
+        let extX = maxX - minX
+        let extY = maxY - minY
+        let extZ = maxZ - minZ
+        let maxExt = max(extX, max(extY, extZ))
+        guard maxExt > 0 else { return }
+        let scale = half * 1.5 / maxExt
+        let cx = (minX + maxX) / 2.0
+        let cy = (minY + maxY) / 2.0
+        let cz = (minZ + maxZ) / 2.0
+        let t = Int(thickness)
+        for (px, py, pz) in points {
+            let ix = Int(half + (px - cx) * scale)
+            let iy = Int(half + (py - cy) * scale)
+            let iz = Int(half + (pz - cz) * scale)
+            for dx in -t...t {
+                for dy in -t...t {
+                    for dz in -t...t {
+                        let dist = sqrt(Float(dx * dx + dy * dy + dz * dz))
+                        if dist <= thickness {
+                            let gx = ix + dx
+                            let gy = iy + dy
+                            let gz = iz + dz
+                            if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                                setCell(x: gx, y: gy, z: gz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

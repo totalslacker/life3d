@@ -467,6 +467,8 @@ final class SimulationEngine {
             grid.loadPseudosphere()
         case .hyperboloid:
             grid.loadHyperboloid()
+        case .bourMinimalSurface:
+            grid.loadBourMinimalSurface()
         case .clear:
             grid.clearAll()
         }
@@ -565,6 +567,7 @@ final class SimulationEngine {
         case whitneyUmbrella = "Whitney Umbrella"
         case pseudosphere = "Pseudosphere"
         case hyperboloid = "Hyperboloid"
+        case bourMinimalSurface = "Bour's Minimal Surface"
         case clear = "Clear"
 
         var id: String { rawValue }
