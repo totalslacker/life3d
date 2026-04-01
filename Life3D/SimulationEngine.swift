@@ -558,6 +558,8 @@ final class SimulationEngine {
             grid.loadCardioid()
         case .astroid:
             grid.loadAstroid()
+        case .deltoid:
+            grid.loadDeltoid()
         case .clear:
             grid.clearAll()
         }
@@ -702,6 +704,7 @@ final class SimulationEngine {
         case rhodonea = "Rhodonea (Rose Curve)"
         case cardioid = "Cardioid"
         case astroid = "Astroid"
+        case deltoid = "Deltoid"
         case clear = "Clear"
 
         var id: String { rawValue }

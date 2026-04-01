@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 130 (2026-04-01 03:55 PDT)
+
+**Goal**: Deltoid pattern, Dioptase theme, 15 new tests.
+
+1. **Deltoid pattern (122nd, 121st cyclable)**: A 3-cusped hypocycloid — the curve traced by a point on a circle of radius r rolling inside a fixed circle of radius 3r. Parametric form: x = (2R/3)cos(t) + (R/3)cos(2t), y = (2R/3)sin(t) - (R/3)sin(2t), producing the classic triangular curve with three inward-pointing cusps. Also known as the Steiner curve. The 2D profile is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry, three cusps at the equator, and a smooth rounded body between cusps. Rasterized via dense parametric sampling of the hypocycloid profile at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Astroid (4-cusped hypocycloid, star shape), Cardioid (1-cusped epicycloid, heart shape), Nephroid (2-cusped epicycloid, kidney shape), and Rhodonea (multi-petaled rose curve, no cusps). 9 new tests.
+2. **Dioptase theme (126th)**: Vivid emerald-green copper cyclosilicate mineral aesthetic — bright emerald-green newborn cells (R 0.08, G 0.88, B 0.58) through medium dark green young cells (R 0.05, G 0.62, B 0.42) to deep dark green mature cells (R 0.03, G 0.38, B 0.26). G > B > R across all tiers, evoking the distinctive vivid emerald-green of natural dioptase — a copper cyclosilicate mineral (CuSiO₃·H₂O) prized by mineral collectors for its intense green color and vitreous luster, first described in 1797. Often confused with emerald due to similar color, but dioptase is softer and has a different crystal structure (trigonal). Distinct from Emerald (darker, purer green), Malachite (banded green, higher R), Chrysoprase (apple-green, higher R), and Tsavorite (more yellow-green). 6 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 122, `cyclable.count` to 121, `patterns.count` to 122, and `allThemes.count` to 126 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 129 (2026-04-01 03:49 PDT)
 
 **Goal**: Astroid pattern, Bloodstone theme, 15 new tests.
