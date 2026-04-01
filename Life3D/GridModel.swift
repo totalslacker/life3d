@@ -6022,6 +6022,63 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadStrophoid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.85
+        let profileSamples = 720
+        let revolutionSteps = 180
+
+        // Right Strophoid: r = -a·cos(2θ)/cos(θ)
+        // Parametric form: x = a(t² - 1)/(t² + 1), y = a·t(t² - 1)/(t² + 1)
+        // The curve has a loop at the origin and an asymptote at x = a
+        let a: Float = 1.0
+
+        for rs in 0..<revolutionSteps {
+            let phi = Float(rs) / Float(revolutionSteps) * 2.0 * Float.pi
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for ps in 0..<profileSamples {
+                let t = Float(ps) / Float(profileSamples) * 4.0 - 2.0
+                let t2 = t * t
+                let denom = t2 + 1.0
+                let px = a * (t2 - 1.0) / denom
+                let py = a * t * (t2 - 1.0) / denom
+                let sx = px * scale / (1.5 * a)
+                let sy = py * scale / (2.0 * a)
+                // Revolve around Y axis
+                let wx = sx * cosPhi + half
+                let wy = sy + half
+                let wz = sx * sinPhi + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

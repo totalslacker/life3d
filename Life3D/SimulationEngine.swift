@@ -576,6 +576,8 @@ final class SimulationEngine {
             grid.loadFoliumOfDescartes()
         case .cissoid:
             grid.loadCissoid()
+        case .strophoid:
+            grid.loadStrophoid()
         case .clear:
             grid.clearAll()
         }
@@ -729,6 +731,7 @@ final class SimulationEngine {
         case witchOfAgnesi = "Witch of Agnesi"
         case foliumOfDescartes = "Folium of Descartes"
         case cissoid = "Cissoid of Diocles"
+        case strophoid = "Strophoid"
         case clear = "Clear"
 
         var id: String { rawValue }

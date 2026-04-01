@@ -2,6 +2,15 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 142 (2026-04-01 07:31 PDT)
+
+**Goal**: Strophoid pattern, Vivianite theme, 15 new tests.
+
+1. **Strophoid pattern (131st, 130th cyclable)**: The right strophoid — a cubic curve with parametric form x = a(t² - 1)/(t² + 1), y = at(t² - 1)/(t² + 1), where the curve has a loop at the origin, passes through the point (-a, 0), and has an asymptote at x = a. First studied by Isaac Barrow in 1670 and later by Jean Bernoulli. Visually distinct from Cissoid (cusp at origin, no loop), Folium of Descartes (leaf-shaped loop), Limaçon (polar curve, different loop shape), and Witch of Agnesi (bell-shaped, no loop). 10 new tests.
+2. **Vivianite theme (138th)**: Deep blue-green hydrated iron phosphate mineral aesthetic — vivid blue-teal newborn cells (R 0.12, G 0.48, B 0.72) through medium dark blue young cells (R 0.08, G 0.34, B 0.55) to deep dark navy mature cells (R 0.04, G 0.20, B 0.38). B > G > R across all tiers. Distinct from Azurite (more pure blue), Kyanite (more blue-grey), Sodalite (more royal blue), and Labradorite (iridescent blue flash). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 141 (2026-04-01 07:27 PDT)
 
 **Goal**: Wulfenite theme, 5 new tests.
