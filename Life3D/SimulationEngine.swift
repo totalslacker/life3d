@@ -554,6 +554,8 @@ final class SimulationEngine {
             grid.loadBuckyball()
         case .rhodonea:
             grid.loadRhodonea()
+        case .cardioid:
+            grid.loadCardioid()
         case .clear:
             grid.clearAll()
         }
@@ -696,6 +698,7 @@ final class SimulationEngine {
         case nephroid = "Nephroid"
         case buckyball = "Buckyball"
         case rhodonea = "Rhodonea (Rose Curve)"
+        case cardioid = "Cardioid"
         case clear = "Clear"
 
         var id: String { rawValue }

@@ -5397,6 +5397,65 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Cardioid — a 1-cusped epicycloid, the curve traced by a point on a circle
+    /// of radius R rolling around the outside of a fixed circle of radius R.
+    /// Parametric: x = 2R(cos(t) - cos(2t)/2), y = 2R(sin(t) - sin(2t)/2).
+    /// Extended into 3D by revolving around the Y axis, creating a solid of revolution
+    /// with a single cusp at the top and a smooth rounded body — the classic heart-shaped
+    /// curve from polar coordinates r = 1 + cos(θ). Distinct from Heart Surface (algebraic
+    /// implicit), Nephroid (2 cusps), and Torus (no cusps).
+    mutating func loadCardioid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.38
+        let profileSamples = 360
+        let revolutionSteps = 180
+
+        // Build cardioid profile in the XY plane: r = scale * (1 + cos(theta))
+        // Then revolve around Y axis for 3D
+        for rs in 0..<revolutionSteps {
+            let phi = Float(rs) / Float(revolutionSteps) * 2.0 * Float.pi
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for ps in 0..<profileSamples {
+                let theta = Float(ps) / Float(profileSamples) * 2.0 * Float.pi
+                let r = scale * (1.0 + cos(theta))
+                // Profile point in XY plane
+                let px = r * cos(theta)
+                let py = r * sin(theta)
+                // Revolve around Y axis: (px, py) -> (px*cos(phi), py, px*sin(phi))
+                let wx = px * cosPhi + half
+                let wy = py + half
+                let wz = px * sinPhi + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

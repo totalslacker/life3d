@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 128 (2026-04-01 03:42 PDT)
+
+**Goal**: Cardioid pattern, Sugilite theme, 15 new tests.
+
+1. **Cardioid pattern (120th, 119th cyclable)**: A 1-cusped epicycloid — the curve traced by a point on a circle of radius R rolling around the outside of a fixed circle of equal radius R. In polar coordinates: r = 1 + cos(θ), producing the classic heart-shaped curve. The 2D profile is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry, a single cusp at the top, and a smooth rounded body. Rasterized via dense parametric sampling of the polar curve at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Heart Surface (algebraic implicit equation, different topology), Nephroid (2-cusped epicycloid, kidney shape), Torus (no cusps, ring), and Rhodonea (multi-petaled rose curve). 9 new tests.
+2. **Sugilite theme (124th)**: Vivid purple manganese cyclosilicate mineral aesthetic — bright purple newborn cells (R 0.68, G 0.22, B 0.82) through medium dark violet young cells (R 0.48, G 0.14, B 0.62) to deep dark purple mature cells (R 0.30, G 0.08, B 0.42). B > R > G across all tiers, evoking the distinctive vivid purple of natural sugilite — a rare cyclosilicate first described in 1944 by Ken-ichi Sugi in Japan, later found in gem quality at the Wessels mine in South Africa. One of few minerals with a naturally vivid purple color. Distinct from Charoite (more red-shifted purple), Amethyst (lighter, more blue-violet), Plum (darker, more muted), and Wisteria (lighter, more pastel). 6 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 120, `cyclable.count` to 119, `patterns.count` to 120, and `allThemes.count` to 124 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 127 (2026-04-01 03:34 PDT)
 
 **Goal**: Rhodonea (Rose Curve) pattern, Benitoite theme, 15 new tests.
