@@ -4759,13 +4759,54 @@ struct GridModel: Sendable {
                     let fx = (Float(x) - half) * scale
                     let fy = (Float(y) - half) * scale
                     let fz = (Float(z) - half) * scale
-                    // Horn extends along x-axis for x > 0
-                    // Radius at position x is 1/x (clamped)
-                    let xShifted = fx + 1.8 // shift so horn starts near left edge
+                    let xShifted = fx + 1.8
                     guard xShifted > 0.3 else { continue }
                     let radius = 1.0 / xShifted
                     let distFromAxis = sqrtf(fy * fy + fz * fz)
                     if abs(distFromAxis - radius) < tubeThickness {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    mutating func loadSolomonsKnot() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale = Float(n) * 0.30
+        let R: Float = 0.50          // major radius of each loop
+        let r: Float = 0.12          // tube radius
+        let thickness: Float = 1.3
+        let sep: Float = R * 0.45    // separation between loop centers
+
+        // Solomon's Knot: two rectangular loops doubly interlinked.
+        // Loop 1 lies primarily in the XY plane, offset along Z.
+        // Loop 2 lies primarily in the XZ plane, offset along Y.
+        // Each loop is an elongated torus (elliptical major radius).
+
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let fx = (Float(x) - half) / scale
+                    let fy = (Float(y) - half) / scale
+                    let fz = (Float(z) - half) / scale
+
+                    // Loop 1: elongated torus in XY plane, offset along Z
+                    let stretch1: Float = 1.6
+                    let sx1 = fx / stretch1
+                    let d1 = sqrtf(sx1 * sx1 + fy * fy) - R
+                    let dist1 = sqrtf(d1 * d1 + (fz - sep) * (fz - sep))
+
+                    // Loop 2: elongated torus in XZ plane, offset along Y
+                    let stretch2: Float = 1.6
+                    let sz2 = fz / stretch2
+                    let d2 = sqrtf(fx * fx + sz2 * sz2) - R
+                    let dist2 = sqrtf(d2 * d2 + (fy - sep) * (fy - sep))
+
+                    if dist1 < r * thickness || dist2 < r * thickness {
                         setCell(x: x, y: y, z: z, alive: true)
                     }
                 }

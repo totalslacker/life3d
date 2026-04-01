@@ -3,6 +3,16 @@
 Evolution session log. Most recent entry first. Never delete entries.
 
 
+## Day 16 — Session 124 (2026-04-01 02:45 PDT)
+
+**Goal**: Solomon's Knot pattern, Chrysoprase theme, 14 new tests.
+
+1. **Solomon's Knot pattern (106th, 105th cyclable)**: Two doubly-interlinked elongated oval loops — a classic decorative motif from Roman mosaics and Celtic art, and the simplest non-trivial 2-component link beyond the Hopf link. Each loop is modeled as an elongated torus (stretch factor 1.6) lying in a different coordinate plane (XY and XZ), offset along their respective normal axes so they pass through each other twice. The double interlinking distinguishes it from a Hopf Link (single interlinking) and Borromean Rings (three rings, no pairwise linking). Uses implicit torus distance fields with elliptical major radii. 8 new tests.
+2. **Chrysoprase theme (110th)**: Apple-green chalcedony gemstone aesthetic — vivid apple-green newborn cells (R 0.48, G 0.88, B 0.42) through medium forest-green young cells (R 0.28, G 0.68, B 0.32) to deep dark green mature cells (R 0.12, G 0.42, B 0.18). G > R > B across all tiers, evoking the distinctive translucent apple-green of natural chrysoprase (nickel-bearing chalcedony), the most valuable variety of chalcedony. Distinct from Peridot (more yellow-green), Jade (more muted olive), Emerald (darker pure green), and Malachite (banded darker green). 6 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count == 105` to `== 106` and `allThemes.count == 109` to `== 110` across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 123 (2026-04-01 00:10 PDT)
 
 

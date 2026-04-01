@@ -532,6 +532,8 @@ final class SimulationEngine {
             grid.loadConchospiral()
         case .gabrielsHorn:
             grid.loadGabrielsHorn()
+        case .solomonsKnot:
+            grid.loadSolomonsKnot()
         case .clear:
             grid.clearAll()
         }
@@ -663,6 +665,7 @@ final class SimulationEngine {
         case borromeanRings = "Borromean Rings"
         case conchospiral = "Conchospiral"
         case gabrielsHorn = "Gabriel's Horn"
+        case solomonsKnot = "Solomon's Knot"
         case clear = "Clear"
 
         var id: String { rawValue }
