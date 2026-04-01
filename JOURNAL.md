@@ -2,6 +2,18 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 118 (2026-03-31 23:38 PDT)
+
+**Goal**: Bretzel Surface pattern, Eight Surface pattern, Chalcedony theme, Beryl theme, 11 new tests.
+
+1. **Bretzel Surface pattern (97th, 96th cyclable)**: A genus-2 algebraic surface shaped like a pretzel. Defined implicitly by the equation ((x²(1-x²) - y²)² + z²/2) - 0.04 = 0. The quartic equation with the x²(1-x²) term creates two merged holes through the surface, producing the distinctive pretzel/bretzel shape with smooth bilateral symmetry. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the equation at each cell, and activates cells near the target value. Visually distinct from Torus (single hole), Klein Bottle (non-orientable), Dupin Cyclide (envelope of spheres), and Gyroid (triply periodic). 6 new tests.
+2. **Eight Surface pattern (98th, 97th cyclable)**: A quartic surface with tetrahedral symmetry defined by sin(2πx)sin(πy) + sin(2πy)sin(πz) + sin(2πz)sin(πx) = 0. The mixed sine terms create interlocking figure-eight loops along each coordinate axis, producing a visually striking web of smooth intersecting sheets. Uses an implicit isosurface approach. Visually distinct from Gyroid (minimal surface), Schwarz P Surface (cubic periodicity), Lidinoid (different topology), and Scherk Surface (minimal surface). 5 new tests.
+3. **Chalcedony theme (103rd)**: Translucent blue-gray microcrystalline quartz aesthetic — pale blue-gray newborn cells (R 0.68, G 0.76, B 0.85) through medium steel-blue young cells to deep dark gray-blue mature cells fading to near-black. B > G > R across all tiers, evoking the distinctive waxy translucence of polished chalcedony. Distinct from Slate (darker, more saturated blue), Glacier (lighter, more white), Graphite (neutral gray), and Pewter (warmer, metallic). 4 new tests.
+4. **Beryl theme (104th)**: Light green aqua gemstone aesthetic — vivid sea-green newborn cells (R 0.55, G 0.88, B 0.72) through medium forest-green young cells to deep dark green mature cells fading to near-black. G > B > R across all tiers, evoking the distinctive light green transparency of natural beryl (the mineral family of emerald and aquamarine). Distinct from Emerald (darker, purer green), Jade (more muted, olive), and Peridot (more yellow-green). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 117 (2026-03-31 23:30 PDT)
 
 **Goal**: Bretzel Surface pattern, Moonstone theme, 11 new tests.

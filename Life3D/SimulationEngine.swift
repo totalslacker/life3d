@@ -516,6 +516,8 @@ final class SimulationEngine {
             grid.loadTesseract()
         case .bretzelSurface:
             grid.loadBretzelSurface()
+        case .eightSurface:
+            grid.loadEightSurface()
         case .clear:
             grid.clearAll()
         }
@@ -639,6 +641,7 @@ final class SimulationEngine {
         case goursatSurface = "Goursat Surface"
         case tesseract = "Tesseract"
         case bretzelSurface = "Bretzel Surface"
+        case eightSurface = "Eight Surface"
         case clear = "Clear"
 
         var id: String { rawValue }

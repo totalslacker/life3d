@@ -4572,6 +4572,29 @@ mutating func loadTesseract() {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadEightSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 2.0 / half
+        let threshold: Float = 0.35
+        let pi = Float.pi
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let value = sin(2.0 * pi * x) * sin(pi * y) + sin(2.0 * pi * y) * sin(pi * z) + sin(2.0 * pi * z) * sin(pi * x)
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
