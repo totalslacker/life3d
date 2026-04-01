@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 150 (2026-04-01 08:56 PDT)
+
+**Goal**: Cochleoid pattern, Crocoite theme, 15 new tests.
+
+1. **Cochleoid pattern (136th, 135th cyclable)**: The cochleoid — a snail-shell spiral curve defined by r = a·sin(θ)/θ in polar coordinates. Named from Greek κοχλίας (kochlias, "spiral, snail shell"). The curve passes through the origin and spirals outward with diminishing oscillation amplitude as θ increases. First studied by Johann Bernoulli (1691) in connection with the Archimedean spiral. Unlike the Lituus (r = a/√θ, monotonically shrinking), the cochleoid's sin(θ)/θ factor creates characteristic looping oscillations that cross the origin repeatedly. The 2D spiral is extruded into multiple vertical layers for 3D volume. Visually distinct from Lituus (monotonic tightening), Conchospiral (conical helix), Rhodonea (closed petal loops), and Lemniscate (figure-eight). 10 new tests.
+2. **Crocoite theme (150th)**: Vivid orange-red lead chromate aesthetic — bright orange-red newborn cells (R 0.95, G 0.42, B 0.08) through medium dark orange young cells (R 0.78, G 0.30, B 0.05) to deep dark reddish-brown mature cells (R 0.58, G 0.20, B 0.03). R > G > B across all tiers, evoking the distinctive vivid orange-red of natural crocoite — a lead chromate mineral (PbCrO₄) named from Greek "krokos" (saffron) for its intense color. Found primarily in Tasmania (Dundas, Adelaide Mine), prized for its elongated prismatic monoclinic crystals with adamantine luster. Distinct from Vermilion (more red, less orange), Sunstone (sparkly aventurescence), Wulfenite (more yellow-orange), and Saffron (more golden-yellow). 5 new tests.
+3. **Updated count assertions**: allPatterns.count to 137, cyclable.count to 136, allThemes.count to 150 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 149 (2026-04-01 08:45 PDT)
 
 **Goal**: Kampyle of Eudoxus pattern, Sphene theme, 15 new tests.

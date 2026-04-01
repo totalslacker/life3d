@@ -588,6 +588,8 @@ final class SimulationEngine {
             grid.loadLituus()
         case .kampyle:
             grid.loadKampyle()
+        case .cochleoid:
+            grid.loadCochleoid()
         case .clear:
             grid.clearAll()
         }
@@ -747,6 +749,7 @@ final class SimulationEngine {
         case tractrix = "Tractrix"
         case lituus = "Lituus"
         case kampyle = "Kampyle of Eudoxus"
+        case cochleoid = "Cochleoid"
         case clear = "Clear"
 
         var id: String { rawValue }

@@ -6384,6 +6384,58 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Cochleoid — a snail-shell spiral curve defined by r = a·sin(θ)/θ in polar coordinates.
+    /// Named from Greek κοχλίας (kochlias, "spiral, snail shell"). The curve passes through
+    /// the origin and spirals outward with diminishing amplitude. Studied by Johann Bernoulli
+    /// (1691) and later by various 18th-century geometers in connection with rectification
+    /// of the Archimedean spiral. The 2D spiral is extruded into multiple vertical layers.
+    mutating func loadCochleoid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale = Float(n) * 0.11
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let layers = max(3, n / 4)
+        let samples = n * 20
+
+        for layer in 0..<layers {
+            let zOffset = Float(layer) / Float(layers - 1) * 2.0 - 1.0
+            let tMin: Float = 0.3  // avoid singularity at θ=0
+            let tMax: Float = 4.0 * .pi
+            for s in 0..<samples {
+                let t = tMin + Float(s) / Float(samples) * (tMax - tMin)
+                // r = a * sin(θ) / θ
+                let r = scale * sin(t) / t
+                let px = r * cos(t)
+                let py = r * sin(t)
+                let wz = zOffset * thickness * 0.5 + half
+                let iz = Int(wz)
+                guard iz >= 0 && iz < n else { continue }
+
+                let wx = px + half
+                let wy = py + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        let distSq = Float(dx * dx + dy * dy)
+                        if distSq <= thickSq {
+                            let nx = ix + dx
+                            let ny = iy + dy
+                            if nx >= 0 && nx < n && ny >= 0 && ny < n {
+                                setCell(x: nx, y: ny, z: iz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
