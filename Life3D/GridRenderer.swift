@@ -2353,7 +2353,7 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.4, opacity: 0.10)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze, .ivory, .pearl, .graphite, .slate, .cobalt, .vermilion, .indigo, .mahogany, .burgundy, .teal, .chartreuse, .saffron, .moss, .cerulean, .mauve, .marigold, .sage, .ochre, .umber, .sienna, .viridian, .pewter, .celadon, .turquoise, .denim, .apricot, .plum, .wisteria, .rosewood, .patina, .carnelian, .malachite, .alexandrite, .tanzanite, .citrine, .topaz, .fluorite, .sunstone, .rhodonite, .lapisLazuli, .zircon, .onyx, .tourmaline, .larimar, .jasper, .labradorite, .amazonite, .amber, .sodalite, .rhodochrosite, .kunzite, .spinel, .hematite, .chrysocolla, .moonstone, .chalcedony, .beryl, .azurite, .kyanite, .agate, .ammolite, .petrifiedWood, .pyrite, .chrysoprase, .charoite, .iolite, .rhodolite, .seraphinite, .aventurine, .prehnite, .tsavorite, .celestite, .dumortierite, .benitoite, .sugilite, .bloodstone, .dioptase, .moldavite, .variscite, .lepidolite, .aragonite, .unakite, .chrysoberyl, .andalusite, .sphalerite, .staurolite, .grandidierite, .strontianite, .wulfenite, .vivianite, .pietersite, .piemontite, .scapolite, .epidote, .smithsonite, .zoisite, .kornerupine, .cassiterite, .hemimorphite, .hackmanite, .sphene, .crocoite, .ametrine, .bornite, .painite]
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze, .ivory, .pearl, .graphite, .slate, .cobalt, .vermilion, .indigo, .mahogany, .burgundy, .teal, .chartreuse, .saffron, .moss, .cerulean, .mauve, .marigold, .sage, .ochre, .umber, .sienna, .viridian, .pewter, .celadon, .turquoise, .denim, .apricot, .plum, .wisteria, .rosewood, .patina, .carnelian, .malachite, .alexandrite, .tanzanite, .citrine, .topaz, .fluorite, .sunstone, .rhodonite, .lapisLazuli, .zircon, .onyx, .tourmaline, .larimar, .jasper, .labradorite, .amazonite, .amber, .sodalite, .rhodochrosite, .kunzite, .spinel, .hematite, .chrysocolla, .moonstone, .chalcedony, .beryl, .azurite, .kyanite, .agate, .ammolite, .petrifiedWood, .pyrite, .chrysoprase, .charoite, .iolite, .rhodolite, .seraphinite, .aventurine, .prehnite, .tsavorite, .celestite, .dumortierite, .benitoite, .sugilite, .bloodstone, .dioptase, .moldavite, .variscite, .lepidolite, .aragonite, .unakite, .chrysoberyl, .andalusite, .sphalerite, .staurolite, .grandidierite, .strontianite, .wulfenite, .vivianite, .pietersite, .piemontite, .scapolite, .epidote, .smithsonite, .zoisite, .kornerupine, .cassiterite, .hemimorphite, .hackmanite, .sphene, .crocoite, .ametrine, .bornite, .painite, .danburite]
 
     static let seraphinite = ColorTheme(
         name: "Seraphinite",
@@ -3122,6 +3122,26 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
         dying: TierColors(
             baseColor: SIMD4(0.22, 0.08, 0.05, 1.0),
             emissiveColor: SIMD3(0.18, 0.06, 0.03),
+            emissiveIntensity: 0.4, opacity: 0.10)
+    )
+
+    static let danburite = ColorTheme(
+        name: "Danburite",
+        newborn: TierColors(
+            baseColor: SIMD4(0.95, 0.90, 0.72, 1.0),
+            emissiveColor: SIMD3(0.92, 0.86, 0.68),
+            emissiveIntensity: 2.0, opacity: 0.55),
+        young: TierColors(
+            baseColor: SIMD4(0.82, 0.76, 0.58, 1.0),
+            emissiveColor: SIMD3(0.78, 0.72, 0.54),
+            emissiveIntensity: 1.2, opacity: 0.35),
+        mature: TierColors(
+            baseColor: SIMD4(0.62, 0.56, 0.42, 1.0),
+            emissiveColor: SIMD3(0.58, 0.52, 0.38),
+            emissiveIntensity: 0.7, opacity: 0.25),
+        dying: TierColors(
+            baseColor: SIMD4(0.38, 0.34, 0.25, 1.0),
+            emissiveColor: SIMD3(0.34, 0.30, 0.21),
             emissiveIntensity: 0.4, opacity: 0.10)
     )
 }
