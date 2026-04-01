@@ -6260,6 +6260,58 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadLituus() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+
+        // Lituus spiral: r² = a²/θ → r = a/√θ
+        // Named by Roger Cotes in 1722 (Latin for "curved staff/crook")
+        // The spiral converges toward the origin as θ → ∞
+        let a: Float = 1.0
+        let thetaMin: Float = 0.3  // avoid very large r near θ=0
+        let thetaMax: Float = 8.0 * Float.pi  // multiple revolutions
+        let samples = 2000
+        let layerCount = max(2, n / 4)  // vertical layers for 3D thickness
+
+        // Find max radius for normalization
+        let rMax = a / sqrt(thetaMin)
+        let scale = half * 0.85 / rMax
+
+        for layer in 0..<layerCount {
+            let zOffset = Float(layer) - Float(layerCount) / 2.0 + 0.5
+            for s in 0..<samples {
+                let theta = thetaMin + Float(s) / Float(samples) * (thetaMax - thetaMin)
+                let r = a / sqrt(theta)
+                let px = r * cos(theta)
+                let py = r * sin(theta)
+                let wx = px * scale + half
+                let wy = py * scale + half
+                let wz = zOffset * thickness * 0.5 + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        let distSq = Float(dx * dx + dy * dy)
+                        if distSq <= thickSq {
+                            let nx = ix + dx
+                            let ny = iy + dy
+                            if nx >= 0 && nx < n && ny >= 0 && ny < n && iz >= 0 && iz < n {
+                                setCell(x: nx, y: ny, z: iz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

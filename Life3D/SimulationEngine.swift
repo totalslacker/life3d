@@ -584,6 +584,8 @@ final class SimulationEngine {
             grid.loadTridentOfNewton()
         case .tractrix:
             grid.loadTractrix()
+        case .lituus:
+            grid.loadLituus()
         case .clear:
             grid.clearAll()
         }
@@ -741,6 +743,7 @@ final class SimulationEngine {
         case conchoid = "Conchoid of Nicomedes"
         case tridentOfNewton = "Trident of Newton"
         case tractrix = "Tractrix"
+        case lituus = "Lituus"
         case clear = "Clear"
 
         var id: String { rawValue }

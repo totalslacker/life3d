@@ -10623,3 +10623,107 @@ struct HemimorphiteThemeTests {
         #expect(rDiff + gDiff + bDiff > 0.05)
     }
 }
+
+// MARK: - Lituus Pattern Tests
+
+@Suite("Lituus Pattern Tests")
+struct LituusPatternTests {
+    @Test func lituusPatternProducesCells() {
+        var grid = GridModel(size: 16)
+        grid.loadLituus()
+        #expect(grid.aliveCount > 0)
+    }
+    @Test func lituusPatternNotTooFull() {
+        var grid = GridModel(size: 16)
+        grid.loadLituus()
+        #expect(grid.aliveCount < grid.cellCount)
+    }
+    @Test func lituusPatternDeterministic() {
+        var g1 = GridModel(size: 16)
+        g1.loadLituus()
+        var g2 = GridModel(size: 16)
+        g2.loadLituus()
+        #expect(g1.aliveCount == g2.aliveCount)
+    }
+    @Test func lituusPatternClearsFirst() {
+        var grid = GridModel(size: 16)
+        grid.randomSeed(density: 1.0)
+        let fullCount = grid.aliveCount
+        grid.loadLituus()
+        #expect(grid.aliveCount < fullCount)
+    }
+    @Test func lituusPatternScalesWithSize() {
+        var small = GridModel(size: 8)
+        small.loadLituus()
+        var large = GridModel(size: 16)
+        large.loadLituus()
+        #expect(large.aliveCount > small.aliveCount)
+    }
+    @Test func lituusPatternStaysInBounds() {
+        var grid = GridModel(size: 12)
+        grid.loadLituus()
+        for idx in grid.aliveCellIndices {
+            #expect(idx >= 0 && idx < grid.cellCount)
+        }
+    }
+    @Test func lituusPatternAliveIndicesConsistent() {
+        var grid = GridModel(size: 16)
+        grid.loadLituus()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+    @Test func lituusPatternInAllCases() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.contains(.lituus))
+    }
+    @Test func lituusPatternCyclable() {
+        let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
+        #expect(cyclable.contains(.lituus))
+    }
+    @Test func lituusPatternSpiralShape() {
+        var grid = GridModel(size: 16)
+        grid.loadLituus()
+        let mid = grid.size / 2
+        var quadrants = Set<Int>()
+        for idx in grid.aliveCellIndices {
+            let x = idx % grid.size
+            let y = (idx / grid.size) % grid.size
+            let qx = x >= mid ? 1 : 0
+            let qy = y >= mid ? 1 : 0
+            quadrants.insert(qx * 2 + qy)
+        }
+        #expect(quadrants.count >= 3)
+    }
+}
+
+// MARK: - Hackmanite Theme Tests
+
+@Suite("Hackmanite Theme Tests")
+struct HackmaniteThemeTests {
+    @Test func hackmaniteThemeExists() {
+        let theme = ColorTheme.hackmanite
+        #expect(theme.name == "Hackmanite")
+    }
+    @Test func hackmaniteThemeInAllThemes() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Hackmanite" })
+    }
+    @Test func hackmaniteThemeVioletPink() {
+        let theme = ColorTheme.hackmanite
+        // B > R > G for violet-pink
+        #expect(theme.newborn.baseColor.z > theme.newborn.baseColor.x)
+        #expect(theme.newborn.baseColor.x > theme.newborn.baseColor.y)
+    }
+    @Test func hackmaniteThemeOpacityDecreases() {
+        let theme = ColorTheme.hackmanite
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+    @Test func hackmaniteDistinctFromCharoite() {
+        let hackmanite = ColorTheme.hackmanite
+        let charoite = ColorTheme.charoite
+        let rDiff = abs(hackmanite.newborn.baseColor.x - charoite.newborn.baseColor.x)
+        let gDiff = abs(hackmanite.newborn.baseColor.y - charoite.newborn.baseColor.y)
+        let bDiff = abs(hackmanite.newborn.baseColor.z - charoite.newborn.baseColor.z)
+        #expect(rDiff + gDiff + bDiff > 0.05)
+    }
+}

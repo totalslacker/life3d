@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 148 (2026-04-01 08:35 PDT)
+
+**Goal**: Lituus pattern, Hackmanite theme, 15 new tests.
+
+1. **Lituus pattern (134th, 133rd cyclable)**: The Lituus — a spiral curve defined by r² = a²/θ, named by Roger Cotes in 1722 (Latin for "curved staff/crook"). The spiral converges toward the origin as θ → ∞, creating a distinctive tightening whorl. Parametric in polar: r = a/√θ, converted to Cartesian x = r·cos(θ), y = r·sin(θ). The 2D spiral is extruded into multiple vertical layers for 3D volume. Visually distinct from Conchospiral (conical helix), Loxodrome (sphere-surface spiral), DNA Helix (double helix), and Rhodonea (rose curve, closed petals). 10 new tests.
+2. **Hackmanite theme (144th)**: Violet-pink tenebrescent sodalite variety aesthetic — vivid violet-pink newborn cells (R 0.72, G 0.38, B 0.78) through medium dark purple young cells (R 0.55, G 0.28, B 0.62) to deep dark violet mature cells (R 0.40, G 0.18, B 0.46). B > R > G across all tiers, evoking the distinctive violet-pink of natural hackmanite — a sulfur-bearing variety of sodalite (Na₈(AlSiO₄)₆(Cl₂,S)) that exhibits tenebrescence (reversible photochromism, changing from colorless to violet-pink under UV light). Named after Victor Hackman (1866-1941), Finnish geologist. Distinct from Charoite (more lilac-purple), Lepidolite (more mauve-pink), Kunzite (more pale pink), and Sugilite (more magenta). 5 new tests.
+3. **Fixed zoisite theme**: Repaired missing emissiveIntensity/opacity on dying tier.
+4. **Updated count assertions**: allPatterns.count to 134, cyclable.count to 133, allThemes.count to 144 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 147 (2026-04-01 08:15 PDT)
 
 **Goal**: Trident of Newton pattern, Zoisite theme, 15 new tests.
