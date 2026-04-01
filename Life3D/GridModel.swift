@@ -5849,6 +5849,68 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadTractrix() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.28
+        let profileSamples = 720
+        let revolutionSteps = 180
+
+        // Tractrix: the pursuit curve — x = t - a*tanh(t/a), y = a/cosh(t/a)
+        // Also called the "dog curve" — the path traced by an object dragged
+        // along a surface by a string of length a when the puller moves in a
+        // straight line. The curve has a vertical asymptote at x=0 and
+        // approaches the x-axis asymptotically. First studied by Claude Perrault
+        // in 1670 and later by Leibniz and Huygens. The surface of revolution
+        // of the tractrix around its asymptote is the pseudosphere — a surface
+        // of constant negative Gaussian curvature.
+        let a: Float = 1.0
+        let minT: Float = 0.15  // Avoid singularity near t=0
+        let maxT: Float = 3.0
+
+        for rs in 0..<revolutionSteps {
+            let phi = Float(rs) / Float(revolutionSteps) * 2.0 * Float.pi
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for ps in 0..<profileSamples {
+                let t = minT + Float(ps) / Float(profileSamples) * (maxT - minT)
+                let coshVal = cosh(t / a)
+                let tanhVal = tanh(t / a)
+                let px = scale * (t - a * tanhVal)
+                let py = scale * a / coshVal
+                // Revolve around Y axis
+                let wx = px * cosPhi + half
+                let wy = py + half
+                let wz = px * sinPhi + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

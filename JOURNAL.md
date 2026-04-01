@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 136 (2026-04-01 05:16 PDT)
+
+**Goal**: Tractrix pattern, Spectrolite theme, 15 new tests.
+
+1. **Tractrix pattern (128th, 127th cyclable)**: The pursuit curve — the path traced by an object dragged along a surface by a string of length a when the puller moves in a straight line. Parametric form: x = t - a·tanh(t/a), y = a/cosh(t/a), where the curve has a vertical asymptote at x=0 and approaches the x-axis asymptotically. First studied by Claude Perrault in 1670, later analyzed by Leibniz (who gave it the name "tractrix" from Latin "trahere", to drag) and Huygens. The surface of revolution of the tractrix around its asymptote produces the pseudosphere — a surface of constant negative Gaussian curvature, fundamental in non-Euclidean geometry. The 2D profile (t from 0.15 to 3.0, avoiding the singularity near t=0) is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry — a bell-like or horn-like shape that narrows asymptotically. Rasterized via dense parametric sampling at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Pseudosphere (implicit surface, different parameterization), Involute (unwinding string, spiral shape), Cycloid (rolling circle, arch shape), and Catenoid (minimal surface, hourglass). 10 new tests.
+2. **Spectrolite theme (132nd)**: Vivid blue Finnish labradorite aesthetic — bright blue newborn cells (R 0.22, G 0.58, B 0.92) through medium dark blue young cells (R 0.14, G 0.40, B 0.68) to deep dark navy mature cells (R 0.08, G 0.24, B 0.44). B > G > R across all tiers, evoking the distinctive vivid blue labradorescence of spectrolite — a rare, gem-quality variety of labradorite feldspar found exclusively in Finland, discovered in 1940 during WWII construction of the Saimaa Canal. Unlike common labradorite which shows blue-green play of color, spectrolite displays the full visible spectrum across its surface, though blue is the dominant flash. Named by the Finnish mineralogist Aarne Laitakari. Distinct from Labradorite (duller, more gray-blue), Sapphire (darker, more pure blue), Benitoite (more vivid blue, higher saturation), and Kyanite (lighter, more gray-blue). 5 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 128, `cyclable.count` to 127, `patterns.count` to 128, and `allThemes.count` to 132 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 135 (2026-04-01 04:50 PDT)
 
 **Goal**: Involute pattern, Chrysoberyl theme, 15 new tests.
