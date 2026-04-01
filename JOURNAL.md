@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 137 (2026-04-01 05:30 PDT)
+
+**Goal**: Folium of Descartes pattern, Smithsonite theme, 15 new tests.
+
+1. **Folium of Descartes pattern (129th, 128th cyclable)**: The Folium of Descartes — a cubic algebraic curve defined by x³ + y³ = 3axy, first discussed by Descartes in 1638 in correspondence with Fermat about tangent lines. Parametric form: x = 3at/(1+t³), y = 3at²/(1+t³). The curve has a distinctive single loop in the first quadrant, an asymptote along x + y + a = 0, and passes through the origin with a node (self-intersection). The loop encloses an area equal to 3a²/2 — one of the earliest area calculations involving algebraic curves. Named "folium" (Latin for "leaf") due to the leaf-like shape of its loop. The 2D profile (t from -0.9 to 8.0, capturing the loop and asymptotic branches) is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry — a cusp-like form with an interior cavity from the loop. Rasterized via dense parametric sampling at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Witch of Agnesi (bell-shaped, no loop), Cardioid (heart-shaped, cusped epicycloid), Limaçon (inner loop but different polar curve), and Involute (spiral, no self-intersection). 10 new tests.
+2. **Smithsonite theme (133rd)**: Soft blue-green zinc carbonate mineral aesthetic — pale blue-green newborn cells (R 0.52, G 0.78, B 0.82) through medium teal young cells (R 0.38, G 0.58, B 0.65) to deep dark blue-teal mature cells (R 0.25, G 0.40, B 0.48). B > G > R across all tiers, evoking the distinctive soft blue-green of natural smithsonite — a zinc carbonate mineral (ZnCO₃) named after British mineralogist and Smithsonian Institution founder James Smithson (1765-1829). Prized by collectors for its botryoidal (grape-like) habit and delicate pastel colors ranging from blue-green to pink to lavender. The mineral forms in the oxidation zone of zinc ore deposits as a secondary mineral. Distinct from Aquamarine (lighter, more saturated blue), Larimar (more sky-blue), Chrysocolla (more vivid green-blue), and Celestite (paler, more gray-blue). 5 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 129, `cyclable.count` to 128, `patterns.count` to 129, and `allThemes.count` to 133 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 136 (2026-04-01 05:15 PDT)
 
 **Goal**: Witch of Agnesi pattern, Andalusite theme, 15 new tests.
