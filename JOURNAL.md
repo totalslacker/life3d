@@ -19,6 +19,16 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 **Next Steps**: Performance profiling at 32x32x32. App icon design.
 
+## Day 16 — Session 147 (2026-04-01 08:25 PDT)
+
+**Goal**: Tractrix pattern, Cassiterite and Hemimorphite themes, 15 new tests.
+
+1. **Tractrix pattern (133rd, 132nd cyclable)**: The pursuit curve studied by Christiaan Huygens in 1693. Parametric form: x = t - tanh(t), y = sech(t) = 1/cosh(t). The curve traces the path of an object dragged by a string from a point not on its path — a fundamental problem in differential geometry. The 2D profile is revolved around the Y axis to create a 3D bell/trumpet solid of revolution. Visually distinct from Conchoid (different profile, sec-based), Witch of Agnesi (bell-shaped but different decay), and Cissoid (cusp at origin). 9 new tests.
+2. **Cassiterite theme (143rd)**: Dark brown tin oxide mineral aesthetic — warm brown newborn cells (R 0.72, G 0.52, B 0.28) through dark amber young (R 0.52, G 0.36, B 0.18) to deep dark brown mature (R 0.32, G 0.22, B 0.10). R > G > B across all tiers, evoking the distinctive dark brown-black of natural cassiterite — tin dioxide (SnO₂), the principal ore of tin, with adamantine luster. Distinct from Staurolite (more reddish-brown). 3 new tests (including count updates).
+3. **Hemimorphite theme (144th)**: Pale blue zinc silicate mineral aesthetic — soft sky-blue newborn cells (R 0.62, G 0.85, B 0.92) through medium teal young (R 0.42, G 0.65, B 0.75) to deep blue-grey mature (R 0.25, G 0.45, B 0.55). B > G > R across all tiers, evoking the pale blue of natural hemimorphite — a zinc silicate hydroxide (Zn₄Si₂O₇(OH)₂·H₂O) named for its hemimorphic crystal habit where the two ends of a crystal are differently shaped. Distinct from Smithsonite (more green-teal). 3 new tests (including count updates).
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 146 (2026-04-01 07:45 PDT)
 
 **Goal**: Epidote theme, 5 new tests.

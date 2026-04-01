@@ -10559,3 +10559,67 @@ struct KornerupineThemeTests {
         #expect(rDiff + gDiff + bDiff > 0.05)
     }
 }
+
+// MARK: - Cassiterite Theme Tests
+
+@Suite("Cassiterite Theme Tests")
+struct CassiteriteThemeTests {
+    @Test func cassiteriteThemeExists() {
+        let theme = ColorTheme.cassiterite
+        #expect(theme.name == "Cassiterite")
+    }
+    @Test func cassiteriteThemeInAllThemes() {
+        #expect(ColorTheme.allThemes.contains(where: { $0.name == "Cassiterite" }))
+    }
+    @Test func cassiteriteThemeRedDominant() {
+        let theme = ColorTheme.cassiterite
+        #expect(theme.newborn.baseColor.x > theme.newborn.baseColor.y)
+        #expect(theme.newborn.baseColor.y > theme.newborn.baseColor.z)
+    }
+    @Test func cassiteriteThemeOpacityDecreases() {
+        let theme = ColorTheme.cassiterite
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+    @Test func cassiteriteDistinctFromStaurolite() {
+        let cassiterite = ColorTheme.cassiterite
+        let staurolite = ColorTheme.staurolite
+        let rDiff = abs(cassiterite.newborn.baseColor.x - staurolite.newborn.baseColor.x)
+        let gDiff = abs(cassiterite.newborn.baseColor.y - staurolite.newborn.baseColor.y)
+        let bDiff = abs(cassiterite.newborn.baseColor.z - staurolite.newborn.baseColor.z)
+        #expect(rDiff + gDiff + bDiff > 0.05)
+    }
+}
+
+// MARK: - Hemimorphite Theme Tests
+
+@Suite("Hemimorphite Theme Tests")
+struct HemimorphiteThemeTests {
+    @Test func hemimorphiteThemeExists() {
+        let theme = ColorTheme.hemimorphite
+        #expect(theme.name == "Hemimorphite")
+    }
+    @Test func hemimorphiteThemeInAllThemes() {
+        #expect(ColorTheme.allThemes.contains(where: { $0.name == "Hemimorphite" }))
+    }
+    @Test func hemimorphiteThemeBlueDominant() {
+        let theme = ColorTheme.hemimorphite
+        #expect(theme.newborn.baseColor.z > theme.newborn.baseColor.x)
+        #expect(theme.newborn.baseColor.y > theme.newborn.baseColor.x)
+    }
+    @Test func hemimorphiteThemeOpacityDecreases() {
+        let theme = ColorTheme.hemimorphite
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+    @Test func hemimorphiteDistinctFromSmithsonite() {
+        let hemimorphite = ColorTheme.hemimorphite
+        let smithsonite = ColorTheme.smithsonite
+        let rDiff = abs(hemimorphite.newborn.baseColor.x - smithsonite.newborn.baseColor.x)
+        let gDiff = abs(hemimorphite.newborn.baseColor.y - smithsonite.newborn.baseColor.y)
+        let bDiff = abs(hemimorphite.newborn.baseColor.z - smithsonite.newborn.baseColor.z)
+        #expect(rDiff + gDiff + bDiff > 0.05)
+    }
+}
