@@ -3,6 +3,16 @@
 Evolution session log. Most recent entry first. Never delete entries.
 
 
+## Day 16 — Session 125 (2026-04-01 03:01 PDT)
+
+**Goal**: Loxodrome pattern, Iolite theme, 14 new tests.
+
+1. **Loxodrome pattern (107th, 106th cyclable)**: A rhumb line on a sphere — a curve that crosses every meridian at a constant angle, spiraling from pole to pole. Parametric form: x = R·cos(t)·cos(ωt), y = R·cos(t)·sin(ωt), z = R·sin(t) where t is latitude and ω = 4 controls the winding rate. The curve traces a distinctive spiral path on the sphere surface, dense near the poles and wider at the equator. Rasterized via dense point sampling along the curve with tube thickening. Visually distinct from Helix (constant radius on a cylinder), Spiral (flat 2D), Conchospiral (on a cone), and Torus Knot (on a torus). 8 new tests.
+2. **Iolite theme (114th)**: Violet-blue cordierite gemstone aesthetic — vivid violet-blue newborn cells (R 0.42, G 0.28, B 0.88) through medium dark blue-violet young cells (R 0.28, G 0.18, B 0.65) to deep dark purple-blue mature cells (R 0.16, G 0.10, B 0.40). B > R > G across all tiers, evoking the distinctive pleochroic violet-blue of natural iolite (gem-quality cordierite, the "Viking compass stone" used for navigation). Distinct from Sapphire (purer blue, less violet), Tanzanite (more purple, higher R), Amethyst (more pink-purple), and Charoite (more purple, higher R). 6 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count == 110` to `== 111`, `patterns.count == 106` to `== 107`, and `allThemes.count == 113` to `== 114` across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 124 (2026-04-01 02:45 PDT)
 
 **Goal**: Solomon's Knot pattern, Chrysoprase theme, 14 new tests.

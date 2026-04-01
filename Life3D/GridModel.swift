@@ -69,7 +69,6 @@ struct GridModel: Sendable {
         return lookup
     }
 
-
     // MARK: - Indexing
 
     func index(x: Int, y: Int, z: Int) -> Int {
@@ -4810,6 +4809,59 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadLoxodrome() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale = Float(n) * 0.42
+        let R: Float = 0.90          // sphere radius
+        let thickness: Float = 1.4   // tube thickness in cells
+        let windingRate: Float = 4.0 // controls how tightly the spiral winds
+
+        // Loxodrome: a curve on a sphere that crosses every meridian at a constant angle.
+        // Parametric form: x = R·cos(t)·cos(a·t), y = R·cos(t)·sin(a·t), z = R·sin(t)
+        // where t ∈ (-π/2, π/2) is latitude and a is the winding rate.
+
+        // Rasterize by dense point sampling along the curve
+        let steps = n * n * 8
+        var curvePoints: [SIMD3<Float>] = []
+        curvePoints.reserveCapacity(steps)
+        for i in 0..<steps {
+            let t = Float.pi * (Float(i) / Float(steps - 1) - 0.5) * 0.95 // avoid poles
+            let cosT = cosf(t)
+            let sinT = sinf(t)
+            let phi = windingRate * t
+            let px = R * cosT * cosf(phi)
+            let py = R * cosT * sinf(phi)
+            let pz = R * sinT
+            curvePoints.append(SIMD3<Float>(px, py, pz))
+        }
+
+        // Activate cells near curve points
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let fx = (Float(x) - half) / scale
+                    let fy = (Float(y) - half) / scale
+                    let fz = (Float(z) - half) / scale
+                    var minDistSq: Float = Float.greatestFiniteMagnitude
+                    for pt in curvePoints {
+                        let dx = fx - pt.x
+                        let dy = fy - pt.y
+                        let dz = fz - pt.z
+                        let distSq = dx * dx + dy * dy + dz * dz
+                        if distSq < minDistSq { minDistSq = distSq }
+                    }
+                    let threshSq = (thickness / scale) * (thickness / scale)
+                    if minDistSq < threshSq {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func loadSolomonsKnot() {
         clearAll()
         let n = size
@@ -4934,67 +4986,6 @@ struct GridModel: Sendable {
     /// Loxodrome: a spherical spiral (rhumb line) that crosses all meridians at a constant angle.
     /// Parametric curve on a sphere: θ = ω·t, φ = 2·arctan(e^(t·a)) - π/2 (Mercator spiral).
     /// The curve spirals from south pole to north pole, producing a distinctive barber-pole pattern on a sphere.
-    mutating func loadLoxodrome() {
-        clearAll()
-        let n = size
-        let half = Float(n) / 2.0
-        let radius = half * 0.72  // Sphere radius in grid units
-        let turns = 6  // Number of full turns pole-to-pole
-        let steps = n * n * 12  // Dense sampling for smooth curve
-        let thickness: Float = max(1.2, Float(n) / 12.0)
-        let thickSq = thickness * thickness
-        // Pre-compute loxodrome points on the sphere
-        var points: [(Float, Float, Float)] = []
-        points.reserveCapacity(steps)
-        for i in 0..<steps {
-            let t = Float(i) / Float(steps - 1)  // 0..1
-            // Latitude: from -π/2 to π/2 (south pole to north pole)
-            let phi = t * .pi - .pi / 2.0
-            // Longitude: spirals with constant angle
-            let theta = Float(turns) * 2.0 * .pi * t
-            // Spherical to cartesian
-            let cosPhi = cosf(phi)
-            let px = radius * cosPhi * cosf(theta) + half
-            let py = radius * cosPhi * sinf(theta) + half
-            let pz = radius * sinf(phi) + half
-            points.append((px, py, pz))
-        }
-        // Rasterize: for each cell, check distance to nearest curve point
-        for ix in 0..<n {
-            for iy in 0..<n {
-                for iz in 0..<n {
-                    let fx = Float(ix)
-                    let fy = Float(iy)
-                    let fz = Float(iz)
-                    // Quick spherical distance check — skip cells far from sphere surface
-                    let dx0 = fx - half
-                    let dy0 = fy - half
-                    let dz0 = fz - half
-                    let distFromCenter = sqrtf(dx0 * dx0 + dy0 * dy0 + dz0 * dz0)
-                    if abs(distFromCenter - radius) > thickness * 2.0 { continue }
-                    var minDistSq: Float = Float.greatestFiniteMagnitude
-                    // Sample nearby points based on z-position (latitude)
-                    let zFrac = (fz - half + radius) / (2.0 * radius)
-                    let centerIdx = max(0, min(steps - 1, Int(zFrac * Float(steps - 1))))
-                    let searchRadius = max(steps / (n * 2), 30)
-                    let lo = max(0, centerIdx - searchRadius)
-                    let hi = min(steps - 1, centerIdx + searchRadius)
-                    for si in lo...hi {
-                        let p = points[si]
-                        let dx = fx - p.0
-                        let dy = fy - p.1
-                        let dz = fz - p.2
-                        let dSq = dx * dx + dy * dy + dz * dz
-                        if dSq < minDistSq { minDistSq = dSq }
-                    }
-                    if minDistSq < thickSq {
-                        setCell(x: ix, y: iy, z: iz, alive: true)
-                    }
-                }
-            }
-        }
-        rebuildAliveCellIndices()
-    }
 
     /// the iconic Watson-Crick double helix structure of DNA.
     mutating func loadDNAHelix() {

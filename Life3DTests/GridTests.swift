@@ -7435,7 +7435,7 @@ struct KyaniteThemeTests {
     @Test func pillowSurfaceInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.pillowSurface))
-        #expect(patterns.count == 106)
+        #expect(patterns.count == 107)
     }
 
     // MARK: - Agate Theme Tests
@@ -7517,7 +7517,7 @@ struct BorromeanRingsPatternTests {
     @Test func borromeanRingsInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.borromeanRings))
-        #expect(patterns.count == 106)
+        #expect(patterns.count == 107)
     }
 }
 // MARK: - Ammolite Theme Tests
@@ -7855,7 +7855,7 @@ struct SolomonsKnotPatternTests {
     @Test func solomonsKnotInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.solomonsKnot))
-        #expect(patterns.count == 106)
+        #expect(patterns.count == 107)
     }
 }
 // MARK: - Chrysoprase Theme Tests
@@ -7941,7 +7941,7 @@ struct SuperellipsoidPatternTests {
     @Test func superellipsoidInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.superellipsoid))
-        #expect(patterns.count == 106)
+        #expect(patterns.count == 107)
     }
 }
 // MARK: - Charoite Theme Tests
