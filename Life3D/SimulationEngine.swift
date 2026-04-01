@@ -548,6 +548,8 @@ final class SimulationEngine {
             grid.loadVillarceauCircles()
         case .vivianiCurve:
             grid.loadVivianiCurve()
+        case .nephroid:
+            grid.loadNephroid()
         case .clear:
             grid.clearAll()
         }
@@ -687,6 +689,7 @@ final class SimulationEngine {
         case catenarySurface = "Catenary Surface"
         case villarceauCircles = "Villarceau Circles"
         case vivianiCurve = "Viviani's Curve"
+        case nephroid = "Nephroid"
         case clear = "Clear"
 
         var id: String { rawValue }

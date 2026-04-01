@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 126 (2026-04-01 03:14 PDT)
+
+**Goal**: Nephroid pattern, Prehnite theme, 12 new tests.
+
+1. **Nephroid pattern (115th, 114th cyclable)**: Surface of revolution of the nephroid curve — an epicycloid with 2 cusps formed by a circle of radius r rolling around a fixed circle of radius 2r. Parametric profile: x(t) = 3cos(t) - cos(3t), y(t) = 3sin(t) - sin(3t), then revolved around the y-axis to produce a kidney-shaped 3D surface with two pointed cusps and a smooth bulging body. The nephroid (Greek: "kidney-shaped") produces a distinctive apple-like or kidney-shaped solid of revolution, wider at the equator with pinched cusps at top and bottom. Rasterized by dense parametric sampling of the profile curve with revolution around the y-axis and spherical thickening at each sample point. Visually distinct from Torus (single ring, no cusps), Catenary Surface (trumpet flares, no cusps), Sphere (no cusps, uniform curvature), and Heart Surface (different cusp geometry). 7 new tests.
+2. **Prehnite theme (118th)**: Soft yellow-green calcium aluminum silicate aesthetic — vivid yellow-green newborn cells (R 0.72, G 0.82, B 0.38) through medium olive-green young cells (R 0.52, G 0.62, B 0.28) to deep dark olive mature cells fading to near-black. G > R > B across all tiers, evoking the distinctive translucent yellow-green of natural prehnite — a calcium aluminum phyllosilicate prized for its botryoidal (grape-like) crystal habit and soft lime-green color. Distinct from Peridot (more pure yellow-green, higher saturation), Chartreuse (more vivid yellow), Aventurine (more blue-green), and Chrysoprase (more apple-green, less yellow). 5 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 115 and `allThemes.count` to 118 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 126 (2026-04-01 03:08 PDT)
 
 **Goal**: Villarceau Circles pattern, Prehnite theme, 14 new tests.

@@ -5216,6 +5216,57 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadNephroid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 14.0)
+        let thickSq = thickness * thickness
+        // Nephroid: epicycloid with 2 cusps, revolved around the y-axis
+        // Parametric nephroid curve in the x-y plane:
+        //   x(t) = 3*cos(t) - cos(3t), y(t) = 3*sin(t) - sin(3t)
+        // Scale to fit grid, revolve around y-axis for 3D surface
+        let scale = half * 0.2
+        let samples = 512
+        for s in 0..<samples {
+            let t = Float(s) / Float(samples) * 2.0 * Float.pi
+            // Nephroid curve in the profile plane (radial, height)
+            let profileR = (3.0 * cos(t) - cos(3.0 * t)) * scale
+            let profileY = (3.0 * sin(t) - sin(3.0 * t)) * scale
+            let absR = abs(profileR)
+            // Revolve around y-axis: for each angle phi, place at (absR*cos(phi), profileY, absR*sin(phi))
+            let phiSamples = max(32, Int(absR * 8))
+            for p in 0..<phiSamples {
+                let phi = Float(p) / Float(phiSamples) * 2.0 * Float.pi
+                let wx = absR * cos(phi) + half
+                let wy = profileY + half
+                let wz = absR * sin(phi) + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                // Thicken: activate cells in a small neighborhood
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

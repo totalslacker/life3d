@@ -679,9 +679,9 @@ struct AliveMapResetRegressionTests {
     @Test("Pattern count matches cyclable patterns")
     func patternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 115)
+        #expect(cyclable.count == 116)
     }
 }
 
@@ -737,14 +737,14 @@ struct PatternCountSession61Tests {
     @Test("Total pattern count is 28 (27 + clear)")
     func totalPatternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
     @Test("Cyclable patterns is 27 (excludes clear)")
     func cyclablePatternCount() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
-        #expect(cyclable.count == 115)
-        #expect(cyclable.count == 115)
-        #expect(cyclable.count == 115)
+        #expect(cyclable.count == 116)
+        #expect(cyclable.count == 116)
+        #expect(cyclable.count == 116)
     }
 }
 
@@ -880,7 +880,7 @@ struct MobiusStripPatternTests {
     @Test("Pattern count is 29 after Möbius Strip addition")
     func patternCount29() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -967,7 +967,7 @@ struct LissajousCurvePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount30() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -1144,7 +1144,7 @@ struct GyroidPatternTests {
     @Test("Pattern count is 34 after Gyroid addition")
     func patternCount33() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -1231,7 +1231,7 @@ struct LorenzAttractorPatternTests {
     @Test("Pattern count is 34 after Lorenz Attractor addition")
     func patternCount34() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -1318,7 +1318,7 @@ struct HilbertCurvePatternTests {
     @Test("Pattern count is 35 after Hilbert Curve addition")
     func patternCount35() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -1445,7 +1445,7 @@ struct SierpinskiTetrahedronPatternTests {
     @Test("Pattern count is 36 after Sierpinski Tetrahedron addition")
     func patternCount36() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -1652,7 +1652,7 @@ struct DragonCurvePatternTests {
     @Test("Pattern count is 37 after Dragon Curve and Catenoid additions")
     func patternCount37() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -1696,7 +1696,7 @@ struct CatenoidPatternTests {
     @Test("Pattern count is 37 after Catenoid addition")
     func patternCount37() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -1821,7 +1821,7 @@ struct KochSnowflakePatternTests {
     @Test("Pattern count is 39 after Koch Snowflake addition")
     func patternCount39() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -1905,7 +1905,7 @@ struct ApollonianGasketPatternTests {
     @Test("Pattern count is 39 after Apollonian Gasket addition")
     func patternCount39() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -2029,7 +2029,7 @@ struct TorusKnotPatternTests {
     @Test("Pattern count is 40 after Torus Knot addition")
     func patternCount40() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -2113,7 +2113,7 @@ struct ReuleauxTetrahedronPatternTests {
     @Test("Pattern count is 41 after Reuleaux Tetrahedron addition")
     func patternCount41() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -2204,7 +2204,7 @@ struct MandelbulbPatternTests {
     @Test("Pattern count is 42 after Mandelbulb addition")
     func patternCount42() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -2255,7 +2255,7 @@ struct CantorDustPatternTests {
     @Test("Pattern count is 44 after Cantor Dust addition")
     func patternCount44() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -2341,7 +2341,7 @@ struct BarnsleyFernPatternTests {
     @Test("Pattern count is 45 after Barnsley Fern addition")
     func patternCount45() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 }
 
@@ -2434,9 +2434,9 @@ struct VicsekFractalPatternTests {
     @Test("Pattern count is 58")
     func patternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 115)
+        #expect(cyclable.count == 116)
     }
 }
 
@@ -3303,9 +3303,9 @@ struct ScherkSurfacePatternTests {
 
     @Test func patternCount58() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 115)
+        #expect(cyclable.count == 116)
     }
 }
 
@@ -3948,9 +3948,9 @@ struct SeashellPatternTests {
 
     @Test func patternCount64s() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 115)
+        #expect(cyclable.count == 116)
     }
 }
 
@@ -5603,7 +5603,7 @@ struct CitrineThemeTests {
     @Test func heartSurfacePatternExists() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .heartSurface })
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
 
     @Test func heartSurfaceLoadsNonEmpty() {
@@ -6592,10 +6592,10 @@ struct EnriquesSurfacePatternTests {
     @Test func enriquesSurfacePatternExists() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .enriquesSurface })
-        #expect(allPatterns.count == 116)
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
+        #expect(allPatterns.count == 117)
     }
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     @Test func enriquesSurfaceLoadsNonEmpty() {
         var grid = GridModel(size: 16)
         grid.loadEnriquesSurface()
@@ -6758,7 +6758,7 @@ struct IWPSurfacePatternTests {
         grid.loadIWPSurface()
     @Test func iwpSurfaceInPatternEnum() {
         #expect(allPatterns.contains { $0 == .iwpSurface })
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     @Test func iwpSurfaceDisplayName() {
         #expect(SimulationEngine.Pattern.iwpSurface.rawValue == "IWP Surface")
     @Test func iwpSurfaceSurvivesOneGeneration() {
@@ -6981,7 +6981,7 @@ struct TesseractPatternTests {
     @Test func tesseractInPatternEnum() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .tesseract })
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
     @Test func tesseractDisplayName() {
         #expect(SimulationEngine.Pattern.tesseract.rawValue == "Tesseract")
@@ -7099,7 +7099,7 @@ struct BretzelSurfaceTests {
     @Test func bretzelSurfaceInAllPatterns() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .bretzelSurface })
-        #expect(allPatterns.count == 116)
+        #expect(allPatterns.count == 117)
     }
     @Test func bretzelSurfaceDisplayName() {
         #expect(SimulationEngine.Pattern.bretzelSurface.rawValue == "Bretzel Surface")
@@ -7435,7 +7435,7 @@ struct KyaniteThemeTests {
     @Test func pillowSurfaceInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.pillowSurface))
-        #expect(patterns.count == 116)
+        #expect(patterns.count == 117)
     }
 
     // MARK: - Agate Theme Tests
@@ -7517,7 +7517,7 @@ struct BorromeanRingsPatternTests {
     @Test func borromeanRingsInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.borromeanRings))
-        #expect(patterns.count == 116)
+        #expect(patterns.count == 117)
     }
 }
 // MARK: - Ammolite Theme Tests
@@ -7702,7 +7702,7 @@ struct LemniscateTests {
     @Test func conchospiralInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.conchospiral))
-        #expect(patterns.count == 116)
+        #expect(patterns.count == 117)
     }
 
     // MARK: - Petrified Wood Theme Tests
@@ -7855,7 +7855,7 @@ struct SolomonsKnotPatternTests {
     @Test func solomonsKnotInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.solomonsKnot))
-        #expect(patterns.count == 116)
+        #expect(patterns.count == 117)
     }
 }
 // MARK: - Chrysoprase Theme Tests
@@ -7941,7 +7941,7 @@ struct SuperellipsoidPatternTests {
     @Test func superellipsoidInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.superellipsoid))
-        #expect(patterns.count == 116)
+        #expect(patterns.count == 117)
     }
 }
 // MARK: - Charoite Theme Tests
@@ -8042,7 +8042,7 @@ struct WhiteheadLinkTests {
     }
     @Test func whiteheadLinkPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 116)
+        #expect(patterns.count == 117)
     }
 }
 // MARK: - Iolite Theme Tests
@@ -8139,7 +8139,7 @@ struct CatenarySurfacePatternTests {
     }
     @Test func catenarySurfacePatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 116)
+        #expect(patterns.count == 117)
     }
 }
 // MARK: - Aventurine Theme Tests
@@ -8231,7 +8231,7 @@ struct VillarceauCirclesTests {
     }
     @Test func villarceauCirclesPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 116)
+        #expect(patterns.count == 117)
     }
 }
 // MARK: - Prehnite Theme Tests
@@ -8327,7 +8327,7 @@ struct VivianiCurvePatternTests {
     @Test func vivianiCurveInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.vivianiCurve))
-        #expect(patterns.count == 116)
+        #expect(patterns.count == 117)
     }
 }
 // MARK: - Tsavorite Theme Tests
@@ -8369,5 +8369,70 @@ struct TsavoriteThemeTests {
     @Test func tsavoriteInAllThemes() {
         #expect(ColorTheme.allThemes.contains { $0.name == "Tsavorite" })
         #expect(ColorTheme.allThemes.count == 119)
+    }
+}
+// MARK: - Nephroid Pattern Tests
+@Suite("Nephroid Pattern Tests")
+struct NephroidPatternTests {
+    @Test func nephroidProducesCells() {
+        var grid = GridModel(size: 16)
+        grid.loadNephroid()
+        #expect(grid.aliveCount > 0)
+    }
+    @Test func nephroidHasSymmetry() {
+        var grid = GridModel(size: 16)
+        grid.loadNephroid()
+        // Nephroid revolved around y-axis should have rotational symmetry
+        // Check that cells exist in multiple quadrants of the x-z plane
+        let n = 16
+        let half = n / 2
+        var quadrants = Set<Int>()
+        for idx in grid.aliveCellIndices {
+            let x = idx / (n * n)
+            let z = idx % n
+            let qx = x >= half ? 1 : 0
+            let qz = z >= half ? 1 : 0
+            quadrants.insert(qx * 2 + qz)
+        }
+        #expect(quadrants.count >= 3)
+    }
+    @Test func nephroidDistinctFromTorus() {
+        var nephroid = GridModel(size: 16)
+        nephroid.loadNephroid()
+        var torus = GridModel(size: 16)
+        torus.loadTorus()
+        let nephroidSet = Set(nephroid.aliveCellIndices)
+        let torusSet = Set(torus.aliveCellIndices)
+        let overlap = Float(nephroidSet.intersection(torusSet).count) / Float(max(nephroidSet.count, torusSet.count, 1))
+        #expect(overlap < 0.85)
+    }
+    @Test func nephroidDistinctFromCatenarySurface() {
+        var nephroid = GridModel(size: 16)
+        nephroid.loadNephroid()
+        var catenary = GridModel(size: 16)
+        catenary.loadCatenarySurface()
+        let nephroidSet = Set(nephroid.aliveCellIndices)
+        let catenarySet = Set(catenary.aliveCellIndices)
+        let overlap = Float(nephroidSet.intersection(catenarySet).count) / Float(max(nephroidSet.count, catenarySet.count, 1))
+        #expect(overlap < 0.85)
+    }
+    @Test func nephroidDistinctFromSphere() {
+        var nephroid = GridModel(size: 16)
+        nephroid.loadNephroid()
+        var sphere = GridModel(size: 16)
+        sphere.loadSphere()
+        let nephroidSet = Set(nephroid.aliveCellIndices)
+        let sphereSet = Set(sphere.aliveCellIndices)
+        let overlap = Float(nephroidSet.intersection(sphereSet).count) / Float(max(nephroidSet.count, sphereSet.count, 1))
+        #expect(overlap < 0.85)
+    }
+    @Test func nephroidInAllPatterns() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.contains { $0 == .nephroid })
+        #expect(allPatterns.count == 115)
+    }
+    @Test func nephroidPatternCountUpdated() {
+        let patterns = SimulationEngine.Pattern.allCases
+        #expect(patterns.count == 117)
     }
 }

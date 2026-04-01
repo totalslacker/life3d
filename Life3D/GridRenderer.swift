@@ -2375,6 +2375,26 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.4, opacity: 0.10)
     )
 
+    static let prehnite = ColorTheme(
+        name: "Prehnite",
+        newborn: TierColors(
+            baseColor: SIMD4(0.72, 0.82, 0.38, 1.0),
+            emissiveColor: SIMD3(0.68, 0.78, 0.34),
+            emissiveIntensity: 2.0, opacity: 0.55),
+        young: TierColors(
+            baseColor: SIMD4(0.52, 0.62, 0.28, 1.0),
+            emissiveColor: SIMD3(0.48, 0.58, 0.24),
+            emissiveIntensity: 1.2, opacity: 0.35),
+        mature: TierColors(
+            baseColor: SIMD4(0.34, 0.42, 0.18, 1.0),
+            emissiveColor: SIMD3(0.30, 0.38, 0.14),
+            emissiveIntensity: 0.7, opacity: 0.25),
+        dying: TierColors(
+            baseColor: SIMD4(0.18, 0.22, 0.10, 1.0),
+            emissiveColor: SIMD3(0.14, 0.18, 0.08),
+            emissiveIntensity: 0.4, opacity: 0.10)
+    )
+
     static let aventurine = ColorTheme(
         name: "Aventurine",
         newborn: TierColors(
@@ -2394,27 +2414,6 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveColor: SIMD3(0.08, 0.16, 0.06),
             emissiveIntensity: 0.4, opacity: 0.10)
     )
-
-    static let prehnite = ColorTheme(
-        name: "Prehnite",
-        newborn: TierColors(
-            baseColor: SIMD4(0.72, 0.85, 0.48, 1.0),
-            emissiveColor: SIMD3(0.68, 0.82, 0.44),
-            emissiveIntensity: 2.0, opacity: 0.55),
-        young: TierColors(
-            baseColor: SIMD4(0.52, 0.65, 0.32, 1.0),
-            emissiveColor: SIMD3(0.48, 0.60, 0.28),
-            emissiveIntensity: 1.2, opacity: 0.35),
-        mature: TierColors(
-            baseColor: SIMD4(0.32, 0.42, 0.18, 1.0),
-            emissiveColor: SIMD3(0.28, 0.38, 0.15),
-            emissiveIntensity: 0.7, opacity: 0.25),
-        dying: TierColors(
-            baseColor: SIMD4(0.16, 0.22, 0.08, 1.0),
-            emissiveColor: SIMD3(0.12, 0.18, 0.06),
-            emissiveIntensity: 0.4, opacity: 0.10)
-    )
-
     static let tsavorite = ColorTheme(
         name: "Tsavorite",
         newborn: TierColors(
