@@ -4011,6 +4011,61 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadOloid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Oloid: the convex hull of two unit circles in perpendicular planes,
+        // each passing through the center of the other. One circle lies in the
+        // XY-plane centered at (0, -0.5, 0), the other in the YZ-plane centered
+        // at (0, 0.5, 0). The resulting surface is a smooth, pillow-like convex
+        // shape that can roll on its entire surface area.
+        let scale: Float = 2.2 / half
+        let r: Float = 1.0 // circle radius
+        let d: Float = 0.5 // half-distance between circle centers
+        let threshold: Float = 0.08
+        // Sample points on both circles and build the convex hull implicitly
+        // by checking distance to the closest point on each circle.
+        let circleSteps = 64
+        // Pre-compute circle sample points
+        var circle1: [(Float, Float, Float)] = []
+        var circle2: [(Float, Float, Float)] = []
+        for i in 0..<circleSteps {
+            let t = Float(i) / Float(circleSteps) * 2.0 * .pi
+            let ct = cos(t), st = sin(t)
+            // Circle 1: in XY-plane, centered at (0, -d, 0)
+            circle1.append((r * ct, -d + r * st, 0))
+            // Circle 2: in YZ-plane, centered at (0, d, 0)
+            circle2.append((0, d + r * ct, r * st))
+        }
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    // Find minimum distance to either circle
+                    var minDist: Float = .greatestFiniteMagnitude
+                    for (cx, cy, cz) in circle1 {
+                        let dx = x - cx, dy = y - cy, dz = z - cz
+                        let dist = (dx*dx + dy*dy + dz*dz).squareRoot()
+                        if dist < minDist { minDist = dist }
+                    }
+                    for (cx, cy, cz) in circle2 {
+                        let dx = x - cx, dy = y - cy, dz = z - cz
+                        let dist = (dx*dx + dy*dy + dz*dz).squareRoot()
+                        if dist < minDist { minDist = dist }
+                    }
+                    // Activate cells near the surface of the convex hull
+                    if minDist < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 109 (2026-03-31 21:14 PDT)
+
+**Goal**: Oloid pattern, Topaz theme, 11 new tests.
+
+1. **Oloid pattern (84th, 83rd cyclable)**: The convex hull of two unit circles in perpendicular planes, each passing through the center of the other. A remarkable geometric solid discovered by Paul Schatz — it can roll on its full surface area, unlike any Platonic solid. The surface has a smooth, pillow-like convex shape with no edges or vertices. Uses a distance-to-skeleton approach — samples points on both circles and activates grid cells within a threshold distance of either circle. Visually distinct from Sphere (single round surface), Torus (ring-shaped), Clifford Torus (flat torus in 4D), and Dupin Cyclide (envelope of spheres). 6 new tests.
+2. **Topaz theme (84th)**: Warm amber-orange gemstone aesthetic — vivid imperial topaz newborn cells (R 0.95, G 0.62, B 0.15) through medium dark burnt-orange young cells to deep brown-amber mature cells fading to near-black. R > G > B across all tiers, evoking the distinctive warm amber-orange of natural imperial topaz. Distinct from Citrine (more yellow), Apricot (lighter peach), Saffron (more yellow-orange), Gold (more metallic), and Copper (darker, more brown). 5 new tests.
+3. **Test count updates**: Updated all stale `allPatterns.count == 83` assertions to `== 84` and `allThemes.count == 83` to `== 84`.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 108 (2026-03-31 20:58 PDT)
 
 **Goal**: Fermat Surface pattern, Citrine theme, 11 new tests.
