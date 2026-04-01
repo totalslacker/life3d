@@ -590,6 +590,8 @@ final class SimulationEngine {
             grid.loadKampyle()
         case .cochleoid:
             grid.loadCochleoid()
+        case .cornuSpiral:
+            grid.loadCornuSpiral()
         case .clear:
             grid.clearAll()
         }
@@ -750,6 +752,7 @@ final class SimulationEngine {
         case lituus = "Lituus"
         case kampyle = "Kampyle of Eudoxus"
         case cochleoid = "Cochleoid"
+        case cornuSpiral = "Cornu Spiral"
         case clear = "Clear"
 
         var id: String { rawValue }

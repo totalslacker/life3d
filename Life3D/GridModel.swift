@@ -6436,6 +6436,70 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Loads a Cornu Spiral (Euler spiral / clothoid) pattern.
+    /// The Cornu spiral is defined by Fresnel integrals: x(t) = ∫₀ᵗ cos(πu²/2)du,
+    /// y(t) = ∫₀ᵗ sin(πu²/2)du. The curvature increases linearly with arc length,
+    /// making it the natural transition curve used in highway and railway design.
+    /// Named after Marie Alfred Cornu (1841-1902). The 2D spiral is extruded into
+    /// multiple vertical layers for 3D volume.
+    mutating func loadCornuSpiral() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale = Float(n) * 0.16
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let layers = max(3, n / 4)
+        let samples = n * 30
+
+        for layer in 0..<layers {
+            let zOffset = Float(layer) / Float(layers - 1) * 2.0 - 1.0
+            let tMax: Float = 5.0
+            for s in 0..<samples {
+                let t = -tMax + Float(s) / Float(samples) * (2.0 * tMax)
+                // Approximate Fresnel integrals via Simpson's rule (20 sub-intervals)
+                let steps = 20
+                let dt = t / Float(steps)
+                var fx: Float = 0.0
+                var fy: Float = 0.0
+                for i in 0...steps {
+                    let u = Float(i) * dt
+                    let arg = Float.pi * u * u / 2.0
+                    let w: Float = (i == 0 || i == steps) ? 1.0 : (i % 2 == 1 ? 4.0 : 2.0)
+                    fx += w * cos(arg)
+                    fy += w * sin(arg)
+                }
+                fx *= dt / 3.0
+                fy *= dt / 3.0
+                let px = fx * scale
+                let py = fy * scale
+                let wz = zOffset * thickness * 0.5 + half
+                let iz = Int(wz)
+                guard iz >= 0 && iz < n else { continue }
+
+                let wx = px + half
+                let wy = py + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        let distSq = Float(dx * dx + dy * dy)
+                        if distSq <= thickSq {
+                            let nx = ix + dx
+                            let ny = iy + dy
+                            if nx >= 0 && nx < n && ny >= 0 && ny < n {
+                                setCell(x: nx, y: ny, z: iz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 151 (2026-04-01 09:05 PDT)
+
+**Goal**: Cornu Spiral pattern, Ametrine theme, 15 new tests.
+
+1. **Cornu Spiral pattern (138th, 137th cyclable)**: The Cornu spiral (Euler spiral / clothoid) — a plane curve defined by Fresnel integrals: x(t) = ∫₀ᵗ cos(πu²/2)du, y(t) = ∫₀ᵗ sin(πu²/2)du. The curvature increases linearly with arc length, producing a distinctive S-shaped double spiral converging to two symmetric limit points. Named after Marie Alfred Cornu (1841-1902), who tabulated the curve for optics. The curve is fundamental in highway/railway design as the ideal transition curve (clothoid) between straight and curved segments. Approximated via Simpson's rule numerical integration. The 2D spiral is extruded into multiple vertical layers for 3D volume. Visually distinct from Cochleoid (snail-shell, sin(θ)/θ oscillation), Lituus (monotonic tightening, r=a/√θ), Involute (unwinding from circle), and Loxodrome (sphere-surface spiral). 10 new tests.
+2. **Ametrine theme (151st)**: Purple-gold bicolor quartz aesthetic — vivid purple newborn cells (R 0.72, G 0.42, B 0.82) transitioning to warm gold young cells (R 0.75, G 0.62, B 0.28), then deep purple mature cells (R 0.52, G 0.32, B 0.58), and dark plum dying cells (R 0.28, G 0.18, B 0.32). The bicolor effect (purple newborn → gold young → purple mature) evokes the natural color zoning of ametrine — a rare bicolor variety of quartz (SiO₂) combining amethyst (purple, iron Fe⁴⁺) and citrine (golden, iron Fe³⁺) in a single crystal. Found almost exclusively in the Anahí mine, Bolivia. The color boundary arises from differential oxidation states of iron during crystal growth under twinning. Distinct from Amethyst (uniform purple), Citrine (uniform golden), Charoite (more lilac), and Fluorite (banded, different crystal system). 5 new tests.
+3. **Updated count assertions**: allPatterns.count to 138, cyclable.count to 137, allThemes.count to 151 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 150 (2026-04-01 08:56 PDT)
 
 **Goal**: Cochleoid pattern, Crocoite theme, 15 new tests.
