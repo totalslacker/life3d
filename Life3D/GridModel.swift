@@ -4011,6 +4011,34 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadEllipsoid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Ellipsoid: x²/a² + y²/b² + z²/c² = 1
+        // Three distinct semi-axes (a=1.2, b=0.8, c=1.0) make it visually distinct
+        // from a sphere. The elongation along x and compression along y produce
+        // an egg-like shape with clear directional asymmetry.
+        let a: Float = 1.2, b: Float = 0.8, c: Float = 1.0
+        let scale: Float = 1.4 / half
+        let threshold: Float = 0.12
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let value = (x * x) / (a * a) + (y * y) / (b * b) + (z * z) / (c * c)
+                    // Activate cells near the surface |F - 1| < threshold
+                    if abs(value - 1.0) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

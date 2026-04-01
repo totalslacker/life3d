@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 109 (2026-03-31 21:14 PDT)
+
+**Goal**: Ellipsoid pattern, Fluorite theme, 11 new tests.
+
+1. **Ellipsoid pattern (84th, 83rd cyclable)**: A triaxial ellipsoid defined implicitly by x²/a² + y²/b² + z²/c² = 1 with semi-axes a=1.2, b=0.8, c=1.0. Three distinct semi-axes give the shape directional asymmetry — elongated along x, compressed along y — producing an egg-like form that is visually distinct from Sphere (all axes equal), Fermat Surface (quartic superellipsoid), and Astroidal Ellipsoid (concave/cusped). Uses an implicit isosurface approach — iterates the 3D grid, evaluates the quadric equation at each cell, and activates cells where |value - 1| < threshold. A fundamental quadric surface that was notably absent from the collection despite having 83 patterns. 6 new tests.
+2. **Fluorite theme (84th)**: Purple-to-green banded mineral aesthetic inspired by fluorite crystal — vivid violet newborn cells (R 0.55, G 0.22, B 0.88) shifting through cool teal-green young cells (R 0.30, G 0.55, B 0.50) to deep forest-dark mature cells fading to near-black. The color progression mimics fluorite's famous purple-green banding: B dominant in newborn (B > R > G), G dominant in young (G > B > R). Distinct from Amethyst (pure purple throughout), Alexandrite (teal-to-purple), Tanzanite (blue-violet throughout), and Wisteria (soft lavender). 5 new tests.
+3. **Test count updates**: Updated all stale `allPatterns.count == 83` assertions to `== 84` and `allThemes.count == 83` to `== 84`.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 108 (2026-03-31 20:58 PDT)
 
 **Goal**: Fermat Surface pattern, Citrine theme, 11 new tests.

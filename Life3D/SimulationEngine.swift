@@ -481,6 +481,8 @@ final class SimulationEngine {
             grid.loadTogliattiSurface()
         case .fermatSurface:
             grid.loadFermatSurface()
+        case .ellipsoid:
+            grid.loadEllipsoid()
         case .clear:
             grid.clearAll()
         }
@@ -586,6 +588,7 @@ final class SimulationEngine {
         case cayleyCubic = "Cayley Cubic"
         case togliattiSurface = "Togliatti Surface"
         case fermatSurface = "Fermat Surface"
+        case ellipsoid = "Ellipsoid"
         case clear = "Clear"
 
         var id: String { rawValue }
