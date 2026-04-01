@@ -489,6 +489,8 @@ final class SimulationEngine {
             grid.loadHeartSurface()
         case .rosslerAttractor:
             grid.loadRosslerAttractor()
+        case .barthDecic:
+            grid.loadBarthDecic()
         case .clear:
             grid.clearAll()
         }
@@ -598,6 +600,7 @@ final class SimulationEngine {
         case dingDongSurface = "Ding-Dong Surface"
         case heartSurface = "Heart Surface"
         case rosslerAttractor = "Rössler Attractor"
+        case barthDecic = "Barth Decic"
         case clear = "Clear"
 
         var id: String { rawValue }

@@ -4171,6 +4171,48 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadBarthDecic() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Barth Decic: a degree-10 algebraic surface discovered by Wolf Barth,
+        // notable for having 345 ordinary double points — the maximum possible
+        // for a decic surface. Has icosahedral symmetry like the Barth Sextic.
+        // f(x,y,z) = 8(x²-φ⁴y²)(y²-φ⁴z²)(z²-φ⁴x²)(x⁴+y⁴+z⁴-2x²y²-2y²z²-2z²x²)
+        //          + (3+5φ)(x²+y²+z²-1)²(x²+y²+z²-(2-φ))² = 0
+        let phi: Float = (1.0 + sqrt(5.0)) / 2.0
+        let phi4 = phi * phi * phi * phi  // φ⁴
+        let coeff = 3.0 + 5.0 * phi       // (3 + 5φ)
+        let inner2 = 2.0 - phi             // (2 - φ)
+        let scale: Float = 2.4 / half
+        let threshold: Float = 0.8
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let r2 = x*x + y*y + z*z
+                    if r2 > 1.8 { continue }
+                    let x2 = x*x, y2 = y*y, z2 = z*z
+                    let a = x2 - phi4 * y2
+                    let b = y2 - phi4 * z2
+                    let c = z2 - phi4 * x2
+                    let d = x2*x2 + y2*y2 + z2*z2 - 2*x2*y2 - 2*y2*z2 - 2*z2*x2
+                    let term1 = 8.0 * a * b * c * d
+                    let e = r2 - 1.0
+                    let f = r2 - inner2
+                    let term2 = coeff * e * e * f * f
+                    let value = term1 + term2
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
