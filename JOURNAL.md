@@ -2,6 +2,14 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 109 (2026-03-31 21:15 PDT)
+
+**Goal**: Heart Surface pattern, Rhodonite theme, 11 new tests.
+
+1. **Heart Surface pattern (84th, 83rd cyclable)**: The classic heart-shaped implicit algebraic surface defined by (x² + 9y²/4 + z² - 1)³ - x²z³ - 9y²z³/80 = 0. A sextic surface that produces the familiar valentine heart silhouette — smooth rounded bottom with a cleft at the top. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the sextic equation at each cell, and activates cells where |value| < threshold. The y/z axes are swapped to orient the heart upright in the grid. Visually distinct from Sphere (round, no cleft), Fermat Surface (quartic, octahedral), and Cassini Surface (peanut-shaped, no cleft). 6 new tests.
+2. **Rhodonite theme (84th)**: Rose-pink manganese silicate mineral aesthetic — vivid rhodonite newborn cells (R 0.88, G 0.42, B 0.55) through medium dark rose young cells to deep wine-pink mature cells fading to near-black. R > B > G across all tiers, evoking the distinctive rose-pink of polished rhodonite with its warm, slightly blue-shifted pink. Distinct from Sakura (paler, lighter pink), Rose Gold (more metallic, warmer), Plum (more purple), Crimson (pure red), and Coral (more orange). 5 new tests.
+
+---
 ## Day 15 — Session 109 (2026-03-31 21:20 PDT)
 
 **Goal**: Heart Surface pattern, Sunstone theme, 11 new tests.
