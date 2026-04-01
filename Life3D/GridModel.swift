@@ -4295,11 +4295,6 @@ struct GridModel: Sendable {
         clearAll()
         let n = size
         let half = Float(n) / 2.0
-        // Enriques surface approximation via a degree-6 implicit equation
-        // inspired by the classical algebraic surface. Uses a combination
-        // of symmetric quartic and sextic terms to produce a surface with
-        // intricate self-intersecting lobes and octahedral symmetry.
-        // F(x,y,z) = x²y² + y²z² + z²x² - x²y²z² - 0.5 = 0
         let scale: Float = 3.0 / half
         let threshold: Float = 0.15
         for ix in 0..<n {
@@ -4325,7 +4320,6 @@ struct GridModel: Sendable {
         clearAll()
         let n = size
         let half = Float(n) / 2.0
-        // Scale so one fundamental domain fits the grid nicely
         let scale: Float = Float.pi * 2.0 / Float(n)
         let threshold: Float = 0.4
         for ix in 0..<n {
@@ -4334,9 +4328,6 @@ struct GridModel: Sendable {
                     let x = (Float(ix) - half + 0.5) * scale
                     let y = (Float(iy) - half + 0.5) * scale
                     let z = (Float(iz) - half + 0.5) * scale
-                    // Lidinoid approximation (Sven Lidin, 1990):
-                    // sin(2x)cos(y)sin(z) + sin(2y)cos(z)sin(x) + sin(2z)cos(x)sin(y)
-                    // - cos(2x)cos(2y) - cos(2y)cos(2z) - cos(2z)cos(2x) + 0.3 = 0
                     let s2x = sin(2*x), s2y = sin(2*y), s2z = sin(2*z)
                     let cx = cos(x), cy = cos(y), cz = cos(z)
                     let sx = sin(x), sy = sin(y), sz = sin(z)
@@ -4356,9 +4347,6 @@ struct GridModel: Sendable {
         clearAll()
         let n = size
         let half = Float(n) / 2.0
-        // Piriform (pear) surface: y² + z² = x³(4 - x)
-        // A quartic surface producing a teardrop/pear shape.
-        // Exists only where x ∈ [0, 4], centered and scaled to fit grid.
         let scale: Float = 5.0 / half
         let threshold: Float = 0.5
         for ix in 0..<n {
@@ -4367,10 +4355,32 @@ struct GridModel: Sendable {
                     let x = (Float(ix) - half + 0.5) * scale
                     let y = (Float(iy) - half + 0.5) * scale
                     let z = (Float(iz) - half + 0.5) * scale
-                    // F(x,y,z) = y² + z² - x³(4 - x)
                     let lhs = y * y + z * z
                     let rhs = x * x * x * (4.0 - x)
                     let value = lhs - rhs
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    mutating func loadIWPSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 2.0 * .pi / Float(n)
+        let threshold: Float = 0.8
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let cx = cos(x), cy = cos(y), cz = cos(z)
+                    let value = 2*(cx*cy + cy*cz + cz*cx) - (cos(2*x) + cos(2*y) + cos(2*z))
                     if abs(value) < threshold {
                         setCell(x: ix, y: iy, z: iz, alive: true)
                     }

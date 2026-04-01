@@ -24,6 +24,14 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 1. **Enriques Surface pattern (91st, 90th cyclable)**: A degree-6 implicit algebraic surface inspired by the classical Enriques surface from algebraic geometry. Defined by F(x,y,z) = x²y² + y²z² + z²x² - x²y²z² - 0.5 = 0. The equation combines pairwise-symmetric quartic terms with a sextic correction, producing a surface with octahedral symmetry and intricate self-intersecting lobes — smooth bulging regions connected by thin intersecting sheets. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the equation at each cell, and activates cells where |value| < threshold. Visually distinct from Tanglecube (tube-like channels), Fermat Surface (rounded cube), Kummer Surface (16 nodes, tetrahedral), and Barth Sextic (65 nodes, icosahedral). 6 new tests.
 2. **Amber theme (94th)**: Warm golden-brown fossilized resin aesthetic — vivid amber newborn cells (R 0.90, G 0.65, B 0.10) through medium dark honey-brown young cells to deep dark brown mature cells fading to near-black. R > G > B across all tiers, evoking the distinctive warm golden-orange of polished Baltic amber with its characteristic translucent glow. Distinct from Gold (more metallic yellow), Topaz (more orange), Citrine (more yellow), Saffron (more orange-yellow), and Champagne (paler, more neutral). 5 new tests.
+---
+## Day 15 — Session 111 (2026-03-31 22:41 PDT)
+
+**Goal**: IWP Surface pattern, Kunzite theme, 11 new tests.
+
+1. **IWP Surface pattern (92nd, 91st cyclable)**: The I-Wrapped Parcel (IWP) triply periodic minimal surface discovered by Alan Schoen. Defined implicitly by 2(cos(x)cos(y) + cos(y)cos(z) + cos(z)cos(x)) - (cos(2x) + cos(2y) + cos(2z)) = 0. A surface with body-centered cubic symmetry featuring an intricate network of channels and passages. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the trigonometric equation at each cell, and activates cells where |value| < threshold. Visually distinct from Schwarz P Surface (simpler cubic lattice), Schwarz D Surface (diamond lattice), Gyroid (chiral, no symmetry planes), and Neovius Surface (octahedral with large tunnels). 6 new tests.
+2. **Kunzite theme (96th)**: Pink-violet gemstone aesthetic inspired by the lithium aluminum silicate variety of spodumene — vivid pink-violet newborn cells (R 0.88, G 0.52, B 0.82) through medium mauve-purple young cells to deep purple-pink mature cells fading to near-black. R > B > G across all tiers, evoking the distinctive transparent pink-violet of natural kunzite. Distinct from Rhodonite (rose-pink, more red), Sakura (pale pink, lighter), Amethyst (pure purple), Wisteria (soft lavender), and Plum (reddish-purple). 5 new tests.
+3. **Test count updates**: Updated all stale `allPatterns.count == 91` assertions to `== 92` and `allThemes.count == 95` to `== 96`.
 
 **Next Steps**: Performance profiling at 32x32x32. App icon design.
 
