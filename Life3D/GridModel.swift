@@ -5676,6 +5676,70 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Hypotrochoid — a roulette curve traced by a point on a circle of radius r
+    /// rolling inside a fixed circle of radius R. Parametric form:
+    /// x = (R-r)*cos(t) + d*cos((R-r)/r * t)
+    /// y = (R-r)*sin(t) - d*sin((R-r)/r * t)
+    /// Using R=5, r=3, d=1.5 producing a 5-lobed spirograph pattern with rounded
+    /// inner loops. When d < r, the curve doesn't self-intersect, creating smooth
+    /// petals. Revolved around Y axis for 3D solid of revolution.
+    mutating func loadHypotrochoid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.30
+        let profileSamples = 720
+        let revolutionSteps = 180
+
+        // Hypotrochoid: x = (R-r)*cos(t) + d*cos((R-r)/r * t)
+        //               y = (R-r)*sin(t) - d*sin((R-r)/r * t)
+        // R = fixed circle radius, r = rolling circle radius, d = tracing point offset
+        // Using R=5, r=3, d=1.5 for a 5-lobed pattern (R/r period = 3 full turns)
+        let bigR: Float = 5.0
+        let smallR: Float = 3.0
+        let d: Float = 1.5
+        let ratio = (bigR - smallR) / smallR
+
+        for rs in 0..<revolutionSteps {
+            let phi = Float(rs) / Float(revolutionSteps) * 2.0 * Float.pi
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for ps in 0..<profileSamples {
+                let t = Float(ps) / Float(profileSamples) * 6.0 * Float.pi  // 3 full turns for R=5,r=3
+                let px = scale * ((bigR - smallR) * cos(t) + d * cos(ratio * t))
+                let py = scale * ((bigR - smallR) * sin(t) - d * sin(ratio * t))
+                // Revolve around Y axis
+                let wx = px * cosPhi + half
+                let wy = py + half
+                let wz = px * sinPhi + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

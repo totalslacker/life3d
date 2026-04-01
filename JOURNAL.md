@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 133 (2026-04-01 04:32 PDT)
+
+**Goal**: Hypotrochoid pattern, Variscite theme, 15 new tests.
+
+1. **Hypotrochoid pattern (125th, 124th cyclable)**: A roulette curve traced by a point on a circle rolling inside a fixed circle — the inner counterpart to the epitrochoid. Parametric form: x = (R-r)·cos(t) + d·cos((R-r)/r · t), y = (R-r)·sin(t) - d·sin((R-r)/r · t), with R=5, r=3, d=1.5 producing a 5-lobed spirograph pattern where the rolling circle moves inside the fixed circle (vs outside for epitrochoid). The R/r ratio of 5/3 means the curve closes after 3 full turns of t. When d < r (as here, d=1.5 < r=3), the curve never self-intersects, creating smooth rounded petals rather than sharp cusps. The 2D profile is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry. Visually distinct from Epitrochoid (rolls outside, different lobe count/shape), Rhodonea (rose curve with pure cosine petals), Cardioid (1-cusped epicycloid), and Astroid (4-cusped hypocycloid). 10 new tests.
+2. **Variscite theme (129th)**: Soft green hydrated aluminum phosphate mineral aesthetic — vivid soft green newborn cells (R 0.58, G 0.82, B 0.52) through medium dark green young cells (R 0.40, G 0.62, B 0.36) to deep dark green mature cells (R 0.24, G 0.42, B 0.22). G > R > B across all tiers, evoking the distinctive soft pastel green of natural variscite — a hydrated aluminum phosphate mineral (AlPO₄·2H₂O) first described in 1837 and named after Variscia, the historical name for the Vogtland district in Germany. Prized for its soft mint to apple green color, often used in jewelry as a turquoise substitute. Distinct from Prehnite (more yellow-green), Chrysoprase (more apple-green, higher saturation), Aventurine (sparkly green), and Moldavite (darker olive-green). 5 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 125, `cyclable.count` to 124, `patterns.count` to 125, and `allThemes.count` to 129 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 132 (2026-04-01 04:19 PDT)
 
 **Goal**: Epitrochoid pattern, Lepidolite theme, 15 new tests.

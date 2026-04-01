@@ -564,6 +564,8 @@ final class SimulationEngine {
             grid.loadLimacon()
         case .epitrochoid:
             grid.loadEpitrochoid()
+        case .hypotrochoid:
+            grid.loadHypotrochoid()
         case .clear:
             grid.clearAll()
         }
@@ -711,6 +713,7 @@ final class SimulationEngine {
         case deltoid = "Deltoid"
         case limacon = "Limaçon"
         case epitrochoid = "Epitrochoid"
+        case hypotrochoid = "Hypotrochoid"
         case clear = "Clear"
 
         var id: String { rawValue }
