@@ -3914,6 +3914,34 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadCayleyCubic() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Cayley nodal cubic: a cubic surface with 4 ordinary double points
+        // (the maximum for a cubic surface), discovered by Arthur Cayley.
+        // Equation: xy + xz + yz + xyz = 0
+        // The surface has tetrahedral symmetry and passes through the origin.
+        let threshold: Float = 0.15
+        let scale: Float = 3.0 / half
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let r2 = x * x + y * y + z * z
+                    if r2 > 9.0 { continue }
+                    let value = x * y + x * z + y * z + x * y * z
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

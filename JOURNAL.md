@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 107 (2026-03-31 20:14 PDT)
+
+**Goal**: Cayley Cubic pattern, Alexandrite theme, 11 new tests.
+
+1. **Cayley Cubic pattern (80th cyclable)**: A famous cubic surface discovered by Arthur Cayley, notable for having 4 ordinary double points — the maximum possible for a cubic surface. Defined implicitly by xy + xz + yz + xyz = 0. The surface has tetrahedral symmetry and passes through the origin, producing distinctive intersecting planes that curve into each other. Uses an implicit isosurface approach — iterates the 3D grid within a bounding sphere (r² < 9), evaluates the cubic equation at each cell, and activates cells where |value| < threshold. Visually distinct from Kummer Surface (quartic, 16 nodes), Clebsch Diagonal Surface (cubic, 27 lines, no nodes), and Barth Sextic (sextic, 65 nodes). 6 new tests.
+2. **Alexandrite theme (81st)**: Color-shifting gemstone aesthetic inspired by the rare chrysoberyl variety — vivid teal-green newborn cells (R 0.32, G 0.68, B 0.58) shifting through muted blue-green young cells to deep purple-blue mature cells fading to near-black. The color progression mimics alexandrite's famous color-change effect: green in daylight shifting to purple under incandescent light. G dominant in newborn (G > B > R), B dominant in mature (B > G > R). Distinct from Teal (pure teal throughout), Patina (verdigris green), Amethyst (pure purple), and Cerulean (pure blue). 5 new tests.
+3. **Test count updates**: Updated all stale `allPatterns.count == 80` assertions to `== 81` and `allThemes.count == 80` to `== 81`.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 106 (2026-03-31 12:10 PDT)
 
 **Goal**: Cassini Surface pattern, Malachite theme, 11 new tests.
