@@ -5348,6 +5348,55 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Rhodonea (Rose Curve): polar curve r = cos(k*theta) with k=3 petals,
+    /// thickened in 3D by extruding along the z-axis and applying tube thickening.
+    /// Creates a beautiful 3-petal flower shape in the x-y plane with vertical depth.
+    mutating func loadRhodonea() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 14.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.85
+        let k: Float = 3.0 // 3-petal rose
+        let samples = 720
+        let zLayers = max(3, n / 5) // vertical extrusion layers
+        let zSpread = half * 0.3 // how tall the extrusion is
+
+        for s in 0..<samples {
+            let theta = Float(s) / Float(samples) * 2.0 * Float.pi
+            let r = cos(k * theta) * scale
+            let px = r * cos(theta) + half
+            let py = r * sin(theta) + half
+
+            for zl in 0..<zLayers {
+                let zFrac = Float(zl) / Float(max(zLayers - 1, 1)) - 0.5
+                let pz = zFrac * zSpread + half
+                let ix = Int(px)
+                let iy = Int(py)
+                let iz = Int(pz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

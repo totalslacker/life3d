@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 127 (2026-04-01 03:34 PDT)
+
+**Goal**: Rhodonea (Rose Curve) pattern, Benitoite theme, 15 new tests.
+
+1. **Rhodonea pattern (118th, 117th cyclable)**: Polar curve r = cos(kθ) with k=3 creating a 3-petal rose — one of the most elegant curves in classical mathematics, studied by Guido Grandi in 1725. The curve traces three symmetric lobes in the x-y plane, with each petal extending from the origin. In 3D, the curve is extruded along the z-axis across multiple layers and thickened via spherical neighborhood activation, creating a flower-like slab with three distinct petals. Visually distinct from Lemniscate (figure-eight, 2 lobes), Nephroid (kidney-shaped revolution, cusps), Torus (solid ring), and Lissajous (parametric ratios in a box). 8 new tests.
+2. **Benitoite theme (120th)**: Vivid sapphire-blue barium titanium silicate aesthetic — bright blue newborn cells (R 0.20, G 0.35, B 0.92) through medium dark blue young cells (R 0.12, G 0.22, B 0.70) to deep dark navy mature cells (R 0.06, G 0.12, B 0.45). B > G > R across all tiers, evoking the distinctive vivid blue of natural benitoite — California's state gemstone, found only in San Benito County, and one of the rarest gemstones on Earth. Under UV light, benitoite fluoresces brilliant blue-white. Distinct from Sapphire (darker, more pure blue), Kyanite (lighter, more gray-blue), Sodalite (more violet-blue), and Azurite (more green-blue). 7 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 118 and `allThemes.count` to 120 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+
 ## Day 16 — Session 127 (2026-04-01 03:25 PDT)
 
 **Goal**: Nephroid pattern, Pietersite theme, 15 new tests.
