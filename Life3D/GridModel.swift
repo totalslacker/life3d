@@ -4070,10 +4070,6 @@ struct GridModel: Sendable {
         clearAll()
         let n = size
         let half = Float(n) / 2.0
-        // Ding-Dong surface: x² + y² = z²(1 - z)
-        // A cubic algebraic surface with a singular pinch point at the origin and a
-        // rounded bell/droplet shape above it. The surface exists only for z ∈ [0, 1]
-        // and is rotationally symmetric about the z-axis.
         let scale: Float = 2.0 / half
         let threshold: Float = 0.12
         for ix in 0..<n {
@@ -4082,8 +4078,32 @@ struct GridModel: Sendable {
                     let x = (Float(ix) - half + 0.5) * scale
                     let y = (Float(iy) - half + 0.5) * scale
                     let z = (Float(iz) - half + 0.5) * scale
-                    // F(x,y,z) = x² + y² - z²(1 - z)
                     let value = x * x + y * y - z * z * (1.0 - z)
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    mutating func loadHeartSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 1.8 / half
+        let threshold: Float = 0.12
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let x2 = x * x, y2 = y * y, z2 = z * z
+                    let z3 = z2 * z
+                    let inner = x2 + 2.25 * y2 + z2 - 1.0
+                    let value = inner * inner * inner - x2 * z3 - 0.1125 * y2 * z3
                     if abs(value) < threshold {
                         setCell(x: ix, y: iy, z: iz, alive: true)
                     }

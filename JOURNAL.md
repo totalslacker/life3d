@@ -2,6 +2,14 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 109 (2026-03-31 21:20 PDT)
+
+**Goal**: Heart Surface pattern, Sunstone theme, 11 new tests.
+
+1. **Heart Surface pattern (84th, 83rd cyclable)**: The classic algebraic heart surface defined implicitly by (x² + 9y²/4 + z² - 1)³ - x²z³ - 9y²z³/80 = 0. The asymmetric cubic z terms create the distinctive pointed bottom and rounded top lobes of the heart form. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the sextic equation at each cell, and activates cells where |value| < threshold. Visually distinct from Sphere (round quadric), Fermat Surface (rounded cube, quartic), and Cassini Surface (peanut-shaped). 6 new tests.
+2. **Sunstone theme (84th)**: Warm shimmering orange-gold gemstone aesthetic — vivid sunstone newborn cells (R 0.95, G 0.62, B 0.20) through medium dark burnt-orange young cells to deep brown-amber mature cells fading to near-black. R > G > B across all tiers, evoking the distinctive aventurescent shimmer of natural sunstone (oligoclase feldspar). Distinct from Copper (darker, more metallic), Citrine (more yellow), Ember (more red-orange glow), Apricot (lighter peach), and Saffron (more yellow-orange). 5 new tests.
+
+---
 ## Day 15 — Session 109 (2026-03-31 21:14 PDT)
 
 **Goal**: Ding-Dong Surface pattern, Fluorite theme, 11 new tests.
