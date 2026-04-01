@@ -4113,6 +4113,64 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadRosslerAttractor() {
+        clearAll()
+        let n = size
+        // Rössler attractor: a chaotic system with a distinctive single-lobe
+        // spiral that periodically folds and re-injects. The equations are:
+        // dx/dt = -y - z, dy/dt = x + a*y, dz/dt = b + z*(x - c)
+        // Standard parameters: a=0.2, b=0.2, c=5.7
+        let a: Float = 0.2
+        let b: Float = 0.2
+        let c: Float = 5.7
+        let dt: Float = 0.01
+        let steps = 40000
+        // Integrate the Rössler system
+        var rx: Float = 0.1, ry: Float = 0.0, rz: Float = 0.0
+        // Track bounds for normalization
+        var minX: Float = .greatestFiniteMagnitude, maxX: Float = -.greatestFiniteMagnitude
+        var minY: Float = .greatestFiniteMagnitude, maxY: Float = -.greatestFiniteMagnitude
+        var minZ: Float = .greatestFiniteMagnitude, maxZ: Float = -.greatestFiniteMagnitude
+        var points: [(Float, Float, Float)] = []
+        points.reserveCapacity(steps)
+        // Skip transient (first 2000 steps)
+        for _ in 0..<2000 {
+            let dxdt = -ry - rz
+            let dydt = rx + a * ry
+            let dzdt = b + rz * (rx - c)
+            rx += dxdt * dt
+            ry += dydt * dt
+            rz += dzdt * dt
+        }
+        for _ in 0..<steps {
+            let dxdt = -ry - rz
+            let dydt = rx + a * ry
+            let dzdt = b + rz * (rx - c)
+            rx += dxdt * dt
+            ry += dydt * dt
+            rz += dzdt * dt
+            points.append((rx, ry, rz))
+            if rx < minX { minX = rx }; if rx > maxX { maxX = rx }
+            if ry < minY { minY = ry }; if ry > maxY { maxY = ry }
+            if rz < minZ { minZ = rz }; if rz > maxZ { maxZ = rz }
+        }
+        // Map trajectory points to grid cells
+        let rangeX = maxX - minX, rangeY = maxY - minY, rangeZ = maxZ - minZ
+        let maxRange = max(rangeX, max(rangeY, rangeZ))
+        guard maxRange > 0 else { return }
+        let margin: Float = 1.0 // leave margin cells on each side
+        let usable = Float(n) - 2 * margin
+        for (px, py, pz) in points {
+            let gx = Int(((px - minX) / maxRange) * usable + margin)
+            let gy = Int(((py - minY) / maxRange) * usable + margin)
+            let gz = Int(((pz - minZ) / maxRange) * usable + margin)
+            if gx >= 0 && gx < n && gy >= 0 && gy < n && gz >= 0 && gz < n {
+                setCell(x: gx, y: gy, z: gz, alive: true)
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
