@@ -4715,6 +4715,36 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadBorromeanRings() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale = Float(n) * 0.32
+        let R: Float = 0.55
+        let r: Float = 0.13
+        let thickness: Float = 1.2
+        let offset: Float = R * 0.35
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let fx = (Float(x) - half) / scale
+                    let fy = (Float(y) - half) / scale
+                    let fz = (Float(z) - half) / scale
+                    let d1xy = sqrtf(fx * fx + fy * fy) - R
+                    let dist1 = sqrtf(d1xy * d1xy + (fz - offset) * (fz - offset))
+                    let d2xz = sqrtf(fx * fx + fz * fz) - R
+                    let dist2 = sqrtf(d2xz * d2xz + (fy - offset) * (fy - offset))
+                    let d3yz = sqrtf(fy * fy + fz * fz) - R
+                    let dist3 = sqrtf(d3yz * d3yz + (fx - offset) * (fx - offset))
+                    if dist1 < r * thickness || dist2 < r * thickness || dist3 < r * thickness {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

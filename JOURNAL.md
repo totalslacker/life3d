@@ -3,6 +3,17 @@
 Evolution session log. Most recent entry first. Never delete entries.
 
 
+## Day 16 — Session 123 (2026-04-01 00:10 PDT)
+
+
+**Goal**: Borromean Rings pattern, Ammolite theme, 11 new tests.
+
+1. **Borromean Rings pattern (104th, 104th cyclable)**: Three mutually interlocked rings where no two are directly linked — the simplest Brunnian link. Each ring lies in a different coordinate plane (XY, XZ, YZ), offset so they pass through each other's holes. The defining topological property: remove any one ring and the other two fall apart. Uses implicit torus distance fields for each ring — for each of three tori, compute (√(a²+b²) - R)² + c² and activate cells within the tube radius threshold. The rings are positioned with offsets along their respective normal axes to achieve the interlocking-without-pair-linking property. Visually distinct from Hopf Link (two rings, pair-linked), Torus (single ring), Torus Knot (single knotted curve), and Trefoil Knot (single overhand knot). 8 new tests.
+2. **Ammolite theme (109th)**: Iridescent fossilized ammonite shell aesthetic — the only theme with a full spectral color shift across age tiers, mimicking ammolite's famous play-of-color: vivid warm orange newborn cells (R 0.90, G 0.42, B 0.18) through emerald green young cells (R 0.22, G 0.72, B 0.38) to deep blue mature cells (R 0.15, G 0.28, B 0.65). Each tier has a different dominant channel (R→G→B), evoking the geological iridescence of fossilized aragonite shell. Distinct from Sunstone (warm orange only), Labradorite (blue-green only), Opal (multi-color but same-tier), and Aurora (gradient within single tier). 6 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count == 99/104` assertions to `== 105` and `allThemes.count == 104/108` to `== 109` across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 122 (2026-04-01 00:05 PDT)
 
 **Goal**: Lemniscate pattern, Azurite theme, 11 new tests.

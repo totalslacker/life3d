@@ -526,6 +526,8 @@ final class SimulationEngine {
             grid.loadPillowSurface()
         case .lemniscate:
             grid.loadLemniscate()
+        case .borromeanRings:
+            grid.loadBorromeanRings()
         case .clear:
             grid.clearAll()
         }
@@ -654,6 +656,7 @@ final class SimulationEngine {
         case metaballs = "Metaballs"
         case pillowSurface = "Pillow Surface"
         case lemniscate = "Lemniscate"
+        case borromeanRings = "Borromean Rings"
         case clear = "Clear"
 
         var id: String { rawValue }
