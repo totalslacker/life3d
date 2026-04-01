@@ -483,6 +483,8 @@ final class SimulationEngine {
             grid.loadFermatSurface()
         case .oloid:
             grid.loadOloid()
+        case .dingDongSurface:
+            grid.loadDingDongSurface()
         case .clear:
             grid.clearAll()
         }
@@ -589,6 +591,7 @@ final class SimulationEngine {
         case togliattiSurface = "Togliatti Surface"
         case fermatSurface = "Fermat Surface"
         case oloid = "Oloid"
+        case dingDongSurface = "Ding-Dong Surface"
         case clear = "Clear"
 
         var id: String { rawValue }

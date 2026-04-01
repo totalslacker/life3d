@@ -4,6 +4,14 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 ## Day 15 — Session 109 (2026-03-31 21:14 PDT)
 
+**Goal**: Ding-Dong Surface pattern, Fluorite theme, 11 new tests.
+
+1. **Ding-Dong Surface pattern (84th, 83rd cyclable)**: A cubic algebraic surface defined by x² + y² = z²(1 - z), producing a distinctive droplet/bell shape with a singular pinch point at the origin. The surface exists only where z²(1-z) ≥ 0, creating an asymmetric bell that rounds out above the origin and pinches to a point below. Rotationally symmetric about the z-axis. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the cubic equation at each cell, and activates cells where |F| < threshold. Visually distinct from Sphere (closed, symmetric), Fermat Surface (rounded cube, quartic), Cassini Surface (peanut-shaped, quartic), and Catenoid (hourglass, minimal surface). 6 new tests.
+2. **Fluorite theme (84th)**: Purple-to-green mineral aesthetic inspired by the famously multicolored fluorite crystal — vivid purple newborn cells (R 0.55, G 0.28, B 0.92) through medium teal-blue young cells (shifting green) to deep muted green mature cells fading to near-black. The color progression mimics fluorite's characteristic banding from purple to green to dark. B > R > G in newborn, shifting to G-dominant in mature tiers. Distinct from Amethyst (pure purple throughout), Tanzanite (blue-violet), Alexandrite (teal-to-purple), and Malachite (green throughout). 5 new tests.
+
+---
+## Day 15 — Session 109 (2026-03-31 21:14 PDT)
+
 **Goal**: Oloid pattern, Topaz theme, 11 new tests.
 
 1. **Oloid pattern (84th, 83rd cyclable)**: The convex hull of two unit circles in perpendicular planes, each passing through the center of the other. A remarkable geometric solid discovered by Paul Schatz — it can roll on its full surface area, unlike any Platonic solid. The surface has a smooth, pillow-like convex shape with no edges or vertices. Uses a distance-to-skeleton approach — samples points on both circles and activates grid cells within a threshold distance of either circle. Visually distinct from Sphere (single round surface), Torus (ring-shaped), Clifford Torus (flat torus in 4D), and Dupin Cyclide (envelope of spheres). 6 new tests.
