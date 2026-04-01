@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 108 (2026-03-31 20:58 PDT)
+
+**Goal**: Fermat Surface pattern, Citrine theme, 11 new tests.
+
+1. **Fermat Surface pattern (83rd, 82nd cyclable)**: The famous quartic surface x⁴ + y⁴ + z⁴ = 1, studied by Pierre de Fermat. A smooth convex surface with octahedral symmetry that resembles a rounded cube — every cross-section is a superellipse (squircle). Sharper than a sphere but smoother than a cube. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the quartic equation at each cell, and activates cells where |value - 1| < threshold. Visually distinct from Sphere (round, quadric), Kummer Surface (quartic but nodal, 16 singularities), and Togliatti Surface (quintic, 31 nodes). 6 new tests.
+2. **Citrine theme (83rd)**: Warm golden-yellow gemstone aesthetic — vivid citrine newborn cells (R 0.92, G 0.78, B 0.18) through medium dark amber-gold young cells to deep brown-gold mature cells fading to near-black. R > G > B across all tiers, evoking the distinctive warm honey-yellow of natural citrine quartz. Distinct from Gold (more metallic), Saffron (more orange), Champagne (paler, more neutral), Marigold (more orange-yellow), and Ochre (earthier, more muted). 5 new tests.
+3. **Test count updates**: Updated all stale `allPatterns.count == 82` assertions to `== 83` and `allThemes.count == 82` to `== 83`.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 107 (2026-03-31 20:30 PDT)
 
 **Goal**: Togliatti Surface pattern, Tanzanite theme, 11 new tests.

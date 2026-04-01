@@ -3983,6 +3983,34 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadFermatSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Fermat quartic surface: x⁴ + y⁴ + z⁴ = 1
+        // A smooth quartic surface with octahedral symmetry, studied by Pierre de Fermat.
+        // Every cross-section is a superellipse (squircle). The surface is convex and
+        // resembles a rounded cube — smoother than a cube but sharper than a sphere.
+        let scale: Float = 1.5 / half
+        let threshold: Float = 0.15
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let x2 = x * x, y2 = y * y, z2 = z * z
+                    let value = x2 * x2 + y2 * y2 + z2 * z2
+                    // Activate cells near the surface |F - 1| < threshold
+                    if abs(value - 1.0) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
