@@ -6500,6 +6500,60 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Tschirnhausen Cubic — a plane algebraic curve defined by 3a·y² = x·(x − a)²,
+    /// studied by Ehrenfried Walther von Tschirnhaus in 1683. The curve has a cusp
+    /// at the origin and a loop. Parametrically: x = a(1 − t²), y = a·t(1 − t²)/√3.
+    /// Also known as L'Hôpital's cubic or the catacaustic of a parabola. The 2D profile
+    /// is revolved around the X axis to create a 3D solid of revolution.
+    mutating func loadTschirnhausenCubic() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale = Float(n) * 0.35
+        let thickness: Float = max(1.0, Float(n) / 10.0)
+        let thickSq = thickness * thickness
+        let layers = max(3, n / 4)
+        let samples = n * 25
+
+        for layer in 0..<layers {
+            let angle = Float(layer) / Float(layers) * Float.pi * 2.0
+            let cosA = cos(angle)
+            let sinA = sin(angle)
+
+            for s in 0..<samples {
+                let t = -1.8 + Float(s) / Float(samples - 1) * 3.6
+                let tSq = t * t
+                let xVal = (1.0 - tSq) * scale
+                let yVal = t * (1.0 - tSq) / sqrt(3.0) * scale
+
+                // Revolve around X axis
+                let px = xVal
+                let py = yVal * cosA
+                let pz = yVal * sinA
+
+                let ix = Int(px + half)
+                let iy = Int(py + half)
+                let iz = Int(pz + half)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        let distSq = Float(dx * dx + dy * dy)
+                        if distSq <= thickSq {
+                            let nx = ix + dx
+                            let ny = iy + dy
+                            if nx >= 0 && nx < n && ny >= 0 && ny < n {
+                                setCell(x: nx, y: ny, z: iz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 152 (2026-04-01 09:17 PDT)
+
+**Goal**: Tschirnhausen Cubic pattern, Bornite theme, 15 new tests.
+
+1. **Tschirnhausen Cubic pattern (139th, 138th cyclable)**: The Tschirnhausen cubic — a plane algebraic curve defined by 3a·y² = x·(x − a)², first studied by Ehrenfried Walther von Tschirnhaus in 1683. Parametrically: x = a(1 − t²), y = a·t(1 − t²)/√3. Also known as L'Hôpital's cubic or the catacaustic of a parabola (the envelope of reflected rays from a parabolic mirror). The curve has a cusp at the origin where the two branches meet. The 2D profile is revolved around the X axis to create a 3D solid of revolution with rotational symmetry. Visually distinct from Cornu Spiral (double S-curve, Fresnel integrals), Cissoid (cusp but different curvature profile), Strophoid (self-intersecting loop), and Folium of Descartes (leaf-shaped). 10 new tests.
+2. **Bornite theme (152nd)**: Iridescent "peacock ore" copper iron sulfide aesthetic — vivid purple-blue newborn cells (R 0.58, G 0.32, B 0.82) transitioning to bronze-gold young cells (R 0.72, G 0.58, B 0.28), then deep indigo mature cells (R 0.22, G 0.18, B 0.48), and dark charcoal dying cells (R 0.15, G 0.12, B 0.18). The purple-blue → bronze-gold → indigo progression evokes the iridescent tarnish of bornite — a copper iron sulfide (Cu₅FeS₄) nicknamed "peacock ore" for its striking purple, blue, and gold oxidation colors. Found in hydrothermal veins worldwide. Distinct from Ametrine (purple-gold bicolor quartz, different purple hue), Charoite (uniform lilac-purple), Labradorite (iridescent but grey-blue base), and Pietersite (chatoyant, more golden). 5 new tests.
+3. **Updated count assertions**: allPatterns.count to 139, cyclable.count to 138, allThemes.count to 152 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 151 (2026-04-01 09:05 PDT)
 
 **Goal**: Cornu Spiral pattern, Ametrine theme, 15 new tests.

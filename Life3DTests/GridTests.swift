@@ -11073,3 +11073,113 @@ struct AmetrineThemeTests {
         #expect(rDiff + gDiff + bDiff > 0.05)
     }
 }
+
+// MARK: - Tschirnhausen Cubic Pattern Tests
+
+@Suite("Tschirnhausen Cubic Pattern Tests")
+struct TschirnhausenCubicPatternTests {
+    @Test func tschirnhausenCubicLoadsNonEmpty() {
+        var grid = GridModel(size: 16)
+        grid.loadTschirnhausenCubic()
+        #expect(grid.aliveCount > 0)
+    }
+    @Test func tschirnhausenCubicSymmetry() {
+        var grid = GridModel(size: 16)
+        grid.loadTschirnhausenCubic()
+        // Revolved around X axis — should have cells across multiple Z layers
+        var zLayers = Set<Int>()
+        for idx in grid.aliveCellIndices {
+            let z = idx % 16
+            zLayers.insert(z)
+        }
+        #expect(zLayers.count >= 3)
+    }
+    @Test func tschirnhausenCubicScalesWithGridSize() {
+        var small = GridModel(size: 12)
+        small.loadTschirnhausenCubic()
+        var large = GridModel(size: 16)
+        large.loadTschirnhausenCubic()
+        #expect(large.aliveCount > small.aliveCount)
+    }
+    @Test func tschirnhausenCubicTracksIndices() {
+        var grid = GridModel(size: 16)
+        grid.loadTschirnhausenCubic()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+    @Test func tschirnhausenCubicPatternCount() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.count == 139)
+        #expect(allPatterns.contains(.tschirnhausenCubic))
+    }
+    @Test func tschirnhausenCubicCyclableCount() {
+        let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
+        #expect(cyclable.count == 138)
+        #expect(cyclable.contains(.tschirnhausenCubic))
+    }
+    @Test func tschirnhausenCubicDiffersFromCornuSpiral() {
+        var gridTschirnhausen = GridModel(size: 16)
+        gridTschirnhausen.loadTschirnhausenCubic()
+        var gridCornu = GridModel(size: 16)
+        gridCornu.loadCornuSpiral()
+        #expect(gridTschirnhausen.aliveCount != gridCornu.aliveCount)
+    }
+    @Test func tschirnhausenCubicMultipleLayers() {
+        var grid = GridModel(size: 16)
+        grid.loadTschirnhausenCubic()
+        // Revolution should produce cells in multiple Y layers
+        var yLayers = Set<Int>()
+        for idx in grid.aliveCellIndices {
+            let y = (idx / 16) % 16
+            yLayers.insert(y)
+        }
+        #expect(yLayers.count >= 3)
+    }
+    @Test func tschirnhausenCubicSurvivesGeneration() {
+        var grid = GridModel(size: 16)
+        grid.loadTschirnhausenCubic()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount != initial || grid.aliveCount > 0)
+    }
+    @Test func tschirnhausenCubicClearAll() {
+        var grid = GridModel(size: 16)
+        grid.loadTschirnhausenCubic()
+        #expect(grid.aliveCount > 0)
+        grid.clearAll()
+        #expect(grid.aliveCount == 0)
+    }
+}
+
+// MARK: - Bornite Theme Tests
+
+@Suite("Bornite Theme Tests")
+struct BorniteThemeTests {
+    @Test func borniteThemeExists() {
+        let theme = ColorTheme.bornite
+        #expect(theme.name == "Bornite")
+    }
+    @Test func borniteThemeInAllThemes() {
+        #expect(ColorTheme.allThemes.count == 152)
+        #expect(ColorTheme.allThemes.contains { $0.name == "Bornite" })
+    }
+    @Test func borniteThemePurpleNewborn() {
+        let theme = ColorTheme.bornite
+        // Newborn is purple-blue: B > R > G
+        #expect(theme.newborn.baseColor.z > theme.newborn.baseColor.x)
+        #expect(theme.newborn.baseColor.x > theme.newborn.baseColor.y)
+    }
+    @Test func borniteThemeOpacityDecreases() {
+        let theme = ColorTheme.bornite
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+    @Test func borniteDistinctFromAmetrine() {
+        let bornite = ColorTheme.bornite
+        let ametrine = ColorTheme.ametrine
+        let rDiff = abs(bornite.newborn.baseColor.x - ametrine.newborn.baseColor.x)
+        let gDiff = abs(bornite.newborn.baseColor.y - ametrine.newborn.baseColor.y)
+        let bDiff = abs(bornite.newborn.baseColor.z - ametrine.newborn.baseColor.z)
+        #expect(rDiff + gDiff + bDiff > 0.05)
+    }
+}
