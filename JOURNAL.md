@@ -2,6 +2,14 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 140 (2026-04-01 07:25 PDT)
+
+**Goal**: Strontianite theme, 5 new tests.
+
+1. **Strontianite theme (136th)**: Pale yellow-green strontium carbonate mineral aesthetic — vivid pale yellow-green newborn cells (R 0.90, G 0.92, B 0.65) through medium olive-green young cells (R 0.70, G 0.72, B 0.45) to deep dark olive mature cells (R 0.48, G 0.50, B 0.28). G >= R > B across all tiers, evoking the distinctive pale yellow-green of natural strontianite — a strontium carbonate mineral (SrCO₃) first described in 1791 from specimens found in Strontian, a village in the Scottish Highlands that also gave the element strontium its name. Strontianite forms orthorhombic crystals with a vitreous to resinous luster, often found as pseudo-hexagonal twins. Important as a source of strontium, used in fireworks (produces a vivid red flame) and in refining sugar. Distinct from Chartreuse (more vivid yellow-green), Celadon (more gray-green), Peridot (more pure yellow-green), and Sage (more gray, muted). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 139 (2026-04-01 07:30 PDT)
 
 **Goal**: Grandidierite theme, 5 new tests.
