@@ -3844,6 +3844,36 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadCassiniSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Cassini surface: ((x-a)² + y² + z²)((x+a)² + y² + z²) = b⁴
+        // With a=0.7, b=1.0 this produces a peanut-shaped surface
+        let a: Float = 0.7
+        let b4: Float = 1.0  // b⁴ = 1.0
+        let threshold: Float = 0.25
+        let scale: Float = 1.8 / half
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let y2 = y * y, z2 = z * z
+                    let xma = x - a, xpa = x + a
+                    let d1 = xma * xma + y2 + z2
+                    let d2 = xpa * xpa + y2 + z2
+                    let value = d1 * d2 - b4
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

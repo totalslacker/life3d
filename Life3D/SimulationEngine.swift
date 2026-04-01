@@ -471,6 +471,8 @@ final class SimulationEngine {
             grid.loadBourMinimalSurface()
         case .barthSextic:
             grid.loadBarthSextic()
+        case .cassiniSurface:
+            grid.loadCassiniSurface()
         case .clear:
             grid.clearAll()
         }
@@ -571,6 +573,7 @@ final class SimulationEngine {
         case hyperboloid = "Hyperboloid"
         case bourMinimalSurface = "Bour's Minimal Surface"
         case barthSextic = "Barth Sextic"
+        case cassiniSurface = "Cassini Surface"
         case clear = "Clear"
 
         var id: String { rawValue }
