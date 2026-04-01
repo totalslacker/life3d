@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 129 (2026-04-01 03:49 PDT)
+
+**Goal**: Astroid pattern, Bloodstone theme, 15 new tests.
+
+1. **Astroid pattern (121st, 120th cyclable)**: A 4-cusped hypocycloid — the curve traced by a point on a circle of radius r rolling inside a fixed circle of radius 4r. Parametric form: x = R·cos³(t), y = R·sin³(t), producing the classic star-shaped curve with four inward-pointing cusps. The 2D profile is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry, four cusps at the equator that taper inward, and a smooth rounded body between cusps. Rasterized via dense parametric sampling of the hypocycloid profile at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Cardioid (1-cusped epicycloid, heart shape), Nephroid (2-cusped epicycloid, kidney shape), Rhodonea (multi-petaled rose curve, no cusps), and Sphere (no cusps, uniform curvature). 9 new tests.
+2. **Bloodstone theme (125th)**: Dark green jasper with red spots aesthetic — vivid red newborn cells (R 0.72, G 0.18, B 0.15) through medium dark green young cells (R 0.22, G 0.52, B 0.28) to deep dark green mature cells (R 0.12, G 0.32, B 0.16). Unique color shift: newborn R > G > B (red heliotrope spots), young/mature G > R > B (dark green chalcedony matrix). Evokes the distinctive appearance of natural bloodstone (heliotrope) — a dark green cryptocrystalline quartz (plasma) with characteristic red to orange spots of iron oxide (hematite) inclusions. Used since antiquity as a talisman and signet stone. Distinct from Jade (uniform green, no red), Malachite (banded green, no red), Aventurine (sparkly green, no red), and Jasper (varied, less specific green/red contrast). 6 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 121, `cyclable.count` to 120, `patterns.count` to 121, and `allThemes.count` to 125 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 128 (2026-04-01 03:42 PDT)
 
 **Goal**: Cardioid pattern, Sugilite theme, 15 new tests.
