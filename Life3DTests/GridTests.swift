@@ -9900,13 +9900,13 @@ struct FoliumOfDescartesPatternTests {
     }
     @Test func foliumOfDescartesPatternInAllCases() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 129)
+        #expect(allPatterns.count == 130)
         #expect(allPatterns.contains(.foliumOfDescartes))
     }
     @Test func foliumOfDescartesCyclable() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
         #expect(cyclable.contains(.foliumOfDescartes))
-        #expect(cyclable.count == 128)
+        #expect(cyclable.count == 129)
     }
     @Test func foliumOfDescartesDistinctFromCycloid() {
         var gridA = GridModel(size: 16)
@@ -9931,7 +9931,7 @@ struct SphaleritThemeTests {
         #expect(theme.name == "Sphalerite")
     }
     @Test func sphaleritThemeInAllThemes() {
-        #expect(ColorTheme.allThemes.count == 133)
+        #expect(ColorTheme.allThemes.count == 134)
         #expect(ColorTheme.allThemes.contains { $0.name == "Sphalerite" })
     }
     @Test func sphaleritThemeHoneyAmberDominant() {
@@ -9952,6 +9952,103 @@ struct SphaleritThemeTests {
         let rDiff = abs(sphalerite.newborn.baseColor.x - amber.newborn.baseColor.x)
         let gDiff = abs(sphalerite.newborn.baseColor.y - amber.newborn.baseColor.y)
         let bDiff = abs(sphalerite.newborn.baseColor.z - amber.newborn.baseColor.z)
+        #expect(rDiff + gDiff + bDiff > 0.05)
+    }
+}
+
+// MARK: - Cissoid of Diocles Pattern Tests
+
+@Suite("Cissoid of Diocles Pattern Tests")
+struct CissoidPatternTests {
+    @Test func cissoidPatternExists() {
+        let pattern = SimulationEngine.Pattern.cissoid
+        #expect(pattern.rawValue == "Cissoid of Diocles")
+    }
+    @Test func cissoidPatternIsCyclable() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        let cyclable = allPatterns.filter { $0 != .clear }
+        #expect(cyclable.contains(.cissoid))
+    }
+    @Test func cissoidPatternLoadsCells() {
+        var grid = GridModel(size: 16)
+        grid.loadCissoid()
+        #expect(grid.aliveCount > 0)
+    }
+    @Test func cissoidPatternSymmetry() {
+        var grid = GridModel(size: 16)
+        grid.loadCissoid()
+        #expect(grid.aliveCount > 50)
+    }
+    @Test func cissoidPatternClearsBeforeLoad() {
+        var grid = GridModel(size: 16)
+        grid.randomSeed()
+        let beforeCount = grid.aliveCount
+        grid.loadCissoid()
+        #expect(grid.aliveCount != beforeCount || grid.aliveCount > 0)
+    }
+    @Test func cissoidPatternDifferentSizes() {
+        var grid8 = GridModel(size: 8)
+        grid8.loadCissoid()
+        var grid16 = GridModel(size: 16)
+        grid16.loadCissoid()
+        #expect(grid16.aliveCount > grid8.aliveCount)
+    }
+    @Test func cissoidPatternDistinctFromWitchOfAgnesi() {
+        var gridA = GridModel(size: 16)
+        gridA.loadCissoid()
+        var gridB = GridModel(size: 16)
+        gridB.loadWitchOfAgnesi()
+        #expect(gridA.aliveCount != gridB.aliveCount)
+    }
+    @Test func cissoidPatternDistinctFromInvolute() {
+        var gridA = GridModel(size: 16)
+        gridA.loadCissoid()
+        var gridB = GridModel(size: 16)
+        gridB.loadInvolute()
+        #expect(gridA.aliveCount != gridB.aliveCount)
+    }
+    @Test func cissoidPatternAliveIndicesConsistent() {
+        var grid = GridModel(size: 16)
+        grid.loadCissoid()
+        #expect(grid.aliveCellIndices.count == grid.aliveCount)
+    }
+    @Test func cissoidPatternInAllCases() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.count == 130)
+        #expect(allPatterns.contains(.cissoid))
+    }
+}
+
+// MARK: - Staurolite Theme Tests
+
+@Suite("Staurolite Theme Tests")
+struct StauroliteThemeTests {
+    @Test func stauroliteThemeExists() {
+        let theme = ColorTheme.staurolite
+        #expect(theme.name == "Staurolite")
+    }
+    @Test func stauroliteThemeInAllThemes() {
+        #expect(ColorTheme.allThemes.count == 134)
+        #expect(ColorTheme.allThemes.contains { $0.name == "Staurolite" })
+    }
+    @Test func stauroliteThemeBrownDominant() {
+        let theme = ColorTheme.staurolite
+        // R > G > B for warm brown
+        #expect(theme.newborn.baseColor.x > theme.newborn.baseColor.y)
+        #expect(theme.newborn.baseColor.y > theme.newborn.baseColor.z)
+    }
+    @Test func stauroliteThemeOpacityDecreases() {
+        let theme = ColorTheme.staurolite
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+    @Test func stauroliteDistinctFromAndalusite() {
+        let staurolite = ColorTheme.staurolite
+        let andalusite = ColorTheme.andalusite
+        let rDiff = abs(staurolite.newborn.baseColor.x - andalusite.newborn.baseColor.x)
+        let gDiff = abs(staurolite.newborn.baseColor.y - andalusite.newborn.baseColor.y)
+        let bDiff = abs(staurolite.newborn.baseColor.z - andalusite.newborn.baseColor.z)
         #expect(rDiff + gDiff + bDiff > 0.05)
     }
 }

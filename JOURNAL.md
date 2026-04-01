@@ -2,6 +2,13 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 138 (2026-04-01 07:20 PDT)
+
+**Goal**: Cissoid of Diocles pattern, Staurolite theme, 15 new tests.
+
+1. **Cissoid of Diocles pattern (130th, 129th cyclable)**: The Cissoid of Diocles — a cubic curve discovered by Diocles around 180 BC for solving the classical problem of doubling the cube (the Delian problem). Parametric form: x = 2a·sin²(t), y = 2a·sin³(t)/cos(t), where the curve has a cusp at the origin and an asymptote at x = 2a. The name comes from Greek "kissos" (ivy) for the curve's ivy-leaf shape. Newton showed that all cubic curves can be generated from the cissoid by projection. The 2D profile (t from -0.45π to 0.45π) is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry — a horn-like cusp form. Rasterized via dense parametric sampling at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Witch of Agnesi (bell-shaped, no cusp), Involute (spiral, no cusp), Cardioid (heart-shaped, 1 cusp), and Cycloid (arch-shaped, cusps at base). 10 new tests.
+2. **Staurolite theme (134th)**: Warm brown iron aluminum silicate mineral aesthetic — vivid warm brown newborn cells (R 0.72, G 0.48, B 0.28) through medium dark brown young cells (R 0.52, G 0.34, B 0.18) to deep dark brown mature cells (R 0.34, G 0.22, B 0.12). R > G > B across all tiers, evoking the distinctive warm reddish-brown of natural staurolite — an iron aluminum silicate hydroxide (Fe²⁺₂Al₉O₆(SiO₄)₄(O,OH)₂) famous for its distinctive cruciform twins that form natural cross shapes at 60° or 90° angles. The name derives from Greek "stauros" (cross) and "lithos" (stone). Known as "fairy crosses" or "fairy stones" in Appalachian folklore, these natural cross-shaped crystals were carried as protective talismans. Found primarily in metamorphic rocks. Distinct from Andalusite (more pink-toned), Sienna (more orange), Umber (more grey-brown), and Bronze (more metallic). 5 new tests.
+
 ## Day 16 — Session 137 (2026-04-01 07:15 PDT)
 
 **Goal**: Folium of Descartes pattern, Sphalerite theme, 15 new tests.

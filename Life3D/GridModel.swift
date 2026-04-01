@@ -5964,6 +5964,64 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadCissoid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.85
+        let profileSamples = 720
+        let revolutionSteps = 180
+
+        // Cissoid of Diocles: y² = x³ / (2a - x)
+        // Parametric form: x = 2a·sin²(t), y = 2a·sin³(t)/cos(t)
+        // a controls scale; using a = 1.0
+        let a: Float = 1.0
+
+        for rs in 0..<revolutionSteps {
+            let phi = Float(rs) / Float(revolutionSteps) * 2.0 * Float.pi
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for ps in 0..<profileSamples {
+                let t = Float(ps) / Float(profileSamples) * Float.pi * 0.9 - Float.pi * 0.45
+                let cosT = cos(t)
+                guard abs(cosT) > 0.01 else { continue }
+                let sinT = sin(t)
+                let px = 2.0 * a * sinT * sinT
+                let py = 2.0 * a * sinT * sinT * sinT / cosT
+                let sx = px * scale / (2.0 * a)
+                let sy = py * scale / (3.0 * a)
+                // Revolve around Y axis
+                let wx = sx * cosPhi + half
+                let wy = sy + half
+                let wz = sx * sinPhi + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
