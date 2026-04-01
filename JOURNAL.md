@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+
+## Day 15 — Session 119 (2026-03-31 23:45 PDT)
+
+**Goal**: Hopf Link pattern, Azurite theme, 11 new tests.
+
+1. **Hopf Link pattern (99th, 98th cyclable)**: Two linked tori — the simplest non-trivial topological link in knot theory. One torus lies in the XY plane, the other in the XZ plane offset along X so it passes through the hole of the first. Uses implicit torus distance fields: for each torus, compute (√(x²+y²) - R)² + z² and activate cells within the tube radius threshold. The two rings are geometrically interlocked and cannot be separated without cutting — the defining property of a Hopf link. Visually distinct from Torus (single ring), Torus Knot (single knotted curve on a torus), Trefoil Knot (single overhand knot), and Clifford Torus (flat torus in 4D). 6 new tests.
+2. **Azurite theme (103rd)**: Deep blue copper carbonate mineral aesthetic — vivid azurite newborn cells (R 0.08, G 0.30, B 0.92) through medium dark navy young cells to deep dark blue mature cells fading to near-black. B >> G >> R across all tiers, evoking the distinctive intense deep blue of polished azurite (Cu₃(CO₃)₂(OH)₂), a secondary copper mineral often found alongside malachite. Distinct from Sapphire (purer blue, less green-shifted), Sodalite (more purple-shifted royal blue), Lapis Lazuli (gold-flecked deep blue), Cobalt (more metallic), and Indigo (more purple). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 118 (2026-03-31 23:38 PDT)
 
 **Goal**: Bretzel Surface pattern, Eight Surface pattern, Chalcedony theme, Beryl theme, 11 new tests.

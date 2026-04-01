@@ -4595,6 +4595,38 @@ mutating func loadTesseract() {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadHopfLink() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale = Float(n) * 0.35
+        let R: Float = 0.55  // Major radius of each torus
+        let r: Float = 0.15  // Tube radius
+        let thickness: Float = 1.2
+        // Torus 1: in the XY plane, centered at origin
+        // Torus 2: in the XZ plane, offset along X by R (linked through torus 1)
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let fx = (Float(x) - half) / scale
+                    let fy = (Float(y) - half) / scale
+                    let fz = (Float(z) - half) / scale
+                    // Torus 1: major circle in XY plane
+                    let d1xy = sqrtf(fx * fx + fy * fy) - R
+                    let dist1 = sqrtf(d1xy * d1xy + fz * fz)
+                    // Torus 2: major circle in XZ plane, offset by R along X
+                    let ox = fx - R
+                    let d2xz = sqrtf(ox * ox + fz * fz) - R
+                    let dist2 = sqrtf(d2xz * d2xz + fy * fy)
+                    if dist1 < r * thickness || dist2 < r * thickness {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
