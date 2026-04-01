@@ -508,6 +508,8 @@ final class SimulationEngine {
             grid.loadIWPSurface()
         case .calabiYau:
             grid.loadCalabiYau()
+        case .sphericalHarmonics:
+            grid.loadSphericalHarmonics()
         case .clear:
             grid.clearAll()
         }
@@ -627,6 +629,7 @@ final class SimulationEngine {
         case piriformSurface = "Piriform Surface"
         case iwpSurface = "IWP Surface"
         case calabiYau = "Calabi-Yau Surface"
+        case sphericalHarmonics = "Spherical Harmonics"
         case clear = "Clear"
 
         var id: String { rawValue }

@@ -4415,6 +4415,37 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadSphericalHarmonics() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let rMax = half * 0.85
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = Float(ix) - half + 0.5
+                    let y = Float(iy) - half + 0.5
+                    let z = Float(iz) - half + 0.5
+                    let rSq = x * x + y * y + z * z
+                    if rSq < 1.0 { continue }
+                    let r = sqrtf(rSq)
+                    let cosTheta = z / r
+                    let sinTheta = sqrtf(max(0, 1 - cosTheta * cosTheta))
+                    let phi = atan2f(y, x)
+                    let sin3 = sinTheta * sinTheta * sinTheta
+                    let angular = sin3 * cosf(3 * phi) * (7 * cosTheta * cosTheta - 1)
+                    let shapeFn = abs(angular)
+                    let targetR = rMax * shapeFn
+                    let delta = abs(r - targetR)
+                    if delta < 1.2 && targetR > 1.5 {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
