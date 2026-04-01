@@ -2,6 +2,14 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 127 (2026-04-01 03:21 PDT)
+
+**Goal**: Nephroid pattern, Dumortierite theme, 14 new tests.
+
+1. **Nephroid pattern (116th, 115th cyclable)**: A 2-cusped epicycloid surface of revolution — the curve traced by a point on a circle of radius r rolling around the outside of a fixed circle of radius 2r, creating a kidney-shaped profile (Greek: nephros = kidney). Parametric form: x(t) = 3r·cos(t) - r·cos(3t), y(t) = 3r·sin(t) - r·sin(3t). The profile curve is revolved around the Y axis to create a 3D surface with rotational symmetry. Rasterized via dense point sampling of the revolution surface with nearest-distance activation within a tube thickness threshold. Visually distinct from Sphere (solid shell), Torus (single ring), Heart Surface (cardioid-like), and Seashell (spiral). 8 new tests.
+2. **Dumortierite theme (119th)**: Deep violet-blue aluminum borosilicate mineral aesthetic — vivid violet-blue newborn cells (R 0.28, G 0.32, B 0.82) through medium dark navy young cells (R 0.18, G 0.22, B 0.62) to deep dark blue mature cells (R 0.10, G 0.14, B 0.40). B > R ≈ G across all tiers, evoking the distinctive deep blue-violet of natural dumortierite (named after French paleontologist Eugène Dumortier). Distinct from Sapphire (purer blue, higher R), Sodalite (more balanced G/R), Iolite (more violet, higher R), and Kyanite (blade-like blue, higher G). 6 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count == 115` to `== 116` and `allThemes.count == 118` to `== 119` across the test suite.
+
 ## Day 16 — Session 126 (2026-04-01 03:22 PDT)
 
 **Goal**: Buckyball pattern, Celestite theme, 14 new tests.
