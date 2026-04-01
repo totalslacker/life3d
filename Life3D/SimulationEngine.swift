@@ -538,6 +538,8 @@ final class SimulationEngine {
             grid.loadSuperellipsoid()
         case .whiteheadLink:
             grid.loadWhiteheadLink()
+        case .loxodrome:
+            grid.loadLoxodrome()
         case .clear:
             grid.clearAll()
         }
@@ -672,6 +674,7 @@ final class SimulationEngine {
         case solomonsKnot = "Solomon's Knot"
         case superellipsoid = "Superellipsoid"
         case whiteheadLink = "Whitehead Link"
+        case loxodrome = "Loxodrome"
         case clear = "Clear"
 
         var id: String { rawValue }
