@@ -2,6 +2,14 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 113 (2026-03-31 22:37 PDT)
+
+**Goal**: Piriform Surface pattern, Rhodochrosite theme, 11 new tests.
+
+1. **Piriform Surface pattern (92nd, 91st cyclable)**: A quartic algebraic surface defined by y² + z² = x³(4 - x), producing a distinctive pear/teardrop shape. The equation creates a smooth, asymmetric form that rounds out at one end and tapers to a point at the other — rotationally symmetric about the x-axis. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the quartic equation at each cell, and activates cells where |value| < threshold. Visually distinct from Heart Surface (cleft at top, symmetric lobes), Ding-Dong Surface (bell with singular pinch), and Sphere (symmetric, no taper). 6 new tests.
+2. **Rhodochrosite theme (96th)**: Rose-pink manganese carbonate mineral aesthetic — vivid rhodochrosite newborn cells (R 0.92, G 0.45, B 0.55) through medium dark rose young cells to deep wine-pink mature cells fading to near-black. R > B > G across all tiers, evoking the distinctive banded rose-pink of polished rhodochrosite. Distinct from Rhodonite (more blue-shifted pink, manganese silicate), Sakura (paler cherry blossom), Coral (more orange), and Crimson (pure red). 5 new tests.
+
+---
 ## Day 15 — Session 112 (2026-03-31 22:30 PDT)
 
 **Goal**: Lidinoid pattern, Sodalite theme, 11 new tests.
