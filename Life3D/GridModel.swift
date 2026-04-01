@@ -4213,6 +4213,30 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadNeoviusSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Scale so ~1.5 periods fit in the grid
+        let scale: Float = (3.0 * .pi) / half
+        let threshold: Float = 0.6
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let cx = cos(x), cy = cos(y), cz = cos(z)
+                    let value = 3.0 * (cx + cy + cz) + 4.0 * cx * cy * cz
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
