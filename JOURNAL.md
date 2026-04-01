@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 147 (2026-04-01 08:15 PDT)
+
+**Goal**: Trident of Newton pattern, Zoisite theme, 15 new tests.
+
+1. **Trident of Newton pattern (133rd, 132nd cyclable)**: Newton's trident curve — a cubic curve of the form xy = ax³ + bx² + cx + d, studied by Isaac Newton in his classification of cubic curves in *Enumeratio Linearum Tertii Ordinis* (1704). Using a = 1, b = 0, c = -1, d = 0 for a clean three-pronged profile (y = t² - 1). The 2D profile is revolved around the Y axis for a 3D solid of revolution. Visually distinct from Conchoid (asymptotic, different curvature), Strophoid (self-intersecting loop), Cissoid (cusp at origin), and Folium of Descartes (leaf-shaped). 10 new tests.
+2. **Zoisite theme (143rd)**: Blue-violet calcium aluminum silicate aesthetic — vivid blue-violet newborn cells (R 0.48, G 0.32, B 0.72) through medium dark purple young cells (R 0.35, G 0.22, B 0.55) to deep dark violet mature cells (R 0.24, G 0.14, B 0.40). B > R > G across all tiers, evoking the distinctive blue-violet of natural zoisite — a calcium aluminum hydroxy sorosilicate (Ca₂Al₃(SiO₄)(Si₂O₇)O(OH)) first described in 1805 and named after Slovenian naturalist Baron Sigmund Zois von Edelstein. The gem variety tanzanite (blue-violet zoisite from Tanzania) is one of the most prized colored gemstones. Distinct from Tanzanite (more saturated blue), Charoite (more lilac-purple), Amethyst (more red-purple), and Sugilite (more manganese-pink). 5 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 133, `cyclable.count` to 132, and `allThemes.count` to 143 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 146 (2026-04-01 07:45 PDT)
 
 **Goal**: Epidote theme, 5 new tests.

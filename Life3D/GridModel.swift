@@ -6139,6 +6139,63 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Trident of Newton: y = ax³ + bx² + cx + d, a cubic curve studied by Newton
+    /// The "trident" name comes from its three-pronged profile when graphed.
+    /// 2D profile revolved around Y axis for 3D solid of revolution.
+    mutating func loadTridentOfNewton() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.75
+        let profileSamples = 720
+        let revolutionSteps = 180
+
+        // Newton's trident: xy = ax³ + bx² + cx + d
+        // Parametric: x = t, y = (at³ + bt² + ct + d) / t
+        // Using a = 1, b = 0, c = -1, d = 0 for a clean trident shape
+        for rs in 0..<revolutionSteps {
+            let phi = Float(rs) / Float(revolutionSteps) * 2.0 * Float.pi
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for ps in 0..<profileSamples {
+                let t = Float(ps) / Float(profileSamples) * 3.0 - 1.5
+                guard abs(t) > 0.05 else { continue }
+                let px = t
+                let py = (t * t * t - t) / t  // t² - 1
+                let sx = px * scale / 1.5
+                let sy = py * scale / 1.5
+                // Revolve around Y axis
+                let wx = sx * cosPhi + half
+                let wy = sy + half
+                let wz = sx * sinPhi + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

@@ -580,6 +580,8 @@ final class SimulationEngine {
             grid.loadStrophoid()
         case .conchoid:
             grid.loadConchoid()
+        case .tridentOfNewton:
+            grid.loadTridentOfNewton()
         case .clear:
             grid.clearAll()
         }
@@ -735,6 +737,7 @@ final class SimulationEngine {
         case cissoid = "Cissoid of Diocles"
         case strophoid = "Strophoid"
         case conchoid = "Conchoid of Nicomedes"
+        case tridentOfNewton = "Trident of Newton"
         case clear = "Clear"
 
         var id: String { rawValue }
