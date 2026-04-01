@@ -1952,7 +1952,27 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveIntensity: 0.4, opacity: 0.10)
     )
 
-    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze, .ivory, .pearl, .graphite, .slate, .cobalt, .vermilion, .indigo, .mahogany, .burgundy, .teal, .chartreuse, .saffron, .moss, .cerulean, .mauve, .marigold, .sage, .ochre, .umber, .sienna, .viridian, .pewter, .celadon, .turquoise, .denim, .apricot, .plum, .wisteria, .rosewood, .patina, .carnelian, .malachite, .alexandrite, .tanzanite, .citrine, .topaz, .fluorite, .sunstone, .rhodonite, .lapisLazuli, .zircon, .onyx, .tourmaline, .larimar, .jasper, .labradorite, .amazonite]
+    static let amber = ColorTheme(
+        name: "Amber",
+        newborn: TierColors(
+            baseColor: SIMD4(0.90, 0.65, 0.10, 1.0),
+            emissiveColor: SIMD3(0.90, 0.65, 0.10),
+            emissiveIntensity: 2.1, opacity: 0.55),
+        young: TierColors(
+            baseColor: SIMD4(0.68, 0.42, 0.08, 1.0),
+            emissiveColor: SIMD3(0.60, 0.38, 0.06),
+            emissiveIntensity: 1.1, opacity: 0.35),
+        mature: TierColors(
+            baseColor: SIMD4(0.42, 0.24, 0.05, 1.0),
+            emissiveColor: SIMD3(0.32, 0.18, 0.04),
+            emissiveIntensity: 0.40, opacity: 0.18),
+        dying: TierColors(
+            baseColor: SIMD4(0.18, 0.10, 0.02, 1.0),
+            emissiveColor: SIMD3(0.10, 0.05, 0.01),
+            emissiveIntensity: 0.08, opacity: 0.03)
+    )
+
+    static let allThemes: [ColorTheme] = [.neon, .warmAmber, .oceanBlues, .aurora, .monochrome, .infrared, .bioluminescence, .sakura, .ember, .nebula, .glacier, .coral, .forest, .sunset, .twilight, .jade, .crimson, .amethyst, .copper, .gold, .midnight, .volcanic, .plasma, .frost, .arctic, .solar, .toxic, .starfield, .hologram, .cyberpunk, .vaporwave, .synthwave, .terracotta, .lavender, .matrix, .champagne, .opal, .roseGold, .peridot, .sapphire, .obsidian, .ruby, .titanium, .garnet, .emerald, .tungsten, .aquamarine, .bronze, .ivory, .pearl, .graphite, .slate, .cobalt, .vermilion, .indigo, .mahogany, .burgundy, .teal, .chartreuse, .saffron, .moss, .cerulean, .mauve, .marigold, .sage, .ochre, .umber, .sienna, .viridian, .pewter, .celadon, .turquoise, .denim, .apricot, .plum, .wisteria, .rosewood, .patina, .carnelian, .malachite, .alexandrite, .tanzanite, .citrine, .topaz, .fluorite, .sunstone, .rhodonite, .lapisLazuli, .zircon, .onyx, .tourmaline, .larimar, .jasper, .labradorite, .amazonite, .amber]
 }
 
 enum GridRenderer {

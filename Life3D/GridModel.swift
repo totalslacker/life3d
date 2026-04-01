@@ -4291,6 +4291,36 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadEnriquesSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Enriques surface approximation via a degree-6 implicit equation
+        // inspired by the classical algebraic surface. Uses a combination
+        // of symmetric quartic and sextic terms to produce a surface with
+        // intricate self-intersecting lobes and octahedral symmetry.
+        // F(x,y,z) = x²y² + y²z² + z²x² - x²y²z² - 0.5 = 0
+        let scale: Float = 3.0 / half
+        let threshold: Float = 0.15
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let x2 = x * x
+                    let y2 = y * y
+                    let z2 = z * z
+                    let value = x2 * y2 + y2 * z2 + z2 * x2 - x2 * y2 * z2 - 0.5
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

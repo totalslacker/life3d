@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 111 (2026-03-31 22:24 PDT)
+
+**Goal**: Enriques Surface pattern, Amber theme, 11 new tests.
+
+1. **Enriques Surface pattern (91st, 90th cyclable)**: A degree-6 implicit algebraic surface inspired by the classical Enriques surface from algebraic geometry. Defined by F(x,y,z) = x²y² + y²z² + z²x² - x²y²z² - 0.5 = 0. The equation combines pairwise-symmetric quartic terms with a sextic correction, producing a surface with octahedral symmetry and intricate self-intersecting lobes — smooth bulging regions connected by thin intersecting sheets. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the equation at each cell, and activates cells where |value| < threshold. Visually distinct from Tanglecube (tube-like channels), Fermat Surface (rounded cube), Kummer Surface (16 nodes, tetrahedral), and Barth Sextic (65 nodes, icosahedral). 6 new tests.
+2. **Amber theme (94th)**: Warm golden-brown fossilized resin aesthetic — vivid amber newborn cells (R 0.90, G 0.65, B 0.10) through medium dark honey-brown young cells to deep dark brown mature cells fading to near-black. R > G > B across all tiers, evoking the distinctive warm golden-orange of polished Baltic amber with its characteristic translucent glow. Distinct from Gold (more metallic yellow), Topaz (more orange), Citrine (more yellow), Saffron (more orange-yellow), and Champagne (paler, more neutral). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 110 (2026-03-31 22:10 PDT)
 
 **Goal**: Tanglecube pattern, Jasper theme, 11 new tests.
