@@ -4772,6 +4772,29 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadSuperellipsoid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 2.6 / Float(n)
+        let exponent: Float = 0.6
+        let threshold: Float = 0.12
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let fx = (Float(x) - half) * scale
+                    let fy = (Float(y) - half) * scale
+                    let fz = (Float(z) - half) * scale
+                    let value = powf(abs(fx), exponent) + powf(abs(fy), exponent) + powf(abs(fz), exponent)
+                    if abs(value - 1.0) < threshold {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func loadSolomonsKnot() {
         clearAll()
         let n = size
