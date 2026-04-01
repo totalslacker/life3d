@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 132 (2026-04-01 04:19 PDT)
+
+**Goal**: Epitrochoid pattern, Lepidolite theme, 15 new tests.
+
+1. **Epitrochoid pattern (124th, 123rd cyclable)**: A roulette curve traced by a point on a circle rolling around the outside of a fixed circle — the generalization of the epicycloid used in Spirograph toys. Parametric form: x = (R+r)·cos(t) - d·cos((R+r)/r · t), y = (R+r)·sin(t) - d·sin((R+r)/r · t), with R=3, r=1, d=0.5 producing a 3-lobed spirograph pattern where the tracing point is offset from the rolling circle's center (d ≠ r). When d = r, the epitrochoid degenerates to an epicycloid; when d < r (as here), the curve never crosses itself and has rounded lobes instead of sharp cusps. The 2D profile is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry. Rasterized via dense parametric sampling at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Limaçon (polar curve with inner loop), Cardioid (1-cusped epicycloid), Nephroid (2-cusped epicycloid), and Rhodonea (rose curve with petals). 9 new tests.
+2. **Lepidolite theme (128th)**: Lilac-purple lithium mica mineral aesthetic — vivid lilac-purple newborn cells (R 0.72, G 0.52, B 0.82) through medium dark violet young cells (R 0.52, G 0.35, B 0.62) to deep dark purple mature cells (R 0.34, G 0.22, B 0.42). B > R > G across all tiers, evoking the distinctive lilac to rose-violet color of natural lepidolite — a lithium-bearing mica mineral (K(Li,Al)₃(Al,Si,Rb)₄O₁₀(F,OH)₂) that is the most abundant lithium-bearing mineral on Earth. Named from the Greek "lepidos" (scale) for its scaly appearance. Prized by collectors for its soft lavender-pink to purple hues. Distinct from Amethyst (lighter, more blue-violet), Sugilite (more vivid purple, higher B), Charoite (more red-shifted purple), and Plum (darker, more muted). 6 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 124, `cyclable.count` to 123, `patterns.count` to 124, and `allThemes.count` to 128 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 131 (2026-04-01 04:03 PDT)
 
 **Goal**: Limaçon pattern, Moldavite theme, 15 new tests.
