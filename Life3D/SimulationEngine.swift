@@ -506,6 +506,8 @@ final class SimulationEngine {
             grid.loadPiriformSurface()
         case .iwpSurface:
             grid.loadIWPSurface()
+        case .calabiYau:
+            grid.loadCalabiYau()
         case .clear:
             grid.clearAll()
         }
@@ -624,6 +626,7 @@ final class SimulationEngine {
         case lidinoid = "Lidinoid"
         case piriformSurface = "Piriform Surface"
         case iwpSurface = "IWP Surface"
+        case calabiYau = "Calabi-Yau Surface"
         case clear = "Clear"
 
         var id: String { rawValue }
