@@ -5790,6 +5790,65 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Involute of a circle — the curve traced by a point on a taut string
+    /// unwinding from a circle of radius a. Parametric: x = a*(cos(t) + t*sin(t)),
+    /// y = a*(sin(t) - t*cos(t)). The curve spirals outward with increasing curvature
+    /// radius, producing the tooth profile shape used in gear design. The 2D profile
+    /// is revolved around the Y axis to create a 3D solid of revolution.
+    mutating func loadInvolute() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.22
+        let profileSamples = 720
+        let revolutionSteps = 180
+
+        // Involute of a circle: x = a*(cos(t) + t*sin(t)), y = a*(sin(t) - t*cos(t))
+        // a = circle radius, t = unwinding angle
+        // Using t from 0 to 3π for ~1.5 turns of unwinding
+        let a: Float = 1.0
+        let maxT: Float = 3.0 * Float.pi
+
+        for rs in 0..<revolutionSteps {
+            let phi = Float(rs) / Float(revolutionSteps) * 2.0 * Float.pi
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for ps in 0..<profileSamples {
+                let t = Float(ps) / Float(profileSamples) * maxT
+                let px = scale * a * (cos(t) + t * sin(t))
+                let py = scale * a * (sin(t) - t * cos(t))
+                // Revolve around Y axis
+                let wx = px * cosPhi + half
+                let wy = py + half
+                let wz = px * sinPhi + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

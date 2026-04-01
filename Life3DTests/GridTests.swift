@@ -679,9 +679,9 @@ struct AliveMapResetRegressionTests {
     @Test("Pattern count matches cyclable patterns")
     func patternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 125)
+        #expect(cyclable.count == 126)
     }
 }
 
@@ -737,14 +737,14 @@ struct PatternCountSession61Tests {
     @Test("Total pattern count is 28 (27 + clear)")
     func totalPatternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
     @Test("Cyclable patterns is 27 (excludes clear)")
     func cyclablePatternCount() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
-        #expect(cyclable.count == 125)
-        #expect(cyclable.count == 125)
-        #expect(cyclable.count == 125)
+        #expect(cyclable.count == 126)
+        #expect(cyclable.count == 126)
+        #expect(cyclable.count == 126)
     }
 }
 
@@ -880,7 +880,7 @@ struct MobiusStripPatternTests {
     @Test("Pattern count is 29 after Möbius Strip addition")
     func patternCount29() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -967,7 +967,7 @@ struct LissajousCurvePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount30() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -1144,7 +1144,7 @@ struct GyroidPatternTests {
     @Test("Pattern count is 34 after Gyroid addition")
     func patternCount33() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -1231,7 +1231,7 @@ struct LorenzAttractorPatternTests {
     @Test("Pattern count is 34 after Lorenz Attractor addition")
     func patternCount34() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -1318,7 +1318,7 @@ struct HilbertCurvePatternTests {
     @Test("Pattern count is 35 after Hilbert Curve addition")
     func patternCount35() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -1445,7 +1445,7 @@ struct SierpinskiTetrahedronPatternTests {
     @Test("Pattern count is 36 after Sierpinski Tetrahedron addition")
     func patternCount36() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -1652,7 +1652,7 @@ struct DragonCurvePatternTests {
     @Test("Pattern count is 37 after Dragon Curve and Catenoid additions")
     func patternCount37() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -1696,7 +1696,7 @@ struct CatenoidPatternTests {
     @Test("Pattern count is 37 after Catenoid addition")
     func patternCount37() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -1821,7 +1821,7 @@ struct KochSnowflakePatternTests {
     @Test("Pattern count is 39 after Koch Snowflake addition")
     func patternCount39() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -1905,7 +1905,7 @@ struct ApollonianGasketPatternTests {
     @Test("Pattern count is 39 after Apollonian Gasket addition")
     func patternCount39() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -2029,7 +2029,7 @@ struct TorusKnotPatternTests {
     @Test("Pattern count is 40 after Torus Knot addition")
     func patternCount40() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -2113,7 +2113,7 @@ struct ReuleauxTetrahedronPatternTests {
     @Test("Pattern count is 41 after Reuleaux Tetrahedron addition")
     func patternCount41() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -2204,7 +2204,7 @@ struct MandelbulbPatternTests {
     @Test("Pattern count is 42 after Mandelbulb addition")
     func patternCount42() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -2255,7 +2255,7 @@ struct CantorDustPatternTests {
     @Test("Pattern count is 44 after Cantor Dust addition")
     func patternCount44() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -2341,7 +2341,7 @@ struct BarnsleyFernPatternTests {
     @Test("Pattern count is 45 after Barnsley Fern addition")
     func patternCount45() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 }
 
@@ -2434,9 +2434,9 @@ struct VicsekFractalPatternTests {
     @Test("Pattern count is 58")
     func patternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 125)
+        #expect(cyclable.count == 126)
     }
 }
 
@@ -3303,9 +3303,9 @@ struct ScherkSurfacePatternTests {
 
     @Test func patternCount58() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 125)
+        #expect(cyclable.count == 126)
     }
 }
 
@@ -3948,9 +3948,9 @@ struct SeashellPatternTests {
 
     @Test func patternCount64s() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
         let cyclable = allPatterns.filter { $0 != .clear }
-        #expect(cyclable.count == 125)
+        #expect(cyclable.count == 126)
     }
 }
 
@@ -5603,7 +5603,7 @@ struct CitrineThemeTests {
     @Test func heartSurfacePatternExists() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .heartSurface })
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
 
     @Test func heartSurfaceLoadsNonEmpty() {
@@ -6592,10 +6592,10 @@ struct EnriquesSurfacePatternTests {
     @Test func enriquesSurfacePatternExists() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .enriquesSurface })
-        #expect(allPatterns.count == 126)
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
+        #expect(allPatterns.count == 127)
     }
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     @Test func enriquesSurfaceLoadsNonEmpty() {
         var grid = GridModel(size: 16)
         grid.loadEnriquesSurface()
@@ -6758,7 +6758,7 @@ struct IWPSurfacePatternTests {
         grid.loadIWPSurface()
     @Test func iwpSurfaceInPatternEnum() {
         #expect(allPatterns.contains { $0 == .iwpSurface })
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     @Test func iwpSurfaceDisplayName() {
         #expect(SimulationEngine.Pattern.iwpSurface.rawValue == "IWP Surface")
     @Test func iwpSurfaceSurvivesOneGeneration() {
@@ -6981,7 +6981,7 @@ struct TesseractPatternTests {
     @Test func tesseractInPatternEnum() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .tesseract })
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
     @Test func tesseractDisplayName() {
         #expect(SimulationEngine.Pattern.tesseract.rawValue == "Tesseract")
@@ -7099,7 +7099,7 @@ struct BretzelSurfaceTests {
     @Test func bretzelSurfaceInAllPatterns() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .bretzelSurface })
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
     @Test func bretzelSurfaceDisplayName() {
         #expect(SimulationEngine.Pattern.bretzelSurface.rawValue == "Bretzel Surface")
@@ -7435,7 +7435,7 @@ struct KyaniteThemeTests {
     @Test func pillowSurfaceInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.pillowSurface))
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 
     // MARK: - Agate Theme Tests
@@ -7517,7 +7517,7 @@ struct BorromeanRingsPatternTests {
     @Test func borromeanRingsInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.borromeanRings))
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 }
 // MARK: - Ammolite Theme Tests
@@ -7702,7 +7702,7 @@ struct LemniscateTests {
     @Test func conchospiralInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.conchospiral))
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 
     // MARK: - Petrified Wood Theme Tests
@@ -7855,7 +7855,7 @@ struct SolomonsKnotPatternTests {
     @Test func solomonsKnotInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.solomonsKnot))
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 }
 // MARK: - Chrysoprase Theme Tests
@@ -7941,7 +7941,7 @@ struct SuperellipsoidPatternTests {
     @Test func superellipsoidInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.superellipsoid))
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 }
 // MARK: - Charoite Theme Tests
@@ -8042,7 +8042,7 @@ struct WhiteheadLinkTests {
     }
     @Test func whiteheadLinkPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 }
 // MARK: - Iolite Theme Tests
@@ -8139,7 +8139,7 @@ struct CatenarySurfacePatternTests {
     }
     @Test func catenarySurfacePatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 }
 // MARK: - Aventurine Theme Tests
@@ -8231,7 +8231,7 @@ struct VillarceauCirclesTests {
     }
     @Test func villarceauCirclesPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 }
 // MARK: - Prehnite Theme Tests
@@ -8327,7 +8327,7 @@ struct VivianiCurvePatternTests {
     @Test func vivianiCurveInAllPatterns() {
         let patterns = SimulationEngine.Pattern.allCases
         #expect(patterns.contains(.vivianiCurve))
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 }
 // MARK: - Tsavorite Theme Tests
@@ -8429,11 +8429,11 @@ struct NephroidPatternTests {
     @Test func nephroidInAllPatterns() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .nephroid })
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
     @Test func nephroidPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 }
 // MARK: - Buckyball Pattern Tests
@@ -8505,7 +8505,7 @@ struct BuckyballPatternTests {
     }
     @Test func buckyballPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 }
 // MARK: - Celestite Theme Tests
@@ -8726,11 +8726,11 @@ struct RhodoneaPatternTests {
     @Test func rhodoneaInAllPatterns() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .rhodonea })
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
     @Test func rhodoneaPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 
     // MARK: - Cardioid Pattern Tests
@@ -8796,11 +8796,11 @@ struct RhodoneaPatternTests {
     @Test func cardioidInAllPatterns() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .cardioid })
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
     @Test func cardioidPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 
     // MARK: - Sugilite Theme Tests
@@ -8856,12 +8856,12 @@ struct RhodoneaPatternTests {
     @Test func astroidInAllPatterns() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains(.astroid))
-        #expect(allPatterns.count == 126)
+        #expect(allPatterns.count == 127)
     }
     @Test func astroidIsCyclable() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
         #expect(cyclable.contains(.astroid))
-        #expect(cyclable.count == 125)
+        #expect(cyclable.count == 126)
     }
     @Test func astroidLoadsNonEmptyGrid() {
         var grid = GridModel(size: 16)
@@ -8898,7 +8898,7 @@ struct RhodoneaPatternTests {
     }
     @Test func astroidPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 
     // MARK: - Bloodstone Theme Tests
@@ -9017,7 +9017,7 @@ struct RhodoneaPatternTests {
     }
     @Test func deltoidPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 
     // MARK: - Dioptase Theme Tests
@@ -9075,7 +9075,7 @@ struct RhodoneaPatternTests {
     @Test func limaconIsCyclable() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
         #expect(cyclable.contains(.limacon))
-        #expect(cyclable.count == 125)
+        #expect(cyclable.count == 126)
     }
     @Test func limaconIsCentered() {
         var grid = GridModel(size: 16)
@@ -9135,7 +9135,7 @@ struct RhodoneaPatternTests {
     }
     @Test func limaconPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 
     // MARK: - Moldavite Theme Tests
@@ -9193,7 +9193,7 @@ struct RhodoneaPatternTests {
     @Test func epitrochoidIsCyclable() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
         #expect(cyclable.contains(.epitrochoid))
-        #expect(cyclable.count == 125)
+        #expect(cyclable.count == 126)
     }
     @Test func epitrochoidIsCentered() {
         var grid = GridModel(size: 16)
@@ -9253,7 +9253,7 @@ struct RhodoneaPatternTests {
     }
     @Test func epitrochoidPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 
     // MARK: - Lepidolite Theme Tests
@@ -9298,7 +9298,7 @@ struct HypotrochoidPatternTests {
     @Test func hypotrochoidIsCyclable() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
         #expect(cyclable.contains(.hypotrochoid))
-        #expect(cyclable.count == 125)
+        #expect(cyclable.count == 126)
     }
     @Test func hypotrochoidIsCentered() {
         var grid = GridModel(size: 16)
@@ -9358,7 +9358,7 @@ struct HypotrochoidPatternTests {
     }
     @Test func hypotrochoidPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
 }
 
@@ -9426,7 +9426,7 @@ struct CycloidPatternTests {
     @Test func cycloidPatternIsCyclable() {
         let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
         #expect(cyclable.contains { $0 == .cycloid })
-        #expect(cyclable.count == 125)
+        #expect(cyclable.count == 126)
     }
     @Test func cycloidPatternDifferentFromHypotrochoid() {
         var cycloidGrid = GridModel(size: 16)
@@ -9451,7 +9451,7 @@ struct CycloidPatternTests {
     }
     @Test func cycloidPatternCountUpdated() {
         let patterns = SimulationEngine.Pattern.allCases
-        #expect(patterns.count == 126)
+        #expect(patterns.count == 127)
     }
     @Test func cycloidPatternDifferentFromCardioid() {
         var cycloidGrid = GridModel(size: 16)
@@ -9507,5 +9507,129 @@ struct AragoniteThemeTests {
         let gDiff = abs(aragonite.newborn.baseColor.y - amber.newborn.baseColor.y)
         let bDiff = abs(aragonite.newborn.baseColor.z - amber.newborn.baseColor.z)
         #expect(rDiff + gDiff + bDiff > 0.05)
+    }
+}
+
+// MARK: - Involute Pattern Tests
+
+@Suite("Involute Pattern Tests")
+struct InvolutePatternTests {
+    @Test func involuteProducesCells() {
+        var grid = GridModel(size: 16)
+        grid.loadInvolute()
+        #expect(grid.aliveCount > 0)
+    }
+    @Test func involuteIsCyclable() {
+        let cyclable = SimulationEngine.Pattern.allCases.filter { $0 != .clear }
+        #expect(cyclable.contains(.involute))
+        #expect(cyclable.count == 126)
+    }
+    @Test func involuteIsCentered() {
+        var grid = GridModel(size: 16)
+        grid.loadInvolute()
+        var sumX = 0, sumY = 0, sumZ = 0, count = 0
+        for x in 0..<16 { for y in 0..<16 { for z in 0..<16 {
+            if grid.isAlive(x: x, y: y, z: z) {
+                sumX += x; sumY += y; sumZ += z; count += 1
+            }
+        }}}
+        let cx = Double(sumX) / Double(count)
+        let cy = Double(sumY) / Double(count)
+        let cz = Double(sumZ) / Double(count)
+        #expect(abs(cx - 7.5) < 3.0)
+        #expect(abs(cy - 7.5) < 3.0)
+        #expect(abs(cz - 7.5) < 3.0)
+    }
+    @Test func involuteStaysInBounds() {
+        var grid = GridModel(size: 16)
+        grid.loadInvolute()
+        #expect(grid.aliveCount <= 16 * 16 * 16)
+    }
+    @Test func involuteScalesWithGridSize() {
+        var small = GridModel(size: 12)
+        small.loadInvolute()
+        var large = GridModel(size: 24)
+        large.loadInvolute()
+        #expect(large.aliveCount > small.aliveCount)
+    }
+    @Test func involuteDistinctFromHypotrochoid() {
+        var invGrid = GridModel(size: 16)
+        invGrid.loadInvolute()
+        var hypoGrid = GridModel(size: 16)
+        hypoGrid.loadHypotrochoid()
+        #expect(invGrid.aliveCount != hypoGrid.aliveCount)
+    }
+    @Test func involuteDistinctFromSpiral() {
+        var invGrid = GridModel(size: 16)
+        invGrid.loadInvolute()
+        var spiralGrid = GridModel(size: 16)
+        spiralGrid.loadSpiral()
+        #expect(invGrid.aliveCount != spiralGrid.aliveCount)
+    }
+    @Test func involuteDistinctFromConchospiral() {
+        var invGrid = GridModel(size: 16)
+        invGrid.loadInvolute()
+        var conchoGrid = GridModel(size: 16)
+        conchoGrid.loadConchospiral()
+        #expect(invGrid.aliveCount != conchoGrid.aliveCount)
+    }
+    @Test func involuteClearsBeforeLoading() {
+        var grid = GridModel(size: 16)
+        grid.randomSeed()
+        let before = grid.aliveCount
+        grid.loadInvolute()
+        #expect(grid.aliveCount != before || grid.aliveCount > 0)
+    }
+    @Test func involutePatternCountUpdated() {
+        let patterns = SimulationEngine.Pattern.allCases
+        #expect(patterns.count == 127)
+    }
+}
+
+// MARK: - Unakite Theme Tests
+
+@Suite("Unakite Theme Tests")
+struct UnakiteThemeTests {
+    @Test func unakiteThemeExists() {
+        let theme = ColorTheme.unakite
+        #expect(theme.name == "Unakite")
+    }
+    @Test func unakiteInAllThemes() {
+        #expect(ColorTheme.allThemes.contains { $0.name == "Unakite" })
+        #expect(ColorTheme.allThemes.count == 130)
+    }
+    @Test func unakiteNewbornIsRedDominant() {
+        let theme = ColorTheme.unakite
+        // R > B > G for pink feldspar newborn
+        #expect(theme.newborn.baseColor.x > theme.newborn.baseColor.z)
+    }
+    @Test func unakiteYoungIsGreenDominant() {
+        let theme = ColorTheme.unakite
+        // G > R > B for green epidote young cells
+        #expect(theme.young.baseColor.y > theme.young.baseColor.x)
+        #expect(theme.young.baseColor.x > theme.young.baseColor.z)
+    }
+    @Test func unakiteOpacityDecreasesByAge() {
+        let theme = ColorTheme.unakite
+        #expect(theme.newborn.opacity > theme.young.opacity)
+        #expect(theme.young.opacity > theme.mature.opacity)
+        #expect(theme.mature.opacity > theme.dying.opacity)
+    }
+    @Test func unakiteEmissiveIntensityDecreasesByAge() {
+        let theme = ColorTheme.unakite
+        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
+        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
+        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
+    }
+    @Test func unakiteDistinctFromLepidolite() {
+        let unakite = ColorTheme.unakite
+        let lepidolite = ColorTheme.lepidolite
+        let rDiff = abs(unakite.newborn.baseColor.x - lepidolite.newborn.baseColor.x)
+        let gDiff = abs(unakite.newborn.baseColor.y - lepidolite.newborn.baseColor.y)
+        let bDiff = abs(unakite.newborn.baseColor.z - lepidolite.newborn.baseColor.z)
+        #expect(rDiff + gDiff + bDiff > 0.05)
+    }
+    @Test func unakiteThemeCountUpdated() {
+        #expect(ColorTheme.allThemes.count == 130)
     }
 }
