@@ -578,6 +578,8 @@ final class SimulationEngine {
             grid.loadCissoid()
         case .strophoid:
             grid.loadStrophoid()
+        case .conchoid:
+            grid.loadConchoid()
         case .clear:
             grid.clearAll()
         }
@@ -732,6 +734,7 @@ final class SimulationEngine {
         case foliumOfDescartes = "Folium of Descartes"
         case cissoid = "Cissoid of Diocles"
         case strophoid = "Strophoid"
+        case conchoid = "Conchoid of Nicomedes"
         case clear = "Clear"
 
         var id: String { rawValue }
