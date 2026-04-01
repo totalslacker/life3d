@@ -4543,6 +4543,35 @@ mutating func loadTesseract() {
         rebuildAliveCellIndices()
     }
 
+    /// Bretzel Surface: a genus-2 algebraic surface (pretzel/double torus).
+    /// Defined by (x²(1-x²) - y²)² + z²/2 - 0.04 = 0, producing a pretzel shape
+    /// with two holes — a smooth surface of genus 2.
+    mutating func loadBretzelSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 2.8 / Float(n)
+        let threshold: Float = 0.06
+
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let fx = (Float(x) - half) * scale
+                    let fy = (Float(y) - half) * scale
+                    let fz = (Float(z) - half) * scale
+                    // Bretzel (pretzel) implicit: (x²(1-x²) - y²)² + z² - r² = 0
+                    let x2 = fx * fx
+                    let inner = x2 * (1.0 - x2) - fy * fy
+                    let value = inner * inner + fz * fz * 0.5 - 0.04
+                    if abs(value) < threshold {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

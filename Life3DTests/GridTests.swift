@@ -7093,3 +7093,68 @@ struct MoonstoneThemeTests {
         #expect(ColorTheme.allThemes.count == 103)
     }
 }
+// MARK: - Bretzel Surface Tests
+@Suite("Bretzel Surface Tests")
+struct BretzelSurfaceTests {
+    @Test func bretzelSurfaceInAllPatterns() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.contains { $0 == .bretzelSurface })
+        #expect(allPatterns.count == 104)
+    }
+    @Test func bretzelSurfaceDisplayName() {
+        #expect(SimulationEngine.Pattern.bretzelSurface.rawValue == "Bretzel Surface")
+    }
+    @Test func bretzelSurfaceSurvivesOneGeneration() {
+        var grid = GridModel(size: 16)
+        grid.loadBretzelSurface()
+        let initial = grid.aliveCount
+        #expect(initial > 0)
+    }
+    @Test func bretzelSurfaceScalesWithGridSize() {
+        var small = GridModel(size: 12)
+        small.loadBretzelSurface()
+        var large = GridModel(size: 16)
+        large.loadBretzelSurface()
+        #expect(large.aliveCount > small.aliveCount)
+    }
+    @Test func bretzelSurfaceDistinctFromTorus() {
+        var bretzel = GridModel(size: 16)
+        bretzel.loadBretzelSurface()
+        var torus = GridModel(size: 16)
+        torus.loadPattern(.torus)
+        let bretzelSet = Set(bretzel.aliveCellIndices)
+        let torusSet = Set(torus.aliveCellIndices)
+        let overlap = Float(bretzelSet.intersection(torusSet).count) / Float(max(bretzelSet.count, torusSet.count, 1))
+        #expect(overlap < 0.85)
+    }
+    @Test func bretzelSurfaceHasGenus2Topology() {
+        var grid = GridModel(size: 16)
+        grid.loadBretzelSurface()
+        let half = 16 / 2
+        var leftCount = 0
+        var rightCount = 0
+        for idx in grid.aliveCellIndices {
+            let x = idx / (16 * 16)
+            if x < half { leftCount += 1 }
+            else { rightCount += 1 }
+        }
+        #expect(leftCount > 0)
+        #expect(rightCount > 0)
+    }
+}
+// MARK: - Additional Moonstone Distinctness Tests
+@Suite("Additional Moonstone Distinctness Tests")
+struct AdditionalMoonstoneTests {
+    @Test func moonstoneDistinctFromGlacier() {
+        let moonstone = ColorTheme.moonstone.newborn.baseColor
+        let glacier = ColorTheme.glacier.newborn.baseColor
+        let diff = abs(moonstone.x - glacier.x) + abs(moonstone.y - glacier.y) + abs(moonstone.z - glacier.z)
+        #expect(diff > 0.1)
+    }
+    @Test func moonstoneDistinctFromFrost() {
+        let moonstone = ColorTheme.moonstone.newborn.baseColor
+        let frost = ColorTheme.frost.newborn.baseColor
+        let diff = abs(moonstone.x - frost.x) + abs(moonstone.y - frost.y) + abs(moonstone.z - frost.z)
+        #expect(diff > 0.1)
+    }
+}

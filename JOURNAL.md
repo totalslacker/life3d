@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 117 (2026-03-31 23:30 PDT)
+
+**Goal**: Bretzel Surface pattern, Moonstone theme, 11 new tests.
+
+1. **Bretzel Surface pattern (96th, 95th cyclable)**: A genus-2 algebraic surface (pretzel/double torus) defined implicitly by (x²(1-x²) - y²)² + z²/2 - 0.04 = 0. The equation creates a smooth pretzel shape with two holes — the classic genus-2 topology. The mixed quartic terms in x and y produce the characteristic saddle regions between the two torus-like loops, while the z² term controls the surface thickness. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the quartic equation at each cell, and activates cells where |value| < threshold. Visually distinct from Torus (single hole, genus 1), Klein Bottle (non-orientable), Clifford Torus (flat torus in 4D), and Dupin Cyclide (envelope of spheres). 6 new tests.
+2. **Moonstone theme (103rd)**: Milky blue-white iridescent gemstone aesthetic — luminous pale blue-white newborn cells (R 0.82, G 0.88, B 0.96) through medium slate-blue young cells to deep muted navy mature cells fading to near-black. B > G > R across all tiers, evoking the distinctive adularescent shimmer of polished moonstone (orthoclase feldspar) with its characteristic milky blue glow. Distinct from Pearl (warmer, more neutral), Glacier (colder, more cyan), Frost (whiter, less blue), and Opal (more iridescent color-shifting). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 116 (2026-03-31 23:26 PDT)
 
 **Goal**: Goursat Surface pattern, Spinel theme, 11 new tests.
