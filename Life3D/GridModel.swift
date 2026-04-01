@@ -4691,6 +4691,30 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadLemniscate() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 3.0 / Float(n)
+        let threshold: Float = 0.08
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let fx = (Float(x) - half) * scale
+                    let fy = (Float(y) - half) * scale
+                    let fz = (Float(z) - half) * scale
+                    let r2 = fx * fx + fy * fy + fz * fz
+                    let a: Float = 1.2
+                    let value = r2 * r2 - a * a * (fx * fx - fy * fy)
+                    if abs(value) < threshold {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

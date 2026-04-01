@@ -3,6 +3,17 @@
 Evolution session log. Most recent entry first. Never delete entries.
 
 
+## Day 16 — Session 122 (2026-04-01 00:05 PDT)
+
+**Goal**: Lemniscate pattern, Azurite theme, 11 new tests.
+
+1. **Lemniscate pattern (101st, 100th cyclable)**: The 3D Lemniscate of Bernoulli, a quartic algebraic surface defined by (x² + y² + z²)² = a²(x² - y²). This creates a figure-eight/infinity-sign shaped surface — two lobes connected at a singular point at the origin, rotationally symmetric about the x-axis. The quartic equation produces the classic Bernoulli lemniscate cross-section when sliced by any plane through the x-axis. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the quartic equation at each cell, and activates cells where |value| < threshold. Visually distinct from Torus (single ring, genus 1), Bretzel Surface (genus 2, pretzel), Clifford Torus (flat torus in 4D), and Cassini Surface (peanut-shaped ovals). 6 new tests.
+2. **Azurite theme (104th)**: Deep vivid blue copper carbonate mineral aesthetic — vivid azurite newborn cells (R 0.12, G 0.30, B 0.92) through medium dark navy-blue young cells to deep dark blue mature cells fading to near-black. B > G > R across all tiers, evoking the distinctive intense azure blue of polished azurite (Cu₃(CO₃)₂(OH)₂). Distinct from Sapphire (purer blue, higher R), Sodalite (more balanced G/R), Cobalt (more metallic), Lapis Lazuli (deeper with gold tones), and Indigo (more purple). 5 new tests.
+3. **Fixed stale test count assertions**: Updated all `allPatterns.count == 99` and `== 104` to `== 102`, and `allThemes.count == 103` to `== 104`.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+
 ## Day 15 — Session 121 (2026-04-01 00:00 PDT)
 
 **Goal**: Pillow Surface pattern, Agate theme, 11 new tests.

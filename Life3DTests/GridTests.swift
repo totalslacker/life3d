@@ -7469,3 +7469,50 @@ struct KyaniteThemeTests {
         #expect(ColorTheme.allThemes.count == 104)
     }
 }
+// MARK: - Lemniscate Tests
+@Suite("Lemniscate Tests")
+struct LemniscateTests {
+    @Test func lemniscateInAllPatterns() {
+        let allPatterns = SimulationEngine.Pattern.allCases
+        #expect(allPatterns.contains { $0 == .lemniscate })
+    }
+    @Test func lemniscateDisplayName() {
+        #expect(SimulationEngine.Pattern.lemniscate.rawValue == "Lemniscate")
+    }
+    @Test func lemniscateSurvivesOneGeneration() {
+        var grid = GridModel(size: 16)
+        grid.loadLemniscate()
+        #expect(grid.aliveCount > 0)
+    }
+    @Test func lemniscateScalesWithGridSize() {
+        var small = GridModel(size: 12)
+        small.loadLemniscate()
+        var large = GridModel(size: 16)
+        large.loadLemniscate()
+        #expect(large.aliveCount > small.aliveCount)
+    }
+    @Test func lemniscateDistinctFromTorus() {
+        var lemniscate = GridModel(size: 16)
+        lemniscate.loadLemniscate()
+        var torus = GridModel(size: 16)
+        torus.loadPattern(.torus)
+        let lemniscateSet = Set(lemniscate.aliveCellIndices)
+        let torusSet = Set(torus.aliveCellIndices)
+        let overlap = Float(lemniscateSet.intersection(torusSet).count) / Float(max(lemniscateSet.count, torusSet.count, 1))
+        #expect(overlap < 0.85)
+    }
+    @Test func lemniscateHasFigureEightSymmetry() {
+        var grid = GridModel(size: 16)
+        grid.loadLemniscate()
+        let half = 16 / 2
+        var leftCount = 0
+        var rightCount = 0
+        for idx in grid.aliveCellIndices {
+            let y = (idx / 16) % 16
+            if y < half { leftCount += 1 }
+            else { rightCount += 1 }
+        }
+        #expect(leftCount > 0)
+        #expect(rightCount > 0)
+    }
+}
