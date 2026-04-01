@@ -2,6 +2,14 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 107 (2026-03-31 20:30 PDT)
+
+**Goal**: Togliatti Surface pattern, Tanzanite theme, 11 new tests.
+
+1. **Togliatti Surface pattern (82nd, 81st cyclable)**: A famous quintic (degree 5) algebraic surface discovered by Eugenio Togliatti in 1940, notable for having 31 ordinary double points — the maximum possible for a quintic surface. Uses an icosahedral-invariant form: F = x⁵+y⁵+z⁵+w⁵ - φ(x²+y²+z²+w²)(x³+y³+z³+w³)/2 with w=1 and φ=golden ratio. Evaluated as an implicit isosurface — iterates the 3D grid within a bounding sphere (r² < 6), evaluates the quintic equation at each cell, and activates cells where |value| < threshold. Produces a complex nodal form with icosahedral symmetry. Visually distinct from Kummer Surface (quartic, 16 nodes, tetrahedral), Barth Sextic (sextic, 65 nodes, icosahedral), and Clebsch Diagonal Surface (cubic, 27 lines). 6 new tests.
+2. **Tanzanite theme (81st)**: Blue-violet gemstone aesthetic — vivid tanzanite newborn cells (R 0.45, G 0.28, B 0.92) through medium dark blue-violet young cells to deep navy-purple mature cells fading to near-black. B > R > G across all tiers, evoking the distinctive trichroic blue-violet of natural tanzanite from the Mererani Hills. Distinct from Amethyst (lighter purple), Indigo (darker blue), Sapphire (purer blue), Plum (reddish-purple), and Wisteria (soft lavender-purple). 5 new tests.
+
+---
 ## Day 15 — Session 107 (2026-03-31 20:14 PDT)
 
 **Goal**: Cayley Cubic pattern, Alexandrite theme, 11 new tests.

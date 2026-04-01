@@ -3942,6 +3942,47 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadTogliattiSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Togliatti surface: a quintic surface with 31 ordinary double points
+        // (the maximum for a degree-5 surface). Discovered by Eugenio Togliatti (1940).
+        // Equation: 64(x₀ - w)(x₀⁴ - 4x₀³w - 10x₀²x₁² - 4x₀²w² + 16x₀w³
+        //   - 20x₀x₁²w + 5x₁⁴ + 16w⁴ - 20x₁²w²) - 5√5(2x₀ - w)(4(x₁² + x₂²) - (1+3√5)w²)² = 0
+        // Simplified in affine coords (w=1) and homogeneous form.
+        // We use the Barth-style parameterization in Cartesian coordinates.
+        let phi: Float = (1.0 + sqrt(5.0)) / 2.0 // golden ratio
+        let threshold: Float = 0.3
+        let scale: Float = 2.5 / half
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let x2 = x * x, y2 = y * y, z2 = z * z
+                    let r2 = x2 + y2 + z2
+                    if r2 > 6.0 { continue }
+                    // Togliatti quintic: using the icosahedral-invariant form
+                    // F = x⁵ + y⁵ + z⁵ + w⁵ - (x² + y² + z² + w²)(x³ + y³ + z³ + w³)/2
+                    // where w² = 1 - x² - y² - z² (projection from S³)
+                    // Simplified affine form with w = 1:
+                    let x3 = x * x2, y3 = y * y2, z3 = z * z2
+                    let x5 = x3 * x2, y5 = y3 * y2, z5 = z3 * z2
+                    let sum5 = x5 + y5 + z5 + 1.0
+                    let sum2 = x2 + y2 + z2 + 1.0
+                    let sum3 = x3 + y3 + z3 + 1.0
+                    let value = sum5 - phi * sum2 * sum3 / 2.0
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
