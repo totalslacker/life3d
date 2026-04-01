@@ -5170,6 +5170,52 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Viviani's Curve — the intersection of a sphere and a cylinder tangent to it.
+    /// The sphere has radius R centered at origin; the cylinder has radius R/2 centered
+    /// at (R/2, 0) with axis along Z. The intersection is a figure-eight curve (when
+    /// viewed from above) lying on the sphere surface. Parametrically:
+    ///   x = R/2 * (1 + cos(t)), y = R/2 * sin(t), z = R * sin(t/2)
+    /// for t in [0, 4π] to trace the full figure-eight.
+    mutating func loadVivianiCurve() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let R = Float(n) * 0.40
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let steps = n * n * 6  // Dense sampling for smooth curve
+        var points: [(Float, Float, Float)] = []
+        points.reserveCapacity(steps)
+        for i in 0..<steps {
+            let t = Float(i) / Float(steps - 1) * 4.0 * .pi
+            let x = R / 2.0 * (1.0 + cos(t)) + half
+            let y = R / 2.0 * sin(t) + half
+            let z = R * sin(t / 2.0) + half
+            points.append((x, y, z))
+        }
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let fx = Float(ix)
+                    let fy = Float(iy)
+                    let fz = Float(iz)
+                    var minDistSq: Float = Float.greatestFiniteMagnitude
+                    for (px, py, pz) in points {
+                        let dx = fx - px
+                        let dy = fy - py
+                        let dz = fz - pz
+                        let dSq = dx * dx + dy * dy + dz * dz
+                        if dSq < minDistSq { minDistSq = dSq }
+                    }
+                    if minDistSq < thickSq {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

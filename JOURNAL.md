@@ -20,6 +20,16 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 **Next Steps**: Performance profiling at 32x32x32. App icon design.
 
+## Day 16 — Session 126 (2026-04-01 03:15 PDT)
+
+**Goal**: Viviani's Curve pattern, Tsavorite theme, 15 new tests.
+
+1. **Viviani's Curve pattern (114th, 113th cyclable)**: The intersection of a sphere and a cylinder tangent to it — a classic curve from differential geometry named after Vincenzo Viviani (1622-1703). Parametrically: x = R/2·(1+cos t), y = R/2·sin t, z = R·sin(t/2) for t in [0, 4π]. The curve traces a figure-eight shape on the sphere surface when viewed from above, and a smooth loop in 3D space. Rasterized via dense parametric point sampling with tube thickening. Visually distinct from Lissajous (parametric ratios in a box), Torus Knot (closed curve on a torus), Loxodrome (spiral on sphere), and Helix (cylindrical spiral). 8 new tests.
+2. **Tsavorite theme (117th)**: Vivid green grossular garnet aesthetic — bright green newborn cells (R 0.18, G 0.90, B 0.42) through medium dark green young cells (R 0.10, G 0.65, B 0.30) to deep dark green mature cells (R 0.05, G 0.40, B 0.18). G > B > R across all tiers, evoking the distinctive vivid chrome-green of natural tsavorite garnet (a vanadium/chromium-bearing grossular, discovered in 1967 near Tsavo National Park, Kenya). Distinct from Emerald (darker, purer green, higher R), Peridot (more yellow-green), Chrysoprase (more apple-green, higher R), and Seraphinite (darker, more muted). 7 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to `== 114`, `patterns.count` to `== 114`, and `allThemes.count` to `== 117` across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 125 (2026-04-01 03:01 PDT)
 
 **Goal**: Loxodrome pattern, Iolite theme, 14 new tests.
