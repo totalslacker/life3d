@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 115 (2026-03-31 23:17 PDT)
+
+**Goal**: Goursat Surface pattern, Moonstone theme, 11 new tests.
+
+1. **Goursat Surface pattern (94th, 93rd cyclable)**: A quartic algebraic surface with tetrahedral symmetry defined by x⁴ + y⁴ + z⁴ + a(x² + y² + z²)² = b, with parameters a = -0.5, b = 0.5. Named after Édouard Goursat, this surface produces a smooth shape resembling a stellated cube — concave faces pinching inward along the coordinate axes with rounded edges connecting them. The negative coupling term a creates the concavity by penalizing points equidistant from all axes. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the quartic equation at each cell, and activates cells where |value| < threshold. Visually distinct from Fermat Surface (convex rounded cube, no concavity), Tanglecube (tube-like channels), Chmutov Surface (multiple lobes), and Enriques Surface (self-intersecting). 6 new tests.
+2. **Moonstone theme (98th)**: Pale ethereal blue-white gemstone aesthetic inspired by the adularescent sheen of moonstone (orthoclase feldspar) — luminous pale blue-white newborn cells (R 0.82, G 0.85, B 0.95) through medium silvery-blue young cells to muted blue-gray mature cells fading to near-black. B > G > R across all tiers with all channels high, evoking the distinctive cool opalescent glow of polished moonstone. Distinct from Pearl (warmer cream-white), Opal (more iridescent/multi-color), Frost (icier, more saturated blue), Glacier (bluer, less white), and Ivory (warm yellow-white). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 114 (2026-03-31 23:08 PDT)
 
 **Goal**: Tesseract pattern, Chrysocolla theme, 11 new tests.
