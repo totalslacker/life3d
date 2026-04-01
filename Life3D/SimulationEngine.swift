@@ -499,6 +499,8 @@ final class SimulationEngine {
             grid.loadChmutovSurface()
         case .enriquesSurface:
             grid.loadEnriquesSurface()
+        case .lidinoid:
+            grid.loadLidinoid()
         case .clear:
             grid.clearAll()
         }
@@ -613,6 +615,7 @@ final class SimulationEngine {
         case tanglecube = "Tanglecube"
         case chmutovSurface = "Chmutov Surface"
         case enriquesSurface = "Enriques Surface"
+        case lidinoid = "Lidinoid"
         case clear = "Clear"
 
         var id: String { rawValue }

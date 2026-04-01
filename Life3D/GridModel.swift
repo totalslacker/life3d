@@ -4321,6 +4321,37 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadLidinoid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Scale so one fundamental domain fits the grid nicely
+        let scale: Float = Float.pi * 2.0 / Float(n)
+        let threshold: Float = 0.4
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    // Lidinoid approximation (Sven Lidin, 1990):
+                    // sin(2x)cos(y)sin(z) + sin(2y)cos(z)sin(x) + sin(2z)cos(x)sin(y)
+                    // - cos(2x)cos(2y) - cos(2y)cos(2z) - cos(2z)cos(2x) + 0.3 = 0
+                    let s2x = sin(2*x), s2y = sin(2*y), s2z = sin(2*z)
+                    let cx = cos(x), cy = cos(y), cz = cos(z)
+                    let sx = sin(x), sy = sin(y), sz = sin(z)
+                    let c2x = cos(2*x), c2y = cos(2*y), c2z = cos(2*z)
+                    let value = s2x*cy*sz + s2y*cz*sx + s2z*cx*sy
+                                - c2x*c2y - c2y*c2z - c2z*c2x + 0.3
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
