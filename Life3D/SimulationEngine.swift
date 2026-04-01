@@ -560,6 +560,8 @@ final class SimulationEngine {
             grid.loadAstroid()
         case .deltoid:
             grid.loadDeltoid()
+        case .limacon:
+            grid.loadLimacon()
         case .clear:
             grid.clearAll()
         }
@@ -705,6 +707,7 @@ final class SimulationEngine {
         case cardioid = "Cardioid"
         case astroid = "Astroid"
         case deltoid = "Deltoid"
+        case limacon = "Limaçon"
         case clear = "Clear"
 
         var id: String { rawValue }

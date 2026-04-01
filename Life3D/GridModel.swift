@@ -5565,6 +5565,60 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadLimacon() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.35
+        let profileSamples = 360
+        let revolutionSteps = 180
+
+        // Limaçon with inner loop: r = a + b*cos(θ), a < b
+        // Using a = 0.4, b = 1.0 for a pronounced inner loop
+        let a: Float = 0.4
+        let b: Float = 1.0
+        for rs in 0..<revolutionSteps {
+            let phi = Float(rs) / Float(revolutionSteps) * 2.0 * Float.pi
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for ps in 0..<profileSamples {
+                let theta = Float(ps) / Float(profileSamples) * 2.0 * Float.pi
+                let r = a + b * cos(theta)
+                // Profile in XY plane (polar to cartesian)
+                let px = scale * r * cos(theta)
+                let py = scale * r * sin(theta)
+                // Revolve around Y axis
+                let wx = px * cosPhi + half
+                let wy = py + half
+                let wz = px * sinPhi + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

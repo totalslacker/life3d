@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 131 (2026-04-01 04:03 PDT)
+
+**Goal**: Limaçon pattern, Moldavite theme, 15 new tests.
+
+1. **Limaçon pattern (123rd, 122nd cyclable)**: The limaçon (from Latin limax, "snail") — a polar curve r = a + b·cos(θ) with a = 0.4, b = 1.0, producing the distinctive inner-loop variant where a < b. This creates a curve that crosses the origin, forming a small inner loop within a larger outer loop — a shape studied by Étienne Pascal (father of Blaise Pascal) in 1650 and named by Gilles de Roberval. The 2D profile is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry, producing a bulbous body with an inner dimple from the loop crossing. Rasterized via dense parametric sampling of the polar curve at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Cardioid (a = b, no inner loop), Deltoid (3-cusped hypocycloid), Nephroid (2-cusped epicycloid), and Torus (ring shape, no loop). 9 new tests.
+2. **Moldavite theme (127th)**: Dark olive-green tektite glass aesthetic — vivid olive-green newborn cells (R 0.42, G 0.72, B 0.28) through medium dark green young cells (R 0.28, G 0.52, B 0.18) to deep dark olive mature cells (R 0.16, G 0.32, B 0.10). G > R > B across all tiers, evoking the distinctive dark bottle-green of natural moldavite — a tektite glass formed ~14.7 million years ago by the Nördlinger Ries meteorite impact in southern Germany. Found primarily in the Czech Republic (Bohemia and Moravia), moldavite is prized for its unique sculpted surface texture and translucent forest-green color. Distinct from Forest (more blue-green), Dioptase (vivid emerald, higher G), Aventurine (sparkly green, different ratio), and Peridot (more yellow-green). 6 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 123, `cyclable.count` to 122, `patterns.count` to 123, and `allThemes.count` to 127 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 130 (2026-04-01 03:55 PDT)
 
 **Goal**: Deltoid pattern, Dioptase theme, 15 new tests.
