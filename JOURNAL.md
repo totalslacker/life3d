@@ -2,6 +2,15 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 125 (2026-04-01 03:05 PDT)
+
+**Goal**: Catenary Surface pattern, Aventurine theme, 12 new tests.
+
+1. **Catenary Surface pattern (114th, 113th cyclable)**: Surface of revolution of y = cosh(x) — the natural curve assumed by a uniform chain or cable hanging under gravity. The catenoid (already in the pattern library) is a minimal surface, while the catenary surface is specifically the revolution of the hyperbolic cosine function, creating a smooth trumpet-like shell that flares symmetrically at both ends and narrows at the center vertex. Unlike Gabriel's Horn (1/x revolution, one flare, one taper), the catenary is symmetric about its midpoint. Implemented via implicit isosurface: for each cell, compute the radial distance from the x-axis in the y-z plane, compare to cosh(x) scaled to grid, and activate cells within a thickness threshold. 7 new tests.
+2. **Aventurine theme (117th)**: Green-gold quartz gemstone aesthetic — vivid green-gold newborn cells (R 0.42, G 0.78, B 0.38) through medium forest-green young cells (R 0.32, G 0.58, B 0.28) to deep dark green mature cells fading to near-black. G > R > B across all tiers, evoking the distinctive shimmering green of natural aventurine quartz — a translucent variety of quartz colored by fuchsite (chrome mica) inclusions that create a sparkly aventurescence effect. Distinct from Peridot (more yellow-green), Jade (more muted olive), Chrysoprase (more apple-green), and Emerald (darker, purer green). 5 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 114 and `allThemes.count` to 117 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
 
 ## Day 16 — Session 125 (2026-04-01 03:01 PDT)
 

@@ -5059,6 +5059,42 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Catenary Surface: surface of revolution of y = cosh(x), the natural curve of a hanging chain.
+    /// The catenary is the shape assumed by a uniform chain or cable hanging under gravity —
+    /// its surface of revolution creates a smooth trumpet-like shell that flares at both ends
+    /// and narrows at the center (the vertex of the cosh curve). Unlike Gabriel's Horn (1/x)
+    /// which has one flare and one taper, the catenary is symmetric about its midpoint.
+    mutating func loadCatenarySurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 14.0)
+        let thickSq = thickness * thickness
+        // Scale the catenary to fit nicely in the grid
+        let xRange: Float = 1.8  // cosh(1.8) ≈ 3.11, reasonable flare
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let fx = Float(ix) - half
+                    let fy = Float(iy) - half
+                    let fz = Float(iz) - half
+                    // Axis of revolution along x; radial distance in y-z plane
+                    let r = sqrt(fy * fy + fz * fz)
+                    // Map x to catenary parameter
+                    let t = fx / half * xRange  // t in [-xRange, xRange]
+                    // Catenary curve: cosh(t) scaled to grid
+                    let coshVal = cosh(t)
+                    let targetR = coshVal * (half * 0.25)  // Scale radius
+                    let distSq = (r - targetR) * (r - targetR)
+                    if distSq < thickSq {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
