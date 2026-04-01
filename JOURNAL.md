@@ -2,6 +2,17 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 126 (2026-04-01 03:22 PDT)
+
+**Goal**: Buckyball pattern, Celestite theme, 14 new tests.
+
+1. **Buckyball pattern (115th, 114th cyclable)**: Truncated icosahedron wireframe — the iconic C60 fullerene / soccer ball geometry. Constructed by computing the 12 vertices of a regular icosahedron, then truncating each edge at 1/3 and 2/3 to produce 60 vertices projected onto a sphere. Adjacent vertex pairs (within an angular threshold) are connected as edge segments, creating the characteristic pattern of 12 pentagons and 20 hexagons. Rasterized via nearest-distance-to-edge-segment evaluation for each grid cell, activating cells within a tube thickness threshold. Visually distinct from Sphere (solid shell), Icosahedron (20 triangular faces, no hexagons), Dodecahedron (12 pentagonal faces only), and Cage (simple cubic wireframe). 8 new tests.
+2. **Celestite theme (118th)**: Pale ethereal sky blue strontium sulfate crystal aesthetic — light sky blue newborn cells (R 0.72, G 0.82, B 0.95) through medium steel blue young cells (R 0.50, G 0.62, B 0.80) to deep slate blue mature cells fading to near-black. B > G > R across all tiers with notably high lightness values, evoking the distinctive pale translucent blue of natural celestite (SrSO₄) crystals — orthorhombic tabular crystals prized for their delicate sky-blue color. Distinct from Larimar (more green-blue, lower R), Glacier (more white/ice), Frost (more white-dominant), Cerulean (more saturated blue), and Arctic (cooler, less warm). 6 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 115, `cyclable.count` to 113, `patterns.count` to 109, and `allThemes.count` to 118 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+
 ## Day 16 — Session 126 (2026-04-01 03:14 PDT)
 
 **Goal**: Nephroid pattern, Prehnite theme, 12 new tests.

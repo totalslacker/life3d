@@ -5170,6 +5170,87 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadBuckyball() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let radius = half * 0.75
+        let thickness: Float = max(1.2, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        // Golden ratio for icosahedron vertices
+        let phi: Float = (1.0 + sqrt(5.0)) / 2.0
+        // 12 vertices of a regular icosahedron (normalized to unit sphere)
+        let icoVerts: [SIMD3<Float>] = [
+            SIMD3( 0,  1,  phi), SIMD3( 0, -1,  phi),
+            SIMD3( 0,  1, -phi), SIMD3( 0, -1, -phi),
+            SIMD3( 1,  phi,  0), SIMD3(-1,  phi,  0),
+            SIMD3( 1, -phi,  0), SIMD3(-1, -phi,  0),
+            SIMD3( phi,  0,  1), SIMD3(-phi,  0,  1),
+            SIMD3( phi,  0, -1), SIMD3(-phi,  0, -1)
+        ]
+        // 30 edges of the icosahedron
+        let edges: [(Int, Int)] = [
+            (0,1),(0,4),(0,5),(0,8),(0,9),
+            (1,6),(1,7),(1,8),(1,9),
+            (2,3),(2,4),(2,5),(2,10),(2,11),
+            (3,6),(3,7),(3,10),(3,11),
+            (4,5),(4,8),(4,10),
+            (5,9),(5,11),
+            (6,7),(6,8),(6,10),
+            (7,9),(7,11),
+            (8,10),(9,11)
+        ]
+        // Generate truncated icosahedron edge midpoints — each edge produces
+        // a point 1/3 and 2/3 along the edge, giving 60 vertices projected onto sphere
+        var buckyVerts: [SIMD3<Float>] = []
+        for (a, b) in edges {
+            let va = icoVerts[a]
+            let vb = icoVerts[b]
+            let p1 = va + (vb - va) * (1.0 / 3.0)
+            let p2 = va + (vb - va) * (2.0 / 3.0)
+            let n1 = simd_normalize(p1)
+            let n2 = simd_normalize(p2)
+            buckyVerts.append(n1)
+            buckyVerts.append(n2)
+        }
+        // Draw edges between adjacent vertices on the truncated icosahedron
+        // by connecting all vertex pairs within a threshold angular distance
+        let edgeThreshold: Float = 0.45  // angular distance for adjacent vertices
+        var edgePairs: [(Int, Int)] = []
+        for i in 0..<buckyVerts.count {
+            for j in (i+1)..<buckyVerts.count {
+                let dot = simd_dot(buckyVerts[i], buckyVerts[j])
+                if dot > (1.0 - edgeThreshold) && dot < (1.0 - 0.01) {
+                    edgePairs.append((i, j))
+                }
+            }
+        }
+        // Rasterize: for each cell, check distance to nearest edge segment
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let pos = SIMD3<Float>(Float(ix) - half, Float(iy) - half, Float(iz) - half)
+                    var minDistSq: Float = Float.greatestFiniteMagnitude
+                    // Check distance to each edge segment
+                    for (ai, bi) in edgePairs {
+                        let a = buckyVerts[ai] * radius
+                        let b = buckyVerts[bi] * radius
+                        let ab = b - a
+                        let ap = pos - a
+                        let t = max(0, min(1, simd_dot(ap, ab) / simd_dot(ab, ab)))
+                        let closest = a + ab * t
+                        let dSq = simd_length_squared(pos - closest)
+                        if dSq < minDistSq { minDistSq = dSq }
+                    }
+                    if minDistSq < thickSq {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     /// Viviani's Curve — the intersection of a sphere and a cylinder tangent to it.
     /// The sphere has radius R centered at origin; the cylinder has radius R/2 centered
     /// at (R/2, 0) with axis along Z. The intersection is a figure-eight curve (when
