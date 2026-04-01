@@ -586,6 +586,8 @@ final class SimulationEngine {
             grid.loadTractrix()
         case .lituus:
             grid.loadLituus()
+        case .kampyle:
+            grid.loadKampyle()
         case .clear:
             grid.clearAll()
         }
@@ -744,6 +746,7 @@ final class SimulationEngine {
         case tridentOfNewton = "Trident of Newton"
         case tractrix = "Tractrix"
         case lituus = "Lituus"
+        case kampyle = "Kampyle of Eudoxus"
         case clear = "Clear"
 
         var id: String { rawValue }

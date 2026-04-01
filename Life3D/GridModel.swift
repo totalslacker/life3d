@@ -6312,6 +6312,78 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadKampyle() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+
+        // Kampyle of Eudoxus: x⁴ = a²(x² + y²)
+        // In polar: r = a·sec²(θ) — studied by Eudoxus of Cnidus (~370 BC)
+        // Generates a distinctive pinch/bowtie shape opening along the x-axis
+        // Parametric: x = a·sec(t), y = a·tan(t)·sec(t)
+        let a: Float = 0.5
+        let samples = 2000
+        let layerCount = max(2, n / 4)
+
+        // Parametric sampling with t avoiding asymptotes at ±π/2
+        let tMin: Float = -1.35  // close to but not reaching π/2
+        let tMax: Float = 1.35
+
+        // Find max extent for normalization
+        var maxExtent: Float = 0
+        for s in 0..<samples {
+            let t = tMin + Float(s) / Float(samples) * (tMax - tMin)
+            let cosT = cos(t)
+            guard abs(cosT) > 0.01 else { continue }
+            let secT = 1.0 / cosT
+            let px = abs(a * secT)
+            let py = abs(a * tan(t) * secT)
+            maxExtent = max(maxExtent, max(px, py))
+        }
+        let scale = half * 0.80 / max(maxExtent, 0.001)
+
+        for layer in 0..<layerCount {
+            let zOffset = Float(layer) - Float(layerCount) / 2.0 + 0.5
+            // Draw both branches (positive and negative x)
+            for s in 0..<samples {
+                let t = tMin + Float(s) / Float(samples) * (tMax - tMin)
+                let cosT = cos(t)
+                guard abs(cosT) > 0.01 else { continue }
+                let secT = 1.0 / cosT
+                let px = a * secT
+                let py = a * tan(t) * secT
+                let wz = zOffset * thickness * 0.5 + half
+                let iz = Int(wz)
+                guard iz >= 0 && iz < n else { continue }
+
+                // Both branches of the curve
+                for sign: Float in [-1.0, 1.0] {
+                    let wx = sign * px * scale + half
+                    let wy = py * scale + half
+                    let ix = Int(wx)
+                    let iy = Int(wy)
+                    guard ix >= 0 && ix < n && iy >= 0 && iy < n else { continue }
+                    let range = Int(thickness)
+                    for dx in -range...range {
+                        for dy in -range...range {
+                            let distSq = Float(dx * dx + dy * dy)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n {
+                                    setCell(x: nx, y: ny, z: iz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 149 (2026-04-01 08:45 PDT)
+
+**Goal**: Kampyle of Eudoxus pattern, Sphene theme, 15 new tests.
+
+1. **Kampyle of Eudoxus pattern (135th, 134th cyclable)**: The Kampyle — a curve studied by Eudoxus of Cnidus (~370 BC) in connection with the problem of doubling the cube. Defined by x⁴ = a²(x² + y²), or parametrically x = a·sec(t), y = a·tan(t)·sec(t). The curve creates a distinctive bowtie/pinch shape opening along the x-axis, symmetric about both axes. In polar form: r = a·sec²(θ). The 2D curve is extruded into multiple vertical layers for 3D volume, with both branches (positive and negative x) rendered. Visually distinct from Lemniscate (figure-eight, closed), Strophoid (single loop with asymptote), Folium of Descartes (leaf-shaped), and Lituus (spiral). 10 new tests.
+2. **Sphene theme (149th)**: Vivid yellow-green calcium titanium silicate aesthetic — bright yellow-green newborn cells (R 0.78, G 0.82, B 0.22) through medium dark olive-green young cells (R 0.58, G 0.62, B 0.15) to deep dark olive mature cells (R 0.40, G 0.44, B 0.10). G > R > B across all tiers, evoking the distinctive yellow-green of natural sphene (titanite) — a calcium titanium nesosilicate (CaTiSiO₅) named from Greek "sphenos" (wedge) for its characteristic wedge-shaped monoclinic crystals. Prized for its exceptional fire — its dispersion (0.051) exceeds diamond (0.044), creating vivid spectral flashes. Distinct from Chartreuse (more vivid pure yellow-green), Peridot (more olive-yellow), Chrysoprase (more apple-green), and Kornerupine (more olive, lower saturation). 5 new tests.
+3. **Updated count assertions**: allPatterns.count to 136, cyclable.count to 135, allThemes.count to 149 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 148 (2026-04-01 08:35 PDT)
 
 **Goal**: Lituus pattern, Hackmanite theme, 15 new tests.
