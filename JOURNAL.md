@@ -2,6 +2,14 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 127 (2026-04-01 03:25 PDT)
+
+**Goal**: Nephroid pattern, Pietersite theme, 15 new tests.
+
+1. **Nephroid pattern (115th, 114th cyclable)**: A 2-cusped epicycloid — the curve traced by a point on a circle of radius R rolling around the outside of a fixed circle of radius 2R. Parametric: x = 3R·cos(t) - R·cos(3t), y = 3R·sin(t) - R·sin(3t). Extended into 3D with a gentle sinusoidal z-wave (z = R·sin(2t)) to give depth and avoid a flat 2D appearance. The resulting kidney-shaped curve has two sharp cusps and a smooth rounded body, named from the Greek "nephros" (kidney). Rasterized via dense parametric point sampling with tube thickening. Visually distinct from Torus (closed ring, no cusps), Lissajous (rectangular bounding, integer frequency ratios), Helix (cylindrical spiral), and Viviani's Curve (figure-eight on sphere). 8 new tests.
+2. **Pietersite theme (120th)**: Stormy blue-gold chatoyant gemstone aesthetic — vivid stormy blue newborn cells (R 0.35, G 0.52, B 0.85) through warm golden-brown young cells (R 0.55, G 0.42, B 0.28) to deep navy mature cells (R 0.22, G 0.28, B 0.52). Unique color shift: newborn B > R > G (blue), young R > G > B (gold), mature B > R > G (dark navy). Evokes the dramatic swirling chatoyancy of natural pietersite — a brecciated aggregate of hawk's eye and tiger's eye discovered by Sid Pieters in 1962 in Namibia, nicknamed "Tempest Stone" for its stormy appearance. Distinct from Lapis Lazuli (uniform deep blue), Sodalite (deeper blue, less gold), Labradorite (more green-blue iridescence), and Tiger Eye (all gold, no blue). 7 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count == 116` to `== 117`, `patterns.count == 116` to `== 117`, and `allThemes.count == 119` to `== 120` across the test suite.
+
 ## Day 16 — Session 127 (2026-04-01 03:21 PDT)
 
 **Goal**: Nephroid pattern, Dumortierite theme, 14 new tests.

@@ -2473,6 +2473,26 @@ struct ColorTheme: Sendable, Identifiable, Hashable {
             emissiveColor: SIMD3(0.04, 0.05, 0.16),
             emissiveIntensity: 0.4, opacity: 0.10)
     )
+
+    static let pietersite = ColorTheme(
+        name: "Pietersite",
+        newborn: TierColors(
+            baseColor: SIMD4(0.35, 0.52, 0.85, 1.0),
+            emissiveColor: SIMD3(0.30, 0.48, 0.80),
+            emissiveIntensity: 2.0, opacity: 0.55),
+        young: TierColors(
+            baseColor: SIMD4(0.55, 0.42, 0.28, 1.0),
+            emissiveColor: SIMD3(0.50, 0.38, 0.24),
+            emissiveIntensity: 1.2, opacity: 0.35),
+        mature: TierColors(
+            baseColor: SIMD4(0.22, 0.28, 0.52, 1.0),
+            emissiveColor: SIMD3(0.18, 0.24, 0.48),
+            emissiveIntensity: 0.7, opacity: 0.25),
+        dying: TierColors(
+            baseColor: SIMD4(0.10, 0.12, 0.25, 1.0),
+            emissiveColor: SIMD3(0.08, 0.10, 0.22),
+            emissiveIntensity: 0.4, opacity: 0.10)
+    )
 }
 
 enum GridRenderer {
