@@ -4745,6 +4745,35 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Gabriel's Horn (Torricelli's Trumpet) — surface of revolution of y = 1/x around the x-axis.
+    /// Creates a trumpet/horn shape that flares infinitely at one end and tapers to a point.
+    mutating func loadGabrielsHorn() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 4.0 / Float(n)
+        let tubeThickness: Float = 0.12
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let fx = (Float(x) - half) * scale
+                    let fy = (Float(y) - half) * scale
+                    let fz = (Float(z) - half) * scale
+                    // Horn extends along x-axis for x > 0
+                    // Radius at position x is 1/x (clamped)
+                    let xShifted = fx + 1.8 // shift so horn starts near left edge
+                    guard xShifted > 0.3 else { continue }
+                    let radius = 1.0 / xShifted
+                    let distFromAxis = sqrtf(fy * fy + fz * fz)
+                    if abs(distFromAxis - radius) < tubeThickness {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     /// Conchospiral: a 3D spiral wound on a cone surface.
     /// Parametric curve: x = t*cos(ωt), y = t*sin(ωt), z = t, tracing a widening helix.
     /// The spiral radius grows linearly with height, producing a conical envelope.

@@ -14,6 +14,17 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 **Next Steps**: Performance profiling at 32x32x32. App icon design.
 
+## Day 16 — Session 123 (2026-04-01 02:40 PDT)
+
+**Goal**: Gabriel's Horn pattern, Pyrite theme, 11 new tests.
+
+1. **Gabriel's Horn pattern (104th, 101st cyclable)**: Torricelli's Trumpet — the surface of revolution of y = 1/x around the x-axis. Creates a trumpet/horn shape that flares at one end and tapers to a point at the other, demonstrating the famous mathematical paradox of infinite surface area but finite volume. Implemented via radial distance comparison to the 1/x curve, shifted so the horn extends across the grid from flared bell to narrow tube. Uses a tube thickness threshold to create a hollow shell surface. Visually distinct from Tube (constant radius cylinder), Seashell (spiral shell), Pseudosphere (tractrix revolution), and Catenoid (minimal surface of revolution). 6 new tests.
+2. **Pyrite theme (109th)**: Metallic gold iron sulfide mineral aesthetic — vivid brassy gold newborn cells (R 0.90, G 0.82, B 0.42) through medium dark golden-brown young cells to deep dark olive-gold mature cells fading to near-black. R > G > B across all tiers, evoking the distinctive metallic brass-gold luster of polished pyrite (FeS₂, "fool's gold") — cubic crystal habit with striated faces. Distinct from Gold (richer yellow, less green), Amber (more orange, less metallic), Saffron (more orange-yellow), Bronze (more reddish-brown), and Copper (more red-orange). 5 new tests.
+3. **Fixed stale test count assertions**: Updated allPatterns.count to 105 and allThemes.count to 109 across all test suites.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+
 ## Day 16 — Session 122 (2026-04-01 00:05 PDT)
 
 **Goal**: Lemniscate pattern, Azurite theme, 11 new tests.
