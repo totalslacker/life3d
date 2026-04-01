@@ -11180,6 +11180,12 @@ struct BorniteThemeTests {
         let rDiff = abs(bornite.newborn.baseColor.x - ametrine.newborn.baseColor.x)
         let gDiff = abs(bornite.newborn.baseColor.y - ametrine.newborn.baseColor.y)
         let bDiff = abs(bornite.newborn.baseColor.z - ametrine.newborn.baseColor.z)
+    @Test func painiteDistinctFromCrocoite() {
+        let painite = ColorTheme.painite
+        let crocoite = ColorTheme.crocoite
+        let rDiff = abs(painite.newborn.baseColor.x - crocoite.newborn.baseColor.x)
+        let gDiff = abs(painite.newborn.baseColor.y - crocoite.newborn.baseColor.y)
+        let bDiff = abs(painite.newborn.baseColor.z - crocoite.newborn.baseColor.z)
         #expect(rDiff + gDiff + bDiff > 0.05)
     }
 }
