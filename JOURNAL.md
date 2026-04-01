@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 114 (2026-03-31 23:08 PDT)
+
+**Goal**: Tesseract pattern, Chrysocolla theme, 11 new tests.
+
+1. **Tesseract pattern (95th, 94th cyclable)**: A projection of the 4D hypercube (tesseract) into 3D space. The tesseract has 16 vertices at (±1,±1,±1,±1) and 32 edges connecting vertices that differ in exactly one coordinate. Perspective-projected from 4D to 3D using a projection distance, producing the iconic nested-cube wireframe — an inner cube connected to an outer cube by 8 diagonal edges. Rasterized by stepping along each edge and thickening with a small neighborhood kernel. Visually distinct from Cage (simple wireframe cube), Lattice (periodic grid), and Menger Sponge (fractal cube). 6 new tests.
+2. **Chrysocolla theme (100th)**: Blue-green copper silicate mineral aesthetic — vivid chrysocolla newborn cells (R 0.18, G 0.82, B 0.78) through medium dark teal young cells to deep dark blue-green mature cells fading to near-black. G ≈ B > R across all tiers, evoking the distinctive vibrant blue-green of polished chrysocolla (a hydrated copper phyllosilicate). Distinct from Teal (darker, more muted), Turquoise (lighter blue), Aquamarine (more blue, less green), and Jade (more green, less blue). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 113 (2026-03-31 22:37 PDT)
 
 **Goal**: Piriform Surface pattern, Rhodochrosite theme, 11 new tests.

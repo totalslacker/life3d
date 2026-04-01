@@ -512,6 +512,8 @@ final class SimulationEngine {
             grid.loadSphericalHarmonics()
         case .goursatSurface:
             grid.loadGoursatSurface()
+        case .tesseract:
+            grid.loadTesseract()
         case .clear:
             grid.clearAll()
         }
@@ -633,6 +635,7 @@ final class SimulationEngine {
         case calabiYau = "Calabi-Yau Surface"
         case sphericalHarmonics = "Spherical Harmonics"
         case goursatSurface = "Goursat Surface"
+        case tesseract = "Tesseract"
         case clear = "Clear"
 
         var id: String { rawValue }

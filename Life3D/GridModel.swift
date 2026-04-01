@@ -4474,6 +4474,75 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+mutating func loadTesseract() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Tesseract (4D hypercube) has 16 vertices at (±1,±1,±1,±1).
+        // Perspective-project from 4D to 3D: (x,y,z,w) -> (x,y,z) / (d - w)
+        // where d is the projection distance.
+        let d: Float = 3.0
+        var vertices4D: [(Float, Float, Float, Float)] = []
+        for sx: Float in [-1, 1] {
+            for sy: Float in [-1, 1] {
+                for sz: Float in [-1, 1] {
+                    for sw: Float in [-1, 1] {
+                        vertices4D.append((sx, sy, sz, sw))
+                    }
+                }
+            }
+        }
+        // Project to 3D
+        var projected: [(Float, Float, Float)] = []
+        for v in vertices4D {
+            let scale = d / (d - v.3)
+            projected.append((v.0 * scale, v.1 * scale, v.2 * scale))
+        }
+        // Edges connect vertices that differ in exactly one coordinate
+        var edges: [(Int, Int)] = []
+        for i in 0..<16 {
+            for j in (i+1)..<16 {
+                let v1 = vertices4D[i], v2 = vertices4D[j]
+                var diffs = 0
+                if v1.0 != v2.0 { diffs += 1 }
+                if v1.1 != v2.1 { diffs += 1 }
+                if v1.2 != v2.2 { diffs += 1 }
+                if v1.3 != v2.3 { diffs += 1 }
+                if diffs == 1 { edges.append((i, j)) }
+            }
+        }
+        // Rasterize edges into the grid using Bresenham-like stepping
+        let gridScale = Float(n) * 0.28
+        let thickness: Float = 0.6
+        for (i, j) in edges {
+            let p1 = projected[i], p2 = projected[j]
+            let steps = 80
+            for s in 0...steps {
+                let t = Float(s) / Float(steps)
+                let px = p1.0 + (p2.0 - p1.0) * t
+                let py = p1.1 + (p2.1 - p1.1) * t
+                let pz = p1.2 + (p2.2 - p1.2) * t
+                let gx = Int(px * gridScale + half)
+                let gy = Int(py * gridScale + half)
+                let gz = Int(pz * gridScale + half)
+                // Thicken edges
+                for dx in -1...1 {
+                    for dy in -1...1 {
+                        for dz in -1...1 {
+                            let dist = Float(dx*dx + dy*dy + dz*dz)
+                            if dist > thickness * thickness { continue }
+                            let cx = gx + dx, cy = gy + dy, cz = gz + dz
+                            if cx >= 0 && cx < n && cy >= 0 && cy < n && cz >= 0 && cz < n {
+                                setCell(x: cx, y: cy, z: cz, alive: true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
