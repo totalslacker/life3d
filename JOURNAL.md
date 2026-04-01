@@ -2,6 +2,14 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 141 (2026-04-01 07:27 PDT)
+
+**Goal**: Wulfenite theme, 5 new tests.
+
+1. **Wulfenite theme (137th)**: Vivid orange-yellow lead molybdate mineral aesthetic — bright orange-yellow newborn cells (R 0.95, G 0.62, B 0.12) through medium dark orange young cells (R 0.82, G 0.44, B 0.08) to deep dark reddish-brown mature cells (R 0.62, G 0.28, B 0.05). R > G > B across all tiers, evoking the distinctive vivid orange to honey-yellow of natural wulfenite — a lead molybdate mineral (PbMoO₄) named after the Austrian mineralogist Franz Xavier von Wulfen (1728-1805). Prized by mineral collectors for its stunning tabular crystal habit. Distinct from Sphalerite (more honey-amber, darker), Aragonite (more honey-orange), Sunstone (sparkly aventurescence), and Citrine (more pure yellow, quartz). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 140 (2026-04-01 07:25 PDT)
 
 **Goal**: Strontianite theme, 5 new tests.
