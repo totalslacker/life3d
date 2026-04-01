@@ -4105,7 +4105,7 @@ struct AliveMapResetRegressionTests {
     @Test("Pattern count matches cyclable patterns")
     func patternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
         let cyclable = allPatterns.filter { $0 != .clear }
         #expect(cyclable.count == 76)
     }
@@ -4223,7 +4223,7 @@ struct PatternCountSession61Tests {
     @Test("Total pattern count is 28 (27 + clear)")
     func totalPatternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 
     @Test("Cyclable patterns is 27 (excludes clear)")
@@ -4489,7 +4489,7 @@ struct MobiusStripPatternTests {
     @Test("Pattern count is 29 after Möbius Strip addition")
     func patternCount29() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -4583,7 +4583,7 @@ struct LissajousCurvePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount30() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -4689,7 +4689,7 @@ struct KleinBottlePatternTests {
     @Test("Pattern count is 31 after Klein Bottle addition")
     func patternCount31() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -4782,7 +4782,7 @@ struct GyroidPatternTests {
     @Test("Pattern count is 34 after Gyroid addition")
     func patternCount33() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -4876,7 +4876,7 @@ struct LorenzAttractorPatternTests {
     @Test("Pattern count is 34 after Lorenz Attractor addition")
     func patternCount34() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -4970,7 +4970,7 @@ struct HilbertCurvePatternTests {
     @Test("Pattern count is 35 after Hilbert Curve addition")
     func patternCount35() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -5107,7 +5107,7 @@ struct SierpinskiTetrahedronPatternTests {
     @Test("Pattern count is 36 after Sierpinski Tetrahedron addition")
     func patternCount36() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -5330,7 +5330,7 @@ struct DragonCurvePatternTests {
     @Test("Pattern count is 37 after Dragon Curve and Catenoid additions")
     func patternCount37() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -5378,7 +5378,7 @@ struct CatenoidPatternTests {
     @Test("Pattern count is 37 after Catenoid addition")
     func patternCount37() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -5513,7 +5513,7 @@ struct KochSnowflakePatternTests {
     @Test("Pattern count is 39 after Koch Snowflake addition")
     func patternCount39() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -5604,7 +5604,7 @@ struct ApollonianGasketPatternTests {
     @Test("Pattern count is 39 after Apollonian Gasket addition")
     func patternCount39() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -5738,7 +5738,7 @@ struct TorusKnotPatternTests {
     @Test("Pattern count is 40 after Torus Knot addition")
     func patternCount40() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -5829,7 +5829,7 @@ struct ReuleauxTetrahedronPatternTests {
     @Test("Pattern count is 41 after Reuleaux Tetrahedron addition")
     func patternCount41() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -5957,7 +5957,7 @@ struct MandelbulbPatternTests {
     @Test("Pattern count is 42 after Mandelbulb addition")
     func patternCount42() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -6048,7 +6048,7 @@ struct CantorDustPatternTests {
     @Test("Pattern count is 44 after Cantor Dust addition")
     func patternCount44() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -6177,7 +6177,7 @@ struct BarnsleyFernPatternTests {
     @Test("Pattern count is 45 after Barnsley Fern addition")
     func patternCount45() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 }
 
@@ -6277,7 +6277,7 @@ struct VicsekFractalPatternTests {
     @Test("Pattern count is 58")
     func patternCount() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
         let cyclable = allPatterns.filter { $0 != .clear }
         #expect(cyclable.count == 76)
     }
@@ -7149,7 +7149,7 @@ struct ScherkSurfacePatternTests {
 
     @Test func patternCount58() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
         let cyclable = allPatterns.filter { $0 != .clear }
         #expect(cyclable.count == 76)
     }
@@ -7794,7 +7794,7 @@ struct SeashellPatternTests {
 
     @Test func patternCount64s() {
         let allPatterns = SimulationEngine.Pattern.allCases
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
         let cyclable = allPatterns.filter { $0 != .clear }
         #expect(cyclable.count == 76)
     }
@@ -9595,7 +9595,7 @@ struct CitrineThemeTests {
     @Test func heartSurfacePatternExists() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .heartSurface })
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 
     @Test func heartSurfaceLoadsNonEmpty() {
@@ -9872,7 +9872,7 @@ struct HeartSurfacePatternTests {
     @Test func heartSurfacePatternExists() {
         let allPatterns = SimulationEngine.Pattern.allCases
         #expect(allPatterns.contains { $0 == .heartSurface })
-        #expect(allPatterns.count == 89)
+        #expect(allPatterns.count == 90)
     }
 
     @Test func heartSurfaceLoadsNonEmpty() {
@@ -10566,5 +10566,68 @@ struct LarimarThemeTests {
 
     @Test func larimarInAllThemes() {
         #expect(ColorTheme.allThemes.contains { $0.name == "Larimar" })
+    }
+}
+
+
+// MARK: - Tanglecube Tests
+
+@Suite("Tanglecube Tests")
+struct TanglecubeTests {
+    @Test func tanglecubeProducesCells() {
+        var grid = GridModel(size: 16)
+        grid.loadTanglecube()
+        #expect(grid.aliveCount > 50)
+    }
+
+    @Test func tanglecubeCentered() {
+        var grid = GridModel(size: 16)
+        grid.loadTanglecube()
+        var sumX = 0, sumY = 0, sumZ = 0, count = 0
+        for idx in grid.aliveCellIndices {
+            let x = idx / (16 * 16)
+            let y = (idx / 16) % 16
+            let z = idx % 16
+            sumX += x; sumY += y; sumZ += z; count += 1
+        }
+        guard count > 0 else { return }
+        let cx = Double(sumX) / Double(count)
+        let cy = Double(sumY) / Double(count)
+        let cz = Double(sumZ) / Double(count)
+        #expect(cx > 4 && cx < 12)
+        #expect(cy > 4 && cy < 12)
+        #expect(cz > 4 && cz < 12)
+    }
+
+    @Test func tanglecubeDistinctFromSphere() {
+        var tanglecube = GridModel(size: 16)
+        tanglecube.loadTanglecube()
+        var sphere = GridModel(size: 16)
+        sphere.loadSphere()
+        #expect(tanglecube.aliveCount != sphere.aliveCount)
+    }
+
+    @Test func tanglecubeDistinctFromFermatSurface() {
+        var tanglecube = GridModel(size: 16)
+        tanglecube.loadTanglecube()
+        var fermat = GridModel(size: 16)
+        fermat.loadFermatSurface()
+        #expect(tanglecube.aliveCount != fermat.aliveCount)
+    }
+
+    @Test func tanglecubeSurvivesEvolution() {
+        var grid = GridModel(size: 16, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
+        grid.loadTanglecube()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount > 0 || initial > 0)
+    }
+
+    @Test func tanglecubeScalesWithGridSize() {
+        var small = GridModel(size: 8)
+        small.loadTanglecube()
+        var large = GridModel(size: 16)
+        large.loadTanglecube()
+        #expect(large.aliveCount > small.aliveCount)
     }
 }

@@ -493,6 +493,8 @@ final class SimulationEngine {
             grid.loadBarthDecic()
         case .neoviusSurface:
             grid.loadNeoviusSurface()
+        case .tanglecube:
+            grid.loadTanglecube()
         case .clear:
             grid.clearAll()
         }
@@ -604,6 +606,7 @@ final class SimulationEngine {
         case rosslerAttractor = "Rössler Attractor"
         case barthDecic = "Barth Decic"
         case neoviusSurface = "Neovius Surface"
+        case tanglecube = "Tanglecube"
         case clear = "Clear"
 
         var id: String { rawValue }

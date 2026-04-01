@@ -4237,6 +4237,34 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadTanglecube() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Tanglecube: x⁴ - 5x² + y⁴ - 5y² + z⁴ - 5z² + 11.8 = 0
+        // A quartic implicit surface producing interconnected tubular structures
+        // that form a cage-like network along the coordinate axes.
+        let scale: Float = 4.0 / half
+        let threshold: Float = 0.8
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let x2 = x * x
+                    let y2 = y * y
+                    let z2 = z * z
+                    let value = x2 * x2 - 5.0 * x2 + y2 * y2 - 5.0 * y2 + z2 * z2 - 5.0 * z2 + 11.8
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
