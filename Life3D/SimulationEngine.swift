@@ -540,6 +540,8 @@ final class SimulationEngine {
             grid.loadWhiteheadLink()
         case .loxodrome:
             grid.loadLoxodrome()
+        case .dnaHelix:
+            grid.loadDNAHelix()
         case .clear:
             grid.clearAll()
         }
@@ -675,6 +677,7 @@ final class SimulationEngine {
         case superellipsoid = "Superellipsoid"
         case whiteheadLink = "Whitehead Link"
         case loxodrome = "Loxodrome"
+        case dnaHelix = "DNA Helix"
         case clear = "Clear"
 
         var id: String { rawValue }

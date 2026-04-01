@@ -4996,6 +4996,78 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// the iconic Watson-Crick double helix structure of DNA.
+    mutating func loadDNAHelix() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let radius = Float(n) * 0.28  // Helix radius in grid cells
+        let pitch: Float = Float(n) * 0.18  // Vertical rise per full turn
+        let turns: Float = 2.5
+        let thickness: Float = max(1.0, Float(n) / 14.0)
+        let thickSq = thickness * thickness
+        let steps = n * n * 4
+        // Pre-compute strand and rung points
+        var points: [(Float, Float, Float)] = []
+        points.reserveCapacity(steps * 2 + steps / 8)
+        let totalHeight = turns * pitch
+        let zOffset = (Float(n) - totalHeight) / 2.0  // Center vertically
+        for i in 0..<steps {
+            let t = Float(i) / Float(steps - 1)
+            let angle = t * turns * 2.0 * .pi
+            let z = t * totalHeight + zOffset
+            // Strand 1
+            let x1 = radius * cos(angle) + half
+            let y1 = radius * sin(angle) + half
+            points.append((x1, y1, z))
+            // Strand 2 (180° offset)
+            let x2 = radius * cos(angle + .pi) + half
+            let y2 = radius * sin(angle + .pi) + half
+            points.append((x2, y2, z))
+        }
+        // Add connecting rungs (base pairs) every ~10 steps
+        let rungInterval = max(steps / 20, 1)
+        for i in stride(from: 0, to: steps, by: rungInterval) {
+            let t = Float(i) / Float(steps - 1)
+            let angle = t * turns * 2.0 * .pi
+            let z = t * totalHeight + zOffset
+            let x1 = radius * cos(angle) + half
+            let y1 = radius * sin(angle) + half
+            let x2 = radius * cos(angle + .pi) + half
+            let y2 = radius * sin(angle + .pi) + half
+            // Interpolate between the two strand positions
+            let rungSteps = max(Int(radius * 2.0), 4)
+            for r in 0...rungSteps {
+                let frac = Float(r) / Float(rungSteps)
+                let rx = x1 + (x2 - x1) * frac
+                let ry = y1 + (y2 - y1) * frac
+                points.append((rx, ry, z))
+            }
+        }
+        // Rasterize
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let fx = Float(ix)
+                    let fy = Float(iy)
+                    let fz = Float(iz)
+                    var minDistSq: Float = Float.greatestFiniteMagnitude
+                    for (px, py, pz) in points {
+                        let dx = fx - px
+                        let dy = fy - py
+                        let dz = fz - pz
+                        let dSq = dx * dx + dy * dy + dz * dz
+                        if dSq < minDistSq { minDistSq = dSq }
+                    }
+                    if minDistSq < thickSq {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
