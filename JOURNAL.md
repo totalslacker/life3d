@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 136 (2026-04-01 05:15 PDT)
+
+**Goal**: Witch of Agnesi pattern, Andalusite theme, 15 new tests.
+
+1. **Witch of Agnesi pattern (128th, 127th cyclable)**: The Witch of Agnesi — a bell-shaped curve defined by y = a³/(x² + a²), studied by Maria Gaetana Agnesi in her 1748 treatise *Instituzioni analitiche*. The curve was originally called "versiera" (turning curve) by Agnesi, but was mistranslated to English as "witch" due to confusion with the Italian word "avversiera" (she-devil). Despite the misnomer, it is one of the most elegant curves in analysis — a smooth, symmetric bell shape with asymptotic approach to y = 0 at infinity. The curve's maximum height is a at x = 0, and its inflection points occur at x = ±a/√3. The 2D profile (x from -3a to 3a) is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry — a dome-like bell form. Rasterized via dense parametric sampling at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Cardioid (heart-shaped, cusped), Cycloid (arch-shaped, cusped), Involute (spiral), and Sphere (uniform curvature, no asymptotic tails). 10 new tests.
+2. **Andalusite theme (132nd)**: Pink-brown aluminum silicate mineral aesthetic — vivid rose-pink newborn cells (R 0.78, G 0.48, B 0.42) through medium dark mauve young cells (R 0.58, G 0.35, B 0.30) to deep dark brown mature cells (R 0.40, G 0.24, B 0.20). R > G > B across all tiers, evoking the distinctive pink-brown of natural andalusite — an aluminum silicate polymorph (Al₂SiO₅) named after Andalusia, Spain, where it was first described. Notable for its striking pleochroism — a single crystal displays different colors (pink, brown, green) when viewed from different angles. The variety chiastolite displays a distinctive black cross pattern caused by carbonaceous inclusions, prized as a protective talisman since antiquity. Distinct from Carnelian (more orange-red), Rhodonite (more pure pink, black veins), Rosewood (darker, more muted), and Garnet (deeper red). 5 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 128, `cyclable.count` to 127, `patterns.count` to 128, and `allThemes.count` to 132 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 135 (2026-04-01 04:50 PDT)
 
 **Goal**: Involute pattern, Chrysoberyl theme, 15 new tests.

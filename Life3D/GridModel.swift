@@ -5849,6 +5849,61 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadWitchOfAgnesi() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.85
+        let profileSamples = 720
+        let revolutionSteps = 180
+
+        // Witch of Agnesi: y = a³ / (x² + a²)
+        // Bell-shaped curve, symmetric about y-axis
+        // a controls the width/height; using a = 1.0
+        let a: Float = 1.0
+        let xRange: Float = 3.0  // sample x from -3 to 3
+
+        for rs in 0..<revolutionSteps {
+            let phi = Float(rs) / Float(revolutionSteps) * 2.0 * Float.pi
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for ps in 0..<profileSamples {
+                let t = Float(ps) / Float(profileSamples) * 2.0 * xRange - xRange
+                let yVal = (a * a * a) / (t * t + a * a)
+                let px = t * scale / xRange
+                let py = yVal * scale - half * 0.3
+                // Revolve around Y axis
+                let wx = px * cosPhi + half
+                let wy = py + half
+                let wz = px * sinPhi + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
