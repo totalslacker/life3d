@@ -6196,6 +6196,70 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Tractrix — a pursuit curve studied by Christiaan Huygens in 1692. If an object is dragged
+    /// by a string along a line, the path it follows is the tractrix. Parametric form:
+    /// x = a(t - tanh(t)), y = a/cosh(t) where a is the string length. The curve is the
+    /// involute of the catenary and generates the pseudosphere (surface of constant negative
+    /// Gaussian curvature) when revolved around its asymptote. The 2D profile is revolved
+    /// around the X axis to create a trumpet/horn-like 3D form.
+    mutating func loadTractrix() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.8
+        let profileSamples = 720
+        let revolutionSteps = 180
+
+        // Tractrix: x = a(t - tanh(t)), y = a/cosh(t)
+        // a = 1.0, t ranges from 0.1 to 4.0 (avoiding t=0 where the curve starts at (0, a))
+        let a: Float = 1.0
+        let tMin: Float = 0.1
+        let tMax: Float = 4.0
+        let maxExtent: Float = tMax - tanh(tMax) // normalize to fit grid
+
+        for rs in 0..<revolutionSteps {
+            let phi = Float(rs) / Float(revolutionSteps) * 2.0 * Float.pi
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for ps in 0..<profileSamples {
+                let t = tMin + Float(ps) / Float(profileSamples) * (tMax - tMin)
+                let px = a * (t - tanh(t))
+                let py = a / cosh(t)
+                // Normalize and scale
+                let sx = (px / maxExtent) * scale
+                let sy = (py / a) * scale
+                // Revolve around X axis (the asymptote direction)
+                let wx = sx + half
+                let wy = sy * cosPhi + half
+                let wz = sy * sinPhi + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

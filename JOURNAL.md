@@ -10,6 +10,13 @@ Evolution session log. Most recent entry first. Never delete entries.
 2. **Zoisite theme (143rd)**: Blue-violet calcium aluminum silicate aesthetic — vivid blue-violet newborn cells (R 0.48, G 0.32, B 0.72) through medium dark purple young cells (R 0.35, G 0.22, B 0.55) to deep dark violet mature cells (R 0.24, G 0.14, B 0.40). B > R > G across all tiers, evoking the distinctive blue-violet of natural zoisite — a calcium aluminum hydroxy sorosilicate (Ca₂Al₃(SiO₄)(Si₂O₇)O(OH)) first described in 1805 and named after Slovenian naturalist Baron Sigmund Zois von Edelstein. The gem variety tanzanite (blue-violet zoisite from Tanzania) is one of the most prized colored gemstones. Distinct from Tanzanite (more saturated blue), Charoite (more lilac-purple), Amethyst (more red-purple), and Sugilite (more manganese-pink). 5 new tests.
 3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 133, `cyclable.count` to 132, and `allThemes.count` to 143 across the test suite.
 
+## Day 16 — Session 147 (2026-04-01 08:20 PDT)
+
+**Goal**: Tractrix pattern, Kornerupine theme, 15 new tests.
+
+1. **Tractrix pattern (133rd, 132nd cyclable)**: The tractrix — a pursuit curve studied by Christiaan Huygens in 1692. If an object is dragged by a taut string along a straight line, the path it traces is the tractrix. Parametric form: x = a(t - tanh(t)), y = a/cosh(t). The curve is the involute of the catenary and generates the pseudosphere (surface of constant negative Gaussian curvature) when revolved around its asymptote. The 2D profile (t from 0.1 to 4.0) is revolved around the X axis to create a trumpet/horn-like 3D solid. Visually distinct from Pseudosphere (full surface vs curve), Gabriel's Horn (infinite extent), Catenoid (minimal surface, different profile), and Conchoid (sec-based curve, wider form). 10 new tests.
+2. **Kornerupine theme (143rd)**: Olive-green borosilicate mineral aesthetic — G > R > B across all tiers. Vivid olive-green newborn cells (R 0.52, G 0.68, B 0.35) through medium dark olive young (R 0.38, G 0.52, B 0.25) to deep dark green mature (R 0.25, G 0.38, B 0.16). Named after Danish geologist Andreas Nikolaus Kornerup (1857-1881). A rare borosilicate mineral found in Sri Lanka and Madagascar, prized for its strong pleochroism (green, yellow-brown, reddish-brown from different viewing angles). Distinct from Prehnite (more pale yellow-green), Peridot (more vivid yellow-green), Moldavite (more glass-green), and Tsavorite (more chrome-green). 5 new tests.
+
 **Next Steps**: Performance profiling at 32x32x32. App icon design.
 
 ## Day 16 — Session 146 (2026-04-01 07:45 PDT)
