@@ -3,6 +3,17 @@
 Evolution session log. Most recent entry first. Never delete entries.
 
 
+## Day 15 — Session 121 (2026-04-01 00:00 PDT)
+
+**Goal**: Pillow Surface pattern, Agate theme, 11 new tests.
+
+1. **Pillow Surface pattern (100th, 99th cyclable)**: An implicit algebraic surface defined by x²z² + y²z² + x²y² - x²y²z² = k. The equation combines pairwise-squared terms with a sextic correction, producing a cushion or pillow shape — a soft rounded form with concave indentations along the coordinate axes. The surface exhibits octahedral symmetry (all coordinate permutations and reflections are equivalent). Uses an implicit isosurface approach — iterates the 3D grid, evaluates the equation at each cell, and activates cells where |value| < threshold. Visually distinct from Goursat Surface (quartic cushion cube, different concavity profile), Fermat Surface (uniformly rounded cube), and Astroidal Ellipsoid (star-shaped indentations). 6 new tests.
+2. **Agate theme (104th)**: Warm banded brown-orange gemstone aesthetic inspired by natural agate (banded chalcedony) — vivid warm orange-brown newborn cells (R 0.88, G 0.62, B 0.35) through medium dark russet young cells to deep dark brown mature cells fading to near-black. R > G > B across all tiers, evoking the distinctive warm layered bands of polished agate ranging from honey to deep brown. Distinct from Amber (more golden-yellow), Sienna (earthier, less orange), Umber (darker, more neutral brown), Terracotta (more earthy-red), and Ochre (more yellow-brown). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
+
 ## Day 15 — Session 120 (2026-03-31 23:52 PDT)
 
 **Goal**: Metaballs pattern, Kyanite theme, 11 new tests.

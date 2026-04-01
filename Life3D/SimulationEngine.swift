@@ -522,6 +522,8 @@ final class SimulationEngine {
             grid.loadHopfLink()
         case .metaballs:
             grid.loadMetaballs()
+        case .pillowSurface:
+            grid.loadPillowSurface()
         case .clear:
             grid.clearAll()
         }
@@ -648,6 +650,7 @@ final class SimulationEngine {
         case eightSurface = "Eight Surface"
         case hopfLink = "Hopf Link"
         case metaballs = "Metaballs"
+        case pillowSurface = "Pillow Surface"
         case clear = "Clear"
 
         var id: String { rawValue }
