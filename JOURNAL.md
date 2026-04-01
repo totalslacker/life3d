@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 135 (2026-04-01 04:50 PDT)
+
+**Goal**: Involute pattern, Chrysoberyl theme, 15 new tests.
+
+1. **Involute pattern (127th, 126th cyclable)**: The involute of a circle — the curve traced by the end of a taut string unwinding from a circular spool. Parametric form: x = a(cos(t) + t·sin(t)), y = a(sin(t) - t·cos(t)), where the parameter t controls how much string has unwound. As t increases, the curve spirals outward with ever-increasing radius of curvature, creating a distinctive spiral that starts tangent to the base circle and expands smoothly. The involute is fundamental in gear design — involute tooth profiles ensure constant velocity ratios between meshing gears. Studied by Christiaan Huygens in 1673 for the design of pendulum clocks (the involute of a cycloid is another cycloid). The 2D profile (t from 0 to 3π, ~1.5 turns) is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry — a shell-like spiral form. Rasterized via dense parametric sampling at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Conchospiral (logarithmic spiral, constant angle), Loxodrome (spiral on sphere), Cycloid (rolling circle, arch shape), and Hypotrochoid (rolls inside a circle). 10 new tests.
+2. **Chrysoberyl theme (131st)**: Golden-yellow beryllium aluminate mineral aesthetic — vivid golden-yellow newborn cells (R 0.92, G 0.85, B 0.28) through medium dark gold young cells (R 0.72, G 0.65, B 0.18) to deep dark olive-gold mature cells (R 0.50, G 0.44, B 0.10). R > G > B across all tiers, evoking the distinctive golden-yellow to greenish-yellow of natural chrysoberyl — a beryllium aluminate (BeAl₂O₄) that is the third-hardest commonly encountered natural gemstone (8.5 Mohs). Its alexandrite variety exhibits dramatic color change from green in daylight to red in incandescent light. The name derives from Greek "chrysos" (gold) and "beryllos" (beryl). Distinct from Gold (more orange-toned), Citrine (more pure yellow, quartz), Topaz (more amber), and Saffron (more orange, warmer). 5 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 127, `cyclable.count` to 126, `patterns.count` to 127, and `allThemes.count` to 131 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 134 (2026-04-01 04:45 PDT)
 
 **Goal**: Cycloid pattern, Aragonite theme, 15 new tests.
