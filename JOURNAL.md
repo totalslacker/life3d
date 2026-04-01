@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 15 — Session 110 (2026-03-31 22:10 PDT)
+
+**Goal**: Tanglecube pattern, Jasper theme, 11 new tests.
+
+1. **Tanglecube pattern (88th, 87th cyclable)**: A quartic algebraic surface defined by x⁴ - 5x² + y⁴ - 5y² + z⁴ - 5z² + 11.8 = 0. The equation produces a visually striking form resembling three intersecting rounded tubes along the coordinate axes — a "tangled cube" with smooth, organic intersections. Each pair of opposite faces of a cube has a tube-like channel passing through, creating a distinctive six-lobed shape with cubic symmetry. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the quartic equation at each cell, and activates cells where |value| < threshold. Visually distinct from Fermat Surface (rounded cube, no channels), Gyroid (triply periodic minimal), Schwarz P Surface (periodic cubic), and Steinmetz Solid (cylinder intersections). 6 new tests.
+2. **Jasper theme (90th)**: Warm red-brown opaque gemstone aesthetic — vivid jasper newborn cells (R 0.82, G 0.35, B 0.18) through medium dark rust-brown young cells to deep dark brown mature cells fading to near-black. R > G > B across all tiers, evoking the distinctive earthy red-brown of polished red jasper (a variety of chalcedony). Distinct from Carnelian (more orange-red, brighter), Terracotta (earthier, more orange), Vermilion (purer red), Sienna (more brown-orange), and Mahogany (darker, more brown). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 ## Day 15 — Session 109 (2026-03-31 21:15 PDT)
 
 **Goal**: Heart Surface pattern, Rhodonite theme, 11 new tests.
