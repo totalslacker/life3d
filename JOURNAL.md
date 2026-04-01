@@ -3,6 +3,17 @@
 Evolution session log. Most recent entry first. Never delete entries.
 
 
+## Day 15 — Session 120 (2026-03-31 23:52 PDT)
+
+**Goal**: Metaballs pattern, Kyanite theme, 11 new tests.
+
+1. **Metaballs pattern (100th, 99th cyclable)**: An isosurface visualization of the classic metaball (blobby surface) technique from computer graphics. Five point charges are placed in an asymmetric configuration within the grid — center, right-front, left-top, bottom-right-back, and left-bottom-front. At each cell, the scalar field is computed as the sum of 1/r² from each charge point (with a small epsilon to avoid singularity). Cells are activated where the field value lies within a shell band around a threshold, producing smooth organic blobby surfaces that merge where charges are close together and separate where they're far apart. The asymmetric charge placement creates an interesting non-symmetric shape with visible merging regions. Visually distinct from Sphere (single round shell), Voronoi Cells (hard-edged regions), Apollonian Gasket (nested spheres), and Perlin Noise (random volumetric). 6 new tests.
+2. **Kyanite theme (104th)**: Blue-gray aluminosilicate mineral aesthetic — medium blue-gray newborn cells (R 0.38, G 0.52, B 0.82) through darker slate-blue young cells to deep navy-gray mature cells fading to near-black. B > G > R across all tiers, evoking the distinctive blade-like blue crystals of natural kyanite (an aluminum silicate polymorph). The gray undertone gives it a more subdued, mineralogical feel compared to brighter blues. Distinct from Sapphire (purer, more saturated blue), Sodalite (more royal blue), Lapis Lazuli (deeper with gold undertones), Cobalt (more metallic blue), and Denim (lighter, grayer). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
+
 ## Day 15 — Session 119 (2026-03-31 23:45 PDT)
 
 **Goal**: Hopf Link pattern, Azurite theme, 11 new tests.

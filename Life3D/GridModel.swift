@@ -4627,6 +4627,43 @@ mutating func loadTesseract() {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadMetaballs() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 2.0 / half
+        let charges: [(Float, Float, Float)] = [
+            ( 0.0,  0.0,  0.0),
+            ( 0.8,  0.3, -0.2),
+            (-0.6,  0.7,  0.4),
+            ( 0.2, -0.8,  0.5),
+            (-0.4, -0.3, -0.7),
+        ]
+        let threshold: Float = 2.8
+        let shellWidth: Float = 0.5
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    var field: Float = 0.0
+                    for c in charges {
+                        let dx = x - c.0
+                        let dy = y - c.1
+                        let dz = z - c.2
+                        let distSq = dx * dx + dy * dy + dz * dz + 0.01
+                        field += 1.0 / distSq
+                    }
+                    if abs(field - threshold) < shellWidth {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
