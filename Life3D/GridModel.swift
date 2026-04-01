@@ -4265,6 +4265,32 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadChmutovSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 2.2 / half
+        let threshold: Float = 0.6
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    // T₄(t) = 8t⁴ - 8t² + 1 (Chebyshev polynomial of the first kind, degree 4)
+                    let tx = 8*x*x*x*x - 8*x*x + 1
+                    let ty = 8*y*y*y*y - 8*y*y + 1
+                    let tz = 8*z*z*z*z - 8*z*z + 1
+                    let value = tx + ty + tz
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
