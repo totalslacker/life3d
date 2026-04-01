@@ -4772,21 +4772,36 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
-    mutating func loadSuperellipsoid() {
+    /// Whitehead Link — two interlocked torus loops where one ring passes through the other
+    /// twice, creating a link with linking number zero but non-trivial topology. The first
+    /// ring is a standard torus in the XY plane; the second is a figure-eight shaped loop
+    /// that threads through the first ring's hole twice. Uses implicit torus distance fields
+    /// with the second torus offset and elongated to create the double-threading geometry.
+    /// Visually distinct from Hopf Link (single pass-through, linking number 1), Borromean
+    /// Rings (three rings, no pair linking), Torus Knot (single knotted curve), and Trefoil
+    /// Knot (single overhand knot).
+    mutating func loadWhiteheadLink() {
         clearAll()
         let n = size
         let half = Float(n) / 2.0
-        let scale: Float = 2.6 / Float(n)
-        let exponent: Float = 0.6
-        let threshold: Float = 0.12
+        let scale = Float(n) * 0.30
+        let R: Float = 0.55
+        let r: Float = 0.14
+        let thickness: Float = 1.2
         for x in 0..<n {
             for y in 0..<n {
                 for z in 0..<n {
-                    let fx = (Float(x) - half) * scale
-                    let fy = (Float(y) - half) * scale
-                    let fz = (Float(z) - half) * scale
-                    let value = powf(abs(fx), exponent) + powf(abs(fy), exponent) + powf(abs(fz), exponent)
-                    if abs(value - 1.0) < threshold {
+                    let fx = (Float(x) - half) / scale
+                    let fy = (Float(y) - half) / scale
+                    let fz = (Float(z) - half) / scale
+                    // Ring 1: standard torus in XY plane
+                    let d1 = sqrtf(fx * fx + fy * fy) - R
+                    let dist1 = sqrtf(d1 * d1 + fz * fz)
+                    // Ring 2: elongated torus in XZ plane, offset along Y to thread through ring 1 twice
+                    let stretchedX = fx * 0.65
+                    let d2 = sqrtf(stretchedX * stretchedX + fz * fz) - R * 0.85
+                    let dist2 = sqrtf(d2 * d2 + (fy - R * 0.15) * (fy - R * 0.15))
+                    if dist1 < r * thickness || dist2 < r * thickness {
                         setCell(x: x, y: y, z: z, alive: true)
                     }
                 }
@@ -4830,6 +4845,29 @@ struct GridModel: Sendable {
                     let dist2 = sqrtf(d2 * d2 + (fy - sep) * (fy - sep))
 
                     if dist1 < r * thickness || dist2 < r * thickness {
+                        setCell(x: x, y: y, z: z, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
+    mutating func loadSuperellipsoid() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 2.6 / Float(n)
+        let exponent: Float = 0.6
+        let threshold: Float = 0.12
+        for x in 0..<n {
+            for y in 0..<n {
+                for z in 0..<n {
+                    let fx = (Float(x) - half) * scale
+                    let fy = (Float(y) - half) * scale
+                    let fz = (Float(z) - half) * scale
+                    let value = powf(abs(fx), exponent) + powf(abs(fy), exponent) + powf(abs(fz), exponent)
+                    if abs(value - 1.0) < threshold {
                         setCell(x: x, y: y, z: z, alive: true)
                     }
                 }
