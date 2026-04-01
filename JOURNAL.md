@@ -16,6 +16,16 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 1. **Lidinoid pattern (92nd, 91st cyclable)**: A triply periodic minimal surface discovered by Sven Lidin in 1990, closely related to the Gyroid. Approximated by the implicit equation sin(2x)cos(y)sin(z) + sin(2y)cos(z)sin(x) + sin(2z)cos(x)sin(y) - cos(2x)cos(2y) - cos(2y)cos(2z) - cos(2z)cos(2x) + 0.3 = 0. Like the Gyroid, it has cubic symmetry and divides space into two congruent labyrinthine regions, but with a different topology — it belongs to space group I4₁32 rather than Ia3̄d. Uses an implicit isosurface approach — iterates the 3D grid, evaluates the trigonometric equation at each cell, and activates cells where |value| < threshold. Visually distinct from Gyroid (different channel geometry), Schwarz P Surface (simpler cubic holes), Schwarz D Surface (diamond channels), and Neovius Surface (larger chambers). 6 new tests.
 2. **Sodalite theme (96th)**: Rich royal blue mineral aesthetic — vivid sodalite newborn cells (R 0.22, G 0.32, B 0.88) through medium dark navy-blue young cells to deep dark blue mature cells fading to near-black. B > G > R across all tiers, evoking the distinctive rich royal blue of polished sodalite (a feldspathoid mineral). Distinct from Sapphire (purer blue, less green), Lapis Lazuli (deeper with gold tones), Cobalt (more metallic), Indigo (more purple), and Denim (lighter, grayer). 5 new tests.
+---
+## Day 15 — Session 112 (2026-03-31 22:57 PDT)
+
+**Goal**: Goursat Surface pattern, Hematite theme, fix broken Enriques/Amber tests, 11 new tests.
+
+1. **Goursat Surface pattern (93rd, 92nd cyclable)**: A quartic algebraic surface discovered by Edouard Goursat, defined by x⁴ + y⁴ + z⁴ + a(x² + y² + z²)² = b. With a=-0.5, b=0.5, the surface produces a distinctive cube-like shape with concave faces — a "cushion cube" with octahedral symmetry that smoothly interpolates between a sphere (a=0) and a cube (a→-∞). Uses an implicit isosurface approach — iterates the 3D grid, evaluates the quartic equation at each cell, and activates cells where |value| < threshold. Visually distinct from Fermat Surface (convex rounded cube), Tanglecube (tube-like channels), Chmutov Surface (Chebyshev oscillations), and Enriques Surface (self-intersecting lobes). 6 new tests.
+2. **Hematite theme (97th)**: Dark metallic silvery-gray iron oxide mineral aesthetic — silvery-gray newborn cells (R 0.72, G 0.70, B 0.74) through medium dark gunmetal young cells to deep charcoal mature cells fading to near-black. B >= R >= G across all tiers (near-neutral with slight cool shift), evoking the distinctive metallic sheen of polished hematite (iron(III) oxide). Distinct from Slate (bluer, more saturated), Graphite (darker, more neutral), Pewter (warmer, tin-based), and Titanium (brighter, more metallic). 5 new tests.
+3. **Fixed broken Enriques/Amber tests**: Previous session left test functions without closing braces and missing variable declarations. Rebuilt with proper syntax, added missing `#expect(diff > 0.1)` assertions.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
 
 ---
 ## Day 15 — Session 111 (2026-03-31 22:24 PDT)
