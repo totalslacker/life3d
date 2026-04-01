@@ -6052,42 +6052,6 @@ struct CantorDustPatternTests {
     }
 }
 
-// MARK: - Aquamarine Theme Tests (Session 73)
-
-@Suite("Aquamarine Theme Tests")
-struct AquamarineThemeTests {
-    @Test("Aquamarine theme exists in allThemes")
-    func aquamarineExists() {
-        let found = ColorTheme.allThemes.contains { $0.name == "Aquamarine" }
-        #expect(found)
-    }
-
-    @Test("Aquamarine has decreasing emissive intensity by age")
-    func aquamarineColorProgression() {
-        let theme = ColorTheme.aquamarine
-        #expect(theme.newborn.emissiveIntensity > theme.young.emissiveIntensity)
-        #expect(theme.young.emissiveIntensity > theme.mature.emissiveIntensity)
-        #expect(theme.mature.emissiveIntensity > theme.dying.emissiveIntensity)
-    }
-
-    @Test("Aquamarine opacity decreases with age")
-    func aquamarineOpacityDecay() {
-        let theme = ColorTheme.aquamarine
-        #expect(theme.newborn.opacity > theme.young.opacity)
-        #expect(theme.young.opacity > theme.mature.opacity)
-        #expect(theme.mature.opacity > theme.dying.opacity)
-    }
-
-    @Test("Aquamarine is blue-green (green > blue > red across tiers)")
-    func aquamarineBlueGreen() {
-        let theme = ColorTheme.aquamarine
-        #expect(theme.newborn.emissiveColor.y > theme.newborn.emissiveColor.z)
-        #expect(theme.newborn.emissiveColor.z > theme.newborn.emissiveColor.x)
-        #expect(theme.mature.emissiveColor.y > theme.mature.emissiveColor.z)
-        #expect(theme.mature.emissiveColor.z > theme.mature.emissiveColor.x)
-    }
-}
-
 // MARK: - Bronze Theme Tests (Session 74)
 
 @Suite("Bronze Theme Tests")
@@ -9951,68 +9915,6 @@ struct SunstoneThemeTests {
     }
 }
 
-// MARK: - Heart Surface Pattern Tests
-
-@Suite("Heart Surface Pattern Tests")
-struct HeartSurfacePatternTests {
-    @Test func heartProducesCells() {
-        var grid = GridModel(size: 16)
-        grid.loadHeartSurface()
-        #expect(grid.aliveCount > 50)
-    }
-
-    @Test func heartCentered() {
-        var grid = GridModel(size: 16)
-        grid.loadHeartSurface()
-        var sumX = 0, sumY = 0, sumZ = 0, count = 0
-        for idx in grid.aliveCellIndices {
-            let x = idx / (16 * 16)
-            let y = (idx / 16) % 16
-            let z = idx % 16
-            sumX += x; sumY += y; sumZ += z; count += 1
-        }
-        guard count > 0 else { return }
-        let cx = Double(sumX) / Double(count)
-        let cy = Double(sumY) / Double(count)
-        let cz = Double(sumZ) / Double(count)
-        #expect(cx > 4 && cx < 12)
-        #expect(cy > 4 && cy < 12)
-        #expect(cz > 4 && cz < 12)
-    }
-
-    @Test func heartDistinctFromSphere() {
-        var heart = GridModel(size: 16)
-        heart.loadHeartSurface()
-        var sphere = GridModel(size: 16)
-        sphere.loadSphere()
-        #expect(heart.aliveCount != sphere.aliveCount)
-    }
-
-    @Test func heartDistinctFromFermatSurface() {
-        var heart = GridModel(size: 16)
-        heart.loadHeartSurface()
-        var fermat = GridModel(size: 16)
-        fermat.loadFermatSurface()
-        #expect(heart.aliveCount != fermat.aliveCount)
-    }
-
-    @Test func heartSurvivesEvolution() {
-        var grid = GridModel(size: 16, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
-        grid.loadHeartSurface()
-        let initial = grid.aliveCount
-        grid.advanceGeneration()
-        #expect(grid.aliveCount > 0 || initial > 0)
-    }
-
-    @Test func heartScalesWithGridSize() {
-        var small = GridModel(size: 8)
-        small.loadHeartSurface()
-        var large = GridModel(size: 16)
-        large.loadHeartSurface()
-        #expect(large.aliveCount > small.aliveCount)
-    }
-}
-
 // MARK: - Rhodonite Theme Tests
 
 @Suite("Rhodonite Theme Tests")
@@ -10049,102 +9951,6 @@ struct RhodoniteThemeTests {
     }
 }
 
-// MARK: - Rhodonite Theme Tests
-
-@Suite("Rhodonite Theme Tests")
-struct RhodoniteThemeTests {
-    @Test func rhodonitePinkDominant() {
-        let nb = ColorTheme.rhodonite.newborn.baseColor
-        #expect(nb.x > nb.y)
-        #expect(nb.x > nb.z)
-    }
-
-    @Test func rhodoniteBlueOverGreen() {
-        let nb = ColorTheme.rhodonite.newborn.baseColor
-        #expect(nb.z > nb.y)
-    }
-
-    @Test func rhodoniteDistinctFromSakura() {
-        let rhodonite = ColorTheme.rhodonite.newborn.baseColor
-        let sakura = ColorTheme.sakura.newborn.baseColor
-        let diff = abs(rhodonite.x - sakura.x) + abs(rhodonite.y - sakura.y) + abs(rhodonite.z - sakura.z)
-        #expect(diff > 0.1)
-    }
-
-    @Test func rhodoniteDistinctFromRoseGold() {
-        let rhodonite = ColorTheme.rhodonite.newborn.baseColor
-        let roseGold = ColorTheme.roseGold.newborn.baseColor
-        let diff = abs(rhodonite.x - roseGold.x) + abs(rhodonite.y - roseGold.y) + abs(rhodonite.z - roseGold.z)
-        #expect(diff > 0.1)
-    }
-
-    @Test func rhodoniteInAllThemes() {
-        #expect(ColorTheme.allThemes.contains { $0.name == "Rhodonite" })
-    }
-}
-
-// MARK: - Heart Surface Pattern Tests
-
-@Suite("Heart Surface Pattern Tests")
-struct HeartSurfacePatternTests {
-    @Test func heartProducesCells() {
-        var grid = GridModel(size: 16)
-        grid.loadHeartSurface()
-        #expect(grid.aliveCount > 50)
-    }
-
-    @Test func heartCentered() {
-        var grid = GridModel(size: 16)
-        grid.loadHeartSurface()
-        var sumX = 0, sumY = 0, sumZ = 0, count = 0
-        for idx in grid.aliveCellIndices {
-            let x = idx / (16 * 16)
-            let y = (idx / 16) % 16
-            let z = idx % 16
-            sumX += x; sumY += y; sumZ += z; count += 1
-        }
-        guard count > 0 else { return }
-        let cx = Double(sumX) / Double(count)
-        let cy = Double(sumY) / Double(count)
-        let cz = Double(sumZ) / Double(count)
-        #expect(cx > 4 && cx < 12)
-        #expect(cy > 4 && cy < 12)
-        #expect(cz > 4 && cz < 12)
-    }
-
-    @Test func heartDistinctFromSphere() {
-        var heart = GridModel(size: 16)
-        heart.loadHeartSurface()
-        var sphere = GridModel(size: 16)
-        sphere.loadSphere()
-        #expect(heart.aliveCount != sphere.aliveCount)
-    }
-
-    @Test func heartDistinctFromFermatSurface() {
-        var heart = GridModel(size: 16)
-        heart.loadHeartSurface()
-        var fermat = GridModel(size: 16)
-        fermat.loadFermatSurface()
-        #expect(heart.aliveCount != fermat.aliveCount)
-    }
-
-    @Test func heartSurvivesEvolution() {
-        var grid = GridModel(size: 16, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
-        grid.loadHeartSurface()
-        let initial = grid.aliveCount
-        grid.advanceGeneration()
-        #expect(grid.aliveCount > 0 || initial > 0)
-    }
-
-    @Test func heartScalesWithGridSize() {
-        var small = GridModel(size: 8)
-        small.loadHeartSurface()
-        var large = GridModel(size: 16)
-        large.loadHeartSurface()
-        #expect(large.aliveCount > small.aliveCount)
-    }
-}
-
 // MARK: - Lapis Lazuli Theme Tests
 
 @Suite("Lapis Lazuli Theme Tests")
@@ -10178,68 +9984,6 @@ struct LapisLazuliThemeTests {
 
     @Test func lapisInAllThemes() {
         #expect(ColorTheme.allThemes.contains { $0.name == "Lapis Lazuli" })
-    }
-}
-
-// MARK: - Heart Surface Pattern Tests
-
-@Suite("Heart Surface Pattern Tests")
-struct HeartSurfacePatternTests {
-    @Test func heartProducesCells() {
-        var grid = GridModel(size: 16)
-        grid.loadHeartSurface()
-        #expect(grid.aliveCount > 50)
-    }
-
-    @Test func heartCentered() {
-        var grid = GridModel(size: 16)
-        grid.loadHeartSurface()
-        var sumX = 0, sumY = 0, sumZ = 0, count = 0
-        for idx in grid.aliveCellIndices {
-            let x = idx / (16 * 16)
-            let y = (idx / 16) % 16
-            let z = idx % 16
-            sumX += x; sumY += y; sumZ += z; count += 1
-        }
-        guard count > 0 else { return }
-        let cx = Double(sumX) / Double(count)
-        let cy = Double(sumY) / Double(count)
-        let cz = Double(sumZ) / Double(count)
-        #expect(cx > 4 && cx < 12)
-        #expect(cy > 4 && cy < 12)
-        #expect(cz > 4 && cz < 12)
-    }
-
-    @Test func heartDistinctFromSphere() {
-        var heart = GridModel(size: 16)
-        heart.loadHeartSurface()
-        var sphere = GridModel(size: 16)
-        sphere.loadSphere()
-        #expect(heart.aliveCount != sphere.aliveCount)
-    }
-
-    @Test func heartDistinctFromFermatSurface() {
-        var heart = GridModel(size: 16)
-        heart.loadHeartSurface()
-        var fermat = GridModel(size: 16)
-        fermat.loadFermatSurface()
-        #expect(heart.aliveCount != fermat.aliveCount)
-    }
-
-    @Test func heartSurvivesEvolution() {
-        var grid = GridModel(size: 16, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
-        grid.loadHeartSurface()
-        let initial = grid.aliveCount
-        grid.advanceGeneration()
-        #expect(grid.aliveCount > 0 || initial > 0)
-    }
-
-    @Test func heartScalesWithGridSize() {
-        var small = GridModel(size: 8)
-        small.loadHeartSurface()
-        var large = GridModel(size: 16)
-        large.loadHeartSurface()
-        #expect(large.aliveCount > small.aliveCount)
     }
 }
 
@@ -10631,3 +10375,4 @@ struct TanglecubeTests {
         #expect(large.aliveCount > small.aliveCount)
     }
 }
+
