@@ -572,6 +572,8 @@ final class SimulationEngine {
             grid.loadInvolute()
         case .witchOfAgnesi:
             grid.loadWitchOfAgnesi()
+        case .foliumOfDescartes:
+            grid.loadFoliumOfDescartes()
         case .clear:
             grid.clearAll()
         }
@@ -723,6 +725,7 @@ final class SimulationEngine {
         case cycloid = "Cycloid"
         case involute = "Involute"
         case witchOfAgnesi = "Witch of Agnesi"
+        case foliumOfDescartes = "Folium of Descartes"
         case clear = "Clear"
 
         var id: String { rawValue }

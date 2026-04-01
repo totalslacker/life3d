@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 137 (2026-04-01 07:15 PDT)
+
+**Goal**: Folium of Descartes pattern, Sphalerite theme, 15 new tests.
+
+1. **Folium of Descartes pattern (129th, 128th cyclable)**: The Folium of Descartes — a famous algebraic curve defined implicitly by x³ + y³ = 3axy, first discussed by Descartes in 1638 in a letter to Mersenne, and studied further by Roberval who named it the "feuille" (leaf). Parametric form: x = 3at/(1+t³), y = 3at²/(1+t³), where the curve has a distinctive leaf-shaped loop in the first quadrant, passes through the origin where it forms a node (self-intersection), and has an asymptote along x + y + a = 0. The loop portion (t from 0 to ∞ for the upper branch) creates an elegant teardrop/leaf profile. The parameter range avoids t = -1 where the denominator vanishes (pole of the curve). The 2D leaf profile is revolved around the Y axis to create a 3D solid of revolution with rotational symmetry — a bulbous, leaf-like form. Rasterized via dense parametric sampling at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Witch of Agnesi (bell-shaped, symmetric, no loop), Cardioid (heart-shaped, cusped), Limaçon (inner loop but different profile), and Involute (spiral, no loop). 10 new tests.
+2. **Sphalerite theme (133rd)**: Warm honey-amber zinc sulfide mineral aesthetic — vivid honey-amber newborn cells (R 0.88, G 0.72, B 0.30) through medium dark amber young cells (R 0.68, G 0.50, B 0.20) to deep dark resinous brown mature cells (R 0.46, G 0.32, B 0.12). R > G > B across all tiers, evoking the distinctive honey-amber to dark resinous brown of natural sphalerite — a zinc sulfide mineral (ZnS) that is the most important ore of zinc. Named from the Greek "sphaleros" (deceiving) because it was frequently confused with galena (lead ore) but yielded no lead. Gem-quality sphalerite has extraordinary dispersion (fire) — 0.156, over three times that of diamond (0.044), making faceted specimens flash with brilliant spectral colors. Distinct from Amber (more yellow-gold, organic resin), Topaz (more golden, aluminum silicate), Aragonite (more orange, calcium carbonate), and Chrysoberyl (more pure yellow-gold). 5 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 129, `cyclable.count` to 128, `patterns.count` to 129, and `allThemes.count` to 133 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 136 (2026-04-01 05:15 PDT)
 
 **Goal**: Witch of Agnesi pattern, Andalusite theme, 15 new tests.

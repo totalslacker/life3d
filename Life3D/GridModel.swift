@@ -5904,6 +5904,66 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadFoliumOfDescartes() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let thickness: Float = max(1.0, Float(n) / 12.0)
+        let thickSq = thickness * thickness
+        let scale = half * 0.75
+        let profileSamples = 720
+        let revolutionSteps = 180
+
+        // Folium of Descartes: x³ + y³ = 3axy
+        // Parametric form: x = 3at/(1+t³), y = 3at²/(1+t³)
+        // The curve has a distinctive leaf (folium) shape with a loop
+        // in the first quadrant and asymptotic branches approaching
+        // the line x + y + a = 0.
+        let a: Float = 1.0
+
+        for rs in 0..<revolutionSteps {
+            let phi = Float(rs) / Float(revolutionSteps) * 2.0 * Float.pi
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for ps in 0..<profileSamples {
+                // Parameter t from -0.8 to 8.0 (avoiding t = -1 where denominator = 0)
+                let t = Float(ps) / Float(profileSamples) * 8.8 - 0.8
+                let denom = 1.0 + t * t * t
+                guard abs(denom) > 0.01 else { continue }
+                let fx = 3.0 * a * t / denom
+                let fy = 3.0 * a * t * t / denom
+                let px = fx * scale / 2.0
+                let py = fy * scale / 2.0 - half * 0.2
+                // Revolve around Y axis
+                let wx = px * cosPhi + half
+                let wy = py + half
+                let wz = px * sinPhi + half
+                let ix = Int(wx)
+                let iy = Int(wy)
+                let iz = Int(wz)
+                guard ix >= 0 && ix < n && iy >= 0 && iy < n && iz >= 0 && iz < n else { continue }
+                let range = Int(thickness)
+                for dx in -range...range {
+                    for dy in -range...range {
+                        for dz in -range...range {
+                            let distSq = Float(dx * dx + dy * dy + dz * dz)
+                            if distSq <= thickSq {
+                                let nx = ix + dx
+                                let ny = iy + dy
+                                let nz = iz + dz
+                                if nx >= 0 && nx < n && ny >= 0 && ny < n && nz >= 0 && nz < n {
+                                    setCell(x: nx, y: ny, z: nz, alive: true)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
