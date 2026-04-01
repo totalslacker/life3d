@@ -566,6 +566,8 @@ final class SimulationEngine {
             grid.loadEpitrochoid()
         case .hypotrochoid:
             grid.loadHypotrochoid()
+        case .cycloid:
+            grid.loadCycloid()
         case .clear:
             grid.clearAll()
         }
@@ -714,6 +716,7 @@ final class SimulationEngine {
         case limacon = "Limaçon"
         case epitrochoid = "Epitrochoid"
         case hypotrochoid = "Hypotrochoid"
+        case cycloid = "Cycloid"
         case clear = "Clear"
 
         var id: String { rawValue }

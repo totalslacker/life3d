@@ -2,6 +2,16 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 134 (2026-04-01 04:45 PDT)
+
+**Goal**: Cycloid pattern, Aragonite theme, 15 new tests.
+
+1. **Cycloid pattern (126th, 125th cyclable)**: The curve traced by a point on a circle of radius R rolling along a straight line — one of the most celebrated curves in the history of mathematics, studied by Galileo (1599), Mersenne, Roberval, Pascal, and the Bernoullis. Called the "Helen of Geometers" for the disputes it provoked. Parametric form: x = R(t - sin(t)), y = R(1 - cos(t)), producing the classic arch shape where the tracing point touches the line at cusps spaced 2πR apart. The single arch (t from 0 to 2π) is scaled and revolved around the Y axis to create a 3D solid of revolution with rotational symmetry — a dome-like shape with the arch profile visible from every angle. Rasterized via dense parametric sampling at multiple revolution angles with spherical neighborhood thickening. Visually distinct from Cardioid (heart-shaped epicycloid), Hypotrochoid (rolls inside a circle), Epitrochoid (rolls outside a circle), and Limaçon (polar curve with inner loop). 10 new tests.
+2. **Aragonite theme (130th)**: Warm honey-orange calcium carbonate mineral aesthetic — vivid warm orange newborn cells (R 0.92, G 0.68, B 0.32) through medium dark amber young cells (R 0.72, G 0.48, B 0.22) to deep dark brown mature cells (R 0.48, G 0.30, B 0.14). R > G > B across all tiers, evoking the distinctive warm honey-orange of natural aragonite — an orthorhombic polymorph of calcium carbonate (CaCO₃), thermodynamically metastable relative to calcite. Named after the Aragon region of Spain where it was first identified in 1797. Prized by collectors for its distinctive pseudo-hexagonal twinned crystal clusters (trillings) that form star-like aggregates. Distinct from Amber (more yellow-gold, organic resin), Citrine (more yellow, quartz), Topaz (more golden, aluminum silicate), and Sunstone (sparkly aventurescence). 5 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count` to 126, `cyclable.count` to 125, `patterns.count` to 126, and `allThemes.count` to 130 across the test suite.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
 ## Day 16 — Session 133 (2026-04-01 04:32 PDT)
 
 **Goal**: Hypotrochoid pattern, Variscite theme, 15 new tests.
