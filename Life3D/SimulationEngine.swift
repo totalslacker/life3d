@@ -528,6 +528,8 @@ final class SimulationEngine {
             grid.loadLemniscate()
         case .borromeanRings:
             grid.loadBorromeanRings()
+        case .conchospiral:
+            grid.loadConchospiral()
         case .clear:
             grid.clearAll()
         }
@@ -657,6 +659,7 @@ final class SimulationEngine {
         case pillowSurface = "Pillow Surface"
         case lemniscate = "Lemniscate"
         case borromeanRings = "Borromean Rings"
+        case conchospiral = "Conchospiral"
         case clear = "Clear"
 
         var id: String { rawValue }

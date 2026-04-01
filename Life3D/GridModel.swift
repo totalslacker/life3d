@@ -4745,6 +4745,61 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Conchospiral: a 3D spiral wound on a cone surface.
+    /// Parametric curve: x = t*cos(ωt), y = t*sin(ωt), z = t, tracing a widening helix.
+    /// The spiral radius grows linearly with height, producing a conical envelope.
+    mutating func loadConchospiral() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let scale: Float = 0.42  // Controls how much of the grid the spiral fills
+        let omega: Float = 6.0 * .pi  // Number of turns
+        let steps = n * n * 8  // Enough steps for smooth rasterization
+        let thickness: Float = max(1.2, Float(n) / 12.0)  // Line thickness in grid cells
+        let thickSq = thickness * thickness
+        // Pre-compute all spiral points
+        var points: [(Float, Float, Float)] = []
+        points.reserveCapacity(steps)
+        for i in 0..<steps {
+            let t = Float(i) / Float(steps - 1)  // 0..1
+            let r = t * half * scale  // Radius grows linearly
+            let angle = t * omega
+            let px = r * cos(angle) + half
+            let py = r * sin(angle) + half
+            let pz = t * Float(n - 1) * 0.8 + Float(n) * 0.1  // Height along z
+            points.append((px, py, pz))
+        }
+        // Rasterize: for each cell, check distance to nearest spiral point
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let fx = Float(ix)
+                    let fy = Float(iy)
+                    let fz = Float(iz)
+                    var minDistSq: Float = Float.greatestFiniteMagnitude
+                    // Sample points near this z-level for efficiency
+                    let zFrac = (fz - Float(n) * 0.1) / (Float(n - 1) * 0.8)
+                    let centerIdx = max(0, min(steps - 1, Int(zFrac * Float(steps - 1))))
+                    let searchRadius = max(steps / n, 20)
+                    let lo = max(0, centerIdx - searchRadius)
+                    let hi = min(steps - 1, centerIdx + searchRadius)
+                    for si in lo...hi {
+                        let p = points[si]
+                        let dx = fx - p.0
+                        let dy = fy - p.1
+                        let dz = fz - p.2
+                        let dSq = dx * dx + dy * dy + dz * dz
+                        if dSq < minDistSq { minDistSq = dSq }
+                    }
+                    if minDistSq < thickSq {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

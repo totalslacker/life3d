@@ -24,6 +24,16 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 **Next Steps**: Performance profiling at 32x32x32. App icon design.
 
+## Day 16 — Session 121 (2026-04-01 02:37 PDT)
+
+**Goal**: Conchospiral pattern, Petrified Wood theme, 11 new tests.
+
+1. **Conchospiral pattern (101st, 100th cyclable)**: A 3D spiral wound on a cone surface — parametric curve x = t·cos(ωt), y = t·sin(ωt), z = t with linearly growing radius. The spiral traces a widening helix from a narrow tip at the bottom to a broad base at the top, producing the classic conical spiral (conchospiral) shape seen in shell growth and horn structures. Rasterized by pre-computing dense curve points and activating cells within a thickness radius, with z-level sampling optimization for efficient distance queries. Visually distinct from Helix (constant radius, cylindrical), Spiral (flat 2D spiral), Seashell (parametric shell surface with opening), and Torus Knot (closed curve on a torus). 6 new tests.
+2. **Petrified Wood theme (105th)**: Warm gray-brown fossilized wood aesthetic — muted tan-brown newborn cells (R 0.72, G 0.58, B 0.42) through medium dark gray-brown young cells to deep dark brown-gray mature cells fading to near-black. R > G > B across all tiers, evoking the distinctive earthy tones of petrified wood — ancient wood replaced by silica minerals, producing warm stone-like browns and grays. Distinct from Agate (more orange, more saturated), Umber (darker, more neutral), Sienna (warmer, more red-brown), Rosewood (richer, more red), and Bronze (more metallic, more golden). 5 new tests.
+
+**Next Steps**: Performance profiling at 32x32x32. App icon design.
+
+---
 
 ## Day 15 — Session 121 (2026-04-01 00:00 PDT)
 
