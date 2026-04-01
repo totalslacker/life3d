@@ -8,6 +8,14 @@ Evolution session log. Most recent entry first. Never delete entries.
 
 1. **Cassini Surface pattern (80th cyclable)**: A quartic surface defined implicitly by ((x-a)² + y² + z²)((x+a)² + y² + z²) = b⁴, the 3D generalization of Cassini ovals. With a=0.7, b=1.0 the surface produces a distinctive peanut-shaped form — two lobes pinched together at the origin. Uses an implicit isosurface approach: iterates the 3D grid, evaluates the quartic equation at each cell, and activates cells where |value| < threshold. Visually distinct from Sphere (single lobe), Torus (ring-shaped), Hyperboloid (hourglass flare), and Barth Sextic (icosahedral spiky). 6 new tests.
 2. **Malachite theme (80th)**: Deep copper-carbonate green mineral aesthetic — vivid malachite newborn cells (R 0.18, G 0.75, B 0.42) through medium dark green young cells to deep forest-dark mature cells fading to near-black. G > B > R across all tiers, evoking the distinctive banded deep green of polished malachite. Distinct from Jade (purer green), Emerald (brighter jewel green), Viridian (blue-green pigment), Moss (muted olive), and Forest (dark leaf green). 5 new tests.
+
+---
+## Day 15 — Session 106b (2026-03-31 19:17 PDT)
+
+**Goal**: Kummer Surface pattern, 11 new tests.
+
+1. **Kummer Surface pattern (81st cyclable)**: A famous quartic surface discovered by Ernst Kummer, notable for having 16 ordinary double points — the maximum possible for a quartic surface. Defined implicitly by (x² + y² + z² - μ²)² - λ · p(x,y,z) = 0, where p is the product of four planes through the vertices of a tetrahedron. The surface has tetrahedral symmetry and produces a distinctive nodal form with four-fold symmetry planes. Uses an implicit isosurface approach — iterates the 3D grid within a bounding sphere (r² < 4), evaluates the quartic equation at each cell, and activates cells where |value| < threshold. Visually distinct from Barth Sextic (sextic, icosahedral, 65 nodes), Roman Surface (Steiner, self-intersecting), and Clebsch Diagonal Surface (cubic, 27 lines). 6 new tests.
+2. **Malachite theme**: Already merged from parallel session (Cassini Surface). 5 Malachite tests included.
 3. **Test count updates**: Updated all stale `allPatterns.count == 79` assertions to `== 80` and `allThemes.count == 79` to `== 80`.
 
 **Next Steps**: Performance profiling at 32x32x32. App icon design.

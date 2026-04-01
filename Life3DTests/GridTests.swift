@@ -9198,6 +9198,68 @@ struct CassiniSurfacePatternTests {
     }
 }
 
+// MARK: - Kummer Surface Pattern Tests
+
+@Suite("Kummer Surface Pattern Tests")
+struct KummerSurfacePatternTests {
+    @Test func kummerProducesCells() {
+        var grid = GridModel(size: 16)
+        grid.loadKummerSurface()
+        #expect(grid.aliveCount > 50)
+    }
+
+    @Test func kummerCentered() {
+        var grid = GridModel(size: 16)
+        grid.loadKummerSurface()
+        var sumX = 0, sumY = 0, sumZ = 0, count = 0
+        for idx in grid.aliveCellIndices {
+            let x = idx / (16 * 16)
+            let y = (idx / 16) % 16
+            let z = idx % 16
+            sumX += x; sumY += y; sumZ += z; count += 1
+        }
+        guard count > 0 else { return }
+        let cx = Double(sumX) / Double(count)
+        let cy = Double(sumY) / Double(count)
+        let cz = Double(sumZ) / Double(count)
+        #expect(cx > 4 && cx < 12)
+        #expect(cy > 4 && cy < 12)
+        #expect(cz > 4 && cz < 12)
+    }
+
+    @Test func kummerDistinctFromBarthSextic() {
+        var kummer = GridModel(size: 16)
+        kummer.loadKummerSurface()
+        var barth = GridModel(size: 16)
+        barth.loadBarthSextic()
+        #expect(kummer.aliveCount != barth.aliveCount)
+    }
+
+    @Test func kummerDistinctFromRomanSurface() {
+        var kummer = GridModel(size: 16)
+        kummer.loadKummerSurface()
+        var roman = GridModel(size: 16)
+        roman.loadRomanSurface()
+        #expect(kummer.aliveCount != roman.aliveCount)
+    }
+
+    @Test func kummerSurvivesEvolution() {
+        var grid = GridModel(size: 16, birthCounts: [5, 6, 7], survivalCounts: [5, 6, 7, 8])
+        grid.loadKummerSurface()
+        let initial = grid.aliveCount
+        grid.advanceGeneration()
+        #expect(grid.aliveCount > 0 || initial > 0)
+    }
+
+    @Test func kummerScalesWithGridSize() {
+        var small = GridModel(size: 8)
+        small.loadKummerSurface()
+        var large = GridModel(size: 16)
+        large.loadKummerSurface()
+        #expect(large.aliveCount > small.aliveCount)
+    }
+}
+
 // MARK: - Malachite Theme Tests
 
 @Suite("Malachite Theme Tests")

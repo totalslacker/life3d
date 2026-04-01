@@ -3874,6 +3874,46 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    mutating func loadKummerSurface() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        // Kummer surface: a quartic surface with 16 ordinary double points
+        // (x² + y² + z² - μ²)² - λ · p(x,y,z) = 0
+        // where p = product of 4 planes through vertices of a tetrahedron
+        // Using the standard form with μ² = 3, λ chosen for distinct nodes
+        let mu2: Float = 3.0
+        let lambda: Float = 3.0 * (3.0 - 1.0) / (3.0 - (3.0 - 1.0)) // = 3
+        let sqrt3: Float = sqrt(3.0)
+        let threshold: Float = 0.4
+        let scale: Float = 2.0 / half
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let x = (Float(ix) - half + 0.5) * scale
+                    let y = (Float(iy) - half + 0.5) * scale
+                    let z = (Float(iz) - half + 0.5) * scale
+                    let x2 = x * x, y2 = y * y, z2 = z * z
+                    let r2 = x2 + y2 + z2
+                    if r2 > 4.0 { continue }
+                    // (x² + y² + z² - μ²)²
+                    let term1 = (r2 - mu2) * (r2 - mu2)
+                    // Tetrahedral product: (x+y+z-1)(x-y-z-1)(-x+y-z-1)(-x-y+z-1)
+                    let p1 = (x + y + z) / sqrt3 - 1.0
+                    let p2 = (x - y - z) / sqrt3 - 1.0
+                    let p3 = (-x + y - z) / sqrt3 - 1.0
+                    let p4 = (-x - y + z) / sqrt3 - 1.0
+                    let tetra = p1 * p2 * p3 * p4
+                    let value = term1 - lambda * tetra
+                    if abs(value) < threshold {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
