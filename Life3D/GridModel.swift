@@ -5095,6 +5095,81 @@ struct GridModel: Sendable {
         rebuildAliveCellIndices()
     }
 
+    /// Villarceau circles: oblique cross-sections of a torus that yield perfect circles.
+    /// A torus with major radius R and tube radius r, when sliced by a bitangent plane
+    /// tilted at angle arcsin(r/R), produces two interlocking circles of radius R.
+    /// We generate multiple pairs around the torus for a rich visual.
+    mutating func loadVillarceauCircles() {
+        clearAll()
+        let n = size
+        let half = Float(n) / 2.0
+        let torusR: Float = Float(n) * 0.32  // Major radius
+        let torusR2: Float = Float(n) * 0.10  // Tube radius
+        let thickness: Float = max(0.8, Float(n) / 16.0)
+        let thickSq = thickness * thickness
+        let numPairs = 6  // Number of Villarceau circle pairs around the torus
+        let circleSteps = n * n * 2
+
+        var points: [(Float, Float, Float)] = []
+        points.reserveCapacity(numPairs * 2 * circleSteps)
+
+        // The Villarceau circles for a torus centered at origin in the XY plane:
+        // Tilt angle alpha = arcsin(r/R) where r = tube radius, R = major radius
+        let alpha = asin(torusR2 / torusR)
+        let circleRadius = torusR  // Villarceau circle radius equals major radius
+
+        for pair in 0..<numPairs {
+            let phi = Float(pair) / Float(numPairs) * Float.pi  // Rotation around Z axis
+            let cosPhi = cos(phi)
+            let sinPhi = sin(phi)
+
+            for sign in [-1.0, 1.0] as [Float] {
+                // Each Villarceau circle is a great circle of the torus, tilted by ±alpha
+                let tiltAngle = sign * alpha
+                let cosA = cos(tiltAngle)
+                let sinA = sin(tiltAngle)
+
+                for i in 0..<circleSteps {
+                    let t = 2.0 * Float.pi * Float(i) / Float(circleSteps)
+                    // Circle in the tilted plane, centered at (R, 0, 0) then rotated
+                    let cx = circleRadius * cos(t)
+                    let cy = torusR2 * sin(t) * cosA
+                    let cz = torusR2 * sin(t) * sinA
+
+                    // Offset by major radius and rotate around Z by phi
+                    let px = (torusR + cx) * cosPhi - cy * sinPhi + half
+                    let py = (torusR + cx) * sinPhi + cy * cosPhi + half
+                    let pz = cz + half
+
+                    points.append((px, py, pz))
+                }
+            }
+        }
+
+        // Rasterize: activate cells near any curve point
+        for ix in 0..<n {
+            for iy in 0..<n {
+                for iz in 0..<n {
+                    let fx = Float(ix)
+                    let fy = Float(iy)
+                    let fz = Float(iz)
+                    var minDistSq: Float = Float.greatestFiniteMagnitude
+                    for (px, py, pz) in points {
+                        let dx = fx - px
+                        let dy = fy - py
+                        let dz = fz - pz
+                        let dSq = dx * dx + dy * dy + dz * dz
+                        if dSq < minDistSq { minDistSq = dSq }
+                    }
+                    if minDistSq < thickSq {
+                        setCell(x: ix, y: iy, z: iz, alive: true)
+                    }
+                }
+            }
+        }
+        rebuildAliveCellIndices()
+    }
+
     mutating func clearAll() {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)

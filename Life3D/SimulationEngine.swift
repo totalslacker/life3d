@@ -544,6 +544,8 @@ final class SimulationEngine {
             grid.loadDNAHelix()
         case .catenarySurface:
             grid.loadCatenarySurface()
+        case .villarceauCircles:
+            grid.loadVillarceauCircles()
         case .clear:
             grid.clearAll()
         }
@@ -681,6 +683,7 @@ final class SimulationEngine {
         case loxodrome = "Loxodrome"
         case dnaHelix = "DNA Helix"
         case catenarySurface = "Catenary Surface"
+        case villarceauCircles = "Villarceau Circles"
         case clear = "Clear"
 
         var id: String { rawValue }

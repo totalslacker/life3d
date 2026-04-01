@@ -2,6 +2,14 @@
 
 Evolution session log. Most recent entry first. Never delete entries.
 
+## Day 16 — Session 126 (2026-04-01 03:08 PDT)
+
+**Goal**: Villarceau Circles pattern, Prehnite theme, 14 new tests.
+
+1. **Villarceau Circles pattern (114th, 113th cyclable)**: Oblique cross-sections of a torus that yield perfect circles — when a torus with major radius R and tube radius r is sliced by a bitangent plane tilted at angle arcsin(r/R), the intersection is two interlocking perfect circles of radius R. The pattern generates 6 pairs of Villarceau circles distributed around the torus, creating an intricate lattice of interlocking rings. Each circle is computed parametrically on the tilted cutting plane and rasterized via nearest-distance point sampling with tube thickening. Visually distinct from Torus (solid ring), Hopf Link (two linked rings), Clifford Torus (4D flat torus projection), and Borromean Rings (three mutually interlocked rings). 8 new tests.
+2. **Prehnite theme (117th)**: Pale yellow-green calcium aluminum silicate aesthetic — vivid yellow-green newborn cells (R 0.72, G 0.85, B 0.48) through medium olive-green young cells (R 0.52, G 0.65, B 0.32) to deep dark olive mature cells (R 0.32, G 0.42, B 0.18). G > R > B across all tiers, evoking the distinctive translucent botryoidal yellow-green of natural prehnite — one of the first minerals named after a person (Colonel Hendrik Von Prehn). Distinct from Peridot (more yellow, less green), Chartreuse (more vivid neon yellow-green), Chrysoprase (more apple-green, less yellow), and Jade (more muted olive). 6 new tests.
+3. **Fixed stale count assertions**: Updated all `allPatterns.count == 113` to `== 114`, `allThemes.count == 116` to `== 117`, and `patterns.count == 106` to `== 114` across the test suite.
+
 ## Day 16 — Session 125 (2026-04-01 03:05 PDT)
 
 **Goal**: Catenary Surface pattern, Aventurine theme, 12 new tests.
