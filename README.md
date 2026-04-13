@@ -19,7 +19,7 @@ open Life3D.xcodeproj
 
 ## Project Structure
 
-This project uses the [rig-seed](https://github.com/totalslacker/rig-seed) evolution framework and evolves autonomously via Gas Town.
+This project uses [Fabrik](https://github.com/tenaciousvc/fabrik) for automated SDLC pipeline orchestration.
 
 - `SPECS.md` — What we're building
 - `ROADMAP.md` — How we're getting there

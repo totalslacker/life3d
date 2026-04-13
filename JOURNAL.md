@@ -1,6 +1,14 @@
 # Journal
 
-Evolution session log. Most recent entry first. Never delete entries.
+Session log. Most recent entry first. Never delete entries.
+
+## 2026-04-13 10:10 PDT
+
+**Goal**: Migrate from rig-seed to Fabrik.
+
+Stripped out the entire rig-seed/Gas Town evolution framework and replaced it with Fabrik pipeline orchestration backed by GitHub issues. Removed `.evolve/`, `formulas/`, `plugins/`, `scripts/`, `docs/` (all rig-seed docs), evolution counters (DAY_COUNT, SESSION_COUNT, DAY_DATE), and assorted rig-seed scripts. Removed `.beads/` — work tracking moves to GitHub issues. Deleted IDENTITY.md (referenced Gas Town throughout, needed a clean break). Rewrote CLAUDE.md, AGENTS.md, CONTRIBUTING.md, README.md, and .gitignore for the new setup. Kept project knowledge files (SPECS, ROADMAP, JOURNAL, LEARNINGS, PERSONALITY, NEXT_STEPS) intact.
+
+**Next Steps**: Write a new IDENTITY.md for the Fabrik era. Verify Fabrik stages run cleanly against the repo.
 
 ## Day 16 — Session 152 (2026-04-01 09:17 PDT)
 

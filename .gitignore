@@ -1,19 +1,9 @@
 
-# Dolt database files (added by bd init)
-.dolt/
-*.db
+# Fabrik runtime
+.fabrik/debug/
 
-# Gas Town (added by gt)
-.runtime/
-.logs/
-__pycache__/
-state.json
-.repo.git/
-.beads/
-mayor/
-refinery/
-witness/
-polecats/
+# Environment
+.env
 
 # Claude Code (track .claude/ contents, ignore local settings)
 !.claude/
