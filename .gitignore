@@ -15,3 +15,8 @@ DerivedData/
 *.moved-aside
 *.xcuserstate
 Life3D.xcodeproj/project.xcworkspace
+.fabrik/logs
+.fabrik/sessions
+fabrik
+.fabrik/fabrik.lock
+.fabrik/fabrik.log
