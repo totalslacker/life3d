@@ -421,6 +421,7 @@ struct GridImmersiveView: View {
                 entity.position = birthSample[i]
                 entity.isEnabled = true
                 if var emitter = entity.components[ParticleEmitterComponent.self] {
+                    emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: 0.4))
                     emitter.isEmitting = true
                     emitter.burstCount = 45
                     entity.components.set(emitter)
@@ -437,6 +438,7 @@ struct GridImmersiveView: View {
                 entity.position = deathSample[i]
                 entity.isEnabled = true
                 if var emitter = entity.components[ParticleEmitterComponent.self] {
+                    emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: 0.3))
                     emitter.isEmitting = true
                     emitter.burstCount = 28
                     entity.components.set(emitter)
