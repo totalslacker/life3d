@@ -358,18 +358,18 @@ struct GridImmersiveView: View {
         let entity = Entity()
         var emitter = ParticleEmitterComponent()
 
-        emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: 0.3))
+        emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: isBirth ? 0.4 : 0.3))
         emitter.emitterShape = .sphere
-        emitter.emitterShapeSize = SIMD3<Float>(repeating: 0.01)
+        emitter.emitterShapeSize = SIMD3<Float>(repeating: 0.025)
         emitter.burstCount = isBirth ? 12 : 8
 
-        emitter.mainEmitter.lifeSpan = isBirth ? 0.5 : 0.8
-        emitter.mainEmitter.size = isBirth ? 0.003 : 0.002
-        emitter.mainEmitter.sizeVariation = isBirth ? 0.002 : 0.001
+        emitter.mainEmitter.lifeSpan = isBirth ? 0.7 : 1.0
+        emitter.mainEmitter.size = isBirth ? 0.020 : 0.018
+        emitter.mainEmitter.sizeVariation = isBirth ? 0.008 : 0.006
         emitter.mainEmitter.spreadingAngle = isBirth ? .pi : (.pi * 2.0 / 3.0)
         emitter.mainEmitter.acceleration = isBirth
-            ? SIMD3<Float>(0, 0.01, 0)   // Birth: particles float up
-            : SIMD3<Float>(0, -0.02, 0)  // Death: particles drift down
+            ? SIMD3<Float>(0, 1.5, 0)    // Birth: particles burst upward
+            : SIMD3<Float>(0, -2.0, 0)   // Death: particles fall away
 
         let color = themeColors.emissiveColor
         emitter.mainEmitter.color = .constant(.single(.init(
@@ -422,7 +422,7 @@ struct GridImmersiveView: View {
                 entity.isEnabled = true
                 if var emitter = entity.components[ParticleEmitterComponent.self] {
                     emitter.isEmitting = true
-                    emitter.burstCount = min(12, max(4, bornPositions.count / Self.maxParticleEmitters))
+                    emitter.burstCount = 45
                     entity.components.set(emitter)
                 }
             } else {
@@ -438,7 +438,7 @@ struct GridImmersiveView: View {
                 entity.isEnabled = true
                 if var emitter = entity.components[ParticleEmitterComponent.self] {
                     emitter.isEmitting = true
-                    emitter.burstCount = min(8, max(3, dyingPositions.count / Self.maxParticleEmitters))
+                    emitter.burstCount = 28
                     entity.components.set(emitter)
                 }
             } else {
