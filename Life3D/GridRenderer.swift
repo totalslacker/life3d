@@ -3206,13 +3206,19 @@ enum GridRenderer {
         return entity
     }
 
-    /// Creates PhysicallyBasedMaterial for each age tier from a color theme.
+    /// Creates PhysicallyBasedMaterial for each age tier × density band from a color theme.
+    /// Returns 8 materials: for each of the 4 age tiers, 2 entries in order [sparse, dense].
+    /// Material index convention: AgeTier.rawValue * 2 + 0 = sparse, + 1 = dense.
     /// PBR constants (roughness, metallic, clearcoat) are set globally — all themes benefit from
     /// the same "glowing translucent volume" surface quality, so these are not per-theme values.
     @MainActor
     private static func makeAgeMaterials(theme: ColorTheme) -> [RealityKit.Material] {
-        AgeTier.allCases.map { tier -> RealityKit.Material in
-            makeMaterial(for: tier, colors: theme.colors(for: tier), dense: false)
+        AgeTier.allCases.flatMap { tier -> [RealityKit.Material] in
+            let colors = theme.colors(for: tier)
+            return [
+                makeMaterial(for: tier, colors: colors, dense: false),
+                makeMaterial(for: tier, colors: colors, dense: true),
+            ]
         }
     }
 
