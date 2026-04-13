@@ -3207,22 +3207,58 @@ enum GridRenderer {
     }
 
     /// Creates PhysicallyBasedMaterial for each age tier from a color theme.
+    /// PBR constants (roughness, metallic, clearcoat) are set globally — all themes benefit from
+    /// the same "glowing translucent volume" surface quality, so these are not per-theme values.
     @MainActor
     private static func makeAgeMaterials(theme: ColorTheme) -> [RealityKit.Material] {
         AgeTier.allCases.map { tier -> RealityKit.Material in
-            let colors = theme.colors(for: tier)
-            var mat = PhysicallyBasedMaterial()
-            mat.baseColor = .init(tint: .init(
-                red: CGFloat(colors.baseColor.x), green: CGFloat(colors.baseColor.y),
-                blue: CGFloat(colors.baseColor.z), alpha: CGFloat(colors.baseColor.w)))
-            mat.emissiveColor = .init(color: .init(
-                red: CGFloat(colors.emissiveColor.x), green: CGFloat(colors.emissiveColor.y),
-                blue: CGFloat(colors.emissiveColor.z), alpha: 1.0))
-            mat.emissiveIntensity = colors.emissiveIntensity
-            mat.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(scale: colors.opacity))
-            mat.faceCulling = .none
-            return mat
+            makeMaterial(for: tier, colors: theme.colors(for: tier), dense: false)
         }
+    }
+
+    /// Builds a single PhysicallyBasedMaterial for a given age tier and density band.
+    /// dense=true applies an emissive intensity boost and warm tint to reveal cluster interiors.
+    @MainActor
+    private static func makeMaterial(for tier: AgeTier, colors: ColorTheme.TierColors, dense: Bool) -> RealityKit.Material {
+        var mat = PhysicallyBasedMaterial()
+        mat.baseColor = .init(tint: .init(
+            red: CGFloat(colors.baseColor.x), green: CGFloat(colors.baseColor.y),
+            blue: CGFloat(colors.baseColor.z), alpha: CGFloat(colors.baseColor.w)))
+
+        let emissiveR: Float
+        let emissiveIntensity: Float
+        if dense {
+            // Dense-band: warmer/brighter to reveal cluster interior structure
+            emissiveR = min(colors.emissiveColor.x + 0.04, 1.0)
+            emissiveIntensity = colors.emissiveIntensity * 1.5
+        } else {
+            emissiveR = colors.emissiveColor.x
+            emissiveIntensity = colors.emissiveIntensity
+        }
+        mat.emissiveColor = .init(color: .init(
+            red: CGFloat(emissiveR), green: CGFloat(colors.emissiveColor.y),
+            blue: CGFloat(colors.emissiveColor.z), alpha: 1.0))
+        mat.emissiveIntensity = emissiveIntensity
+
+        // Low roughness creates sharp specular highlights that differentiate cube faces by lighting angle,
+        // revealing 3D form instead of flat matte boxes.
+        mat.roughness = .init(floatLiteral: 0.18)
+        // Slight metallic adds reflective depth across lighting conditions.
+        mat.metallic = .init(floatLiteral: 0.15)
+        // Clearcoat adds a glossy "luminous surface" layer — stronger on younger/brighter cells.
+        let clearcoatValue: Float = (tier == .newborn || tier == .young) ? 0.4 : 0.2
+        mat.clearcoat = .init(floatLiteral: clearcoatValue)
+
+        // Boost newborn opacity for a richer volumetric layering effect (capped to avoid full opacity).
+        let opacity: Float
+        if tier == .newborn {
+            opacity = min(colors.opacity * 1.31, 0.85)
+        } else {
+            opacity = colors.opacity
+        }
+        mat.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(scale: opacity))
+        mat.faceCulling = .none
+        return mat
     }
 
     /// Scale factor for birth animation and death fade.
