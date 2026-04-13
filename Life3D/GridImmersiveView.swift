@@ -359,31 +359,41 @@ struct GridImmersiveView: View {
 
     // MARK: - Particle Effects
 
-    /// Creates a particle emitter entity configured for birth or death effects.
-    private static func makeParticleEmitter(isBirth: Bool, themeColors: ColorTheme.TierColors) -> Entity {
-        let entity = Entity()
+    /// Returns a freshly constructed ParticleEmitterComponent for birth or death effects.
+    ///
+    /// Returns a value type with no "has-fired" state — safe to set on a pooled entity each
+    /// generation. Cell size = 0.015m; kinematics: d = 0.5 × a × t² keeps particles ≤ 2 cell widths.
+    private static func makeParticleEmitterComponent(isBirth: Bool, themeColors: ColorTheme.TierColors) -> ParticleEmitterComponent {
         var emitter = ParticleEmitterComponent()
 
         emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: isBirth ? Self.birthEmitDuration : Self.deathEmitDuration))
         emitter.emitterShape = .sphere
-        emitter.emitterShapeSize = SIMD3<Float>(repeating: 0.025)
+        // ~½ cell diameter — particles spawn within the cell boundary (cell = 0.015m)
+        emitter.emitterShapeSize = SIMD3<Float>(repeating: 0.008)
         emitter.burstCount = isBirth ? 12 : 8
 
         emitter.mainEmitter.lifeSpan = isBirth ? 0.7 : 1.0
-        emitter.mainEmitter.size = isBirth ? 0.020 : 0.018
-        emitter.mainEmitter.sizeVariation = isBirth ? 0.008 : 0.006
+        // 40%/33% of cell size; clearly visible (~11/9px) at 1.5m without obscuring cubes
+        emitter.mainEmitter.size = isBirth ? 0.006 : 0.005
+        emitter.mainEmitter.sizeVariation = 0.002   // min effective: birth 0.004m, death 0.003m
         emitter.mainEmitter.spreadingAngle = .pi / 6
         emitter.mainEmitter.acceleration = isBirth
-            ? SIMD3<Float>(0, 1.5, 0)    // Birth: particles burst upward
-            : SIMD3<Float>(0, -2.0, 0)   // Death: particles fall away
+            ? SIMD3<Float>(0, 0.12, 0)   // d = 0.5×0.12×0.7² = 0.029m ≈ 2 cell widths
+            : SIMD3<Float>(0, -0.06, 0)  // d = 0.5×0.06×1.0² = 0.030m ≈ 2 cell widths
 
         let color = themeColors.emissiveColor
         emitter.mainEmitter.color = .constant(.single(.init(
             red: CGFloat(color.x), green: CGFloat(color.y), blue: CGFloat(color.z), alpha: 1.0)))
 
         emitter.mainEmitter.opacityCurve = .linearFadeOut
-
         emitter.isEmitting = false
+        return emitter
+    }
+
+    /// Creates a particle emitter entity configured for birth or death effects.
+    private static func makeParticleEmitter(isBirth: Bool, themeColors: ColorTheme.TierColors) -> Entity {
+        let entity = Entity()
+        let emitter = makeParticleEmitterComponent(isBirth: isBirth, themeColors: themeColors)
         entity.components.set(emitter)
         entity.name = isBirth ? "BirthParticles" : "DeathParticles"
         return entity
@@ -420,18 +430,20 @@ struct GridImmersiveView: View {
             return
         }
 
-        // Sample up to maxParticleEmitters positions from births
+        // Sample up to maxParticleEmitters positions from births.
+        // Full component replacement (Option C) is used instead of read-modify-write (Option B):
+        // re-assigning only emitter.timing was found insufficient in practice — RealityKit's
+        // internal "has-fired" counter is not reliably reset by a value-type field re-assignment.
+        // A freshly constructed component has no firing history. See ADR 001.
         let birthSample = samplePositions(bornPositions, count: Self.maxParticleEmitters)
         for (i, entity) in birthParticleEntities.enumerated() {
             if i < birthSample.count {
                 entity.position = birthSample[i]
                 entity.isEnabled = true
-                if var emitter = entity.components[ParticleEmitterComponent.self] {
-                    emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: Self.birthEmitDuration))
-                    emitter.isEmitting = true
-                    emitter.burstCount = 45
-                    entity.components.set(emitter)
-                }
+                var emitter = Self.makeParticleEmitterComponent(isBirth: true, themeColors: engine.theme.newborn)
+                emitter.isEmitting = true
+                emitter.burstCount = 12
+                entity.components.set(emitter)
             } else {
                 entity.isEnabled = false
             }
@@ -443,12 +455,10 @@ struct GridImmersiveView: View {
             if i < deathSample.count {
                 entity.position = deathSample[i]
                 entity.isEnabled = true
-                if var emitter = entity.components[ParticleEmitterComponent.self] {
-                    emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: Self.deathEmitDuration))
-                    emitter.isEmitting = true
-                    emitter.burstCount = 28
-                    entity.components.set(emitter)
-                }
+                var emitter = Self.makeParticleEmitterComponent(isBirth: false, themeColors: engine.theme.dying)
+                emitter.isEmitting = true
+                emitter.burstCount = 8
+                entity.components.set(emitter)
             } else {
                 entity.isEnabled = false
             }

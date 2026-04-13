@@ -2,6 +2,22 @@
 
 Session log. Most recent entry first. Never delete entries.
 
+## 2026-04-13 22:00 PDT
+
+**Goal**: Fix two compounding particle system bugs: particles stopping after first generation (Bug 1) and particle effects being far too large relative to the 1.5cm cells (Bug 2).
+
+**Bug 1 — Option B insufficient, Option C adopted**: Prior fix attempts (Issues #5 and early #7 commits) implemented Option B from ADR 001: re-assigning `emitter.timing` to a fresh `.once(...)` value before each trigger. Despite `ParticleEmitterComponent` being a Swift value type, this did not work — particles continued to fire only on the first generation. RealityKit appears to maintain internal "has-fired" state that field re-assignment alone cannot reset. Switched to Option C (full component replacement): extracted `makeParticleEmitterComponent(isBirth:themeColors:)` as a shared helper returning a freshly constructed component with no firing history. Both `makeParticleEmitter()` (pool init) and `triggerParticles()` (per-generation trigger) call this helper. Color is re-read from `engine.theme` at trigger time.
+
+**Bug 2 — Physics-calculated cell-proportional values**: Replaced all six misconfigured parameters with values derived from kinematics (`d = 0.5 × a × t²`) and cell scale (0.015m):
+- `mainEmitter.size`: 20mm→6mm (birth), 18mm→5mm (death) — clearly visible, ≤½ cell
+- `emitterShapeSize`: 25mm→8mm — particles spawn inside cell boundary
+- `acceleration`: 1.5→0.12 m/s² (birth), 2.0→0.06 m/s² (death) — ≤2 cell widths travel
+- `burstCount` at trigger: 45→12 (birth), 28→8 (death) — calibrated for 6mm particles
+
+**ADR 001 and LEARNINGS.md updated**: ADR 001 now reflects Option C as the adopted approach and documents the investigation of Option B's failure. LEARNINGS.md has three corrected entries: the `.once` restart pattern (Option C), the particle visibility constraint (5–6mm, not 15–20mm), and the burst count values (12/8, not 45/28). The prior "15–20mm minimum" entry was the root cause of multiple failed fix attempts — it was calibrated for an old invisibility problem and should not be used to guide future size changes.
+
+**Next Steps**: On-device or simulator visual validation of the new sparkle effect. If too subtle, increase `burstCount` before touching `size` (size has higher kinematic impact).
+
 ## 2026-04-13 20:01 PDT
 
 **Goal**: Fix particle effects — particles stop working after first frames and spread is too wide (issue #5).
