@@ -22,6 +22,14 @@ struct GridModel: Sendable {
     /// Reverse mapping: cell flat index → position in aliveCellIndices (-1 = not alive).
     /// Enables O(1) removal from aliveCellIndices instead of O(alive) linear scan.
     private var aliveIndexMap: [Int] = []
+    /// Neighbor count for each cell at the end of the most recent generation.
+    /// Non-alive cells have value 0; alive cells may also have 0 if they have no live neighbors
+    /// (e.g., cells placed via setCell before the first advanceGeneration call).
+    /// Used by the renderer to assign density-band materials that reveal
+    /// cluster interior structure (cells with many neighbors appear visually denser).
+    private(set) var neighborCounts: [Int]
+    /// Double-buffer for neighbor counts: zeroed before each generation, then swapped with neighborCounts.
+    private var nextNeighborCounts: [Int]
     /// Number of generations a dying cell takes to fully fade out.
     static let fadeDuration: Int = 3
 
@@ -52,6 +60,8 @@ struct GridModel: Sendable {
         let count = size * size * size
         self.cells = [Int](repeating: 0, count: count)
         self.nextCells = [Int](repeating: 0, count: count)
+        self.neighborCounts = [Int](repeating: 0, count: count)
+        self.nextNeighborCounts = [Int](repeating: 0, count: count)
         self.birthCounts = birthCounts
         self.survivalCounts = survivalCounts
         self.cachedNeighborOffsets = Self.neighborOffsets(size: size)
@@ -195,8 +205,11 @@ struct GridModel: Sendable {
     mutating func advanceGeneration() {
         let ss = size * size
         let offsets = cachedNeighborOffsets
-        // Zero the next buffer using bulk memset — faster than per-element loop for 32K+ ints
+        // Zero the next buffers using bulk memset — faster than per-element loop for 32K+ ints
         nextCells.withUnsafeMutableBufferPointer { buf in
+            buf.update(repeating: 0)
+        }
+        nextNeighborCounts.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
         }
         // Reuse pre-allocated born/dying/alive buffers — removeAll(keepingCapacity:) avoids heap allocation
@@ -246,6 +259,7 @@ struct GridModel: Sendable {
                     if cells[idx] > 0 {
                         if survivalLookup[neighbors] {
                             nextCells[idx] = cells[idx] + 1
+                            nextNeighborCounts[idx] = neighbors
                             aliveIndexMap[idx] = aliveCellIndices.count
                             aliveCellIndices.append(idx)
 
@@ -257,6 +271,7 @@ struct GridModel: Sendable {
                     } else {
                         if birthLookup[neighbors] {
                             nextCells[idx] = 1
+                            nextNeighborCounts[idx] = neighbors
                             bornCells.append(idx)
                             aliveIndexMap[idx] = aliveCellIndices.count
                             aliveCellIndices.append(idx)
@@ -267,6 +282,7 @@ struct GridModel: Sendable {
             }
         }
         swap(&cells, &nextCells)
+        swap(&neighborCounts, &nextNeighborCounts)
 
         // Update fading cells in-place: decrement counters, remove expired/reborn, add newly dying.
         // Avoids compactMap allocation by using swap-remove (O(1) per removal).
@@ -6558,6 +6574,7 @@ struct GridModel: Sendable {
         cells.withUnsafeMutableBufferPointer { buf in
             buf.update(repeating: 0)
         }
+        neighborCounts.withUnsafeMutableBufferPointer { $0.update(repeating: 0) }
         dyingCells.removeAll(keepingCapacity: true)
         bornCells.removeAll(keepingCapacity: true)
         fadingCells.removeAll(keepingCapacity: true)

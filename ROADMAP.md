@@ -73,4 +73,4 @@ Living document. Updated each evolution session. Items come from three sources:
 - [x] Transition animation between shared and immersive space — rotation flourish on entry/exit (session 46)
 - [ ] Performance profiling and optimization pass
 - [ ] App icon and launch experience polish
-- [ ] Final visual tuning across all color themes
+- [x] Final visual tuning across all color themes — PBR roughness/metallic/clearcoat, particle visibility fixes, density-based coloring (issue #3)

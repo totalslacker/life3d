@@ -3206,23 +3206,65 @@ enum GridRenderer {
         return entity
     }
 
-    /// Creates PhysicallyBasedMaterial for each age tier from a color theme.
+    /// Creates PhysicallyBasedMaterial for each age tier × density band from a color theme.
+    /// Returns 8 materials: for each of the 4 age tiers, 2 entries in order [sparse, dense].
+    /// Material index convention: AgeTier.rawValue * 2 + 0 = sparse, + 1 = dense.
+    /// PBR constants (roughness, metallic, clearcoat) are set globally — all themes benefit from
+    /// the same "glowing translucent volume" surface quality, so these are not per-theme values.
     @MainActor
     private static func makeAgeMaterials(theme: ColorTheme) -> [RealityKit.Material] {
-        AgeTier.allCases.map { tier -> RealityKit.Material in
+        AgeTier.allCases.flatMap { tier -> [RealityKit.Material] in
             let colors = theme.colors(for: tier)
-            var mat = PhysicallyBasedMaterial()
-            mat.baseColor = .init(tint: .init(
-                red: CGFloat(colors.baseColor.x), green: CGFloat(colors.baseColor.y),
-                blue: CGFloat(colors.baseColor.z), alpha: CGFloat(colors.baseColor.w)))
-            mat.emissiveColor = .init(color: .init(
-                red: CGFloat(colors.emissiveColor.x), green: CGFloat(colors.emissiveColor.y),
-                blue: CGFloat(colors.emissiveColor.z), alpha: 1.0))
-            mat.emissiveIntensity = colors.emissiveIntensity
-            mat.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(scale: colors.opacity))
-            mat.faceCulling = .none
-            return mat
+            return [
+                makeMaterial(for: tier, colors: colors, dense: false),
+                makeMaterial(for: tier, colors: colors, dense: true),
+            ]
         }
+    }
+
+    /// Builds a single PhysicallyBasedMaterial for a given age tier and density band.
+    /// dense=true applies an emissive intensity boost and warm tint to reveal cluster interiors.
+    @MainActor
+    private static func makeMaterial(for tier: AgeTier, colors: ColorTheme.TierColors, dense: Bool) -> RealityKit.Material {
+        var mat = PhysicallyBasedMaterial()
+        mat.baseColor = .init(tint: .init(
+            red: CGFloat(colors.baseColor.x), green: CGFloat(colors.baseColor.y),
+            blue: CGFloat(colors.baseColor.z), alpha: CGFloat(colors.baseColor.w)))
+
+        let emissiveR: Float
+        let emissiveIntensity: Float
+        if dense {
+            // Dense-band: warmer/brighter to reveal cluster interior structure
+            emissiveR = min(colors.emissiveColor.x + 0.04, 1.0)
+            emissiveIntensity = colors.emissiveIntensity * 1.5
+        } else {
+            emissiveR = colors.emissiveColor.x
+            emissiveIntensity = colors.emissiveIntensity
+        }
+        mat.emissiveColor = .init(color: .init(
+            red: CGFloat(emissiveR), green: CGFloat(colors.emissiveColor.y),
+            blue: CGFloat(colors.emissiveColor.z), alpha: 1.0))
+        mat.emissiveIntensity = emissiveIntensity
+
+        // Low roughness creates sharp specular highlights that differentiate cube faces by lighting angle,
+        // revealing 3D form instead of flat matte boxes.
+        mat.roughness = .init(floatLiteral: 0.18)
+        // Slight metallic adds reflective depth across lighting conditions.
+        mat.metallic = .init(floatLiteral: 0.15)
+        // Clearcoat adds a glossy "luminous surface" layer — stronger on younger/brighter cells.
+        let clearcoatValue: Float = (tier == .newborn || tier == .young) ? 0.4 : 0.2
+        mat.clearcoat = .init(floatLiteral: clearcoatValue)
+
+        // Boost newborn opacity for a richer volumetric layering effect (capped to avoid full opacity).
+        let opacity: Float
+        if tier == .newborn {
+            opacity = min(colors.opacity * 1.31, 0.85)
+        } else {
+            opacity = colors.opacity
+        }
+        mat.blending = .transparent(opacity: PhysicallyBasedMaterial.Opacity(scale: opacity))
+        mat.faceCulling = .none
+        return mat
     }
 
     /// Scale factor for birth animation and death fade.
@@ -3294,34 +3336,59 @@ enum GridRenderer {
         20, 21, 22,  20, 22, 23,
     ]
 
-    /// Computes raw vertex and index arrays for alive cells + fading cells, sorted by age tier.
+    /// Computes raw vertex and index arrays for alive cells + fading cells, sorted by age×density bucket.
     /// Applies depth-based scaling: cells further from grid center are slightly smaller,
     /// creating a natural depth-of-field effect without shader-level blur.
+    /// Uses 8 buckets (4 age tiers × 2 density bands) matching the 8-material array from makeAgeMaterials.
+    /// Bucket/material index convention: AgeTier.rawValue * 2 + densityBand (0=sparse <11 nbrs, 1=dense ≥11).
     private static func computeMeshData(model: GridModel) -> MeshData {
-        var cellsWithAge = model.aliveCellsWithAge(cellSize: cellSize, cellSpacing: cellSpacing)
-        // Add fading cells with negative age sentinel (mapped to .dying tier).
-        let fadingCells = model.fadingCellsWithProgress(cellSize: cellSize, cellSpacing: cellSpacing)
-        for fading in fadingCells {
-            let framesLeft = max(Int(round(fading.progress * Float(GridModel.fadeDuration))), 1)
-            let fadeStage = GridModel.fadeDuration - framesLeft + 1
-            cellsWithAge.append((position: fading.position, age: -fadeStage))
-        }
-        let aliveCells = cellsWithAge.count
+        let bucketCount = AgeTier.allCases.count * 2  // 4 tiers × 2 density bands = 8
+        let ss = model.size * model.size
 
         let half = cellSize / 2.0
         let stride = cellSize + cellSpacing
         let gridExtent = Float(model.size - 1) * stride / 2.0 + half
 
-        guard aliveCells > 0 else {
-            return MeshData(vertices: [], indices: [], gridExtent: gridExtent, cellCount: 0,
-                          tierRanges: AgeTier.allCases.map { _ in (0, 0) })
+        // Bucket cells by (age tier, density band) in O(n) — 8 buckets total.
+        // Alive cells: look up neighborCounts for density band assignment.
+        // Fading cells: always sparse band (they're dying; density distinction not relevant).
+        var buckets: [[(position: SIMD3<Float>, age: Int)]] = Array(repeating: [], count: bucketCount)
+
+        for idx in model.aliveCellIndices {
+            let x = idx / ss
+            let y = (idx / model.size) % model.size
+            let z = idx % model.size
+            let pos = model.cellPosition(x: x, y: y, z: z, cellSize: cellSize, cellSpacing: cellSpacing)
+            let age = model.cells[idx]
+            let tier = AgeTier.tier(for: age)
+            let densityBand = model.neighborCounts[idx] >= 11 ? 1 : 0
+            buckets[tier.rawValue * 2 + densityBand].append((position: pos, age: age))
         }
 
-        // Bucket cells by age tier in O(n) instead of O(n log n) sort — only 4 buckets needed
-        var buckets: [[(position: SIMD3<Float>, age: Int)]] = Array(repeating: [], count: AgeTier.allCases.count)
-        for cell in cellsWithAge {
-            buckets[AgeTier.tier(for: cell.age).rawValue].append(cell)
+        let fadingCells = model.fadingCellsWithProgress(cellSize: cellSize, cellSpacing: cellSpacing)
+        for fading in fadingCells {
+            let framesLeft = max(Int(round(fading.progress * Float(GridModel.fadeDuration))), 1)
+            let fadeStage = GridModel.fadeDuration - framesLeft + 1
+            // Dying tier, sparse band — fading cells use sparse bucket (index = dying.rawValue * 2 + 0)
+            buckets[AgeTier.dying.rawValue * 2].append((position: fading.position, age: -fadeStage))
         }
+
+        let aliveCells = buckets.reduce(0) { $0 + $1.count }
+
+        guard aliveCells > 0 else {
+            return MeshData(vertices: [], indices: [], gridExtent: gridExtent, cellCount: 0,
+                          tierRanges: Array(repeating: (0, 0), count: bucketCount))
+        }
+
+        // Build tier ranges directly from bucket sizes (bucket order matches material index order)
+        var tierRanges: [(startIndex: Int, indexCount: Int)] = []
+        var indexOffset = 0
+        for bucket in buckets {
+            let count = bucket.count * cubeIndexCount
+            tierRanges.append((startIndex: indexOffset, indexCount: count))
+            indexOffset += count
+        }
+
         let sorted = buckets.flatMap { $0 }
 
         // Pre-compute depth scale: cells at the grid edge are slightly smaller (80% of full size)
@@ -3339,15 +3406,9 @@ enum GridRenderer {
         )
         var indices = [UInt32](repeating: 0, count: totalIndices)
 
-        // Track tier boundaries for mesh parts
-        var tierCounts = [Int](repeating: 0, count: AgeTier.allCases.count)
-
         var vi = 0
         var ii = 0
         for cell in sorted {
-            let tier = AgeTier.tier(for: cell.age)
-            tierCounts[tier.rawValue] += 1
-
             let ageScale = birthScale(for: cell.age)
             // Depth-based scale: cells further from center shrink slightly (squared distance — no sqrt)
             let distSq = simd_length_squared(cell.position)
@@ -3366,15 +3427,6 @@ enum GridRenderer {
                 indices[ii] = idx + vertexOffset
                 ii += 1
             }
-        }
-
-        // Build tier ranges
-        var tierRanges: [(startIndex: Int, indexCount: Int)] = []
-        var indexOffset = 0
-        for tierIdx in 0..<AgeTier.allCases.count {
-            let count = tierCounts[tierIdx] * cubeIndexCount
-            tierRanges.append((startIndex: indexOffset, indexCount: count))
-            indexOffset += count
         }
 
         return MeshData(vertices: vertices, indices: indices, gridExtent: gridExtent,

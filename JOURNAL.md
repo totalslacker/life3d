@@ -2,6 +2,22 @@
 
 Session log. Most recent entry first. Never delete entries.
 
+## 2026-04-13 11:30 PDT
+
+**Goal**: Fix "blue cubes" visual quality — make particles visible and cells look like glowing luminous volumes rather than flat colored boxes.
+
+Three-part visual improvement shipped on `fabrik/issue-3`:
+
+1. **Particle visibility fix** (`GridImmersiveView.swift`): Birth particles grew from 3mm→20mm, death from 2mm→18mm. Acceleration boosted from ~0.01 m/s² to 1.5 m/s² (birth) / -2.0 m/s² (death) — producing dramatic arcs instead of near-stationary dust. Lifespans extended (0.7s birth, 1.0s death). Removed the dynamic `burstCount` formula that capped particles at 4 at low activity; replaced with fixed 45/28 per emitter. `emitterShapeSize` grew from 10mm→25mm so particles spread across the cell face instead of appearing as a single point.
+
+2. **PBR material quality** (`GridRenderer.swift`): Added `roughness = 0.18`, `metallic = 0.15`, and `clearcoat = 0.4/0.2` to all materials in `makeAgeMaterials`. These are global constants (not per-theme) — all 152 themes benefit from the same specular surface quality. Low roughness creates sharp highlights that differentiate cube faces and reveal 3D form. Clearcoat adds a "luminous surface" gloss layer. Newborn opacity boosted 1.31× (capped at 0.85) for a richer volumetric layering effect.
+
+3. **Density-based coloring** (`GridModel.swift` + `GridRenderer.swift`): Added `neighborCounts: [Int]` array to `GridModel` using the same double-buffer swap pattern as `cells/nextCells`. The `advanceGeneration()` loop now stores the neighbor count for each surviving/newborn cell. Expanded the material system from 4 to 8 slots (4 age tiers × 2 density bands). Dense cells (≥11 neighbors, in cluster interiors) get 1.5× emissive intensity + warm red tint; sparse cells (surface/isolated) use standard appearance. `computeMeshData` now buckets into 8 bins using `neighborCounts` lookup.
+
+Build passes. 3 new logic-only tests cover neighborCounts storage, death zeroing, and clearAll.
+
+**Next Steps**: Hardware visual testing on Vision Pro. Post-processing bloom (issue #4?). Performance profiling.
+
 ## 2026-04-13 10:10 PDT
 
 **Goal**: Migrate from rig-seed to Fabrik.
