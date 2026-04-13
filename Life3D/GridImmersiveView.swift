@@ -366,7 +366,7 @@ struct GridImmersiveView: View {
         emitter.mainEmitter.lifeSpan = isBirth ? 0.7 : 1.0
         emitter.mainEmitter.size = isBirth ? 0.020 : 0.018
         emitter.mainEmitter.sizeVariation = isBirth ? 0.008 : 0.006
-        emitter.mainEmitter.spreadingAngle = isBirth ? .pi : (.pi * 2.0 / 3.0)
+        emitter.mainEmitter.spreadingAngle = .pi / 6
         emitter.mainEmitter.acceleration = isBirth
             ? SIMD3<Float>(0, 1.5, 0)    // Birth: particles burst upward
             : SIMD3<Float>(0, -2.0, 0)   // Death: particles fall away
@@ -524,7 +524,7 @@ struct GridImmersiveView: View {
         emitter.mainEmitter.lifeSpan = 0.4
         emitter.mainEmitter.size = 0.004
         emitter.mainEmitter.sizeVariation = 0.002
-        emitter.mainEmitter.spreadingAngle = .pi
+        emitter.mainEmitter.spreadingAngle = .pi / 6
         emitter.mainEmitter.acceleration = SIMD3<Float>(0, 0, 0)
         emitter.mainEmitter.color = .constant(.single(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
         emitter.mainEmitter.opacityCurve = .linearFadeOut
