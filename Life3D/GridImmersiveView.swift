@@ -370,7 +370,7 @@ struct GridImmersiveView: View {
         emitter.emitterShape = .sphere
         // ~½ cell diameter — particles spawn within the cell boundary (cell = 0.015m)
         emitter.emitterShapeSize = SIMD3<Float>(repeating: 0.008)
-        emitter.burstCount = isBirth ? 12 : 8
+        // burstCount is set by the caller at trigger time — trigger site is the sole source of truth.
 
         emitter.mainEmitter.lifeSpan = isBirth ? 0.7 : 1.0
         // 40%/33% of cell size; clearly visible (~11/9px) at 1.5m without obscuring cubes
@@ -528,9 +528,12 @@ struct GridImmersiveView: View {
     // MARK: - Toggle Pulse Effect
 
     /// Sets up a reusable pulse entity with a particle emitter for tap feedback.
-    private func setupPulseEntity(in container: Entity) {
-        let entity = Entity()
-        entity.name = "TogglePulse"
+    /// Returns a freshly constructed ParticleEmitterComponent for tap-feedback pulse effects.
+    ///
+    /// Option C (full replacement) is used at trigger time for the same reason as birth/death
+    /// emitters — re-assigning `timing` alone (Option B) does not reliably reset RealityKit's
+    /// internal has-fired state. See ADR 001.
+    private static func makePulseEmitterComponent(themeColor: SIMD3<Float>) -> ParticleEmitterComponent {
         var emitter = ParticleEmitterComponent()
         emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: Self.pulseEmitDuration))
         emitter.emitterShape = .sphere
@@ -542,10 +545,20 @@ struct GridImmersiveView: View {
         emitter.mainEmitter.sizeVariation = 0.002
         emitter.mainEmitter.spreadingAngle = .pi / 6
         emitter.mainEmitter.acceleration = SIMD3<Float>(0, 0, 0)
-        emitter.mainEmitter.color = .constant(.single(.init(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)))
+        emitter.mainEmitter.color = .constant(.single(.init(
+            red: CGFloat(themeColor.x),
+            green: CGFloat(themeColor.y),
+            blue: CGFloat(themeColor.z),
+            alpha: 1.0)))
         emitter.mainEmitter.opacityCurve = .linearFadeOut
-
         emitter.isEmitting = false
+        return emitter
+    }
+
+    private func setupPulseEntity(in container: Entity) {
+        let entity = Entity()
+        entity.name = "TogglePulse"
+        let emitter = Self.makePulseEmitterComponent(themeColor: engine.theme.newborn.emissiveColor)
         entity.components.set(emitter)
         entity.isEnabled = false
         container.addChild(entity)
@@ -558,18 +571,11 @@ struct GridImmersiveView: View {
         entity.position = position
         entity.isEnabled = true
 
-        // Set color to match current theme's newborn emissive
-        let emissive = engine.theme.newborn.emissiveColor
-        if var emitter = entity.components[ParticleEmitterComponent.self] {
-            emitter.mainEmitter.color = .constant(.single(.init(
-                red: CGFloat(emissive.x),
-                green: CGFloat(emissive.y),
-                blue: CGFloat(emissive.z),
-                alpha: 1.0)))
-            emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: Self.pulseEmitDuration))
-            emitter.isEmitting = true
-            entity.components.set(emitter)
-        }
+        // Full component replacement (Option C): fresh component has no "has-fired" state.
+        // Re-reads engine.theme for current color, same as birth/death trigger path.
+        var emitter = Self.makePulseEmitterComponent(themeColor: engine.theme.newborn.emissiveColor)
+        emitter.isEmitting = true
+        entity.components.set(emitter)
 
         // Disable after the effect completes
         Task {
