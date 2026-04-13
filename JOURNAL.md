@@ -2,6 +2,20 @@
 
 Session log. Most recent entry first. Never delete entries.
 
+## 2026-04-13 20:01 PDT
+
+**Goal**: Fix particle effects — particles stop working after first frames and spread is too wide (issue #5).
+
+Two-part fix in `Life3D/GridImmersiveView.swift`:
+
+1. **Timing restart fix** (`triggerParticles()`, `triggerPulse()`): `ParticleEmitterComponent.timing = .once(...)` fires once and becomes inert. Pooled emitters were never re-triggered because setting `isEmitting = true` without resetting the timing field does nothing after the first fire. Fixed by re-assigning `emitter.timing` to a fresh `.once(warmUp: 0, emit: VariableDuration(duration: X))` value before each `isEmitting = true` in all three trigger sites (birth, death, pulse). Swift value semantics ensure RealityKit receives a component with clean timing state on each `components.set(emitter)` call.
+
+2. **Spread angle reduction** (`makeParticleEmitter()`, `setupPulseEntity()`): Birth was `.pi` (180°), death was `.pi * 2/3` (120°), pulse was `.pi` (180°). With 1.5–2.0 m/s² acceleration and 0.7–1.0s lifespan, birth particles were traveling 30–40cm laterally — well beyond the 1.5cm cell boundary. Reduced all three to `.pi / 6` (30°), giving ~10cm lateral spread for birth and ~27cm for death. Localized sparkle rather than cross-grid spray.
+
+Build passes (visionOS Simulator, build-only). Visual validation requires device.
+
+**Next Steps**: Visual testing on hardware. If `.pi / 6` proves too columnar for death particles (1m fall path), widen to `.pi / 4` for death only. ADR written documenting the restart pattern for future contributors.
+
 ## 2026-04-13 11:30 PDT
 
 **Goal**: Fix "blue cubes" visual quality — make particles visible and cells look like glowing luminous volumes rather than flat colored boxes.
