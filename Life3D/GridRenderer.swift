@@ -3336,34 +3336,59 @@ enum GridRenderer {
         20, 21, 22,  20, 22, 23,
     ]
 
-    /// Computes raw vertex and index arrays for alive cells + fading cells, sorted by age tier.
+    /// Computes raw vertex and index arrays for alive cells + fading cells, sorted by age×density bucket.
     /// Applies depth-based scaling: cells further from grid center are slightly smaller,
     /// creating a natural depth-of-field effect without shader-level blur.
+    /// Uses 8 buckets (4 age tiers × 2 density bands) matching the 8-material array from makeAgeMaterials.
+    /// Bucket/material index convention: AgeTier.rawValue * 2 + densityBand (0=sparse <11 nbrs, 1=dense ≥11).
     private static func computeMeshData(model: GridModel) -> MeshData {
-        var cellsWithAge = model.aliveCellsWithAge(cellSize: cellSize, cellSpacing: cellSpacing)
-        // Add fading cells with negative age sentinel (mapped to .dying tier).
-        let fadingCells = model.fadingCellsWithProgress(cellSize: cellSize, cellSpacing: cellSpacing)
-        for fading in fadingCells {
-            let framesLeft = max(Int(round(fading.progress * Float(GridModel.fadeDuration))), 1)
-            let fadeStage = GridModel.fadeDuration - framesLeft + 1
-            cellsWithAge.append((position: fading.position, age: -fadeStage))
-        }
-        let aliveCells = cellsWithAge.count
+        let bucketCount = AgeTier.allCases.count * 2  // 4 tiers × 2 density bands = 8
+        let ss = model.size * model.size
 
         let half = cellSize / 2.0
         let stride = cellSize + cellSpacing
         let gridExtent = Float(model.size - 1) * stride / 2.0 + half
 
-        guard aliveCells > 0 else {
-            return MeshData(vertices: [], indices: [], gridExtent: gridExtent, cellCount: 0,
-                          tierRanges: AgeTier.allCases.map { _ in (0, 0) })
+        // Bucket cells by (age tier, density band) in O(n) — 8 buckets total.
+        // Alive cells: look up neighborCounts for density band assignment.
+        // Fading cells: always sparse band (they're dying; density distinction not relevant).
+        var buckets: [[(position: SIMD3<Float>, age: Int)]] = Array(repeating: [], count: bucketCount)
+
+        for idx in model.aliveCellIndices {
+            let x = idx / ss
+            let y = (idx / model.size) % model.size
+            let z = idx % model.size
+            let pos = model.cellPosition(x: x, y: y, z: z, cellSize: cellSize, cellSpacing: cellSpacing)
+            let age = model.cells[idx]
+            let tier = AgeTier.tier(for: age)
+            let densityBand = model.neighborCounts[idx] >= 11 ? 1 : 0
+            buckets[tier.rawValue * 2 + densityBand].append((position: pos, age: age))
         }
 
-        // Bucket cells by age tier in O(n) instead of O(n log n) sort — only 4 buckets needed
-        var buckets: [[(position: SIMD3<Float>, age: Int)]] = Array(repeating: [], count: AgeTier.allCases.count)
-        for cell in cellsWithAge {
-            buckets[AgeTier.tier(for: cell.age).rawValue].append(cell)
+        let fadingCells = model.fadingCellsWithProgress(cellSize: cellSize, cellSpacing: cellSpacing)
+        for fading in fadingCells {
+            let framesLeft = max(Int(round(fading.progress * Float(GridModel.fadeDuration))), 1)
+            let fadeStage = GridModel.fadeDuration - framesLeft + 1
+            // Dying tier, sparse band — fading cells use sparse bucket (index = dying.rawValue * 2 + 0)
+            buckets[AgeTier.dying.rawValue * 2].append((position: fading.position, age: -fadeStage))
         }
+
+        let aliveCells = buckets.reduce(0) { $0 + $1.count }
+
+        guard aliveCells > 0 else {
+            return MeshData(vertices: [], indices: [], gridExtent: gridExtent, cellCount: 0,
+                          tierRanges: Array(repeating: (0, 0), count: bucketCount))
+        }
+
+        // Build tier ranges directly from bucket sizes (bucket order matches material index order)
+        var tierRanges: [(startIndex: Int, indexCount: Int)] = []
+        var indexOffset = 0
+        for bucket in buckets {
+            let count = bucket.count * cubeIndexCount
+            tierRanges.append((startIndex: indexOffset, indexCount: count))
+            indexOffset += count
+        }
+
         let sorted = buckets.flatMap { $0 }
 
         // Pre-compute depth scale: cells at the grid edge are slightly smaller (80% of full size)
@@ -3381,15 +3406,9 @@ enum GridRenderer {
         )
         var indices = [UInt32](repeating: 0, count: totalIndices)
 
-        // Track tier boundaries for mesh parts
-        var tierCounts = [Int](repeating: 0, count: AgeTier.allCases.count)
-
         var vi = 0
         var ii = 0
         for cell in sorted {
-            let tier = AgeTier.tier(for: cell.age)
-            tierCounts[tier.rawValue] += 1
-
             let ageScale = birthScale(for: cell.age)
             // Depth-based scale: cells further from center shrink slightly (squared distance — no sqrt)
             let distSq = simd_length_squared(cell.position)
@@ -3408,15 +3427,6 @@ enum GridRenderer {
                 indices[ii] = idx + vertexOffset
                 ii += 1
             }
-        }
-
-        // Build tier ranges
-        var tierRanges: [(startIndex: Int, indexCount: Int)] = []
-        var indexOffset = 0
-        for tierIdx in 0..<AgeTier.allCases.count {
-            let count = tierCounts[tierIdx] * cubeIndexCount
-            tierRanges.append((startIndex: indexOffset, indexCount: count))
-            indexOffset += count
         }
 
         return MeshData(vertices: vertices, indices: indices, gridExtent: gridExtent,
