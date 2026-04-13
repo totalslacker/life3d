@@ -550,6 +550,7 @@ struct GridImmersiveView: View {
                 green: CGFloat(emissive.y),
                 blue: CGFloat(emissive.z),
                 alpha: 1.0)))
+            emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: 0.15))
             emitter.isEmitting = true
             entity.components.set(emitter)
         }
