@@ -26,6 +26,29 @@ the same things. Search here before looking things up externally.
 - `opacityCurve = .linearFadeOut` for natural particle fading
 - Per-cell emitters don't scale — with thousands of births/deaths per generation, use a small pool (6-12 emitters) positioned at sampled locations
 - Emitters attached to a container entity inherit its transform (rotation/scale) — particles move with the grid
+- **Particle visibility at 1.5m viewing distance**: A 3mm particle subtends ~5 angular pixels — essentially invisible in passthrough. Minimum visible size ≈ 15–20mm (1–1.5× cell size). Similarly, acceleration of 0.01 m/s² over 0.5s = 1.25mm total displacement — less than 1/10 cell width, particles appear stationary. Use 1.5–2.0 m/s² for clearly visible arcs.
+- **Dynamic burstCount antipattern**: Scaling `burstCount = count / maxEmitters` causes near-zero particle counts during low-activity generations. Fixed counts (45 birth, 28 death) ensure consistent visual impact regardless of generation activity level.
+
+---
+
+## PhysicallyBasedMaterial PBR Parameters in RealityKit
+
+- Default roughness ≈ 0.5 (matte), metallic = 0.0 (fully diffuse) — produces flat "blue cubes" appearance with no specular differentiation across faces
+- **Low roughness (0.18)**: Creates sharp specular highlights that differentiate cube faces based on lighting angle, revealing 3D form without geometry changes
+- **Slight metallic (0.15)**: Adds reflective depth across lighting environments without making cells look metallic
+- **Clearcoat (0.4)**: Adds a gloss layer for a "luminous surface" appearance — achievable via `mat.clearcoat = .init(floatLiteral: 0.4)` on `PhysicallyBasedMaterial`
+- **PBR constants scope decision**: Set roughness/metallic/clearcoat as constants in `makeAgeMaterials`, not as `TierColors` fields. All 152 themes benefit from the same specular surface quality ("glowing volume" is a rendering invariant, not a per-theme aesthetic). If per-theme control is ever needed, it's a future additive change — adding fields to TierColors would require updating all 608 call sites.
+- Opacity boost for newborn (×1.31 capped at 0.85): More overlapping transparency creates richer volumetric layering without full opacity
+
+---
+
+## Density-Based Coloring via LowLevelMesh Material Slots
+
+- **Option A (implemented)**: Expand from 4 to 8 material slots (4 age × 2 density bands). `LowLevelMesh.Part.materialIndex` is just an Int — expanding from 4 to 8 Parts is safe; vertex/index buffer sizes unchanged.
+- **Density threshold = 11 neighbors**: In the 26-neighbor Moore neighborhood, ≥11 neighbors indicates interior cluster position. Fewer = surface or isolated. This threshold visually separates cluster interior from surface structure.
+- **Double-buffer pattern for neighborCounts**: Must use same swap idiom as `cells/nextCells`. Zero `nextNeighborCounts` before the generation loop, write alive cells' counts, swap at end. Skipping the swap causes stale counts in dead cells' slots.
+- **Fading cells lose density info**: They die before next generation, so their `neighborCounts` go to 0. Assign fading cells to sparse band in the renderer — visually acceptable and simplest.
+- **`aliveCellIndices` as the lookup key**: In `computeMeshData`, iterate `model.aliveCellIndices` directly (not `aliveCellsWithAge`) to get the flat index needed for `neighborCounts` lookup. Compute position inline via `model.cellPosition(x:y:z:cellSize:cellSpacing:)`.
 
 ---
 
