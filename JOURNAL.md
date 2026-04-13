@@ -2,6 +2,24 @@
 
 Session log. Most recent entry first. Never delete entries.
 
+## 2026-04-13 23:45 PDT
+
+**Goal**: Diagnose the particle animation stop bug (issue #9, third attempt). Add diagnostic checkpoint logging and apply the remove-before-set structural mitigation (Option D) to help identify the exact link in the trigger chain that breaks.
+
+Added `print`-based diagnostic instrumentation at all five observable checkpoints in `GridImmersiveView.swift`:
+
+- **[P1]** at the top of `.onChange(of: engine.generation)` — confirms the SwiftUI callback fires every generation
+- **[P2]** after computing `birthPositions`/`deathPositions` — confirms the data layer returns non-empty arrays
+- **[P3]** at the entry of `triggerParticles()` — confirms the function is called with non-empty arrays
+- **[P4]** after `entity.components.set(emitter)` in both birth and death loops — confirms `isEmitting=true` reads back and `entity.parent != nil`
+- **[P5]** around the `repeat { } while needsRebuild` block in `rebuildMesh()` — measures how long mesh rebuild takes (to detect main actor starvation)
+
+Structural fix applied alongside logging: `entity.components.remove(ParticleEmitterComponent.self)` is now called immediately before each `entity.components.set(emitter)` in both the birth and death entity loops. This is the Option D mitigation from the spec's checkpoint 6 — it ensures RealityKit treats each write as a genuinely new component attachment rather than an in-place update to an existing slot. Options B and C have both failed in production; this is the next candidate. The change is safe to retain regardless of where the diagnostic logs show the failure.
+
+Build passes. Diagnostic logging must be removed before the PR is marked ready; the `remove-before-set` structural change should be retained.
+
+**Next Steps**: Human must boot the visionOS Simulator, run for 30+ seconds at default speed, capture Xcode/Console output filtered to `[P`, and paste the first and last 30 lines as a comment on issue #9, noting which `[PX]` prefix stops appearing. That evidence will confirm the root cause and guide Phase 2 cleanup.
+
 ## 2026-04-13 22:30 PDT
 
 **Goal**: Review implementation from Implement stage; address Copilot review feedback on PR #8.
