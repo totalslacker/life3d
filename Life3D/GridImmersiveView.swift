@@ -17,6 +17,12 @@ struct GridImmersiveView: View {
     @State private var lightEntities: [Entity] = []
     private static let maxPointLights = 8
 
+    // Particle emit durations — kept as constants so setup and trigger-site reset always match.
+    // If these drift, the .once timing reset in triggerParticles/triggerPulse silently breaks.
+    private static let birthEmitDuration: TimeInterval = 0.4
+    private static let deathEmitDuration: TimeInterval = 0.3
+    private static let pulseEmitDuration: TimeInterval = 0.15
+
     // Toggle pulse effect
     @State private var pulseEntity: Entity?
 
@@ -358,7 +364,7 @@ struct GridImmersiveView: View {
         let entity = Entity()
         var emitter = ParticleEmitterComponent()
 
-        emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: isBirth ? 0.4 : 0.3))
+        emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: isBirth ? Self.birthEmitDuration : Self.deathEmitDuration))
         emitter.emitterShape = .sphere
         emitter.emitterShapeSize = SIMD3<Float>(repeating: 0.025)
         emitter.burstCount = isBirth ? 12 : 8
@@ -421,7 +427,7 @@ struct GridImmersiveView: View {
                 entity.position = birthSample[i]
                 entity.isEnabled = true
                 if var emitter = entity.components[ParticleEmitterComponent.self] {
-                    emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: 0.4))
+                    emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: Self.birthEmitDuration))
                     emitter.isEmitting = true
                     emitter.burstCount = 45
                     entity.components.set(emitter)
@@ -438,7 +444,7 @@ struct GridImmersiveView: View {
                 entity.position = deathSample[i]
                 entity.isEnabled = true
                 if var emitter = entity.components[ParticleEmitterComponent.self] {
-                    emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: 0.3))
+                    emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: Self.deathEmitDuration))
                     emitter.isEmitting = true
                     emitter.burstCount = 28
                     entity.components.set(emitter)
@@ -516,7 +522,7 @@ struct GridImmersiveView: View {
         let entity = Entity()
         entity.name = "TogglePulse"
         var emitter = ParticleEmitterComponent()
-        emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: 0.15))
+        emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: Self.pulseEmitDuration))
         emitter.emitterShape = .sphere
         emitter.emitterShapeSize = SIMD3<Float>(repeating: 0.005)
         emitter.burstCount = 20
@@ -550,7 +556,7 @@ struct GridImmersiveView: View {
                 green: CGFloat(emissive.y),
                 blue: CGFloat(emissive.z),
                 alpha: 1.0)))
-            emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: 0.15))
+            emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: Self.pulseEmitDuration))
             emitter.isEmitting = true
             entity.components.set(emitter)
         }
