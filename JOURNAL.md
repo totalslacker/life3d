@@ -2,6 +2,14 @@
 
 Session log. Most recent entry first. Never delete entries.
 
+## 2026-04-13 22:30 PDT
+
+**Goal**: Review implementation from Implement stage; address Copilot review feedback on PR #8.
+
+Three issues found and fixed: (1) `burstCount` was set in `makeParticleEmitterComponent()` and again at each trigger site — identical values in both places, a drift risk. Removed from the helper; trigger sites are now the sole source of truth. (2) `triggerPulse()` still used Option B (timing re-assignment) while LEARNINGS.md stated Option C is the required pattern — inconsistent and potentially broken after first tap. Extracted `makePulseEmitterComponent()` and migrated `triggerPulse()` to Option C. (3) ADR 001 and LEARNINGS.md updated to reflect the pulse migration, removing the "if it exhibits" conditional (the fix has now been applied unconditionally to all emitter types). Build passes.
+
+**Next Steps**: On-device or simulator visual validation of the new sparkle effect. If too subtle, increase `burstCount` at trigger sites before touching particle `size`.
+
 ## 2026-04-13 22:00 PDT
 
 **Goal**: Fix two compounding particle system bugs: particles stopping after first generation (Bug 1) and particle effects being far too large relative to the 1.5cm cells (Bug 2).

@@ -36,13 +36,13 @@ Recreate `ParticleEmitterComponent` from scratch on each trigger via a shared `m
 
 ## Decision
 
-Use `makeParticleEmitterComponent(isBirth:themeColors:)` to construct a fresh component at every trigger site:
+Use a dedicated `make*EmitterComponent()` helper to construct a fresh component at every trigger site:
 
 ```swift
 // In triggerParticles() — birth branch (Option C: fresh construction each trigger)
 var emitter = Self.makeParticleEmitterComponent(isBirth: true, themeColors: engine.theme.newborn)
 emitter.isEmitting = true
-emitter.burstCount = 12
+emitter.burstCount = 12          // trigger site is sole source of truth for burstCount
 entity.components.set(emitter)
 
 // In triggerParticles() — death branch
@@ -50,9 +50,14 @@ var emitter = Self.makeParticleEmitterComponent(isBirth: false, themeColors: eng
 emitter.isEmitting = true
 emitter.burstCount = 8
 entity.components.set(emitter)
+
+// In triggerPulse() — same Option C pattern
+var emitter = Self.makePulseEmitterComponent(themeColor: engine.theme.newborn.emissiveColor)
+emitter.isEmitting = true
+entity.components.set(emitter)
 ```
 
-The `makeParticleEmitterComponent()` helper is also called by `makeParticleEmitter()` at pool initialization time, so both code paths share the same configuration. Duration values (`birthEmitDuration`, `deathEmitDuration`) are static constants to prevent setup/trigger drift.
+Each helper is also called at pool initialization time, so setup and trigger paths share the same configuration. Duration values (`birthEmitDuration`, `deathEmitDuration`, `pulseEmitDuration`) are static constants to prevent setup/trigger drift. `burstCount` is set by the caller at trigger time — it is NOT set inside the helper, so the trigger site is the sole source of truth.
 
 ---
 
@@ -61,8 +66,8 @@ The `makeParticleEmitterComponent()` helper is also called by `makeParticleEmitt
 - Pooled emitters fire correctly on every generation trigger, not just the first.
 - Color at trigger time comes from `engine.theme` directly — `updateParticleEmitterColors()` writes between triggers are superseded on the next trigger. This is acceptable; the trigger path is authoritative.
 - The `makeParticleEmitterComponent()` helper is the single source of truth for emitter configuration. Changes to emitter parameters (size, acceleration, burst count) need only be made in one place.
-- Future contributors must use `makeParticleEmitterComponent()` at any new trigger site that uses `.once` emitters. Omitting it (or regressing to Option B) causes the silent-after-first-use bug to recur.
-- `triggerPulse()` uses the same `.once` timing pattern. If it exhibits the same stopping bug, apply the same Option C fix: extract `makePulseEmitterComponent()` and call it at trigger time.
+- Future contributors must use `make*EmitterComponent()` helpers at any new trigger site that uses `.once` emitters. Omitting it (or regressing to Option B) causes the silent-after-first-use bug to recur.
+- `triggerPulse()` has been migrated to the same Option C pattern via `makePulseEmitterComponent()` — it is no longer on Option B.
 
 ---
 
