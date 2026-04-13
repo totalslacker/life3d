@@ -11195,3 +11195,59 @@ struct BorniteThemeTests {
         #expect(rDiff + gDiff + bDiff > 0.05)
     }
 }
+
+@Suite("Neighbor Count Storage Tests")
+struct NeighborCountStorageTests {
+
+    @Test("alive cells with alive neighbors have nonzero neighborCounts after advanceGeneration")
+    func neighborCountsStoredForAliveCell() {
+        // Survive with any neighbor count (1–26), no births — predictable: placed cells survive
+        var model = GridModel(size: 5, birthCounts: [], survivalCounts: Set(1...26))
+        // Place two adjacent cells so each has exactly 1 alive neighbor
+        model.setCell(x: 2, y: 2, z: 1, alive: true)
+        model.setCell(x: 2, y: 2, z: 2, alive: true)
+        let idx0 = model.index(x: 2, y: 2, z: 1)
+        let idx1 = model.index(x: 2, y: 2, z: 2)
+
+        model.advanceGeneration()
+
+        // Both cells survive
+        #expect(model.cells[idx0] > 0)
+        #expect(model.cells[idx1] > 0)
+        // Each cell had exactly 1 alive neighbor — neighborCounts must reflect this
+        #expect(model.neighborCounts[idx0] == 1)
+        #expect(model.neighborCounts[idx1] == 1)
+    }
+
+    @Test("dead cells have neighborCounts == 0 after generation they die in")
+    func neighborCountsZeroForDeadCell() {
+        // Survive only with exactly 5 neighbors — an isolated cell (0 neighbors) will die
+        var model = GridModel(size: 5, birthCounts: [], survivalCounts: [5])
+        model.setCell(x: 2, y: 2, z: 2, alive: true)
+        let idx = model.index(x: 2, y: 2, z: 2)
+
+        model.advanceGeneration()
+
+        // Cell dies (0 neighbors, not in survivalCounts)
+        #expect(model.cells[idx] == 0)
+        // neighborCounts must be 0 for dead cells (nextNeighborCounts was zeroed, cell died, count not stored)
+        #expect(model.neighborCounts[idx] == 0)
+    }
+
+    @Test("neighborCounts are zeroed by clearAll")
+    func neighborCountsZeroedByClearAll() {
+        // Set up cells that survive so neighborCounts get nonzero values
+        var model = GridModel(size: 5, birthCounts: [], survivalCounts: Set(1...26))
+        model.setCell(x: 2, y: 2, z: 1, alive: true)
+        model.setCell(x: 2, y: 2, z: 2, alive: true)
+        model.advanceGeneration()
+        // Verify at least one nonzero count was stored
+        let idx0 = model.index(x: 2, y: 2, z: 1)
+        #expect(model.neighborCounts[idx0] > 0)
+
+        model.clearAll()
+
+        // All neighborCounts must be zero after clearAll
+        #expect(model.neighborCounts.allSatisfy { $0 == 0 })
+    }
+}
