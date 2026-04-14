@@ -1,8 +1,8 @@
 # ADR 001: ParticleEmitterComponent Restart Pattern for Pooled Emitters
 
-**Status**: Accepted (revised — Option D adopted)
-**Date**: 2026-04-13 (updated 2026-04-13)
-**Context**: Issue #5 — particle effects stop firing after the first generation; Issue #7 — confirmed Option B insufficient in practice, adopted Option C; Issue #9 — confirmed Option C also insufficient, adopted Option D (remove-before-set)
+**Status**: Superseded — Option E adopted
+**Date**: 2026-04-13 (updated 2026-04-14)
+**Context**: Issue #5 — particle effects stop firing after the first generation; Issue #7 — confirmed Option B insufficient in practice, adopted Option C; Issue #9 — confirmed Option C also insufficient, adopted Option D (remove-before-set); Issue #12 — Option D found visually insufficient; root cause identified as entity-level VFX state; destroy-and-recreate adopted
 
 ---
 
@@ -32,50 +32,59 @@ Recreate `ParticleEmitterComponent` from scratch on each trigger via a shared `m
 
 **Found insufficient (Issue #9)**: A freshly constructed component was expected to have no internal firing history. However, diagnostic checkpoint logging in issue #9 confirmed that checkpoints P1–P5 all continued to produce correct output (onChange fired every generation, position data was non-empty, isEmitting=true read back after set, entity.parent=true) — yet particles continued to stop firing visually. Root cause: `entity.components.set(emitter)` performs an in-place update when a component of that type already occupies the slot, and RealityKit preserves entity-side "has-fired" state even when the component struct is freshly constructed.
 
-### Option D: Remove-before-set (adopted)
+### Option D: Remove-before-set
 
 Call `entity.components.remove(ParticleEmitterComponent.self)` immediately before `entity.components.set(emitter)` at every trigger site.
 
-**Adopted**: This forces RealityKit to fully detach and re-attach the component, clearing all entity-side "has-fired" state. Confirmed effective in issue #9: particles fired continuously through 164+ generations in the visionOS Simulator.
+**Found insufficient (visual verification never obtained — confirmed via diagnostic prints only)**: Implemented in issue #9. Diagnostic checkpoint logging confirmed that `components.remove()` followed by `components.set()` ran correctly for 164+ generations (checkpoints P1–P5 all produced expected output; `isEmitting=true` read back after set, `entity.parent` non-nil). However, these prints only proved the Swift execution path ran — they did not prove RealityKit rendered a new particle burst. The user still only saw the first burst visually. The root cause is that **all Options B, C, and D reuse the same pooled `Entity`** across generations. RealityKit retains internal particle-system VFX state at the entity level that survives component removal and replacement. Clearing the component struct is insufficient because the entity object itself carries the stale state.
+
+### Option E: Destroy-and-recreate per burst (adopted)
+
+For each burst event, allocate a **fresh `Entity`**, attach a freshly configured `ParticleEmitterComponent`, parent it to the scene container, and schedule its removal via a `Task` after the burst lifetime elapses. A newly constructed entity has no prior VFX history.
+
+**Adopted in Issue #12**: This is the correct fix because it eliminates entity-level state entirely. The pooled-entity model (`birthParticleEntities`, `deathParticleEntities`, `pulseEntity`) is removed. Each generation spawns 0–20 birth entities and 0–20 death entities, each self-removing after their lifetime (`birthEmitDuration + lifeSpan + 0.1s`). A concurrency cap of 40 active burst entities (birth + death combined) prevents runaway accumulation. Pulse follows the same pattern with no cap (tap-triggered, low frequency).
+
+```swift
+// spawnBurst(at:isBirth:) — called per position per generation
+guard let container = containerEntity,
+      activeBurstEntityCount < Self.maxActiveBurstEntities else { return }
+
+let themeColors = isBirth ? engine.theme.newborn : engine.theme.dying
+var emitter = Self.makeParticleEmitterComponent(isBirth: isBirth, themeColors: themeColors)
+emitter.isEmitting = true
+emitter.burstCount = isBirth ? 12 : 8
+
+let entity = Entity()
+entity.position = position
+entity.components.set(emitter)
+container.addChild(entity)
+activeBurstEntityCount += 1
+
+Task { @MainActor in
+    try? await Task.sleep(nanoseconds: isBirth ? 1_200_000_000 : 1_400_000_000)
+    entity.removeFromParent()
+    activeBurstEntityCount -= 1
+}
+```
 
 ---
 
 ## Decision
 
-Use Option D: call `entity.components.remove()` before `entity.components.set()` at every trigger site, combined with the Option C helper pattern for fresh component construction:
+Use Option E: destroy-and-recreate per burst. The pool infrastructure (`birthParticleEntities`, `deathParticleEntities`, `setupParticleEmitters(in:)`, `setupPulseEntity(in:)`, `updateParticleEmitterColors()`) is deleted. `triggerParticles()` and `triggerPulse()` spawn fresh entities on each call.
 
-```swift
-// In triggerParticles() — birth branch (Option D: remove-before-set + Option C fresh construction)
-var emitter = Self.makeParticleEmitterComponent(isBirth: true, themeColors: engine.theme.newborn)
-emitter.isEmitting = true
-emitter.burstCount = 12          // trigger site is sole source of truth for burstCount
-entity.components.remove(ParticleEmitterComponent.self)   // Option D: clears entity-side "has-fired" state
-entity.components.set(emitter)
-
-// In triggerParticles() — death branch
-var emitter = Self.makeParticleEmitterComponent(isBirth: false, themeColors: engine.theme.dying)
-emitter.isEmitting = true
-emitter.burstCount = 8
-entity.components.remove(ParticleEmitterComponent.self)
-entity.components.set(emitter)
-
-// In triggerPulse() — same Option C pattern (Option D not yet applied; pulse fires at tap rate, not per-generation)
-var emitter = Self.makePulseEmitterComponent(themeColor: engine.theme.newborn.emissiveColor)
-emitter.isEmitting = true
-entity.components.set(emitter)
-```
-
-Each helper is also called at pool initialization time, so setup and trigger paths share the same configuration. Duration values (`birthEmitDuration`, `deathEmitDuration`, `pulseEmitDuration`) are static constants to prevent setup/trigger drift. `burstCount` is set by the caller at trigger time — it is NOT set inside the helper, so the trigger site is the sole source of truth.
+Duration values (`birthEmitDuration`, `deathEmitDuration`, `pulseEmitDuration`) remain as static constants. `burstCount` continues to be set by the caller at spawn time. All calibrated particle parameters (size, acceleration, spread angle) are preserved in the `makeParticleEmitterComponent()` and `makePulseEmitterComponent()` helpers.
 
 ---
 
 ## Consequences
 
-- Pooled emitters fire correctly on every generation trigger, not just the first.
-- Color at trigger time comes from `engine.theme` directly — `updateParticleEmitterColors()` writes between triggers are superseded on the next trigger. This is acceptable; the trigger path is authoritative.
-- The `makeParticleEmitterComponent()` helper is the single source of truth for emitter configuration. Changes to emitter parameters (size, acceleration, burst count) need only be made in one place.
-- Future contributors must use `make*EmitterComponent()` helpers at any new trigger site that uses `.once` emitters AND must call `entity.components.remove()` before `entity.components.set()`. Omitting the remove step (or regressing to Options B or C) causes the silent-after-first-use bug to recur.
-- `triggerPulse()` has been migrated to the same Option C pattern via `makePulseEmitterComponent()`. Option D (remove-before-set) has not yet been applied to `triggerPulse()` — tap rate is low enough that entity-side state is unlikely to be stale, but if pulse effects stop working the same fix applies.
+- Each burst spawns one or more fresh entities; no entity is reused across generations.
+- Entity count is bounded by the 40-entity cap plus pulse entities (which are low-frequency and uncapped).
+- Theme colors are captured at spawn time from `engine.theme`; entities that are already live keep their birth-time colors through their lifetime. This is acceptable.
+- `updateParticleEmitterColors()` is deleted — there is no pool to iterate.
+- The `makeParticleEmitterComponent()` helper remains the single source of truth for emitter configuration. All calibrated values are preserved.
+- Future contributors must use the destroy-and-recreate pattern for any `.once` particle emitter. Reintroducing a pool will cause the same silent-after-first-use bug.
 
 ---
 
