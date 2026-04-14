@@ -18,6 +18,18 @@ Prior fixes (issues #5, #7, #9) reduced particle `size`, `emitterShapeSize`, and
 
 **Next Steps**: Merge PR for issue #11 after visual simulator validation confirms bursts stay near source cells and pulse feels responsive.
 
+## 2026-04-14 PDT
+
+**Goal**: Fix particle bursts permanently (issue #12) — replace pooled-entity model with destroy-and-recreate per burst.
+
+Option D ("remove-before-set"), which was marked "Confirmed effective" in ADR 001, was found to be visually unverified. The diagnostic prints in issue #9 confirmed the Swift execution path ran for 164+ generations, but the user never saw bursts beyond the first generation. The root cause is entity-level VFX state that RealityKit retains at the entity object level, not the component level — no amount of component swapping on a reused entity can clear it.
+
+**What changed**: Replaced the pool of 10 birth + 10 death + 1 pulse pre-allocated entities with a destroy-and-recreate pattern. Each generation calls `spawnBurst(at:isBirth:)` for up to 20 sampled birth and 20 sampled death positions. Each call allocates a fresh `Entity`, attaches a fresh `ParticleEmitterComponent`, parents it to the container, increments `activeBurstEntityCount`, and schedules `entity.removeFromParent()` via a `Task` after the burst lifetime (1.2s birth, 1.4s death). A 40-entity cap (birth + death combined) prevents runaway accumulation. Pulse follows the same pattern with no cap. `setupParticleEmitters(in:)`, `setupPulseEntity(in:)`, `updateParticleEmitterColors()`, and `makeParticleEmitter(isBirth:themeColors:)` are deleted. ADR 001 updated: Option D status corrected; Option E (destroy-and-recreate) added and marked adopted.
+
+Build passes (`xcodebuild` for visionOS Simulator). Visual verification in the visionOS Simulator is required to close this issue — CLAUDE.md is explicit that build-only confirmation is insufficient.
+
+**Next Steps**: Boot the visionOS Simulator, run the app, start the simulation, and observe particle bursts for 30+ seconds. Verify pulse fires on every tap, not just the first. Confirm entity count does not grow without bound.
+
 ## 2026-04-14 00:00 PDT
 
 **Goal**: Complete Phase 2 of issue #9 — confirm root cause from simulator logs, remove diagnostic logging, update LEARNINGS.md and ADR 001.

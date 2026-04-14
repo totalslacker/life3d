@@ -8,10 +8,9 @@ struct GridImmersiveView: View {
     @State private var isRebuilding = false
     @State private var needsRebuild = false
 
-    // Particle effect entities
-    @State private var birthParticleEntities: [Entity] = []
-    @State private var deathParticleEntities: [Entity] = []
-    private static let maxParticleEmitters = 10
+    // Burst entity concurrency tracking
+    @State private var activeBurstEntityCount: Int = 0
+    private static let maxActiveBurstEntities = 40
 
     // Point light entities for ambient cell glow
     @State private var lightEntities: [Entity] = []
@@ -22,9 +21,6 @@ struct GridImmersiveView: View {
     private static let birthEmitDuration: TimeInterval = 0.4
     private static let deathEmitDuration: TimeInterval = 0.3
     private static let pulseEmitDuration: TimeInterval = 0.15
-
-    // Toggle pulse effect
-    @State private var pulseEntity: Entity?
 
     // Boundary wireframe entity
     @State private var wireframeEntity: Entity?
@@ -85,9 +81,7 @@ struct GridImmersiveView: View {
 
             content.add(container)
             containerEntity = container
-            setupParticleEmitters(in: container)
             setupPointLights(in: container)
-            setupPulseEntity(in: container)
         } update: { content in
             guard let container = containerEntity else { return }
 
@@ -150,7 +144,6 @@ struct GridImmersiveView: View {
         }
         .onChange(of: engine.theme) {
             updatePointLights(birthPositions: [])
-            updateParticleEmitterColors()
             updateWireframeColor()
             Task { await rebuildMesh() }
         }
@@ -359,10 +352,10 @@ struct GridImmersiveView: View {
 
     // MARK: - Particle Effects
 
-    /// Returns a freshly constructed ParticleEmitterComponent for birth or death effects.
+    /// Returns a freshly configured ParticleEmitterComponent for birth or death effects.
     ///
-    /// Returns a value type with no "has-fired" state — safe to set on a pooled entity each
-    /// generation. Cell size = 0.015m; kinematics: d = 0.5 × a × t² keeps particles ≤ 2 cell widths.
+    /// Used at spawn time — each call site creates a fresh Entity and attaches this component.
+    /// Cell size = 0.015m; kinematics: d = 0.5 × a × t² keeps particles ≤ 2 cell widths.
     private static func makeParticleEmitterComponent(isBirth: Bool, themeColors: ColorTheme.TierColors) -> ParticleEmitterComponent {
         var emitter = ParticleEmitterComponent()
         // Cap initial speed so bursts stay near the source cell (~2 cell widths). Default ~0.5 m/s
@@ -394,80 +387,46 @@ struct GridImmersiveView: View {
         return emitter
     }
 
-    /// Creates a particle emitter entity configured for birth or death effects.
-    private static func makeParticleEmitter(isBirth: Bool, themeColors: ColorTheme.TierColors) -> Entity {
+    /// Spawns a fresh burst entity at the given position and schedules its self-removal.
+    ///
+    /// Each call allocates a new Entity — no entity is ever reused across burst cycles.
+    /// A newly constructed entity carries no prior VFX "has-fired" state (see ADR 001, Option E).
+    private func spawnBurst(at position: SIMD3<Float>, isBirth: Bool) {
+        guard let container = containerEntity,
+              activeBurstEntityCount < Self.maxActiveBurstEntities else { return }
+
+        let themeColors = isBirth ? engine.theme.newborn : engine.theme.dying
+        var emitter = Self.makeParticleEmitterComponent(isBirth: isBirth, themeColors: themeColors)
+        emitter.isEmitting = true
+        emitter.burstCount = isBirth ? 12 : 8
+
         let entity = Entity()
-        let emitter = makeParticleEmitterComponent(isBirth: isBirth, themeColors: themeColors)
+        entity.name = isBirth ? "BirthBurst" : "DeathBurst"
+        entity.position = position
         entity.components.set(emitter)
-        entity.name = isBirth ? "BirthParticles" : "DeathParticles"
-        return entity
-    }
+        container.addChild(entity)
 
-    /// Sets up particle emitter entities in the container.
-    private func setupParticleEmitters(in container: Entity) {
-        let birthColors = engine.theme.newborn
-        let deathColors = engine.theme.dying
-
-        var birthEntities: [Entity] = []
-        var deathEntities: [Entity] = []
-
-        for _ in 0..<Self.maxParticleEmitters {
-            let birthEntity = Self.makeParticleEmitter(isBirth: true, themeColors: birthColors)
-            container.addChild(birthEntity)
-            birthEntities.append(birthEntity)
-
-            let deathEntity = Self.makeParticleEmitter(isBirth: false, themeColors: deathColors)
-            container.addChild(deathEntity)
-            deathEntities.append(deathEntity)
+        activeBurstEntityCount += 1
+        // birth: 0.4s emit + 0.7s lifeSpan + 0.1s buffer = 1.2s
+        // death: 0.3s emit + 1.0s lifeSpan + 0.1s buffer = 1.4s
+        let delayNanos: UInt64 = isBirth ? 1_200_000_000 : 1_400_000_000
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: delayNanos)
+            entity.removeFromParent()
+            activeBurstEntityCount -= 1
         }
-
-        birthParticleEntities = birthEntities
-        deathParticleEntities = deathEntities
     }
 
     /// Triggers particle bursts at sampled birth/death positions.
     private func triggerParticles(birthPositions bornPositions: [SIMD3<Float>], deathPositions dyingPositions: [SIMD3<Float>]) {
-        guard !bornPositions.isEmpty || !dyingPositions.isEmpty else {
-            // No births or deaths — disable all emitters to avoid stale particles
-            for entity in birthParticleEntities { entity.isEnabled = false }
-            for entity in deathParticleEntities { entity.isEnabled = false }
-            return
+        let birthSample = samplePositions(bornPositions, count: 20)
+        for position in birthSample {
+            spawnBurst(at: position, isBirth: true)
         }
 
-        // Sample up to maxParticleEmitters positions from births.
-        // Full component replacement (Option C) is used instead of read-modify-write (Option B):
-        // re-assigning only emitter.timing was found insufficient in practice — RealityKit's
-        // internal "has-fired" counter is not reliably reset by a value-type field re-assignment.
-        // A freshly constructed component has no firing history. See ADR 001.
-        let birthSample = samplePositions(bornPositions, count: Self.maxParticleEmitters)
-        for (i, entity) in birthParticleEntities.enumerated() {
-            if i < birthSample.count {
-                entity.position = birthSample[i]
-                entity.isEnabled = true
-                var emitter = Self.makeParticleEmitterComponent(isBirth: true, themeColors: engine.theme.newborn)
-                emitter.isEmitting = true
-                emitter.burstCount = 12
-                entity.components.remove(ParticleEmitterComponent.self)
-                entity.components.set(emitter)
-            } else {
-                entity.isEnabled = false
-            }
-        }
-
-        // Sample death positions
-        let deathSample = samplePositions(dyingPositions, count: Self.maxParticleEmitters)
-        for (i, entity) in deathParticleEntities.enumerated() {
-            if i < deathSample.count {
-                entity.position = deathSample[i]
-                entity.isEnabled = true
-                var emitter = Self.makeParticleEmitterComponent(isBirth: false, themeColors: engine.theme.dying)
-                emitter.isEmitting = true
-                emitter.burstCount = 8
-                entity.components.remove(ParticleEmitterComponent.self)
-                entity.components.set(emitter)
-            } else {
-                entity.isEnabled = false
-            }
+        let deathSample = samplePositions(dyingPositions, count: 20)
+        for position in deathSample {
+            spawnBurst(at: position, isBirth: false)
         }
     }
 
@@ -533,12 +492,9 @@ struct GridImmersiveView: View {
 
     // MARK: - Toggle Pulse Effect
 
-    /// Sets up a reusable pulse entity with a particle emitter for tap feedback.
-    /// Returns a freshly constructed ParticleEmitterComponent for tap-feedback pulse effects.
+    /// Returns a freshly configured ParticleEmitterComponent for tap-feedback pulse effects.
     ///
-    /// Option C (full replacement) is used at trigger time for the same reason as birth/death
-    /// emitters — re-assigning `timing` alone (Option B) does not reliably reset RealityKit's
-    /// internal has-fired state. See ADR 001.
+    /// Used at spawn time — `triggerPulse(at:)` creates a fresh Entity and attaches this component.
     private static func makePulseEmitterComponent(themeColor: SIMD3<Float>) -> ParticleEmitterComponent {
         var emitter = ParticleEmitterComponent()
         // Cap initial speed to keep pulse burst within ~1 cell of the tap point (zero acceleration
@@ -565,58 +521,26 @@ struct GridImmersiveView: View {
         return emitter
     }
 
-    private func setupPulseEntity(in container: Entity) {
+    /// Fires a brief particle burst at the toggled cell position.
+    ///
+    /// Each tap spawns a fresh entity — same destroy-and-recreate rationale as spawnBurst.
+    /// Pulse is excluded from the activeBurstEntityCount cap (tap-triggered, low frequency).
+    private func triggerPulse(at position: SIMD3<Float>) {
+        guard let container = containerEntity else { return }
+
         let entity = Entity()
         entity.name = "TogglePulse"
-        let emitter = Self.makePulseEmitterComponent(themeColor: engine.theme.newborn.emissiveColor)
-        entity.components.set(emitter)
-        entity.isEnabled = false
-        container.addChild(entity)
-        pulseEntity = entity
-    }
-
-    /// Fires a brief white particle burst at the toggled cell position.
-    private func triggerPulse(at position: SIMD3<Float>) {
-        guard let entity = pulseEntity else { return }
         entity.position = position
-        entity.isEnabled = true
 
-        // Full component replacement (Option C): fresh component has no "has-fired" state.
-        // Re-reads engine.theme for current color, same as birth/death trigger path.
         var emitter = Self.makePulseEmitterComponent(themeColor: engine.theme.newborn.emissiveColor)
         emitter.isEmitting = true
         entity.components.set(emitter)
+        container.addChild(entity)
 
-        // Disable after the effect completes
-        Task {
-            try? await Task.sleep(nanoseconds: 500_000_000)  // 0.5s
-            entity.isEnabled = false
-        }
-    }
-
-    // MARK: - Particle Color Updates
-
-    /// Updates all particle emitter colors to match the current theme.
-    private func updateParticleEmitterColors() {
-        let birthColor = engine.theme.newborn.emissiveColor
-        let deathColor = engine.theme.dying.emissiveColor
-
-        for entity in birthParticleEntities {
-            if var emitter = entity.components[ParticleEmitterComponent.self] {
-                emitter.mainEmitter.color = .constant(.single(.init(
-                    red: CGFloat(birthColor.x), green: CGFloat(birthColor.y),
-                    blue: CGFloat(birthColor.z), alpha: 1.0)))
-                entity.components.set(emitter)
-            }
-        }
-
-        for entity in deathParticleEntities {
-            if var emitter = entity.components[ParticleEmitterComponent.self] {
-                emitter.mainEmitter.color = .constant(.single(.init(
-                    red: CGFloat(deathColor.x), green: CGFloat(deathColor.y),
-                    blue: CGFloat(deathColor.z), alpha: 1.0)))
-                entity.components.set(emitter)
-            }
+        // pulse: 0.15s emit + 0.4s lifeSpan + 0.1s buffer = 0.65s
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 650_000_000)
+            entity.removeFromParent()
         }
     }
 
