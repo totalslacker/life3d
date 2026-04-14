@@ -1,8 +1,8 @@
 # ADR 001: ParticleEmitterComponent Restart Pattern for Pooled Emitters
 
-**Status**: Accepted (revised — Option C adopted)
+**Status**: Accepted (revised — Option D adopted)
 **Date**: 2026-04-13 (updated 2026-04-13)
-**Context**: Issue #5 — particle effects stop firing after the first generation; Issue #7 — confirmed Option B insufficient in practice, adopted Option C
+**Context**: Issue #5 — particle effects stop firing after the first generation; Issue #7 — confirmed Option B insufficient in practice, adopted Option C; Issue #9 — confirmed Option C also insufficient, adopted Option D (remove-before-set)
 
 ---
 
@@ -30,28 +30,36 @@ Re-assign `emitter.timing` to a fresh `.once(warmUp: 0, emit: VariableDuration(d
 
 Recreate `ParticleEmitterComponent` from scratch on each trigger via a shared `makeParticleEmitterComponent(isBirth:themeColors:)` helper, re-applying all fields including color from `engine.theme` at trigger time.
 
-**Adopted**: A freshly constructed component has no internal firing history. The concern about stripping color state (the original reason Option C was initially rejected) is addressed by re-reading `engine.theme` at the trigger site — this also ensures trigger-time color accuracy regardless of `updateParticleEmitterColors()` call timing.
+**Found insufficient (Issue #9)**: A freshly constructed component was expected to have no internal firing history. However, diagnostic checkpoint logging in issue #9 confirmed that checkpoints P1–P5 all continued to produce correct output (onChange fired every generation, position data was non-empty, isEmitting=true read back after set, entity.parent=true) — yet particles continued to stop firing visually. Root cause: `entity.components.set(emitter)` performs an in-place update when a component of that type already occupies the slot, and RealityKit preserves entity-side "has-fired" state even when the component struct is freshly constructed.
+
+### Option D: Remove-before-set (adopted)
+
+Call `entity.components.remove(ParticleEmitterComponent.self)` immediately before `entity.components.set(emitter)` at every trigger site.
+
+**Adopted**: This forces RealityKit to fully detach and re-attach the component, clearing all entity-side "has-fired" state. Confirmed effective in issue #9: particles fired continuously through 164+ generations in the visionOS Simulator.
 
 ---
 
 ## Decision
 
-Use a dedicated `make*EmitterComponent()` helper to construct a fresh component at every trigger site:
+Use Option D: call `entity.components.remove()` before `entity.components.set()` at every trigger site, combined with the Option C helper pattern for fresh component construction:
 
 ```swift
-// In triggerParticles() — birth branch (Option C: fresh construction each trigger)
+// In triggerParticles() — birth branch (Option D: remove-before-set + Option C fresh construction)
 var emitter = Self.makeParticleEmitterComponent(isBirth: true, themeColors: engine.theme.newborn)
 emitter.isEmitting = true
 emitter.burstCount = 12          // trigger site is sole source of truth for burstCount
+entity.components.remove(ParticleEmitterComponent.self)   // Option D: clears entity-side "has-fired" state
 entity.components.set(emitter)
 
 // In triggerParticles() — death branch
 var emitter = Self.makeParticleEmitterComponent(isBirth: false, themeColors: engine.theme.dying)
 emitter.isEmitting = true
 emitter.burstCount = 8
+entity.components.remove(ParticleEmitterComponent.self)
 entity.components.set(emitter)
 
-// In triggerPulse() — same Option C pattern
+// In triggerPulse() — same Option C pattern (Option D not yet applied; pulse fires at tap rate, not per-generation)
 var emitter = Self.makePulseEmitterComponent(themeColor: engine.theme.newborn.emissiveColor)
 emitter.isEmitting = true
 entity.components.set(emitter)
@@ -66,8 +74,8 @@ Each helper is also called at pool initialization time, so setup and trigger pat
 - Pooled emitters fire correctly on every generation trigger, not just the first.
 - Color at trigger time comes from `engine.theme` directly — `updateParticleEmitterColors()` writes between triggers are superseded on the next trigger. This is acceptable; the trigger path is authoritative.
 - The `makeParticleEmitterComponent()` helper is the single source of truth for emitter configuration. Changes to emitter parameters (size, acceleration, burst count) need only be made in one place.
-- Future contributors must use `make*EmitterComponent()` helpers at any new trigger site that uses `.once` emitters. Omitting it (or regressing to Option B) causes the silent-after-first-use bug to recur.
-- `triggerPulse()` has been migrated to the same Option C pattern via `makePulseEmitterComponent()` — it is no longer on Option B.
+- Future contributors must use `make*EmitterComponent()` helpers at any new trigger site that uses `.once` emitters AND must call `entity.components.remove()` before `entity.components.set()`. Omitting the remove step (or regressing to Options B or C) causes the silent-after-first-use bug to recur.
+- `triggerPulse()` has been migrated to the same Option C pattern via `makePulseEmitterComponent()`. Option D (remove-before-set) has not yet been applied to `triggerPulse()` — tap rate is low enough that entity-side state is unlikely to be stale, but if pulse effects stop working the same fix applies.
 
 ---
 
