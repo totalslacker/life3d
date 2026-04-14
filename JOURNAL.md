@@ -18,7 +18,7 @@ Prior fixes (issues #5, #7, #9) reduced particle `size`, `emitterShapeSize`, and
 
 **Next Steps**: Merge PR for issue #11 after visual simulator validation confirms bursts stay near source cells and pulse feels responsive.
 
-## 2026-04-14 PDT
+## 2026-04-14 16:38 PDT
 
 **Goal**: Fix particle bursts permanently (issue #12) — replace pooled-entity model with destroy-and-recreate per burst.
 
