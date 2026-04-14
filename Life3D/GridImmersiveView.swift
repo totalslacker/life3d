@@ -136,7 +136,14 @@ struct GridImmersiveView: View {
             let birthPositions = engine.grid.bornCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
             let deathPositions = engine.grid.dyingCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
 
-            triggerParticles(birthPositions: birthPositions, deathPositions: deathPositions)
+            // Particle bursts disabled 2026-04-14: per-generation Entity spawn/remove churn on
+            // the RealityKit scene graph blocked the main actor and caused visible rotation hitches.
+            // Supporting code (triggerParticles, spawnBurst, makeParticleEmitterComponent,
+            // triggerPulse, makePulseEmitterComponent) is retained below in case a future redesign
+            // (e.g. pooled emitters, GPU-particle backend) brings them back.
+            // triggerParticles(birthPositions: birthPositions, deathPositions: deathPositions)
+            _ = birthPositions
+            _ = deathPositions
             triggerAudio(birthPositions: birthPositions, deathPositions: deathPositions)
             updatePointLights(birthPositions: birthPositions)
             // Skip mesh rebuild when no cells changed (stable state or extinction)
@@ -232,7 +239,8 @@ struct GridImmersiveView: View {
                 let localPoint = inverseTransform * SIMD4<Float>(localPos.x, localPos.y, localPos.z, 1.0)
                 let togglePos = SIMD3<Float>(localPoint.x, localPoint.y, localPoint.z)
                 engine.toggleCell(at: togglePos)
-                triggerPulse(at: togglePos)
+                // Tap-pulse particle disabled 2026-04-14 alongside birth/death bursts (see onChange handler).
+                // triggerPulse(at: togglePos)
             }
     }
 
@@ -267,7 +275,8 @@ struct GridImmersiveView: View {
                                 engine.generation += 1
                             }
                         }
-                        triggerPulse(at: pos)
+                        // Drag-paint pulse particle disabled 2026-04-14 (see onChange handler).
+                        // triggerPulse(at: pos)
                     }
                 } else {
                     // Rotate mode: normal rotation behavior

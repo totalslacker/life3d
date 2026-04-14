@@ -3185,6 +3185,23 @@ enum GridRenderer {
     }
 
 
+    /// Cached age materials keyed by theme name. Materials are expensive to construct
+    /// (~22ms for the 8-material set) and are referentially reusable across entities.
+    /// Theme changes rarely; caching turns the per-generation rebuild cost into a
+    /// one-time cost per theme switch.
+    @MainActor
+    private static var materialCache: (themeName: String, materials: [RealityKit.Material])?
+
+    @MainActor
+    private static func cachedAgeMaterials(theme: ColorTheme) -> [RealityKit.Material] {
+        if let cache = materialCache, cache.themeName == theme.name {
+            return cache.materials
+        }
+        let materials = makeAgeMaterials(theme: theme)
+        materialCache = (theme.name, materials)
+        return materials
+    }
+
     /// Builds a merged mesh entity for alive cells with age-based translucent materials.
     @MainActor
     static func makeGridAsync(model: GridModel, theme: ColorTheme = .neon) async throws -> Entity {
@@ -3199,7 +3216,7 @@ enum GridRenderer {
         }
 
         let meshResource = try createMeshResource(from: data)
-        let materials = makeAgeMaterials(theme: theme)
+        let materials = cachedAgeMaterials(theme: theme)
 
         let entity = ModelEntity(mesh: meshResource, materials: materials)
         entity.name = "CellGrid"

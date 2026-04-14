@@ -2,6 +2,38 @@
 
 Session log. Most recent entry first. Never delete entries.
 
+## 2026-04-14 19:45 PDT
+
+**Goal**: Fix rotation hitch (issue #18 + children). Ended up disabling particles entirely — they were both the cause of the hitch and, per the user's direct feedback, visually unsatisfying.
+
+### Diagnostic path (what actually went wrong)
+
+Initial #18 diagnosis blamed `GridRenderer.makeGridAsync` — specifically `makeAgeMaterials` at ~22 ms and `createMeshResource` at ~1 ms on main actor. I filed four candidate-fix child issues (#19–#22) covering off-main entity construction, `Task.yield` insertion, throttling/incremental rebuild, and instanced entities.
+
+This session reproduced the hitch in the simulator with `NSLog` instrumentation, confirmed the measurement pattern (~50 ms total, ~23 ms on-main dominated by materials), and shipped a material cache (`materialCache`, `cachedAgeMaterials` in `GridRenderer`) that cut the on-main material cost from ~22 ms to ~0 ms on all same-theme rebuilds. Post-fix measurements showed on-main sum of ~1–2 ms per generation.
+
+**User reported the hitch was still present.** A stall-detector Task (main-actor heartbeat at 60 Hz, logging gaps > 25 ms) revealed the real picture: the main actor was stalling for 350–400 ms every generation, despite my direct instrumentation accounting for only ~20–30 ms. The 350 ms stall was not in any of the phases I had measured.
+
+Systematic falsification — disabling each per-generation path (`triggerParticles`, `triggerAudio`, `updatePointLights`, `rebuildMesh`) one at a time — pinpointed `triggerParticles` as the sole cause of the stall. With particles off, no hitch. With mesh+audio+lights on and particles off: no hitch. Reducing particle sample count from 20 → 3 reduced the hitch proportionally, confirming per-spawn cost. The ~2 ms synchronous `triggerParticles` measurement was misleading: the real cost was RealityKit's deferred scene-graph processing of 40+ added and removed `Entity`/`ParticleEmitterComponent` pairs per generation, which ran on the main actor later and blocked rotation updates.
+
+### Decision: remove the particle system from active use
+
+User direct feedback: "delete the particle effects. they are causing so many problems and, to be honest, they are incredibly ugly. i am very disapointed." After three rounds of failed fixes (#5, #7, #9) and three follow-up issues (#11, #12, #15) the feature was still visually unsatisfying and now shown to be the direct cause of the rotation hitch. Cost/benefit is clearly negative.
+
+Per user instruction, **particle code is retained but disabled at all call sites**, not deleted. That preserves the option to revisit under a different architecture (pooled emitters, a GPU-particle path, or SwiftUI animations instead of RealityKit VFX). Disabled call sites: `triggerParticles(...)` in `.onChange(of: engine.generation)`, `triggerPulse(...)` in `spatialTapGesture`, `triggerPulse(...)` in drag-paint `dragGesture`. Supporting functions, state, and constants remain.
+
+Kept: the material cache in `GridRenderer` (a real improvement independent of the particle decision — 22 ms → 0 ms for on-main material rebuild on same-theme generations).
+
+Reverted: all `NSLog` instrumentation, stall detector `.task`, `[TIME]` / `[PHASE]` / `[STEP]` / `[UPDATE]` / `[STALL]` print calls. Net code change is the particle disable plus the material cache.
+
+### Process notes
+
+The earlier #18 write-up correctly identified mesh-rebuild cost as *a* problem but incorrectly named it as *the* hitch cause. The 50 ms mesh rebuild was real but did not itself produce a visible hitch — I confirmed that "mesh only, no particles" rotates smoothly. The 50 ms number was misleading because it includes the off-main `computeMeshData` wall-clock; continuous main-actor blocking from mesh rebuild alone is only ~2 ms (and the material cache brings that down further). The child issues #19–#22 are based on a false premise and are being closed.
+
+Lesson: when instrumentation accounts for only part of the observed symptom, **don't trust the remainder is noise** — falsify systematically. The stall detector plus the disable-one-path loop were what actually found the cause. Should have done that in the first round.
+
+**Next Steps**: Close #19, #20, #21, #22, and #18 as superseded by the particle-disable decision. Cosmetic/visual work on the simulation (alternate animations or effects on birth/death) is a future item not tracked here.
+
 ## 2026-04-14 18:30 PDT
 
 **Goal**: Deaths still visibly starved after #15's per-kind cap split — actually reproduce and measure the cause before changing anything else.
