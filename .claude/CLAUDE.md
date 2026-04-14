@@ -33,8 +33,9 @@ by the Fabrik engine. Follow it.
 xcodebuild -project Life3D.xcodeproj -scheme Life3D \
   -destination 'platform=visionOS Simulator,name=Apple Vision Pro' build
 
-# WARNING: Do NOT run xcodebuild test or boot the visionOS Simulator.
-# It crashes the host machine. Use build-only verification.
+# The visionOS Simulator runs fine — boot it and validate visual changes
+# before declaring UI/RealityKit fixes complete. Build-only verification is
+# not sufficient for features that depend on rendering or VFX state.
 # Write logic-only tests (no RealityKit dependencies in test targets).
 ```
 
