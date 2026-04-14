@@ -2,6 +2,22 @@
 
 Session log. Most recent entry first. Never delete entries.
 
+## 2026-04-14 16:45 PDT
+
+**Goal**: Cap initial particle speed so birth/death bursts stay near the source cell (issue #11).
+
+Prior fixes (issues #5, #7, #9) reduced particle `size`, `emitterShapeSize`, and `acceleration`, but none touched initial velocity. RealityKit's default `speed` is ~0.5 m/s, which sends particles ~35–38 cm across the simulation — nearly the full grid width. This fix sets `speed = 0.02` and `speedVariation = 0.01` on both `makeParticleEmitterComponent` and `makePulseEmitterComponent` to limit travel to ~2–5 cm.
+
+**API clarification (important)**: The issue spec prescribed `emitter.mainEmitter.speed`, but Research confirmed this path does not compile — `ParticleEmitterComponent.ParticleEmitter` (the nested type of `mainEmitter`) does not expose `speed` or `speedVariation`. These properties exist only on the top-level `ParticleEmitterComponent` struct. The correct path is `emitter.speed` (top-level). LEARNINGS.md updated to correct the prior misleading entry that implied `speed`/`speedVariation` don't exist at all.
+
+**What changed**: Two functions in `GridImmersiveView.swift` — `makeParticleEmitterComponent(isBirth:themeColors:)` and `makePulseEmitterComponent(themeColor:)` — each got `emitter.speed = 0.02` and `emitter.speedVariation = 0.01` added after the `var emitter = ParticleEmitterComponent()` initialization. Build succeeded cleanly.
+
+**Kinematics**: With `speed = 0.02` and birth acceleration 0.12 m/s² over 0.7 s: `0.02 × 0.7 + 0.5 × 0.12 × 0.49 ≈ 4.3 cm`. Death: `0.02 × 1.0 + 0.5 × 0.06 × 1.0 ≈ 5 cm`. Pulse (zero acceleration): `0.02 × 0.4 ≈ 0.8 cm`. All well within ~2 cell widths. The acceleration values from ADR 001 are unchanged.
+
+**Simulator validation**: Visual confirmation on visionOS Simulator is required by the acceptance criteria. Pulse bursts may be very tight (~0.8 cm radius) — if tap feedback feels invisible, file a follow-up issue rather than changing values here (scope is locked per the issue spec).
+
+**Next Steps**: Merge PR for issue #11 after visual simulator validation confirms bursts stay near source cells and pulse feels responsive.
+
 ## 2026-04-14 00:00 PDT
 
 **Goal**: Complete Phase 2 of issue #9 — confirm root cause from simulator logs, remove diagnostic logging, update LEARNINGS.md and ADR 001.

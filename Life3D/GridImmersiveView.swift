@@ -365,6 +365,10 @@ struct GridImmersiveView: View {
     /// generation. Cell size = 0.015m; kinematics: d = 0.5 × a × t² keeps particles ≤ 2 cell widths.
     private static func makeParticleEmitterComponent(isBirth: Bool, themeColors: ColorTheme.TierColors) -> ParticleEmitterComponent {
         var emitter = ParticleEmitterComponent()
+        // Cap initial speed so bursts stay near the source cell (~2 cell widths). Default ~0.5 m/s
+        // would send particles across the full grid; 0.02 m/s limits travel to ~2–5 cm over lifespan.
+        emitter.speed = 0.02
+        emitter.speedVariation = 0.01
 
         emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: isBirth ? Self.birthEmitDuration : Self.deathEmitDuration))
         emitter.emitterShape = .sphere
@@ -537,6 +541,10 @@ struct GridImmersiveView: View {
     /// internal has-fired state. See ADR 001.
     private static func makePulseEmitterComponent(themeColor: SIMD3<Float>) -> ParticleEmitterComponent {
         var emitter = ParticleEmitterComponent()
+        // Cap initial speed to keep pulse burst within ~1 cell of the tap point (zero acceleration
+        // here, so speed alone drives travel: 0.02 m/s × 0.4 s ≈ 0.8 cm max radius).
+        emitter.speed = 0.02
+        emitter.speedVariation = 0.01
         emitter.timing = .once(warmUp: 0, emit: ParticleEmitterComponent.Timing.VariableDuration(duration: Self.pulseEmitDuration))
         emitter.emitterShape = .sphere
         emitter.emitterShapeSize = SIMD3<Float>(repeating: 0.005)
