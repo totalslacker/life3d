@@ -11,8 +11,8 @@ struct GridImmersiveView: View {
     // Per-kind burst entity concurrency tracking (births and deaths draw from separate budgets)
     @State private var activeBirthBurstCount: Int = 0
     @State private var activeDeathBurstCount: Int = 0
-    private static let maxBirthBurstEntities = 20
-    private static let maxDeathBurstEntities = 20
+    private static let maxBirthBurstEntities = 200
+    private static let maxDeathBurstEntities = 200
 
     // Point light entities for ambient cell glow
     @State private var lightEntities: [Entity] = []

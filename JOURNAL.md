@@ -2,6 +2,34 @@
 
 Session log. Most recent entry first. Never delete entries.
 
+## 2026-04-14 18:30 PDT
+
+**Goal**: Deaths still visibly starved after #15's per-kind cap split — actually reproduce and measure the cause before changing anything else.
+
+Earlier #15 "fix" (per-kind caps of 20 each) did not resolve the user's complaint. This session was driven by the user's explicit direction to stop guessing: reproduce in the simulator, instrument with measurements, verify the fix by observation, only then commit.
+
+Added `NSLog` diagnostics to `triggerParticles(...)` logging per-generation `birthSpawned`/`deathSpawned`/`activeBirth`/`activeDeath`. Built, installed, launched on visionOS Simulator, streamed the unified log via `xcrun simctl spawn log show` while the user ran the simulation. Ground truth from the logs:
+
+```
+gen 1   : birthSpawned=20 deathSpawned=20   (seeds cap)
+gen 2–6 : birthSpawned= 0 deathSpawned= 0   (both caps saturated)
+gen 7   : birthSpawned=20 deathSpawned= 0   (gen 1 births expired)
+gen 8   : birthSpawned= 0 deathSpawned=20   (gen 1 deaths expired)
+gen 13  : birthSpawned=20 deathSpawned= 0
+gen 15  : birthSpawned= 0 deathSpawned=20
+...
+```
+
+Births fire every 6 generations (entity lifetime = 0.4s emit + 0.7s lifeSpan + 0.1s buffer = 1.2s → 6 gens at 5 gen/s). Deaths every 7 generations (1.4s lifetime). The per-kind cap of 20 never had a chance: 20 samples × 7 gens overlap = 140 concurrent slots needed per kind vs. cap of 20. The cap split in #15 only changed *which* kind competed with which for slots — it did not prevent starvation. What the user perceived as "every other frame" was actually "one burst every 1.2–1.4 s" — much less frequent than every simulation frame.
+
+Fix: raised `maxBirthBurstEntities` and `maxDeathBurstEntities` from 20 to 200 each. Verified by re-running with the diagnostics: every generation now logs `birthSpawned=20 deathSpawned=20`, and `activeBirth`/`activeDeath` stabilize around 60–80, well below the 200 cap. User confirmed visually that bursts now fire every generation.
+
+Also measured per-generation cost: `triggerParticles` takes ~2 ms; mesh rebuild takes ~50 ms on the main actor. The 50 ms mesh rebuild is the cause of the user-visible rotation hitch ("rotation stops when frame advances") and is a pre-existing issue unrelated to particles. Filed separately.
+
+All diagnostics removed before commit. Net code change is two constants, 20 → 200.
+
+**Next Steps**: Track rotation-hitch perf issue separately. Hold ADR update until rotation hitch is addressed, since it may inform the same area of code.
+
 ## 2026-04-14 17:10 PDT
 
 **Goal**: Fix death particle burst starvation so deaths fire every generation, not every other generation (issue #15).
