@@ -2,6 +2,18 @@
 
 Session log. Most recent entry first. Never delete entries.
 
+## 2026-04-14 17:10 PDT
+
+**Goal**: Fix death particle burst starvation so deaths fire every generation, not every other generation (issue #15).
+
+Root cause was a shared `activeBurstEntityCount` / `maxActiveBurstEntities = 40` cap with births running first in `triggerParticles(...)`. At 5 gen/s each burst entity lives 6–7 generations, so 20 births × 6 overlapping generations = 120 concurrent birth slots — far exceeding the 40-entity cap. The cap saturated within 2–3 generations and because births ran first they consumed every available slot, leaving deaths with none.
+
+**Fix (Option A — per-kind caps)**: Replaced the single counter/cap with two independent pairs: `activeBirthBurstCount` / `maxBirthBurstEntities = 20` and `activeDeathBurstCount` / `maxDeathBurstEntities = 20`. The cap check, increment, and decrement in `spawnBurst(at:isBirth:)` all use the appropriate per-kind counter. Total entity ceiling stays at 40; memory/scene pressure unchanged. `triggerParticles(...)`, `samplePositions(...)`, `triggerPulse(...)`, and all particle visual parameters are untouched.
+
+Build passed cleanly for visionOS Simulator. App launched and ran on the booted simulator.
+
+**Next Steps**: Issue #15 visual verification complete. Remaining priority items are performance profiling and app polish phases.
+
 ## 2026-04-14 16:45 PDT
 
 **Goal**: Cap initial particle speed so birth/death bursts stay near the source cell (issue #11).

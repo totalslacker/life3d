@@ -8,9 +8,11 @@ struct GridImmersiveView: View {
     @State private var isRebuilding = false
     @State private var needsRebuild = false
 
-    // Burst entity concurrency tracking
-    @State private var activeBurstEntityCount: Int = 0
-    private static let maxActiveBurstEntities = 40
+    // Per-kind burst entity concurrency tracking (births and deaths draw from separate budgets)
+    @State private var activeBirthBurstCount: Int = 0
+    @State private var activeDeathBurstCount: Int = 0
+    private static let maxBirthBurstEntities = 20
+    private static let maxDeathBurstEntities = 20
 
     // Point light entities for ambient cell glow
     @State private var lightEntities: [Entity] = []
@@ -393,7 +395,8 @@ struct GridImmersiveView: View {
     /// A newly constructed entity carries no prior VFX "has-fired" state (see ADR 001, Option E).
     private func spawnBurst(at position: SIMD3<Float>, isBirth: Bool) {
         guard let container = containerEntity,
-              activeBurstEntityCount < Self.maxActiveBurstEntities else { return }
+              isBirth ? activeBirthBurstCount < Self.maxBirthBurstEntities
+                      : activeDeathBurstCount < Self.maxDeathBurstEntities else { return }
 
         let themeColors = isBirth ? engine.theme.newborn : engine.theme.dying
         var emitter = Self.makeParticleEmitterComponent(isBirth: isBirth, themeColors: themeColors)
@@ -406,14 +409,14 @@ struct GridImmersiveView: View {
         entity.components.set(emitter)
         container.addChild(entity)
 
-        activeBurstEntityCount += 1
+        if isBirth { activeBirthBurstCount += 1 } else { activeDeathBurstCount += 1 }
         // birth: 0.4s emit + 0.7s lifeSpan + 0.1s buffer = 1.2s
         // death: 0.3s emit + 1.0s lifeSpan + 0.1s buffer = 1.4s
         let delayNanos: UInt64 = isBirth ? 1_200_000_000 : 1_400_000_000
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: delayNanos)
             entity.removeFromParent()
-            activeBurstEntityCount -= 1
+            if isBirth { activeBirthBurstCount -= 1 } else { activeDeathBurstCount -= 1 }
         }
     }
 
@@ -524,7 +527,7 @@ struct GridImmersiveView: View {
     /// Fires a brief particle burst at the toggled cell position.
     ///
     /// Each tap spawns a fresh entity — same destroy-and-recreate rationale as spawnBurst.
-    /// Pulse is excluded from the activeBurstEntityCount cap (tap-triggered, low frequency).
+    /// Pulse is excluded from the per-kind burst caps (tap-triggered, low frequency).
     private func triggerPulse(at position: SIMD3<Float>) {
         guard let container = containerEntity else { return }
 
