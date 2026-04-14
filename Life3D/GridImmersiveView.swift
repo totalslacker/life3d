@@ -134,13 +134,11 @@ struct GridImmersiveView: View {
             }
         }
         .onChange(of: engine.generation) {
-            print("[P1] onChange gen=\(engine.generation)")
             // Compute birth/death positions once per generation (used by particles, lights, and audio)
             let cellSize = GridRenderer.cellSize
             let cellSpacing = GridRenderer.cellSpacing
             let birthPositions = engine.grid.bornCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
             let deathPositions = engine.grid.dyingCellPositions(cellSize: cellSize, cellSpacing: cellSpacing)
-            print("[P2] gen=\(engine.generation) births=\(birthPositions.count) deaths=\(deathPositions.count)")
 
             triggerParticles(birthPositions: birthPositions, deathPositions: deathPositions)
             triggerAudio(birthPositions: birthPositions, deathPositions: deathPositions)
@@ -425,7 +423,6 @@ struct GridImmersiveView: View {
 
     /// Triggers particle bursts at sampled birth/death positions.
     private func triggerParticles(birthPositions bornPositions: [SIMD3<Float>], deathPositions dyingPositions: [SIMD3<Float>]) {
-        print("[P3] triggerParticles births=\(bornPositions.count) deaths=\(dyingPositions.count)")
         guard !bornPositions.isEmpty || !dyingPositions.isEmpty else {
             // No births or deaths — disable all emitters to avoid stale particles
             for entity in birthParticleEntities { entity.isEnabled = false }
@@ -448,7 +445,6 @@ struct GridImmersiveView: View {
                 emitter.burstCount = 12
                 entity.components.remove(ParticleEmitterComponent.self)
                 entity.components.set(emitter)
-                if i == 0 { print("[P4] birth[0] isEmitting=\(entity.components[ParticleEmitterComponent.self]?.isEmitting ?? false) parent=\(entity.parent != nil)") }
             } else {
                 entity.isEnabled = false
             }
@@ -465,7 +461,6 @@ struct GridImmersiveView: View {
                 emitter.burstCount = 8
                 entity.components.remove(ParticleEmitterComponent.self)
                 entity.components.set(emitter)
-                if i == 0 { print("[P4] death[0] isEmitting=\(entity.components[ParticleEmitterComponent.self]?.isEmitting ?? false) parent=\(entity.parent != nil)") }
             } else {
                 entity.isEnabled = false
             }
@@ -751,7 +746,6 @@ struct GridImmersiveView: View {
             return
         }
         isRebuilding = true
-        let rebuildStart = ContinuousClock.now
         repeat {
             needsRebuild = false
             do {
@@ -762,7 +756,6 @@ struct GridImmersiveView: View {
                 print("Failed to build grid: \(error)")
             }
         } while needsRebuild
-        print("[P5] rebuildMesh elapsed=\(ContinuousClock.now - rebuildStart)")
         isRebuilding = false
     }
 }

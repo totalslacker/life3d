@@ -2,6 +2,24 @@
 
 Session log. Most recent entry first. Never delete entries.
 
+## 2026-04-14 00:00 PDT
+
+**Goal**: Complete Phase 2 of issue #9 — confirm root cause from simulator logs, remove diagnostic logging, update LEARNINGS.md and ADR 001.
+
+The project owner ran the visionOS Simulator for 164+ generations and captured the `[P`-filtered Xcode Console output. Log analysis:
+
+- **P1** (onChange fires): Present for every generation 1–164. ✅
+- **P2** (birth/death counts non-empty): Non-zero for all 164 generations. ✅
+- **P3** (triggerParticles called with data): Present for all 164 generations. ✅
+- **P4** (isEmitting=true, parent=true): Confirmed for birth and death entity[0] for all 164 generations. ✅
+- **P5** (rebuildMesh elapsed): Gen 1–2 exceeded 200ms (0.79s / 0.55s warm-up), gen 3+ settled to ~50ms. Not the cause of the stop.
+
+**Root cause confirmed**: All 5 checkpoints pass continuously throughout the entire run. No checkpoint prefix stopped appearing. This localizes the bug to **checkpoint 6 — RealityKit entity-side state**. `entity.components.set(emitter)` was performing an in-place update when a component of that type already occupied the slot, preserving internal "has-fired" state even when the component struct was freshly constructed (Option C). The **Option D fix** (`entity.components.remove(ParticleEmitterComponent.self)` immediately before each `entity.components.set(emitter)`) forces RealityKit to fully detach and re-attach the component, clearing entity-side state. This is the only structural change applied, and particles fired continuously through 164+ generations.
+
+Removed all `[P1]`–`[P5]` diagnostic print statements from `GridImmersiveView.swift`. Retained the `entity.components.remove(ParticleEmitterComponent.self)` calls — these are the fix. Updated LEARNINGS.md and ADR 001 with confirmed root cause and Option D decision. Build passes.
+
+**Next Steps**: PR #10 converted to ready for human merge review.
+
 ## 2026-04-13 23:45 PDT
 
 **Goal**: Diagnose the particle animation stop bug (issue #9, third attempt). Add diagnostic checkpoint logging and apply the remove-before-set structural mitigation (Option D) to help identify the exact link in the trigger chain that breaks.
