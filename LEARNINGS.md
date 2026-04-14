@@ -19,7 +19,7 @@ the same things. Search here before looking things up externally.
 
 - `ParticleEmitterComponent` has no top-level `birthRate` property — particle properties live on `mainEmitter`
 - `spreadingAngle` takes a Float in radians, not `.degrees()` — use `.pi` for 180°
-- No `speed`/`speedVariation` on `ParticleEmitter` — control velocity via `acceleration` (SIMD3<Float>)
+- `speed` and `speedVariation` exist on `ParticleEmitterComponent` (top-level struct); they do **not** exist on the nested `ParticleEmitterComponent.ParticleEmitter` (`mainEmitter`). Control directional velocity via `mainEmitter.acceleration` (SIMD3<Float>); control initial scalar speed via the top-level `emitter.speed`. ⚠️ Prior entry incorrectly stated "No `speed`/`speedVariation` on `ParticleEmitter`" — that was accurate for the nested type but misleading as it implied the properties don't exist at all. Default `speed` is ~0.5 m/s; for cell-localized effects set `speed = 0.02` so bursts stay within 2 cell widths of the source.
 - Color: `emitter.mainEmitter.color = .constant(.single(.init(red:green:blue:alpha:)))` for solid color
 - Timing: `.once(warmUp:emit:)` with `VariableDuration(duration:)` for single burst effects
 - `burstCount` controls how many particles per burst event
