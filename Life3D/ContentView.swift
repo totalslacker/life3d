@@ -39,7 +39,7 @@ struct ContentView: View {
                     let result = await openImmersiveSpace(id: "life3d-grid")
                     switch result {
                     case .opened:
-                        engine.start()
+                        if !engine.diagnosticMode { engine.start() }
                     case .userCancelled, .error:
                         // Immersive space failed — return to launch screen
                         showingSimulation = false
@@ -48,7 +48,7 @@ struct ContentView: View {
                             launchOpacity = 1.0
                         }
                     @unknown default:
-                        engine.start()
+                        if !engine.diagnosticMode { engine.start() }
                     }
                 }
             }

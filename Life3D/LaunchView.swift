@@ -126,6 +126,17 @@ struct LaunchView: View {
                             .frame(minWidth: 30, alignment: .trailing)
                     }
                 }
+
+                GridRow {
+                    Text("Diagnostic")
+                        .foregroundStyle(.secondary)
+                    Toggle(isOn: $engine.diagnosticMode) {
+                        Text("Start paused; no auto-rotation")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .toggleStyle(.switch)
+                }
             }
 
             Divider()

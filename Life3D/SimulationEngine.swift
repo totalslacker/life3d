@@ -25,6 +25,13 @@ final class SimulationEngine {
     // Help overlay trigger
     var showHelp: Bool = false
 
+    /// Diagnostic mode: session-local toggle (not persisted). When on:
+    /// - The simulation does NOT auto-start after the immersive space opens.
+    /// - The container does NOT auto-rotate.
+    /// Intended for investigating per-generation animation details by single-stepping
+    /// with the container held still.
+    var diagnosticMode: Bool = false
+
     // Population trend tracking (circular buffer for O(1) append)
     private var _trendBuffer: [Int]
     private var _trendWriteIndex: Int = 0

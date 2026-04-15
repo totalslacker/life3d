@@ -31,7 +31,10 @@ struct GridModel: Sendable {
     /// Double-buffer for neighbor counts: zeroed before each generation, then swapped with neighborCounts.
     private var nextNeighborCounts: [Int]
     /// Number of generations a dying cell takes to fully fade out.
-    static let fadeDuration: Int = 3
+    /// Number of simulation generations a dying cell remains in the fading list before removal.
+    /// Set to 1 so cell deaths complete within a single generation window, matching the
+    /// newborn fade-in duration. The view layer animates opacity smoothly over that window.
+    static let fadeDuration: Int = 1
 
     /// When true, grid edges wrap around (toroidal topology).
     /// Boundary cells see neighbors on the opposite face instead of treating out-of-bounds as dead.

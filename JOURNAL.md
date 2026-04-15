@@ -2,6 +2,43 @@
 
 Session log. Most recent entry first. Never delete entries.
 
+## 2026-04-15 11:30 PDT
+
+**Goal**: Smooth cell-state transitions between generations so the simulation doesn't feel harsh frame-to-frame (issue #25, under tracker #24).
+
+### What shipped
+
+Three-layer mesh (stable / newborn / fading) with per-layer opacity animation, driven by an explicit `ModelSortGroup` for stable draw order across the three translucent layers.
+
+- `GridRenderer` now emits a parent `Entity` "CellGrid" with up to three `ModelEntity` children, one per layer. Each has its own `MeshResource` built from a partitioned cell set.
+- `GridImmersiveView` drives symmetric fade-in for newborn (opacity 0 → 0.99) and fade-out for fading (0.99 → 0) over a single generation window (`1 / engine.speed`). A cheap main-actor tween at ~60 Hz writes `OpacityComponent.opacity` each frame.
+- `GridModel.fadeDuration` reduced from 3 to 1 so dying cells complete their fade in a single generation window, matching the newborn fade-in cadence.
+- `GridRenderer.makeAgeMaterials` collapsed to one uniform material across all age tiers and density bands. Prior tier- and density-based brightness variations (1.5× emissive boost for dense cells) produced visible brightness shifts when a cell crossed tier or density boundaries at a generation tick — shifts the opacity tween could not smooth.
+- `birthScale` returns 1.0 uniformly. Prior age-based scale progression (0.5 → 0.75 → 0.9 → 1.0 over 3 generations for newborns) made births feel slower than deaths.
+- Per-layer `ModelSortGroupComponent` with explicit order (stable=0, newborn=1, fading=2) forces a deterministic draw order. Without it, RealityKit re-sorts translucent objects each frame by camera distance, and when two layers animate independently the sort order can flip mid-animation — which was the root cause of the final residual "pop".
+- Opacity endpoints held strictly below 1.0 (at 0.99). RealityKit uses different render paths for opaque (== 1.0) vs translucent (< 1.0) entities, and cells crossing that boundary when they move between layers produce a visible pop. Keeping all layer endpoints at 0.99 puts every cell on the translucent path for its full lifecycle.
+
+### Diagnostic feature added
+
+Launch dialog now has a `Diagnostic` toggle. When enabled:
+- Simulation starts paused (manual single-step).
+- Container auto-rotation is disabled.
+
+Useful for investigating per-generation animation details. Kept as a proper setting, not stripped.
+
+### Investigation path (for the record)
+
+The "pop" was a visual artifact that only appeared when **both** newborn and fading layers tweened simultaneously. Single-tween tests showed no pop; two-tween tests did. After ruling out material tiers, density bands, point lights, age scaling, newborn-opacity initial value, and render path (op==1.0 vs <1.0), the final falsification was specific: adding `ModelSortGroup` with explicit per-layer order killed the pop even with both tweens running at 1s.
+
+Lesson: when two or more translucent entities animate independently, always pin their relative draw order with `ModelSortGroup`. RealityKit's implicit sort is stable only when all translucent objects have fixed opacity.
+
+### Observations out of scope for this commit
+
+- User reports a small residual rotation hitch under normal playback. Unrelated to the dissolve work — likely a separate generation-tick cost that needs profiling. Filing as a new lightweight issue rather than reopening any of #18/#19/#20/#21/#22 (those were based on an earlier incorrect diagnosis and have been closed).
+- Particle system remains disabled at call sites.
+
+**Next Steps**: Close #25 and #24. File a new tracking issue for the residual rotation hitch so it isn't lost.
+
 ## 2026-04-14 19:45 PDT
 
 **Goal**: Fix rotation hitch (issue #18 + children). Ended up disabling particles entirely — they were both the cause of the hitch and, per the user's direct feedback, visually unsatisfying.

@@ -3184,6 +3184,18 @@ enum GridRenderer {
         let tierRanges: [(startIndex: Int, indexCount: Int)]
     }
 
+    /// Three mesh layers produced per rebuild. Splitting by role lets the view layer
+    /// animate opacity per-layer between generation ticks (smooth dissolves for newborn
+    /// and fading cells) without rebuilding or interpolating geometry.
+    /// - stable: alive cells that were already alive last generation (no animation).
+    /// - newborn: alive cells that just appeared this generation (fade in 0→1).
+    /// - fading: cells that are dying/decaying over fadingCells' framesLeft (fade out).
+    struct LayeredMeshData: Sendable {
+        let stable: MeshData
+        let newborn: MeshData
+        let fading: MeshData
+    }
+
 
     /// Cached age materials keyed by theme name. Materials are expensive to construct
     /// (~22ms for the 8-material set) and are referentially reusable across entities.
@@ -3202,25 +3214,60 @@ enum GridRenderer {
         return materials
     }
 
-    /// Builds a merged mesh entity for alive cells with age-based translucent materials.
+    /// Builds a three-layer composite entity for alive cells with age-based translucent materials.
+    /// Returns a parent `Entity` named "CellGrid" with up to three `ModelEntity` children:
+    /// "CellGrid_Stable", "CellGrid_Newborn", "CellGrid_Fading". Empty layers are omitted.
+    /// Each child carries an `OpacityComponent` so the view layer can animate opacity per-layer
+    /// between generation ticks, producing smooth dissolves for newborn and fading cells without
+    /// rebuilding geometry mid-generation.
     @MainActor
     static func makeGridAsync(model: GridModel, theme: ColorTheme = .neon) async throws -> Entity {
         let data = await Task.detached {
             computeMeshData(model: model)
         }.value
 
-        guard data.cellCount > 0 else {
-            let entity = Entity()
-            entity.name = "CellGrid"
-            return entity
+        let parent = Entity()
+        parent.name = "CellGrid"
+
+        let totalCells = data.stable.cellCount + data.newborn.cellCount + data.fading.cellCount
+        guard totalCells > 0 else {
+            return parent
         }
 
-        let meshResource = try createMeshResource(from: data)
         let materials = cachedAgeMaterials(theme: theme)
 
-        let entity = ModelEntity(mesh: meshResource, materials: materials)
-        entity.name = "CellGrid"
-        return entity
+        // Force a stable draw order across the three translucent layers. Without this,
+        // RealityKit re-sorts translucent objects each frame based on camera distance, and
+        // when opacities change independently (e.g. newborn fading in while fading fades out)
+        // the sort can flip mid-animation — producing visible "pops" as cells swap depth order.
+        let sortGroup = ModelSortGroup(depthPass: nil)
+
+        if data.stable.cellCount > 0 {
+            let meshResource = try createMeshResource(from: data.stable)
+            let child = ModelEntity(mesh: meshResource, materials: materials)
+            child.name = "CellGrid_Stable"
+            child.components.set(OpacityComponent(opacity: 1.0))
+            child.components.set(ModelSortGroupComponent(group: sortGroup, order: 0))
+            parent.addChild(child)
+        }
+        if data.newborn.cellCount > 0 {
+            let meshResource = try createMeshResource(from: data.newborn)
+            let child = ModelEntity(mesh: meshResource, materials: materials)
+            child.name = "CellGrid_Newborn"
+            child.components.set(OpacityComponent(opacity: 1.0))
+            child.components.set(ModelSortGroupComponent(group: sortGroup, order: 1))
+            parent.addChild(child)
+        }
+        if data.fading.cellCount > 0 {
+            let meshResource = try createMeshResource(from: data.fading)
+            let child = ModelEntity(mesh: meshResource, materials: materials)
+            child.name = "CellGrid_Fading"
+            child.components.set(OpacityComponent(opacity: 1.0))
+            child.components.set(ModelSortGroupComponent(group: sortGroup, order: 2))
+            parent.addChild(child)
+        }
+
+        return parent
     }
 
     /// Creates PhysicallyBasedMaterial for each age tier × density band from a color theme.
@@ -3230,12 +3277,15 @@ enum GridRenderer {
     /// the same "glowing translucent volume" surface quality, so these are not per-theme values.
     @MainActor
     private static func makeAgeMaterials(theme: ColorTheme) -> [RealityKit.Material] {
-        AgeTier.allCases.flatMap { tier -> [RealityKit.Material] in
-            let colors = theme.colors(for: tier)
-            return [
-                makeMaterial(for: tier, colors: colors, dense: false),
-                makeMaterial(for: tier, colors: colors, dense: true),
-            ]
+        // One material for all cells regardless of age or density band. The prior age-tier
+        // and sparse/dense variants produced visible brightness shifts when a cell crossed
+        // tier or density-band boundaries at a generation tick — which the per-layer opacity
+        // animation could not smooth. With a single material, cell-lifecycle transitions are
+        // driven purely by the layered-mesh opacity system in GridImmersiveView.
+        let colors = theme.newborn
+        let uniform = makeMaterial(for: .newborn, colors: colors, dense: false)
+        return AgeTier.allCases.flatMap { _ -> [RealityKit.Material] in
+            return [uniform, uniform]
         }
     }
 
@@ -3288,21 +3338,36 @@ enum GridRenderer {
     /// Positive ages: cells grow over their first few generations.
     /// Negative ages: fading cells shrink (-1 = just died/largest, -3 = nearly gone/smallest).
     private static func birthScale(for age: Int) -> Float {
-        switch age {
-        case ...(-3): return 0.15  // nearly gone
-        case -2: return 0.3        // mid-fade
-        case -1: return 0.5        // just died
-        case 0: return 0.5         // dead (shouldn't render, but safe fallback)
-        case 1: return 0.5         // just born: half size
-        case 2: return 0.75        // growing
-        case 3: return 0.9         // almost full
-        default: return 1.0        // mature: full size
-        }
+        // All cells render at full scale. The per-layer opacity animation in
+        // GridImmersiveView (stable / newborn / fading) handles birth and death
+        // transitions uniformly — adding age-based scaling on top made births feel
+        // slower than deaths because newborn scale would keep growing over several
+        // generations while fade completed in one.
+        return 1.0
     }
 
     /// Test-accessible wrapper for mesh data computation.
+    /// Returns the union of all three layers (stable + newborn + fading) as a single MeshData,
+    /// preserving the prior single-mesh API for any tests that depend on it.
     static func computeMeshDataForTest(model: GridModel) -> MeshData {
-        computeMeshData(model: model)
+        let layered = computeMeshData(model: model)
+        return mergeForTest(layered.stable, layered.newborn, layered.fading)
+    }
+
+    /// Concatenates three MeshData into one for test/debug purposes. Not used in production.
+    private static func mergeForTest(_ a: MeshData, _ b: MeshData, _ c: MeshData) -> MeshData {
+        let vertices = a.vertices + b.vertices + c.vertices
+        var indices: [UInt32] = []
+        indices.reserveCapacity(a.indices.count + b.indices.count + c.indices.count)
+        indices.append(contentsOf: a.indices)
+        let bOffset = UInt32(a.vertices.count)
+        indices.append(contentsOf: b.indices.map { $0 + bOffset })
+        let cOffset = UInt32(a.vertices.count + b.vertices.count)
+        indices.append(contentsOf: c.indices.map { $0 + cOffset })
+        return MeshData(vertices: vertices, indices: indices,
+                       gridExtent: max(a.gridExtent, b.gridExtent, c.gridExtent),
+                       cellCount: a.cellCount + b.cellCount + c.cellCount,
+                       tierRanges: a.tierRanges)  // tierRanges only meaningful per-layer; test-only
     }
 
     // MARK: - Cube Template (static, allocated once)
@@ -3358,7 +3423,7 @@ enum GridRenderer {
     /// creating a natural depth-of-field effect without shader-level blur.
     /// Uses 8 buckets (4 age tiers × 2 density bands) matching the 8-material array from makeAgeMaterials.
     /// Bucket/material index convention: AgeTier.rawValue * 2 + densityBand (0=sparse <11 nbrs, 1=dense ≥11).
-    private static func computeMeshData(model: GridModel) -> MeshData {
+    private static func computeMeshData(model: GridModel) -> LayeredMeshData {
         let bucketCount = AgeTier.allCases.count * 2  // 4 tiers × 2 density bands = 8
         let ss = model.size * model.size
 
@@ -3366,10 +3431,13 @@ enum GridRenderer {
         let stride = cellSize + cellSpacing
         let gridExtent = Float(model.size - 1) * stride / 2.0 + half
 
-        // Bucket cells by (age tier, density band) in O(n) — 8 buckets total.
-        // Alive cells: look up neighborCounts for density band assignment.
-        // Fading cells: always sparse band (they're dying; density distinction not relevant).
-        var buckets: [[(position: SIMD3<Float>, age: Int)]] = Array(repeating: [], count: bucketCount)
+        // Three parallel bucket-sets, one per layer. Alive cells split between stable and
+        // newborn based on membership in bornCells. Fading cells go to the fading layer.
+        var stableBuckets: [[(position: SIMD3<Float>, age: Int)]] = Array(repeating: [], count: bucketCount)
+        var newbornBuckets: [[(position: SIMD3<Float>, age: Int)]] = Array(repeating: [], count: bucketCount)
+        var fadingBuckets: [[(position: SIMD3<Float>, age: Int)]] = Array(repeating: [], count: bucketCount)
+
+        let bornSet = Set(model.bornCells)
 
         for idx in model.aliveCellIndices {
             let x = idx / ss
@@ -3379,7 +3447,13 @@ enum GridRenderer {
             let age = model.cells[idx]
             let tier = AgeTier.tier(for: age)
             let densityBand = model.neighborCounts[idx] >= 11 ? 1 : 0
-            buckets[tier.rawValue * 2 + densityBand].append((position: pos, age: age))
+            let bucketIdx = tier.rawValue * 2 + densityBand
+            let entry = (position: pos, age: age)
+            if bornSet.contains(idx) {
+                newbornBuckets[bucketIdx].append(entry)
+            } else {
+                stableBuckets[bucketIdx].append(entry)
+            }
         }
 
         let fadingCells = model.fadingCellsWithProgress(cellSize: cellSize, cellSpacing: cellSpacing)
@@ -3387,12 +3461,27 @@ enum GridRenderer {
             let framesLeft = max(Int(round(fading.progress * Float(GridModel.fadeDuration))), 1)
             let fadeStage = GridModel.fadeDuration - framesLeft + 1
             // Dying tier, sparse band — fading cells use sparse bucket (index = dying.rawValue * 2 + 0)
-            buckets[AgeTier.dying.rawValue * 2].append((position: fading.position, age: -fadeStage))
+            fadingBuckets[AgeTier.dying.rawValue * 2].append((position: fading.position, age: -fadeStage))
         }
 
-        let aliveCells = buckets.reduce(0) { $0 + $1.count }
+        return LayeredMeshData(
+            stable: buildLayerMesh(from: stableBuckets, gridExtent: gridExtent),
+            newborn: buildLayerMesh(from: newbornBuckets, gridExtent: gridExtent),
+            fading: buildLayerMesh(from: fadingBuckets, gridExtent: gridExtent)
+        )
+    }
 
-        guard aliveCells > 0 else {
+    /// Builds a single-layer MeshData from an array of per-tier/density buckets.
+    /// Factors out the vertex/index generation previously inlined in computeMeshData,
+    /// so each layer (stable/newborn/fading) can be emitted as its own MeshData.
+    private static func buildLayerMesh(
+        from buckets: [[(position: SIMD3<Float>, age: Int)]],
+        gridExtent: Float
+    ) -> MeshData {
+        let bucketCount = buckets.count
+        let cellCount = buckets.reduce(0) { $0 + $1.count }
+
+        guard cellCount > 0 else {
             return MeshData(vertices: [], indices: [], gridExtent: gridExtent, cellCount: 0,
                           tierRanges: Array(repeating: (0, 0), count: bucketCount))
         }
@@ -3408,14 +3497,14 @@ enum GridRenderer {
 
         let sorted = buckets.flatMap { $0 }
 
-        // Pre-compute depth scale: cells at the grid edge are slightly smaller (80% of full size)
-        // This creates a pseudo depth-of-field effect — peripheral cells recede visually
-        // Uses squared distance to avoid per-cell sqrt() — visual difference is negligible
-        let depthFalloff: Float = 0.2  // 20% size reduction at maximum distance
-        let maxDistSq: Float = max(gridExtent * gridExtent * 3.0, .leastNonzeroMagnitude)  // guard div-by-zero for size=1
+        // Pre-compute depth scale: cells at the grid edge are slightly smaller (80% of full size).
+        // This creates a pseudo depth-of-field effect — peripheral cells recede visually.
+        // Uses squared distance to avoid per-cell sqrt() — visual difference is negligible.
+        let depthFalloff: Float = 0.2
+        let maxDistSq: Float = max(gridExtent * gridExtent * 3.0, .leastNonzeroMagnitude)
 
-        let totalVertices = aliveCells * cubeVertexCount
-        let totalIndices = aliveCells * cubeIndexCount
+        let totalVertices = cellCount * cubeVertexCount
+        let totalIndices = cellCount * cubeIndexCount
 
         var vertices = [GridVertex](
             repeating: GridVertex(position: .zero, normal: .zero, uv: .zero),
@@ -3427,7 +3516,6 @@ enum GridRenderer {
         var ii = 0
         for cell in sorted {
             let ageScale = birthScale(for: cell.age)
-            // Depth-based scale: cells further from center shrink slightly (squared distance — no sqrt)
             let distSq = simd_length_squared(cell.position)
             let depthScale: Float = 1.0 - depthFalloff * min(distSq / maxDistSq, 1.0)
             let scale = ageScale * depthScale
@@ -3447,7 +3535,7 @@ enum GridRenderer {
         }
 
         return MeshData(vertices: vertices, indices: indices, gridExtent: gridExtent,
-                       cellCount: aliveCells, tierRanges: tierRanges)
+                       cellCount: cellCount, tierRanges: tierRanges)
     }
 
     /// Creates a wireframe boundary cube entity showing the simulation volume.

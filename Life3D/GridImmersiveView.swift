@@ -64,14 +64,17 @@ struct GridImmersiveView: View {
         RealityView { content in
             let container = Entity()
             container.name = "GridContainer"
-            container.position = SIMD3<Float>(0, 1.8, -1.5)
+            container.position = SIMD3<Float>(0, 1.8, -2.0)
 
-            // Collision box sized to actual grid extent for accurate gesture targeting
+            // Collision box sized tight around the grid so gestures outside the cube
+            // (e.g. the 2D control bar floating in front) pass through to their intended targets.
+            // Prior 2.5× margin caused the cube to intercept gestures meant for overlapping
+            // windows and made the 2D control view impossible to interact with.
             let stride = GridRenderer.cellSize + GridRenderer.cellSpacing
             let gridExtent = Float(engine.grid.size - 1) * stride / 2.0 + GridRenderer.cellSize / 2.0
             container.components.set(InputTargetComponent())
             container.components.set(CollisionComponent(
-                shapes: [.generateBox(size: SIMD3<Float>(repeating: gridExtent * 2.5))]
+                shapes: [.generateBox(size: SIMD3<Float>(repeating: gridExtent * 1.1))]
             ))
             // Hover effect: spotlight follows gaze, giving spatial feedback on where you're looking
             container.components.set(HoverEffectComponent())
@@ -105,6 +108,7 @@ struct GridImmersiveView: View {
                 }
             }
         }
+        .gesture(doubleTapExitGesture)  // Double-tap the cube to exit (escape hatch).
         .gesture(spatialTapGesture)
         .gesture(dragGesture)
         .gesture(magnifyGesture)
@@ -112,7 +116,9 @@ struct GridImmersiveView: View {
             await rebuildMesh()
         }
         .task {
-            startAutoRotation()
+            if !engine.diagnosticMode {
+                startAutoRotation()
+            }
             audioEngine.setup()
             // Materialize animation: scale up and fade in over ~0.6s
             await materializeIn()
@@ -241,6 +247,17 @@ struct GridImmersiveView: View {
                 engine.toggleCell(at: togglePos)
                 // Tap-pulse particle disabled 2026-04-14 alongside birth/death bursts (see onChange handler).
                 // triggerPulse(at: togglePos)
+            }
+    }
+
+    /// Double-tap the cube to exit back to the launch dialog. Escape hatch for when
+    /// the 2D control bar is obscured or unreachable.
+    private var doubleTapExitGesture: some Gesture {
+        SpatialTapGesture(count: 2)
+            .targetedToAnyEntity()
+            .onEnded { _ in
+                engine.pause()
+                engine.isExiting = true
             }
     }
 
@@ -694,13 +711,60 @@ struct GridImmersiveView: View {
             needsRebuild = false
             do {
                 let grid = try await GridRenderer.makeGridAsync(model: engine.grid, theme: engine.theme)
-                // Grid is centered at origin — container handles world position
+
+                // If a new generation arrived while we were computing, the snapshot used to
+                // build this mesh is already stale. Discard it and loop with current state.
+                // Committing the stale mesh briefly (even 20ms) causes a visible "pop" when
+                // the next iteration replaces it with the correct one.
+                if needsRebuild {
+                    continue
+                }
+
+                let newbornLayer = grid.findEntity(named: "CellGrid_Newborn")
+                let fadingLayer = grid.findEntity(named: "CellGrid_Fading")
+                let stableLayer = grid.findEntity(named: "CellGrid_Stable")
+                // Start state for the symmetric cross-generation dissolve: newborn invisible,
+                // stable + fading fully visible. Tweens below animate newborn up and fading
+                // down over the generation window. Endpoints stay at 0.99 (not 1.0) to keep
+                // all layers on the same RealityKit render path — cells crossing between the
+                // translucent (< 1.0) and opaque (== 1.0) paths produce a visible "pop".
+                newbornLayer?.components.set(OpacityComponent(opacity: 0.0))
+                fadingLayer?.components.set(OpacityComponent(opacity: 0.99))
+                stableLayer?.components.set(OpacityComponent(opacity: 0.99))
+
                 gridEntity = grid
+
+                let genWindow = 1.0 / max(Double(engine.speed), 1.0)
+                if let newbornLayer {
+                    tweenOpacity(entity: newbornLayer, from: 0.0, to: 0.99, over: genWindow)
+                }
+                if let fadingLayer {
+                    tweenOpacity(entity: fadingLayer, from: 0.99, to: 0.0, over: genWindow)
+                }
             } catch {
                 print("Failed to build grid: \(error)")
             }
         } while needsRebuild
         isRebuilding = false
+    }
+
+    /// Animates an entity's OpacityComponent from one value to another over the given duration.
+    /// Cheap main-actor tween: ~60 Hz updates, one component.set call per frame for the lifetime
+    /// of the tween. Operates on the entity passed in — if the entity is replaced or detached
+    /// before the tween completes, remaining writes harmlessly target the orphan entity.
+    private func tweenOpacity(entity: Entity, from: Float, to: Float, over duration: Double) {
+        Task { @MainActor [weak entity] in
+            let startTime = CFAbsoluteTimeGetCurrent()
+            let delta = to - from
+            while let e = entity, !Task.isCancelled {
+                let elapsed = CFAbsoluteTimeGetCurrent() - startTime
+                let t = min(max(elapsed / duration, 0.0), 1.0)
+                let opacity = from + delta * Float(t)
+                e.components.set(OpacityComponent(opacity: opacity))
+                if t >= 1.0 { break }
+                try? await Task.sleep(nanoseconds: 16_000_000)
+            }
+        }
     }
 }
 
